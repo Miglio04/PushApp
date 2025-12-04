@@ -1,15 +1,77 @@
+# ---------------
+# Android / Gradle Standard
+# ---------------
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+.gradle/
+build/
+app/build/
+.idea/modules.xml
+.idea/libraries/
+
+# File di configurazione locale (NON committare mai)
 local.properties
+
+# Log e file temporanei
+*.log
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+output.json
+
+# ---------------
+# Android Studio / IntelliJ IDEA
+# ---------------
+# Ignora i file personali dell'IDE, ma mantieni le configurazioni di progetto condivise (code styles, vcs, etc.)
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/caches
+.idea/navEditor.xml
+.idea/compiler.xml
+
+# Android Profiling
+*.hprof
+
+# ---------------
+# Sicurezza / Chiavi Private
+# ---------------
+# Keystore files
+*.jks
+*.keystore
+*.pem
+*.p12
+*.key
+
+# Google Services (Firebase configuration)
+# Commenta questa riga se vuoi condividere il file con il team (ma è sconsigliato per repo pubblici)
+google-services.json
+
+# Secrets Gradle Plugin
+secrets.properties
+
+# ---------------
+# Sistema Operativo (OS)
+# ---------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# ---------------
+# Varie / Patch
+# ---------------
+*.orig
+*~
