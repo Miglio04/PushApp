@@ -1,14 +1,249 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true"
+    android:background="@color/dark_bg"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".HomeFragment">
+    android:layout_height="match_parent">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="24dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content">
 
-</FrameLayout>
+        <!-- Chart -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:id="@+id/appName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="8dp"
+                android:text="Nome Utente"
+                android:textColor="@color/text_white"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                app:drawableStartCompat="@drawable/outline_local_fire_department_24"
+                app:drawableTint="@color/neon_lightblue"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/subTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Pronto per oggi?"
+                android:textColor="@color/text_gray"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/appName" />
+
+            <!-- avatar -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnUserArea"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardCornerRadius="25dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeColor="@color/neon_purple"
+                app:strokeWidth="1dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/btn_gradient"
+                    android:gravity="center"
+                    android:text="M"
+                    android:textColor="@color/text_white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardWeight"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/glass_bg"
+            app:strokeColor="@color/glass_stroke"
+            app:cardCornerRadius="30dp"
+            app:strokeWidth="1dp"
+            app:cardElevation="0dp">
+
+            <!-- Glass Container -->
+            <eightbitlab.com.blurview.BlurView
+                android:id="@+id/blurLayoutWeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:blurOverlayColor="@color/glass_bg"
+                android:background="@drawable/glass_gradient_bg"
+                android:outlineProvider="background"
+            >
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:padding="20dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/lblWeight"
+                        android:text="Progresso Peso"
+                        android:textColor="@color/text_gray"
+                        android:textSize="14sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"/>
+
+                    <TextView
+                        android:id="@+id/tvWeightVal"
+                        android:text="70.0 kg"
+                        android:textColor="@color/text_white"
+                        android:textStyle="bold"
+                        android:textSize="32sp"
+                        android:layout_marginTop="4dp"
+                        app:layout_constraintTop_toBottomOf="@id/lblWeight"
+                        app:layout_constraintStart_toStartOf="parent"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"/>
+
+                    <TextView
+                        android:text="-2.0 kg"
+                        android:textColor="#3AC0DD"
+                        android:textSize="14sp"
+                        android:layout_marginStart="8dp"
+                        app:layout_constraintBaseline_toBaselineOf="@id/tvWeightVal"
+                        app:layout_constraintStart_toEndOf="@id/tvWeightVal"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"/>
+
+                    <!-- 30 days badge-->
+                    <TextView
+                        android:text="30 giorni"
+                        android:textColor="@color/neon_purple"
+                        android:background="@drawable/bd_badge_purple"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="6dp"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        android:layout_height="wrap_content"
+                        android:layout_width="wrap_content"/>
+
+                    <!-- Placeholder per il grafico (In realtà servirebbe MPAndroidChart) -->
+                    <ImageView
+                        android:layout_width="match_parent"
+                        android:layout_height="120dp"
+                        android:layout_marginTop="20dp"
+                        android:contentDescription="Progress Chart"
+                        android:src="@drawable/ic_launcher_background"
+                        app:tint="@color/neon_purple"
+                        app:layout_constraintTop_toBottomOf="@id/tvWeightVal"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"/>
+                    <!-- NOTA: Sostituisci l'ImageView sopra con com.github.mikephil.charting.charts.LineChart se usi la libreria -->
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </eightbitlab.com.blurview.BlurView>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- motivational quote -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp">
+            <TextView
+                android:id="@+id/tvPhrase1"
+                android:gravity="center"
+                android:text="Push yourself, because no\none else will"
+                android:textColor="@color/text_white"
+                android:shadowColor="@color/neon_purple"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="50"
+                android:textStyle="bold"
+                android:textSize="22sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tvPhrase2"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:text="La costanza batte il talento"
+            android:textColor="@color/text_gray"
+            android:textSize="14sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+            <!-- training button -->
+            <Button
+                android:id="@+id/btnAllenati"
+                android:text="ALLENATI ORA"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="32dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/text_white"
+                android:background="@drawable/btn_gradient"
+                app:backgroundTint="@null"
+                app:icon="@drawable/outline_local_fire_department_24"
+                app:iconGravity="textStart"
+                app:iconTint="@color/text_white"
+                android:layout_width="match_parent"
+                android:padding="16dp"
+                android:layout_height="wrap_content" />
+
+
+        <!-- stat cards -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:weightSum="3"
+            android:orientation="horizontal">
+                <!-- Card 1: Streak -->
+                <include
+                    android:id="@+id/cardStreak"
+                    layout="@layout/item_home_stat_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"/>
+
+                <!-- Card 2: Workouts -->
+                <include
+                    android:id="@+id/cardWorkouts"
+                    layout="@layout/item_home_stat_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginHorizontal="4dp"/>
+
+                <!-- Card 3: Volume -->
+                <include
+                    android:id="@+id/cardVolume"
+                    layout="@layout/item_home_stat_card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"/>
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
