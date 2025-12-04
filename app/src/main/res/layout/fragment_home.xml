@@ -23,7 +23,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="8dp"
-                android:text="Nome Utente"
+                android:text="Username"
                 android:textColor="@color/text_white"
                 android:textSize="24sp"
                 android:textStyle="bold"
@@ -37,7 +37,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Pronto per oggi?"
+                android:text="@string/ready_to_train"
                 android:textColor="@color/text_gray"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -100,7 +100,7 @@
 
                     <TextView
                         android:id="@+id/lblWeight"
-                        android:text="Progresso Peso"
+                        android:text="@string/weight_progress"
                         android:textColor="@color/text_gray"
                         android:textSize="14sp"
                         app:layout_constraintStart_toStartOf="parent"
@@ -132,7 +132,7 @@
 
                     <!-- 30 days badge-->
                     <TextView
-                        android:text="30 giorni"
+                        android:text="@string/_30_days"
                         android:textColor="@color/neon_purple"
                         android:background="@drawable/bd_badge_purple"
                         android:paddingHorizontal="12dp"
@@ -185,7 +185,7 @@
             android:id="@+id/tvPhrase2"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="La costanza batte il talento"
+            android:text="Consistency beats talent"
             android:textColor="@color/text_gray"
             android:textSize="14sp"
             android:layout_width="match_parent"
@@ -194,7 +194,8 @@
             <!-- training button -->
             <Button
                 android:id="@+id/btnAllenati"
-                android:text="ALLENATI ORA"
+                android:text="@string/train_now"
+                android:textAllCaps="true"
                 android:layout_marginTop="32dp"
                 android:layout_marginBottom="32dp"
                 android:textSize="16sp"
@@ -216,6 +217,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
             android:weightSum="3"
+            android:baselineAligned="false"
             android:orientation="horizontal">
                 <!-- Card 1: Streak -->
                 <include

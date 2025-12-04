@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PushApp</string>
-    <string name="allenati_ora">allenati ora</string>
+    <string name="ready_to_train">Ready to train?</string>
+    <string name="weight_progress">Weight progress</string>
+    <string name="_30_days">30 days</string>
+    <string name="train_now">train now!</string>
 </resources>
