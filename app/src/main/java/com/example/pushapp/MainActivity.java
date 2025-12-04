@@ -20,5 +20,13 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Carica il fragment solo alla prima creazione dell'Activity
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, new TrainingDaysFragment())
+                    .commit();
+        }
     }
 }

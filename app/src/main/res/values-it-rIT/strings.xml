@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PushApp</string>
+    <string name="your_workout_program">La tua scheda</string>
+    <string name="select_training">Seleziona un allenamento</string>
+</resources>
