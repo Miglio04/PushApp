@@ -5,20 +5,19 @@
     android:id="@+id/cardRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardBackgroundColor="@color/glass_bg"
-    app:strokeColor="@color/glass_stroke"
+    app:cardBackgroundColor="@color/md_theme_secondaryContainer"
+    app:strokeColor="@color/md_theme_primary"
     app:strokeWidth="1dp"
     app:cardCornerRadius="24dp"
     app:cardElevation="0dp">
 
-    <eightbitlab.com.blurview.BlurView
+    <!-- <eightbitlab.com.blurview.BlurView
         android:id="@+id/blurLayoutCards"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:blurOverlayColor="@color/glass_bg"
         android:background="@drawable/glass_gradient_bg"
         android:outlineProvider="background"
-    >
+    > -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,14 +31,14 @@
                 android:layout_marginBottom="8dp"
                 android:contentDescription="Stat Icon"
                 android:src="@drawable/outline_local_fire_department_24"
-                app:tint="@color/text_white" />
+                app:tint="@color/md_theme_onSecondaryContainer" />
 
             <TextView
                 android:id="@+id/tvValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="0"
-                android:textColor="@color/text_white"
+                android:textColor="@color/md_theme_onSecondaryContainer"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -48,9 +47,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Label"
-                android:textColor="@color/text_gray"
+                android:textColor="@color/md_theme_onSecondaryContainer"
                 android:textSize="12sp" />
 
         </LinearLayout>
-    </eightbitlab.com.blurview.BlurView>
+    <!-- </eightbitlab.com.blurview.BlurView> -->
 </com.google.android.material.card.MaterialCardView>

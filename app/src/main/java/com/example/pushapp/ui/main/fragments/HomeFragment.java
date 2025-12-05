@@ -34,21 +34,21 @@ public class HomeFragment extends Fragment {
                 R.drawable.outline_local_fire_department_24,
                 "18",
                 "Streak",
-                R.color.neon_purple);
+                R.color.md_theme_primary);
 
         // 2. Card Workouts
         setupStatCard(view, R.id.cardWorkouts,
                 R.drawable.outline_accessibility_new_24,
                 "127",
                 "Workouts",
-                R.color.neon_blue);
+                R.color.md_theme_primary);
 
         // 3. Card Volume
         setupStatCard(view, R.id.cardVolume,
                 R.drawable.outline_lightbulb_24,
                 "2.5k",
                 "Volume",
-                R.color.neon_lightblue);
+                R.color.md_theme_primary);
     }
 
     private void setupStatCard(View rootView, int cardId, int iconResId, String value, String label, int colorResId) {
