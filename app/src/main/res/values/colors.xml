@@ -140,4 +140,12 @@
     <color name="md_theme_surfaceContainer_highContrast">#E0E2EC</color>
     <color name="md_theme_surfaceContainerHigh_highContrast">#D2D4DE</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#C4C6D0</color>
+    <color name="dark_bg">#121018</color>
+    <color name="neon_purple">#9F60FF</color>
+    <color name="neon_blue">#70A6E5</color>
+    <color name="neon_lightblue">#3ACBE8</color>
+    <color name="text_white">#FFFFFF</color>
+    <color name="text_gray">#B0B0B0</color>
+    <color name="glass_bg">#332F2F40</color>
+    <color name="glass_stroke">#4D5F5F80</color>
 </resources>

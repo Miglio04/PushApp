@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PushApp</string>
+    <string name="ready_to_train">Pronto ad allenarti?</string>
+    <string name="weight_progress">Progresso peso</string>
+    <string name="_30_days">30 giorni</string>
+    <string name="train_now">allenati ora!</string>
+</resources>
