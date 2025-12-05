@@ -5,4 +5,7 @@
     <string name="weight_progress">Weight progress</string>
     <string name="_30_days">30 days</string>
     <string name="train_now">train now!</string>
+    <string name="hello_blank_fragment" translatable="false">This is my home fragment</string>
+    <string name="your_trainings">Your trainings</string>
+    <string name="goals_amp_progression"><![CDATA[Goals & Progression]]></string>
 </resources>
