@@ -9,6 +9,6 @@
     android:paddingBottom="12dp"
     android:textSize="16sp"
     android:textStyle="bold"
-    android:textColor="?android:attr/textColorPrimary"
+    android:textColor="@color/md_theme_onBackground"
     android:ellipsize="end"
     android:singleLine="true" />

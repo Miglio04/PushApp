@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:layout_gravity="center_horizontal"
-    android:backgroundTint="@color/md_theme_surface">
+    android:backgroundTint="@color/md_theme_secondaryContainer"
+    app:strokeColor="@color/md_theme_primary"
+    app:strokeWidth="1dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -31,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:text="Training name"
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                android:textColor="@color/md_theme_onSurface"
+                android:textColor="@color/md_theme_onBackground"
                 />
             <TextView
                 android:id="@+id/text_view_description"
@@ -40,7 +42,7 @@
                 android:layout_marginTop="8dp"
                 android:text="Training description"
                 android:textAppearance="?attr/textAppearanceBody2"
-                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textColor="@color/md_theme_onBackground_mediumContrast"
                 />
 
         </LinearLayout>

@@ -22,7 +22,7 @@
                 android:text="Your Statistics"
                 android:textSize="28sp"
                 android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
+                android:textColor="@color/md_theme_onBackground"
                 android:paddingHorizontal="16dp"
                 android:layout_marginTop="60dp"
                 android:paddingBottom="16dp"/>
@@ -41,11 +41,11 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+                    app:strokeColor="@color/md_theme_primary"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:orientation="vertical" android:gravity="center">
                         <TextView android:id="@+id/txtKpiWorkouts" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3" android:textSize="22sp" android:textStyle="bold" android:textColor="@color/md_theme_primary"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Workouts" android:textSize="12sp" android:textColor="?android:attr/textColorSecondary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Workouts" android:textSize="12sp" android:textColor="@color/md_theme_onSecondaryContainer"/>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -54,11 +54,11 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+                    app:strokeColor="@color/md_theme_primary"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:orientation="vertical" android:gravity="center">
                         <TextView android:id="@+id/txtKpiTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="04:30h" android:textSize="22sp" android:textStyle="bold" android:textColor="@color/md_theme_primary"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Time" android:textSize="12sp" android:textColor="?android:attr/textColorSecondary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Time" android:textSize="12sp" android:textColor="@color/md_theme_onSecondaryContainer"/>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -67,11 +67,11 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+                    app:strokeColor="@color/md_theme_primary"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp" android:orientation="vertical" android:gravity="center">
                         <TextView android:id="@+id/txtKpiVolume" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="14.5k" android:textSize="22sp" android:textStyle="bold" android:textColor="@color/md_theme_primary"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kg Volume" android:textSize="12sp" android:textColor="?android:attr/textColorSecondary"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Kg Volume" android:textSize="12sp" android:textColor="@color/md_theme_onSecondaryContainer"/>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
             </LinearLayout>
@@ -82,7 +82,7 @@
                 android:text="Your Consistency"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
+                android:textColor="@color/md_theme_onBackground_mediumContrast"
                 android:paddingHorizontal="16dp"
                 android:layout_marginBottom="8dp"/>
 
@@ -129,8 +129,8 @@
                 app:cardCornerRadius="16dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="?attr/colorOutlineVariant"
-                app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+                app:strokeColor="@color/md_theme_secondary"
+                app:cardBackgroundColor="@color/md_theme_secondaryContainer">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -154,14 +154,14 @@
                                 android:layout_height="wrap_content"
                                 android:text="This Month"
                                 android:textSize="12sp"
-                                android:textColor="?android:attr/textColorSecondary"/>
+                                android:textColor="@color/md_theme_onSecondaryContainer"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="You trained 3 times"
                                 android:textSize="22sp"
                                 android:textStyle="bold"
-                                android:textColor="?android:attr/textColorPrimary"/>
+                                android:textColor="@color/md_theme_onBackground"/>
                         </LinearLayout>
                         <TextView
                             android:layout_width="wrap_content"
@@ -171,12 +171,14 @@
                             android:layout_marginStart="8dp"/>
                     </LinearLayout>
 
-                    <androidx.cardview.widget.CardView
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:cardCornerRadius="12dp"
                         app:cardElevation="0dp"
-                        app:cardBackgroundColor="#1A00ADEF">
+                        app:cardBackgroundColor="@color/md_theme_inversePrimary_highContrast"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="@color/md_theme_onSecondaryContainer">
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -198,16 +200,16 @@
                                     android:layout_height="wrap_content"
                                     android:text="Monthly Streak Active!"
                                     android:textStyle="bold"
-                                    android:textColor="?android:attr/textColorPrimary"/>
+                                    android:textColor="@color/md_theme_onBackground"/>
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Keep consistent to reach your goal"
                                     android:textSize="12sp"
-                                    android:textColor="?android:attr/textColorSecondary"/>
+                                    android:textColor="@color/md_theme_onBackground_mediumContrast"/>
                             </LinearLayout>
                         </LinearLayout>
-                    </androidx.cardview.widget.CardView>
+                    </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -217,7 +219,7 @@
                 android:text="Goals &amp; Progression"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
+                android:textColor="@color/md_theme_onBackground"
                 android:paddingHorizontal="16dp"
                 android:layout_marginBottom="8dp"/>
 
@@ -268,7 +270,7 @@
                     android:text="Load Progress (kg)"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="?android:attr/textColorSecondary"
+                    android:textColor="@color/md_theme_onBackground"
                     android:layout_marginTop="16dp"
                     android:layout_marginBottom="8dp"/>
 
@@ -278,8 +280,8 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+                    app:strokeColor="@color/md_theme_primary"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer">
 
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/chartLoad"
@@ -294,7 +296,7 @@
                     android:text="Repetitions History"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:textColor="?android:attr/textColorSecondary"
+                    android:textColor="@color/md_theme_onBackground"
                     android:layout_marginTop="24dp"
                     android:layout_marginBottom="8dp"/>
 
@@ -304,8 +306,8 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+                    app:strokeColor="@color/md_theme_primary"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer">
 
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/chartReps"
@@ -322,7 +324,7 @@
                 android:text="This Week's Workouts"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="?android:attr/textColorPrimary"
+                android:textColor="@color/md_theme_onBackground"
                 android:paddingHorizontal="16dp"
                 android:layout_marginBottom="8dp"/>
 
@@ -341,8 +343,8 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+                    app:strokeColor="@color/md_theme_primary"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -353,7 +355,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@android:drawable/checkbox_on_background"
-                            app:tint="?attr/colorPrimary"/>
+                            app:tint="@color/md_theme_primary"/>
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -366,19 +368,19 @@
                                 android:text="Monday - Push Day"
                                 android:textStyle="bold"
                                 android:textSize="16sp"
-                                android:textColor="?android:attr/textColorPrimary"/>
+                                android:textColor="@color/md_theme_onBackground"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Chest, Shoulders &amp; Triceps • 1h 15m"
                                 android:textSize="13sp"
-                                android:textColor="?android:attr/textColorSecondary"/>
+                                android:textColor="@color/md_theme_onBackground_mediumContrast"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Volume: 5,200 kg"
                                 android:textSize="12sp"
-                                android:textColor="?attr/colorPrimary"
+                                android:textColor="@color/md_theme_primary"
                                 android:textStyle="bold"
                                 android:layout_marginTop="2dp"/>
                         </LinearLayout>
@@ -392,8 +394,8 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+                    app:strokeColor="@color/md_theme_primary"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -404,7 +406,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@android:drawable/checkbox_on_background"
-                            app:tint="?attr/colorPrimary"/>
+                            app:tint="@color/md_theme_primary"/>
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -417,19 +419,19 @@
                                 android:text="Wednesday - Pull Day"
                                 android:textStyle="bold"
                                 android:textSize="16sp"
-                                android:textColor="?android:attr/textColorPrimary"/>
+                                android:textColor="@color/md_theme_onBackground"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Back &amp; Biceps • 1h 30m"
                                 android:textSize="13sp"
-                                android:textColor="?android:attr/textColorSecondary"/>
+                                android:textColor="@color/md_theme_onBackground_mediumContrast"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Volume: 6,100 kg"
                                 android:textSize="12sp"
-                                android:textColor="?attr/colorPrimary"
+                                android:textColor="@color/md_theme_primary"
                                 android:textStyle="bold"
                                 android:layout_marginTop="2dp"/>
                         </LinearLayout>
@@ -442,8 +444,8 @@
                     app:cardCornerRadius="16dp"
                     app:cardElevation="0dp"
                     app:strokeWidth="1dp"
-                    app:strokeColor="?attr/colorOutlineVariant"
-                    app:cardBackgroundColor="?attr/colorSurfaceContainerHighest">
+                    app:strokeColor="@color/md_theme_primary"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -454,7 +456,7 @@
                             android:layout_width="40dp"
                             android:layout_height="40dp"
                             android:src="@android:drawable/checkbox_on_background"
-                            app:tint="?attr/colorPrimary"/>
+                            app:tint="@color/md_theme_primary"/>
                         <LinearLayout
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
@@ -467,19 +469,19 @@
                                 android:text="Thursday - Legs"
                                 android:textStyle="bold"
                                 android:textSize="16sp"
-                                android:textColor="?android:attr/textColorPrimary"/>
+                                android:textColor="@color/md_theme_onBackground"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Quads, Hams &amp; Calves • 1h 45m"
                                 android:textSize="13sp"
-                                android:textColor="?android:attr/textColorSecondary"/>
+                                android:textColor="@color/md_theme_onBackground_mediumContrast"/>
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Volume: 3,200 kg"
                                 android:textSize="12sp"
-                                android:textColor="?attr/colorPrimary"
+                                android:textColor="@color/md_theme_primary"
                                 android:textStyle="bold"
                                 android:layout_marginTop="2dp"/>
                         </LinearLayout>
