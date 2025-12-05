@@ -1,4 +1,4 @@
-package com.example.pushapp;
+package com.example.pushapp.ui.main.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.pushapp.R;
 import com.google.android.material.card.MaterialCardView;
 
 public class HomeFragment extends Fragment {

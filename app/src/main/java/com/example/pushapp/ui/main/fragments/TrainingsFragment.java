@@ -1,18 +1,20 @@
-package com.example.pushapp;
+package com.example.pushapp.ui.main.fragments;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.ScrollView;
+
+import com.example.pushapp.R;
+import com.example.pushapp.utils.TrainingListGenerator;
+import com.example.pushapp.utils.TrainingsAdapter;
 
 public class TrainingsFragment extends Fragment {
 

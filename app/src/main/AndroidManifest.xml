@@ -12,16 +12,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PushApp">
         <activity
-            android:name=".WorkoutActivity"
+            android:name=".utils.WorkoutActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.login.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".ProfileActivity"
+            android:name=".ui.profile.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true">
 
             <intent-filter>

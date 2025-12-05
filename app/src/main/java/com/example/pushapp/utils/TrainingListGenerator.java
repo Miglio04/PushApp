@@ -1,4 +1,6 @@
-package com.example.pushapp;
+package com.example.pushapp.utils;
+
+import com.example.pushapp.models.Training;
 
 import java.util.ArrayList;
 

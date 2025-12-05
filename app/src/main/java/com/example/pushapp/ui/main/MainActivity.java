@@ -1,12 +1,17 @@
-package com.example.pushapp;
+package com.example.pushapp.ui.main;
 
 import android.os.Bundle;
-import androidx.activity.EdgeToEdge;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+
+import com.example.pushapp.ui.main.fragments.HomeFragment;
+import com.example.pushapp.R;
+import com.example.pushapp.ui.main.fragments.StatsFragment;
+import com.example.pushapp.ui.main.fragments.TrainingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 // Questo è il codice CORRETTO e UNICO per la MainActivity

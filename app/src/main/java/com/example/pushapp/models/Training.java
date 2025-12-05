@@ -1,4 +1,4 @@
-package com.example.pushapp;
+package com.example.pushapp.models;
 
 public class Training {
     private String name;

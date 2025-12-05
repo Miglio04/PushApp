@@ -1,7 +1,6 @@
-package com.example.pushapp;
+package com.example.pushapp.utils;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.google.android.material.card.MaterialCardView;
+import com.example.pushapp.R;
+import com.example.pushapp.models.Training;
 
 import java.util.ArrayList;
 
