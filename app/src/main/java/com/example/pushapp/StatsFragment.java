@@ -1,4 +1,4 @@
-package com.example.pushapp.ui.stats;
+package com.example.pushapp;
 
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,7 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.example.pushapp.R;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
