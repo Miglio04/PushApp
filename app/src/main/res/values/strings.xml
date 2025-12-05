@@ -3,4 +3,5 @@
     <string name="app_name">PushApp</string>
     <string name="hello_blank_fragment" translatable="false">This is my home fragment</string>
     <string name="your_trainings">Your trainings</string>
+    <string name="goals_amp_progression"><![CDATA[Goals & Progression]]></string>
 </resources>
