@@ -18,7 +18,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:labelVisibilityMode="labeled"
-        app:enableEdgeToEdge="false"
+        app:enableEdgeToEdge="true"
         app:itemActiveIndicatorStyle="@style/NoActiveIndicator"
         app:menu="@menu/bottom_nav_menu" />
 
