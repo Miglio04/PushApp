@@ -1,24 +1,24 @@
 package com.example.pushapp;
 
 import android.os.Bundle;
-
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
+// Questo è il codice CORRETTO e UNICO per la MainActivity
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+
+        // 1. Collega il file XML (la scatola vuota)
         setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        // 2. INIZIO TRUCCO: Carica subito il calendario
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    // Qui usiamo l'ID che abbiamo messo nel file XML activity_main.xml
+                    .replace(R.id.fragment_container, new com.example.pushapp.ui.stats.StatsFragment())
+                    .commit();
+        }
     }
 }
