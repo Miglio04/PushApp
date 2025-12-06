@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import com.example.pushapp.ui.main.fragments.HomeFragment;
 import com.example.pushapp.R;
 import com.example.pushapp.ui.main.fragments.StatsFragment;
+import com.example.pushapp.ui.main.fragments.TrainingDaysFragment;
 import com.example.pushapp.ui.main.fragments.TrainingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
