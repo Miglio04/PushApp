@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Se card_view:cardUseCompatPadding="true" viene settate false consente di gestire meglio le
+    spaziature fra le varie card. Questo però sembra possa dare problemi fra le veriosni
+    pre-Lollipop-->
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="12dp"
+    android:layout_marginEnd="12dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    card_view:cardCornerRadius="12dp"
+    card_view:cardElevation="6dp"
+    card_view:cardUseCompatPadding="true"
+    card_view:cardBackgroundColor="@color/md_theme_surface">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="100dp"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <TextView
+            android:id="@+id/card_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@color/md_theme_onSurface" />
+
+        <TextView
+            android:id="@+id/card_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:textSize="15sp"
+            android:textColor="@color/md_theme_onSurface" />
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
+

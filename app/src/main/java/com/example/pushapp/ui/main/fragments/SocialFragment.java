@@ -1,4 +1,4 @@
-package com.example.pushapp;
+package com.example.pushapp.ui.main.fragments;
 
 import android.os.Bundle;
 
@@ -8,12 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.pushapp.R;
+
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link TrainingDaysFragment#newInstance} factory method to
+ * Use the {@link SocialFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TrainingDaysFragment extends Fragment {
+public class SocialFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -24,7 +26,7 @@ public class TrainingDaysFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public TrainingDaysFragment() {
+    public SocialFragment() {
         // Required empty public constructor
     }
 
@@ -34,11 +36,11 @@ public class TrainingDaysFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment TrainingDaysFragment.
+     * @return A new instance of fragment SocialFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static TrainingDaysFragment newInstance(String param1, String param2) {
-        TrainingDaysFragment fragment = new TrainingDaysFragment();
+    public static SocialFragment newInstance(String param1, String param2) {
+        SocialFragment fragment = new SocialFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -59,6 +61,6 @@ public class TrainingDaysFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_training_days, container, false);
+        return inflater.inflate(R.layout.fragment_social, container, false);
     }
 }
