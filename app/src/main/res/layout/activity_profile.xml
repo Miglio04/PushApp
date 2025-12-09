@@ -1,10 +1,385 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/md_theme_background"
     tools:context=".ui.profile.ProfileActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Toolbar -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <ImageButton
+                    android:id="@+id/backButton"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Back"
+                    android:src="@drawable/arrow_back"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/md_theme_onBackground" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profilo"
+                    android:textColor="@color/md_theme_onBackground"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Profile Info -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:paddingVertical="24dp">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="90dp"
+                    android:layout_height="90dp"
+                    app:cardBackgroundColor="@color/md_theme_primary"
+                    app:cardCornerRadius="45dp"
+                    app:cardElevation="0dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="M"
+                        android:textColor="@color/md_theme_onPrimary"
+                        android:textSize="40sp"
+                        android:textStyle="bold" />
+                </com.google.android.material.card.MaterialCardView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Marco Rossi"
+                    android:textColor="@color/md_theme_onBackground"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="marco.rossi@email.com"
+                    android:textColor="@color/md_theme_onBackground_mediumContrast"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <!-- Stats -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:layout_marginBottom="24dp"
+                android:weightSum="3">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer"
+                    app:cardCornerRadius="16dp"
+                    android:layout_marginEnd="8dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="127"
+                            android:textColor="@color/md_theme_onSecondaryContainer"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Workouts"
+                            android:textColor="@color/md_theme_onBackground_mediumContrast" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+                
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer"
+                    app:cardCornerRadius="16dp"
+                    android:layout_marginHorizontal="4dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="18"
+                            android:textColor="@color/md_theme_onSecondaryContainer"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Streak"
+                            android:textColor="@color/md_theme_onBackground_mediumContrast" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+                
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    app:cardBackgroundColor="@color/md_theme_secondaryContainer"
+                    app:cardCornerRadius="16dp"
+                    android:layout_marginStart="8dp"
+                    app:cardElevation="0dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2.5k"
+                            android:textColor="@color/md_theme_onSecondaryContainer"
+                            android:textSize="24sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Volume"
+                            android:textColor="@color/md_theme_onBackground_mediumContrast" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Settings List -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp">
+                
+                <!-- Item Dati Personali -->
+                <com.google.android.material.card.MaterialCardView
+                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        
+                        <ImageView
+                            android:id="@+id/icon_personal_data"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@android:drawable/ic_menu_myplaces" 
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toEndOf="@id/icon_personal_data"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:text="Dati Personali"
+                            android:textColor="@color/md_theme_onPrimaryContainer"
+                            android:textSize="16sp"/>
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_expand"
+                            app:tint="@color/md_theme_onPrimary"/>
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+                
+                <!-- Item Obiettivi -->
+                <com.google.android.material.card.MaterialCardView
+                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        
+                        <ImageView
+                            android:id="@+id/icon_goals"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@android:drawable/star_on"
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toEndOf="@id/icon_goals"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:text="Obiettivi"
+                            android:textColor="@color/md_theme_onPrimaryContainer"
+                            android:textSize="16sp"/>
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_expand"
+                            app:tint="@color/md_theme_onPrimary"/>
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Item Notifiche -->
+                <com.google.android.material.card.MaterialCardView
+                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        
+                        <ImageView
+                            android:id="@+id/icon_notifications"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@android:drawable/ic_popup_reminder"
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toEndOf="@id/icon_notifications"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:text="Notifiche"
+                            android:textColor="@color/md_theme_onPrimaryContainer"
+                            android:textSize="16sp"/>
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_expand"
+                            app:tint="@color/md_theme_onPrimary"/>
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Item Tema -->
+                <com.google.android.material.card.MaterialCardView
+                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="16dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="16dp">
+                        
+                        <ImageView
+                            android:id="@+id/icon_theme"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@android:drawable/ic_menu_gallery"
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toEndOf="@id/icon_theme"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:text="Tema"
+                            android:textColor="@color/md_theme_onPrimaryContainer"
+                            android:textSize="16sp"/>
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_expand"
+                            app:tint="@color/md_theme_onPrimary"/>
+                    </RelativeLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>
