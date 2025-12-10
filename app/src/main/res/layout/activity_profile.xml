@@ -228,7 +228,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_menu_myplaces" 
+                            android:src="@drawable/person"
                             app:tint="@color/md_theme_onPrimaryContainer"/>
 
                         <TextView
@@ -271,7 +271,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_centerVertical="true"
-                            android:src="@android:drawable/star_on"
+                            android:src="@drawable/target"
                             app:tint="@color/md_theme_onPrimaryContainer"/>
 
                         <TextView
@@ -314,7 +314,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_popup_reminder"
+                            android:src="@drawable/bell"
                             app:tint="@color/md_theme_onPrimaryContainer"/>
 
                         <TextView
@@ -356,7 +356,7 @@
                             android:layout_width="24dp"
                             android:layout_height="24dp"
                             android:layout_centerVertical="true"
-                            android:src="@android:drawable/ic_menu_gallery"
+                            android:src="@drawable/moon"
                             app:tint="@color/md_theme_onPrimaryContainer"/>
 
                         <TextView
