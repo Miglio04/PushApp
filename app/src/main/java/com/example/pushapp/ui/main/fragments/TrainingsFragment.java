@@ -5,6 +5,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +17,7 @@ import android.widget.ListView;
 import com.example.pushapp.R;
 import com.example.pushapp.utils.TrainingListGenerator;
 import com.example.pushapp.utils.TrainingsAdapter;
+import com.example.pushapp.utils.TrainingsRecyclerViewAdapter;
 
 public class TrainingsFragment extends Fragment {
 
@@ -34,13 +37,12 @@ public class TrainingsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        TrainingsAdapter adapter = new TrainingsAdapter(getContext(),
-                R.layout.training_card_view,
+        TrainingsRecyclerViewAdapter adapter = new TrainingsRecyclerViewAdapter(
                 TrainingListGenerator.generateTrainingList());
 
-        Log.println(Log.DEBUG, "Debug", TrainingListGenerator.generateTrainingList().toString());
 
-        ListView listView = view.findViewById(R.id.training_list);
-        listView.setAdapter(adapter);
+        RecyclerView recyclerView = view.findViewById(R.id.training_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        recyclerView.setAdapter(adapter);
     }
 }
