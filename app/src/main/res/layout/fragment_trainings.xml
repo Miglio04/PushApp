@@ -5,8 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".ui.main.fragments.TrainingsFragment"
-    android:background="@color/md_theme_background"
-    app:navGraph="@navigation/nav_graph_trainings">
+    android:background="@color/md_theme_background">
 
 
     <TextView
