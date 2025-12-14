@@ -1,71 +1,33 @@
 package com.example.pushapp.ui.main;
 
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.fragment.app.Fragment;
-
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.NavigationUI;
 import com.example.pushapp.R;
-import com.example.pushapp.ui.main.fragments.FoodFragment;
-import com.example.pushapp.ui.main.fragments.HomeFragment;
-import com.example.pushapp.ui.main.fragments.SocialFragment;
-import com.example.pushapp.ui.main.fragments.StatsFragment;
-import com.example.pushapp.ui.main.fragments.TrainingsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-// Questo è il codice CORRETTO e UNICO per la MainActivity
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // 1. Collega il file XML (la scatola vuota)
         setContentView(R.layout.activity_main);
+
+        // Gestione dei bordi (insets) per il layout principale
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            v.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
             return insets;
         });
 
+        // Trova il NavHostFragment e il NavController
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavController navController = navHostFragment.getNavController();
+
+        // Collega la BottomNavigationView al NavController
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-
-        // Set HomeFragment as the default
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new HomeFragment())
-                    .commit();
-            bottomNavigationView.setSelectedItemId(R.id.nav_home);
-        }
-
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            Fragment selectedFragment = null;
-            int itemId = item.getItemId();
-            if (itemId == R.id.nav_home) {
-                selectedFragment = new HomeFragment();
-            } else if (itemId == R.id.nav_stats) {
-                selectedFragment = new StatsFragment();
-            } else if (itemId == R.id.nav_trainings) {
-                selectedFragment = new TrainingsFragment();
-            } else if (itemId == R.id.nav_food) {
-                selectedFragment = new FoodFragment();
-            } else if (itemId == R.id.nav_social){
-                selectedFragment = new SocialFragment();
-            }
-
-
-            if (selectedFragment != null) {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, selectedFragment)
-                        .commit();
-                return true;
-            }
-
-            // Return false for items without a fragment to prevent selection
-            return false;
-        });
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
     }
 }
