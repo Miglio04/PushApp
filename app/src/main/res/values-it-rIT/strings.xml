@@ -4,5 +4,13 @@
     <string name="ready_to_train">Pronto ad allenarti?</string>
     <string name="weight_progress">Progresso peso</string>
     <string name="_30_days">30 giorni</string>
-    <string name="train_now">allenati ora!</string>
+    <string name="train_now">Allenati ora!</string>
+    <string name="your_trainings">Le tue schede</string>
+    <string name="your_workout_program">Il tuo allenamento</string>
+    <string name="select_training">Scegli la scheda</string>
+    <string name="coming_soon">Prossimamente...</string>
+    <string name="confirm_operation">Conferma eliminazione</string>
+    <string name="are_you_sure_delete">Sei sicuro di voler eliminare questa scheda?</string>
+    <string name="confirm">Conferma</string>
+    <string name="cancel">Annulla</string>
 </resources>
