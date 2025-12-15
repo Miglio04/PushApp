@@ -3,7 +3,9 @@ package com.example.pushapp.ui.main.fragments;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -12,12 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.pushapp.R;
-import com.example.pushapp.utils.TrainingCard;
-import com.example.pushapp.utils.TrainingCardAdapter;
+import com.example.pushapp.utils.TrainingDaysCard;
+import com.example.pushapp.utils.TrainingDaysCardAdapter;
+import com.example.pushapp.utils.WorkoutViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 public class TrainingDaysFragment extends Fragment {
 
@@ -26,6 +28,8 @@ public class TrainingDaysFragment extends Fragment {
 
     private String mParam1;
     private String mParam2;
+    private WorkoutViewModel workoutViewModel;
+
 
     public TrainingDaysFragment() { }
 
@@ -41,6 +45,7 @@ public class TrainingDaysFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        workoutViewModel = new ViewModelProvider(requireActivity()).get(WorkoutViewModel.class);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -61,17 +66,65 @@ public class TrainingDaysFragment extends Fragment {
 
         // Genera 6 schede di allenamento, esempio arbitrario
         int count = 6;
-        List<TrainingCard> cards = generateCards(count);
+        List<TrainingDaysCard> cards = generateCards(count);
 
-        TrainingCardAdapter adapter = new TrainingCardAdapter(cards);
+        TrainingDaysCardAdapter adapter = getTrainingDaysCardAdapter(cards);
+
         recyclerView.setAdapter(adapter);
+
     }
 
-    private List<TrainingCard> generateCards(int count) {
-        List<TrainingCard> list = new ArrayList<>(count);
+    @NonNull
+    private TrainingDaysCardAdapter getTrainingDaysCardAdapter(List<TrainingDaysCard> cards) {
+        TrainingDaysCardAdapter adapter = new TrainingDaysCardAdapter(cards);
+
+        adapter.setOnItemClickListener(card -> {
+            Boolean isWorkoutInProgress = workoutViewModel.isWorkoutInProgress().getValue();
+
+            if (Boolean.TRUE.equals(isWorkoutInProgress)) {
+                showReplaceWorkoutDialog(card);
+            } else {
+                startNewWorkout(card);
+            }
+        });
+        return adapter;
+    }
+
+    private void showReplaceWorkoutDialog(TrainingDaysCard card) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Workout in corso")
+                .setMessage("Hai già un workout in corso. Vuoi scartarlo e avviarne uno nuovo?")
+                .setPositiveButton("Scarta e avvia", (dialog, which) -> {
+                    workoutViewModel.stopWorkout();
+                    startNewWorkout(card);
+                })
+                .setNegativeButton("Annulla", (dialog, which) -> dialog.dismiss())
+                .setNeutralButton("Riprendi attuale", (dialog, which) -> {
+                    Fragment workout = WorkoutFragment.newInstance(
+                            workoutViewModel.getWorkoutTitle().getValue(), "");
+                    requireActivity().getSupportFragmentManager()
+                            .beginTransaction()
+                            .replace(R.id.fragment_container, workout, WorkoutFragment.TAG)
+                            .addToBackStack(WorkoutFragment.TAG)
+                            .commit();
+                })
+                .show();
+    }
+
+    private void startNewWorkout(TrainingDaysCard card) {
+        Fragment workout = WorkoutFragment.newInstance(card.getTitle(), card.getDescription());
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, workout, WorkoutFragment.TAG)
+                .addToBackStack(WorkoutFragment.TAG)
+                .commit();
+    }
+
+    private List<TrainingDaysCard> generateCards(int count) {
+        List<TrainingDaysCard> list = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
             //Stringhe provvisorie
-            list.add(new TrainingCard("Routine " + i, "Routine description " + i));
+            list.add(new TrainingDaysCard("Routine " + i, "Routine description " + i));
         }
         return list;
     }
