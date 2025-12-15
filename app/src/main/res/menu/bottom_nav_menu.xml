@@ -17,7 +17,7 @@
         android:title="Stats" />
 
     <item
-        android:id="@+id/nav_social"
+        android:id="@+id/nav_training_days"
         android:icon="@drawable/groups"
         android:title="Social" />
 
