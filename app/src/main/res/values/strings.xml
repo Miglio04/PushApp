@@ -10,7 +10,7 @@
     <string name="train_now">train now!</string>
     <string name="your_trainings">Your trainings</string>
     <string name="goals_amp_progression">Goals &amp; Progression</string>
-    <string name="hello_blank_fragment" translatable="false">This is my home fragment</string>
+    <string name="hello_blank_fragment">This is my home fragment</string>
 
     <string name="pushapp">PushApp</string>
     <string name="your_transformation_starts_here">Your transformation starts here</string>
@@ -23,7 +23,7 @@
     <string name="psw" translatable="false">**************</string>
     <string name="forgot_your_password">Forgot your password?</string>
     <string name="welcome_back">Welcome Back!</string>
-    <string name="or" translatable="false">---------- or ----------</string>
+    <string name="or">---------- or ----------</string>
     <string name="continue_with_google">Continue with Google</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service">By continuing you agree to our Terms of Service</string>
     <string name="logging_in">Logging in...</string>
@@ -43,7 +43,7 @@
 
     <string name="step_of">Step %1$d of %2$d</string>
     <string name="percent" translatable="false">%</string>
-    <string name="next" translatable="false">Next ></string>
+    <string name="next">Next ></string>
     <string name="finish">Finish</string>
 
     <string name="login_successful">Login successful.</string>
@@ -60,7 +60,6 @@
     <string name="email_required">Email is required</string>
     <string name="email_sent_success">Email sent! Check your inbox.</string>
     <string name="check_mail_title">Check your Mail</string>
-    <string name="goals_amp_progression"><![CDATA[Goals & Progression]]></string>
     <string name="your_workout">Your workout</string>
     <string name="select_training">Select training</string>
     <string name="coming_soon">Coming soon...</string>
@@ -77,4 +76,5 @@
     <string name="start">start</string>
     <string name="stop">stop</string>
     <string name="start_workout">Start workout</string>
+    <string name="your_workout_program">Your workout</string>
 </resources>
