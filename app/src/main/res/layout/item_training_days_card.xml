@@ -2,8 +2,10 @@
 <!--Se card_view:cardUseCompatPadding="true" viene settate false consente di gestire meglio le
     spaziature fra le varie card. Questo però sembra possa dare problemi fra le veriosni
     pre-Lollipop-->
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginStart="12dp"
@@ -13,7 +15,9 @@
     card_view:cardCornerRadius="12dp"
     card_view:cardElevation="6dp"
     card_view:cardUseCompatPadding="true"
-    card_view:cardBackgroundColor="@color/md_theme_surface">
+    card_view:cardBackgroundColor="@color/md_theme_secondaryContainer"
+    app:strokeColor="@color/md_theme_primary"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -28,7 +32,7 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textSize="18sp"
-            android:textColor="@color/md_theme_onSurface" />
+            android:textColor="@color/md_theme_onSecondaryContainer" />
 
         <TextView
             android:id="@+id/card_description"
@@ -36,7 +40,16 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:textSize="15sp"
-            android:textColor="@color/md_theme_onSurface" />
+            android:textColor="@color/md_theme_onSecondaryContainer" />
+
+        <Button
+            android:id="@+id/card_start_workout_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/start_workout" />
+
     </LinearLayout>
 </androidx.cardview.widget.CardView>
 

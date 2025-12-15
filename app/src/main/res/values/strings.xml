@@ -8,7 +8,16 @@
     <string name="hello_blank_fragment" translatable="false">This is my home fragment</string>
     <string name="your_trainings">Your trainings</string>
     <string name="goals_amp_progression"><![CDATA[Goals & Progression]]></string>
-    <string name="your_workout_program">Your workout program</string>
+    <string name="your_workout">Your workout</string>
     <string name="select_training">Select training</string>
     <string name="coming_soon">Coming soon...</string>
+    <string name="note">Text note</string>
+    <string name="add_set">Add set</string>
+    <string name="reps">reps</string>
+    <string name="weight">weight</string>
+    <string name="delete">delete</string>
+    <string name="back">back</string>
+    <string name="start">start</string>
+    <string name="stop">stop</string>
+    <string name="start_workout">Start workout</string>
 </resources>

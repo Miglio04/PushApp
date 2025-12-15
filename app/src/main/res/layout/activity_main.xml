@@ -34,4 +34,16 @@
         app:itemActiveIndicatorStyle="@style/NoActiveIndicator"
         app:menu="@menu/bottom_nav_menu" />
 
+    <include
+        android:id="@+id/workout_miniplayer"
+        layout="@layout/view_workout_miniplayer"
+        android:visibility="gone"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:elevation="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
