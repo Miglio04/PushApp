@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,8 +30,6 @@ import com.example.pushapp.utils.WorkoutViewModel;
 public class WorkoutFragment extends Fragment implements WorkoutCardAdapter.OnCardInteractionListener {
 
     public static final String TAG = "WorkoutFragment";
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private String mParam1;
     private String mParam2;
 
@@ -50,22 +49,13 @@ public class WorkoutFragment extends Fragment implements WorkoutCardAdapter.OnCa
 
     public WorkoutFragment() {}
 
-    public static WorkoutFragment newInstance(String param1, String param2) {
-        WorkoutFragment fragment = new WorkoutFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         workoutViewModel = new ViewModelProvider(requireActivity()).get(WorkoutViewModel.class);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mParam1 = getArguments().getString("param1");
+            mParam2 = getArguments().getString("param2");
 
             // If the workout is NOT already in progress, start a new one
             if (workoutViewModel.isWorkoutInProgress().getValue() == null ||
@@ -118,8 +108,7 @@ public class WorkoutFragment extends Fragment implements WorkoutCardAdapter.OnCa
 
         // Back button
         workoutBackButton.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().popBackStack();
-            //workoutViewModel.pauseTimer(); // Pause the timer when leaving
+            NavHostFragment.findNavController(this).popBackStack();
         });
 
         // Start/Pause button
@@ -133,7 +122,7 @@ public class WorkoutFragment extends Fragment implements WorkoutCardAdapter.OnCa
 
         // Stop button
         stopButton.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager().popBackStack();
+            NavHostFragment.findNavController(this).popBackStack();
             workoutViewModel.stopWorkout();
         });
 

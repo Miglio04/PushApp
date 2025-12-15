@@ -6,6 +6,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -100,24 +102,18 @@ public class TrainingDaysFragment extends Fragment {
                 })
                 .setNegativeButton("Annulla", (dialog, which) -> dialog.dismiss())
                 .setNeutralButton("Riprendi attuale", (dialog, which) -> {
-                    Fragment workout = WorkoutFragment.newInstance(
-                            workoutViewModel.getWorkoutTitle().getValue(), "");
-                    requireActivity().getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fragment_container, workout, WorkoutFragment.TAG)
-                            .addToBackStack(WorkoutFragment.TAG)
-                            .commit();
+                    NavController navController = NavHostFragment.findNavController(TrainingDaysFragment.this);
+                    navController.navigate(R.id.nav_workouts);
                 })
                 .show();
     }
 
     private void startNewWorkout(TrainingDaysCard card) {
-        Fragment workout = WorkoutFragment.newInstance(card.getTitle(), card.getDescription());
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.fragment_container, workout, WorkoutFragment.TAG)
-                .addToBackStack(WorkoutFragment.TAG)
-                .commit();
+        NavController navController = NavHostFragment.findNavController(TrainingDaysFragment.this);
+        Bundle args = new Bundle();
+        args.putString("param1", card.getTitle());
+        args.putString("param2", card.getDescription());
+        navController.navigate(R.id.nav_workouts, args);
     }
 
     private List<TrainingDaysCard> generateCards(int count) {

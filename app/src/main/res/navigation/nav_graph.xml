@@ -15,7 +15,8 @@
         android:id="@+id/nav_trainings"
         android:name="com.example.pushapp.ui.main.fragments.TrainingsFragment"
         android:label="Trainings"
-        tools:layout="@layout/fragment_trainings" />
+        tools:layout="@layout/fragment_trainings" >
+    </fragment>
 
     <fragment
         android:id="@+id/nav_food"
@@ -34,5 +35,26 @@
         android:name="com.example.pushapp.ui.main.fragments.SocialFragment"
         android:label="Social"
         tools:layout="@layout/fragment_social" />
+
+    <fragment
+        android:id="@+id/nav_training_days"
+        android:name="com.example.pushapp.ui.main.fragments.TrainingDaysFragment"
+        android:label="fragment_training_days"
+        tools:layout="@layout/fragment_training_days" />
+
+    <fragment
+        android:id="@+id/nav_workouts"
+        android:name="com.example.pushapp.ui.main.fragments.WorkoutFragment"
+        android:label="fragment_workout"
+        tools:layout="@layout/fragment_workout" >
+        <argument
+            android:name="param1"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="param2"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
 
 </navigation>
