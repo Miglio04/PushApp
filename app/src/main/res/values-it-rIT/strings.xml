@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PushApp</string>
+    <string name="app_icon">Icona App</string>
+    <string name="icon">icona</string>
+
     <string name="ready_to_train">Pronto ad allenarti?</string>
     <string name="weight_progress">Progresso peso</string>
     <string name="_30_days">30 giorni</string>
@@ -13,4 +16,55 @@
     <string name="are_you_sure_delete">Sei sicuro di voler eliminare questa scheda?</string>
     <string name="confirm">Conferma</string>
     <string name="cancel">Annulla</string>
+    <string name="your_trainings">I tuoi allenamenti</string>
+    <string name="goals_amp_progression">Obiettivi e Progresso</string>
+    <string name="hello_blank_fragment" translatable="false">This is my home fragment</string>
+
+    <string name="pushapp">PushApp</string>
+    <string name="your_transformation_starts_here">La tua trasformazione inizia qui</string>
+    <string name="create_your_account">Crea il tuo account</string>
+    <string name="login">Accedi</string>
+    <string name="sign_up">Registrati</string>
+    <string name="email">Email</string>
+    <string name="you_email_com">tu@email.com</string>
+    <string name="password">Password</string>
+    <string name="psw">**************</string>
+    <string name="forgot_your_password">Password dimenticata?</string>
+    <string name="welcome_back">Bentornato!</string>
+    <string name="or">---------- o ----------</string>
+    <string name="continue_with_google">Continua con Google</string>
+    <string name="by_continuing_you_agree_to_our_terms_of_service">Continuando accetti i nostri Termini di Servizio</string>
+    <string name="logging_in">Accesso in corso...</string>
+
+    <string name="ops_invalid_email_address">Oops! Email non valida</string>
+    <string name="password_is_too_short">Password troppo corta</string>
+    <string name="password_is_too_short_min_8_chars">Password troppo corta (min 8 car).</string>
+    <string name="password_must_be_at_least_8_characters">La password deve essere di almeno 8 caratteri.</string>
+    <string name="please_enter_a_valid_email">Inserisci un\'email valida.</string>
+    <string name="first_name_is_required">Il nome è obbligatorio</string>
+    <string name="last_name_is_required">Il cognome è obbligatorio</string>
+    <string name="age_is_required">L\'età è obbligatoria</string>
+    <string name="weight_is_required">Il peso è obbligatorio</string>
+    <string name="height_is_required">L\'altezza è obbligatoria</string>
+    <string name="goal_weight_is_required">L\'obiettivo di peso è obbligatorio</string>
+    <string name="please_select_a_gender">Seleziona un genere</string>
+
+    <string name="step_of">Passo %1$d di %2$d</string>    <string name="percent">%</string>
+    <string name="next">Avanti ></string>
+    <string name="finish">Fine</string>
+
+    <string name="login_successful">Accesso riuscito.</string>
+    <string name="all_set">Tutto pronto!</string>
+    <string name="great">Fantastico!</string>
+    <string name="profile_created_successfully">Profilo creato con successo.</string>
+    <string name="account_created_successfully">Account creato con successo.</string>
+
+    <string name="forgot_password_title">Password Dimenticata?</string>
+    <string name="forgot_password_desc">Inserisci la tua email e ti invieremo le istruzioni per reimpostare la password.</string>
+    <string name="email_hint">Indirizzo Email</string>
+    <string name="send_reset_link">Invia Link di Reset</string>
+    <string name="back_to_login">Torna al Login</string>
+    <string name="email_required">L\'email è obbligatoria</string>
+    <string name="email_sent_success">Email inviata! Controlla la tua posta.</string>
+    <string name="check_mail_title">Controlla la tua email !</string>
 </resources>
