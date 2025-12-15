@@ -64,6 +64,10 @@
     <string name="your_workout">Your workout</string>
     <string name="select_training">Select training</string>
     <string name="coming_soon">Coming soon...</string>
+    <string name="confirm_operation">Confirm delete</string>
+    <string name="are_you_sure_delete">Are you sure to delete this element?</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
     <string name="note">Text note</string>
     <string name="add_set">Add set</string>
     <string name="reps">reps</string>
