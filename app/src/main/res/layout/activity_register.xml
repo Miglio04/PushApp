@@ -21,7 +21,6 @@
                 android:id="@+id/imgLogo"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:contentDescription="@string/app_icon"
                 android:src="@drawable/logo_pushapp"
                 android:layout_marginTop="30dp"
                 android:layout_marginBottom="10dp"/>
@@ -29,7 +28,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/app_name"
+                android:text="PushApp"
                 android:textColor="@color/md_theme_primary"
                 android:textSize="32sp"
                 android:textStyle="bold"
@@ -38,7 +37,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/your_transformation_starts_here"
+                android:text="Create your account"
                 android:textColor="@color/md_theme_primary"
                 android:textSize="16sp"
                 android:layout_marginBottom="40dp"/>
@@ -56,21 +55,21 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/login"
+                    android:text="Login"
                     android:gravity="center"
-                    android:textColor="@color/md_theme_onPrimary"
-                    android:textStyle="bold"
-                    android:background="@drawable/bg_button_blue"/>
+                    android:textColor="@color/md_theme_onSurfaceVariant"
+                    android:textStyle="bold"/>
 
                 <TextView
                     android:id="@+id/tabRegister"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:text="@string/sign_up"
+                    android:text="Sign Up"
                     android:gravity="center"
-                    android:textColor="@color/md_theme_onSurfaceVariant"
-                    android:textStyle="bold"/>
+                    android:textColor="@color/md_theme_onPrimary"
+                    android:textStyle="bold"
+                    android:background="@drawable/bg_button_blue"/>
             </LinearLayout>
 
             <LinearLayout
@@ -82,7 +81,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/email"
+                    android:text="Email"
                     android:textColor="@color/md_theme_onSurfaceVariant"
                     android:textStyle="bold"
                     android:textSize="14sp"
@@ -94,7 +93,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:background="@drawable/bg_input_outline"
-                    android:hint="@string/you_email_com"
+                    android:hint="you@email.com"
                     android:textColorHint="@color/md_theme_outline"
                     android:textColor="@color/md_theme_onSurface"
                     android:paddingStart="20dp"
@@ -105,10 +104,10 @@
                     android:id="@+id/tvEmailError"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/ops_invalid_email_address"
+                    android:text="Oops! Invalid email address"
                     android:textColor="#B00020"
                     android:textSize="12sp"
-                    android:layout_marginStart="12dp"
+                    android:layout_marginLeft="12dp"
                     android:layout_marginTop="4dp"
                     android:visibility="gone"
                     android:layout_marginBottom="16dp"/>
@@ -116,11 +115,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/password"
+                    android:text="Password"
                     android:textColor="@color/md_theme_onSurfaceVariant"
                     android:textStyle="bold"
                     android:textSize="14sp"
-                    android:layout_marginStart="12dp"
+                    android:layout_marginLeft="12dp"
                     android:layout_marginBottom="6dp"/>
 
                 <EditText
@@ -128,7 +127,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:background="@drawable/bg_input_outline"
-                    android:hint="@string/psw"
+                    android:hint="**************"
                     android:textColorHint="@color/md_theme_outline"
                     android:textColor="@color/md_theme_onSurface"
                     android:paddingStart="20dp"
@@ -139,34 +138,20 @@
                     android:id="@+id/tvPasswordError"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/password_is_too_short"
+                    android:text="Password is too short"
                     android:textColor="#B00020"
                     android:textSize="12sp"
-                    android:layout_marginStart="12dp"
+                    android:layout_marginLeft="12dp"
                     android:layout_marginTop="4dp"
-                    android:visibility="gone"/>
-
-                <TextView
-                    android:id="@+id/tvForgotPassword"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/forgot_your_password"
-                    android:textColor="@color/md_theme_primary"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="16dp"
-                    android:clickable="true"
-                    android:focusable="true" />
-
+                    android:visibility="gone"
+                    android:layout_marginBottom="0dp"/>
             </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnLogin"
+                android:id="@+id/btnRegister"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:text="@string/login"
+                android:text="Create Account"
                 android:textColor="@color/md_theme_onPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -179,7 +164,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/or"
+                android:text="---------- or ----------"
                 android:textColor="@color/md_theme_onSurfaceVariant"
                 android:textSize="14sp"
                 android:layout_marginBottom="25dp"/>
@@ -188,7 +173,7 @@
                 android:id="@+id/btnGoogle"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:text="@string/continue_with_google"
+                android:text="Sign up with Google"
                 android:textColor="@color/md_theme_onSurface"
                 android:textSize="16sp"
                 android:textStyle="bold"
@@ -204,7 +189,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/by_continuing_you_agree_to_our_terms_of_service"
+                android:text="By creating an account you agree to our Terms"
                 android:textColor="@color/md_theme_onSurfaceVariant"
                 android:textSize="12sp"
                 android:layout_marginTop="30dp"
@@ -232,7 +217,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/logging_in"
+            android:text="Creating Account..."
             android:textColor="@color/md_theme_primary"
             android:textSize="18sp"
             android:textStyle="bold"

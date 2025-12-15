@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp"
+    android:gravity="center_vertical">
+
+    <TextView
+        android:id="@+id/set_index"
+        android:layout_width="28dp"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textColor="@color/md_theme_onSurface"
+        android:text="1" />
+
+    <EditText
+        android:id="@+id/set_reps"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:inputType="number"
+        android:hint="@string/reps"
+        android:textColor="@color/md_theme_onSurface" />
+
+    <EditText
+        android:id="@+id/set_weight"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:inputType="numberDecimal"
+        android:hint="@string/weight"
+        android:textColor="@color/md_theme_onSurface" />
+
+    <ImageButton
+        android:id="@+id/set_delete"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:contentDescription="@string/delete"
+        android:src="@android:drawable/ic_menu_delete"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tint="@color/md_theme_error" />
+
+    <ImageButton
+        android:id="@+id/set_complete_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/checkbox_off_background"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Completa set"/>
+
+</LinearLayout>

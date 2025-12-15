@@ -1,5 +1,6 @@
 package com.example.pushapp.ui.main.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.pushapp.R;
+import com.example.pushapp.ui.profile.ProfileActivity;
 import com.google.android.material.card.MaterialCardView;
 
 public class HomeFragment extends Fragment {
@@ -49,6 +51,12 @@ public class HomeFragment extends Fragment {
                 "2.5k",
                 "Volume",
                 R.color.md_theme_primary);
+
+        MaterialCardView btnUserArea = view.findViewById(R.id.btnUserArea);
+        btnUserArea.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), ProfileActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void setupStatCard(View rootView, int cardId, int iconResId, String value, String label, int colorResId) {

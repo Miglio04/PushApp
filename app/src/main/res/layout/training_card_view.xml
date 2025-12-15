@@ -8,7 +8,11 @@
     android:layout_gravity="center_horizontal"
     android:backgroundTint="@color/md_theme_secondaryContainer"
     app:strokeColor="@color/md_theme_primary"
-    app:strokeWidth="1dp">
+    app:strokeWidth="1dp"
+    android:layout_marginBottom="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:checkable="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -16,7 +20,7 @@
         android:layout_gravity="center_horizontal"
 >
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
 
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/image_view"
@@ -27,25 +31,60 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <TextView
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/text_view_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Training name"
-                android:textAppearance="?attr/textAppearanceHeadline6"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                android:background="@android:color/transparent"
                 android:textColor="@color/md_theme_onBackground"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:focusable="false"
                 />
-            <TextView
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/text_view_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="Training description"
-                android:textAppearance="?attr/textAppearanceBody2"
+                android:textSize="14dp"
+                android:background="@android:color/transparent"
                 android:textColor="@color/md_theme_onBackground_mediumContrast"
+                app:layout_constraintTop_toBottomOf="@+id/text_view_name"
+                app:layout_constraintStart_toStartOf="parent"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+                android:focusable="false"
                 />
 
-        </LinearLayout>
+            <ImageButton
+                android:id="@+id/edit_image_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/edit"
+                android:background="@android:color/transparent"
+                android:layout_marginRight="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@id/text_view_name">
+
+            </ImageButton>
+
+            <ImageButton
+                android:id="@+id/delete_image_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/delete"
+                android:background="@android:color/transparent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/edit_image_button"
+                android:layout_margin="10dp">
+            </ImageButton>
+
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <ImageView
             android:id="@+id/image_view"

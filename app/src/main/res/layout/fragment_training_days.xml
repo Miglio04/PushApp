@@ -8,10 +8,11 @@
 
     <!-- Header con titolo e sottotitolo -->
     <LinearLayout
+        android:background="@drawable/rectangle_round_corners"
+        android:backgroundTint="@color/md_theme_secondaryContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@color/md_theme_primary"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:paddingTop="20dp"
@@ -21,10 +22,10 @@
             android:id="@+id/header_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/your_workout_program"
+            android:text="@string/your_workout"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="@color/md_theme_onPrimary" />
+            android:textColor="@color/md_theme_onSecondaryContainer" />
 
         <TextView
             android:id="@+id/header_subtitle"
@@ -33,7 +34,7 @@
             android:text="@string/select_training"
             android:textSize="14sp"
             android:layout_marginTop="4dp"
-            android:textColor="@color/md_theme_onPrimary" />
+            android:textColor="@color/md_theme_onSecondaryContainer" />
     </LinearLayout>
 
     <!-- RecyclerView sotto l'intestazione -->
