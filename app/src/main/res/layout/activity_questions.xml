@@ -3,16 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F0F4F8"
-    android:padding="20dp">
+    android:background="@color/md_theme_background"
+    android:padding="24dp">
 
     <TextView
         android:id="@+id/tvStepCounter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Step 1 of 5"
-        android:textColor="#717785"
-        android:textSize="12sp"
+        android:textColor="@color/md_theme_onSurfaceVariant"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="35dp"
         android:layout_marginBottom="8dp"/>
 
     <TextView
@@ -20,9 +22,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="20%"
-        android:textColor="#717785"
-        android:textSize="12sp"
+        android:textColor="@color/md_theme_onSurfaceVariant"
+        android:textSize="14sp"
+        android:textStyle="bold"
         android:layout_alignParentEnd="true"
+        android:layout_marginTop="35dp"
         android:layout_marginBottom="8dp"/>
 
     <ProgressBar
@@ -41,7 +45,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/progressBar"
-        android:layout_centerVertical="true"
         app:cardCornerRadius="20dp"
         app:cardElevation="4dp"
         app:cardBackgroundColor="@android:color/white">
@@ -69,32 +72,33 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Welcome!"
-                    android:textSize="22sp"
+                    android:textSize="26sp"
                     android:textStyle="bold"
                     android:textColor="@color/md_theme_primary"
-                    android:layout_marginBottom="10dp"/>
+                    android:layout_marginBottom="5dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Let's get to know you better. What's your name?"
                     android:gravity="center"
-                    android:textColor="#717785"
+                    android:textColor="@color/md_theme_onSurfaceVariant"
                     android:layout_marginBottom="30dp"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="First Name"
+                    android:textColor="@color/md_theme_onSurface"
                     android:textStyle="bold"
                     android:layout_marginBottom="5dp"/>
                 <EditText
                     android:id="@+id/etName"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="55dp"
                     android:background="@drawable/bg_input_outline"
                     android:hint="Your first name"
-                    android:paddingStart="15dp"/>
+                    android:paddingStart="20dp"/>
                 <TextView
                     android:id="@+id/tvNameError"
                     android:layout_width="match_parent"
@@ -109,15 +113,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Last Name"
+                    android:textColor="@color/md_theme_onSurface"
                     android:textStyle="bold"
                     android:layout_marginBottom="5dp"/>
                 <EditText
                     android:id="@+id/etSurname"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="55dp"
                     android:background="@drawable/bg_input_outline"
                     android:hint="Your last name"
-                    android:paddingStart="15dp"/>
+                    android:paddingStart="20dp"/>
                 <TextView
                     android:id="@+id/tvSurnameError"
                     android:layout_width="match_parent"
@@ -139,16 +144,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Gender"
-                    android:textSize="22sp"
+                    android:textSize="26sp"
                     android:textStyle="bold"
                     android:textColor="@color/md_theme_primary"
-                    android:layout_marginBottom="10dp"/>
+                    android:layout_marginBottom="5dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Helps us calculate your metabolism"
-                    android:textColor="#717785"
+                    android:textColor="@color/md_theme_onSurfaceVariant"
                     android:layout_marginBottom="30dp"/>
 
                 <RadioGroup
@@ -159,25 +164,34 @@
                     <RadioButton
                         android:id="@+id/rbMale"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="60dp"
                         android:text="Male"
-                        android:padding="10dp"
+                        android:paddingStart="15dp"
+                        android:background="@drawable/bg_radio_selector"
+                        android:button="@null"
+                        android:drawableRight="?android:attr/listChoiceIndicatorSingle"
                         android:layout_marginBottom="10dp"/>
 
                     <RadioButton
                         android:id="@+id/rbFemale"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="60dp"
                         android:text="Female"
-                        android:padding="10dp"
+                        android:paddingStart="15dp"
+                        android:background="@drawable/bg_radio_selector"
+                        android:button="@null"
+                        android:drawableRight="?android:attr/listChoiceIndicatorSingle"
                         android:layout_marginBottom="10dp"/>
 
                     <RadioButton
                         android:id="@+id/rbOther"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="60dp"
                         android:text="Prefer not to say"
-                        android:padding="10dp"/>
+                        android:paddingStart="15dp"
+                        android:background="@drawable/bg_radio_selector"
+                        android:button="@null"
+                        android:drawableRight="?android:attr/listChoiceIndicatorSingle"/>
                 </RadioGroup>
                 <TextView
                     android:id="@+id/tvGenderError"
@@ -202,28 +216,28 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="How old are you?"
-                    android:textSize="22sp"
+                    android:textSize="26sp"
                     android:textStyle="bold"
                     android:textColor="@color/md_theme_primary"
-                    android:layout_marginBottom="10dp"/>
+                    android:layout_marginBottom="5dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Crucial for personalizing your workout"
                     android:gravity="center"
-                    android:textColor="#717785"
+                    android:textColor="@color/md_theme_onSurfaceVariant"
                     android:layout_marginBottom="30dp"/>
 
                 <EditText
                     android:id="@+id/etAge"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="65dp"
                     android:background="@drawable/bg_input_outline"
                     android:hint="e.g. 25"
                     android:gravity="center"
                     android:inputType="number"
-                    android:textSize="18sp"/>
+                    android:textSize="24sp"/>
                 <TextView
                     android:id="@+id/tvAgeError"
                     android:layout_width="match_parent"
@@ -247,33 +261,34 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Body Measurements"
-                    android:textSize="22sp"
+                    android:textSize="26sp"
                     android:textStyle="bold"
                     android:textColor="@color/md_theme_primary"
-                    android:layout_marginBottom="10dp"/>
+                    android:layout_marginBottom="5dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="To track your progress over time"
                     android:gravity="center"
-                    android:textColor="#717785"
+                    android:textColor="@color/md_theme_onSurfaceVariant"
                     android:layout_marginBottom="30dp"/>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Current Weight (kg)"
+                    android:textColor="@color/md_theme_onSurface"
                     android:textStyle="bold"
                     android:layout_marginBottom="5dp"/>
                 <EditText
                     android:id="@+id/etWeight"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="55dp"
                     android:background="@drawable/bg_input_outline"
                     android:hint="kg"
                     android:inputType="numberDecimal"
-                    android:paddingStart="15dp"/>
+                    android:paddingStart="20dp"/>
                 <TextView
                     android:id="@+id/tvWeightError"
                     android:layout_width="match_parent"
@@ -288,16 +303,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Height (cm)"
+                    android:textColor="@color/md_theme_onSurface"
                     android:textStyle="bold"
                     android:layout_marginBottom="5dp"/>
                 <EditText
                     android:id="@+id/etHeight"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="55dp"
                     android:background="@drawable/bg_input_outline"
                     android:hint="cm"
                     android:inputType="number"
-                    android:paddingStart="15dp"/>
+                    android:paddingStart="20dp"/>
                 <TextView
                     android:id="@+id/tvHeightError"
                     android:layout_width="match_parent"
@@ -319,29 +335,28 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Your Goal"
-                    android:textSize="22sp"
+                    android:textSize="26sp"
                     android:textStyle="bold"
                     android:textColor="@color/md_theme_primary"
-                    android:layout_marginBottom="10dp"/>
+                    android:layout_marginBottom="5dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="What is your target weight?"
                     android:gravity="center"
-                    android:textColor="#717785"
+                    android:textColor="@color/md_theme_onSurfaceVariant"
                     android:layout_marginBottom="30dp"/>
 
                 <EditText
                     android:id="@+id/etGoalWeight"
                     android:layout_width="match_parent"
-                    android:layout_height="50dp"
+                    android:layout_height="65dp"
                     android:background="@drawable/bg_input_outline"
                     android:hint="Target weight (kg)"
                     android:inputType="numberDecimal"
-                    android:paddingStart="15dp"
                     android:gravity="center"
-                    android:textSize="18sp"/>
+                    android:textSize="24sp"/>
                 <TextView
                     android:id="@+id/tvGoalError"
                     android:layout_width="match_parent"
@@ -356,7 +371,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="You'll be ready to go!"
+                    android:text="You're ready to go!"
                     android:textColor="@color/md_theme_primary"
                     android:textStyle="bold"
                     android:layout_marginTop="30dp"/>
@@ -376,24 +391,29 @@
         <Button
             android:id="@+id/btnBack"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:text="Back"
-            android:textColor="#717785"
+            android:textColor="@color/md_theme_onSurfaceVariant"
             android:background="@android:color/transparent"
             android:layout_marginEnd="20dp"
             android:textAllCaps="false"
+            android:textStyle="bold"
+            android:textSize="16sp"
             android:visibility="gone"/>
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnNext"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:text="Next  >"
             android:textColor="@android:color/white"
             android:background="@drawable/bg_button_blue"
+            app:backgroundTint="@null"
             android:paddingStart="30dp"
             android:paddingEnd="30dp"
-            android:textAllCaps="false"/>
+            android:textAllCaps="false"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
 
     </LinearLayout>
 

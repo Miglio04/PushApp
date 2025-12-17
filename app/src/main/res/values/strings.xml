@@ -77,4 +77,5 @@
     <string name="stop">stop</string>
     <string name="start_workout">Start workout</string>
     <string name="your_workout_program">Your workout</string>
+    <string name="sign_up_with_google">Sign up with Google</string>
 </resources>
