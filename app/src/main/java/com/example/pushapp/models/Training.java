@@ -1,5 +1,7 @@
 package com.example.pushapp.models;
 
+import java.util.ArrayList;
+
 public class Training {
     private int id;
 
@@ -7,10 +9,28 @@ public class Training {
 
     private String description;
 
+    public ArrayList<Workout> getWorkoutList() {
+        return workoutList;
+    }
+
+    public void setWorkoutList(ArrayList<Workout> workoutList) {
+        this.workoutList = workoutList;
+    }
+
+    private ArrayList<Workout> workoutList;
+
+
     public Training(int id, String name, String description){
         setId(id);
         setName(name);
         setDescription(description);
+    }
+
+    public Training(int id, String name, String description, ArrayList<Workout> workoutList){
+        setId(id);
+        setName(name);
+        setDescription(description);
+        setWorkoutList(workoutList);
     }
 
     public int getId() {
