@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,8 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.Training;
 import com.example.pushapp.utils.TrainingDaysCard;
 import com.example.pushapp.utils.TrainingDaysCardAdapter;
+import com.example.pushapp.utils.TrainingListGenerator;
 import com.example.pushapp.utils.WorkoutViewModel;
 
 import java.util.ArrayList;
@@ -27,6 +30,7 @@ public class TrainingDaysFragment extends Fragment {
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private int trainingId;
 
     private String mParam1;
     private String mParam2;
@@ -51,6 +55,7 @@ public class TrainingDaysFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+            trainingId = getArguments().getInt("trainingId");
         }
     }
 
@@ -68,7 +73,7 @@ public class TrainingDaysFragment extends Fragment {
 
         // Genera 6 schede di allenamento, esempio arbitrario
         int count = 6;
-        List<TrainingDaysCard> cards = generateCards(count);
+        List<TrainingDaysCard> cards = generateCards();
 
         TrainingDaysCardAdapter adapter = getTrainingDaysCardAdapter(cards);
 
@@ -80,7 +85,7 @@ public class TrainingDaysFragment extends Fragment {
     private TrainingDaysCardAdapter getTrainingDaysCardAdapter(List<TrainingDaysCard> cards) {
         TrainingDaysCardAdapter adapter = new TrainingDaysCardAdapter(cards);
 
-        adapter.setOnItemClickListener(card -> {
+        adapter.setStartWorkoutListener(card -> {
             Boolean isWorkoutInProgress = workoutViewModel.isWorkoutInProgress().getValue();
 
             if (Boolean.TRUE.equals(isWorkoutInProgress)) {
@@ -89,6 +94,9 @@ public class TrainingDaysFragment extends Fragment {
                 startNewWorkout(card);
             }
         });
+
+        adapter.setEditWorkoutListener(this::handleEditDayClick);
+
         return adapter;
     }
 
@@ -116,6 +124,7 @@ public class TrainingDaysFragment extends Fragment {
         navController.navigate(R.id.nav_workouts, args);
     }
 
+    // method not used anymore
     private List<TrainingDaysCard> generateCards(int count) {
         List<TrainingDaysCard> list = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
@@ -123,5 +132,24 @@ public class TrainingDaysFragment extends Fragment {
             list.add(new TrainingDaysCard("Routine " + i, "Routine description " + i));
         }
         return list;
+    }
+
+    private List<TrainingDaysCard> generateCards(){
+        Training training = TrainingListGenerator.generateTrainingList().get(trainingId);
+        List<TrainingDaysCard> cards = new ArrayList<>(training.getTrainingDaysList().size());
+        for(int i = 0; i < training.getTrainingDaysList().size(); i++){
+            cards.add(new TrainingDaysCard(training.getTrainingDaysList().get(i).getName(),
+                    "description", i));
+        }
+        return cards;
+    }
+
+    private void handleEditDayClick(TrainingDaysCard card){
+        if(getView() != null){
+            NavController navController = Navigation.findNavController(getView());
+            Bundle trainingDayId = new Bundle();
+            trainingDayId.putInt("trainingDayId", card.getTrainingDayId());
+            navController.navigate(R.id.nav_training_days_to_edit, trainingDayId);
+        }
     }
 }

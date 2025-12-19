@@ -1,6 +1,7 @@
 package com.example.pushapp.utils;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -99,6 +100,12 @@ public class TrainingsRecyclerViewAdapter
             public void onClick(View view){
                 handleDeleteButtonClick(viewHolder);
             }});
+
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view){
+                handleCardClick(viewHolder);
+            }});
     }
 
     // Return the size of your dataset (invoked by the layout manager)
@@ -137,6 +144,14 @@ public class TrainingsRecyclerViewAdapter
                     dialog.dismiss();
                 })
                 .show();
+
+    }
+
+    private void handleCardClick(ViewHolder viewholder){
+        NavController navController = Navigation.findNavController(viewholder.itemView);
+        Bundle id = new Bundle();
+        id.putInt("trainingId", trainings.get(viewholder.getBindingAdapterPosition()).getId());
+        navController.navigate(R.id.nav_training_to_training_days, id);
 
     }
 }

@@ -19,8 +19,12 @@ public class TrainingDaysCardAdapter extends RecyclerView.Adapter<TrainingDaysCa
     public TrainingDaysCardAdapter(List<TrainingDaysCard> items) { this.items = items; }
 
     public interface OnItemClickListener { void onItemClick(TrainingDaysCard item); }
-    private OnItemClickListener listener;
-    public void setOnItemClickListener(OnItemClickListener listener) { this.listener = listener; }
+    private OnItemClickListener startWorkoutListener;
+
+    private OnItemClickListener editWorkoutListener;
+    public void setEditWorkoutListener(OnItemClickListener listener) { this.editWorkoutListener = listener; }
+
+    public void setStartWorkoutListener(OnItemClickListener listener) { this.startWorkoutListener = listener; }
 
     @NonNull
     @Override
@@ -37,8 +41,13 @@ public class TrainingDaysCardAdapter extends RecyclerView.Adapter<TrainingDaysCa
         holder.title.setText(card.getTitle());
         holder.description.setText(card.getDescription());
         holder.startWorkoutButton.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onItemClick(card);
+            if (startWorkoutListener != null) {
+                startWorkoutListener.onItemClick(card);
+            }
+        });
+        holder.editWorkoutButton.setOnClickListener(v -> {
+            if (editWorkoutListener != null) {
+                editWorkoutListener.onItemClick(card);
             }
         });
     }
@@ -52,12 +61,14 @@ public class TrainingDaysCardAdapter extends RecyclerView.Adapter<TrainingDaysCa
         final TextView title;
         final TextView description;
         final Button startWorkoutButton;
+        final Button editWorkoutButton;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.card_title);
             description = itemView.findViewById(R.id.card_description);
             startWorkoutButton = itemView.findViewById(R.id.card_start_workout_button);
+            editWorkoutButton = itemView.findViewById(R.id.card_edit_workout_button);
         }
     }
 }
