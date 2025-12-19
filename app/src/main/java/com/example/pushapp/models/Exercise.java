@@ -1,17 +1,8 @@
 package com.example.pushapp.models;
 
-public class Workout {
-    private int id;
+public class Exercise {
     private String name;
-
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    private int id;
 
     public int getId() {
         return id;
@@ -21,8 +12,16 @@ public class Workout {
         this.id = id;
     }
 
-    public Workout(int id, String name){
-        setId(id);
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Exercise(String name, int id) {
         setName(name);
+        setId(id);
     }
 }

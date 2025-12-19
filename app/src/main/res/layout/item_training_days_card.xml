@@ -19,7 +19,7 @@
     app:strokeColor="@color/md_theme_primary"
     app:strokeWidth="1dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="100dp"
@@ -28,19 +28,35 @@
 
         <TextView
             android:id="@+id/card_title"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textSize="18sp"
-            android:textColor="@color/md_theme_onSecondaryContainer" />
+            android:textColor="@color/md_theme_onSecondaryContainer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
 
         <TextView
             android:id="@+id/card_description"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
             android:textSize="15sp"
-            android:textColor="@color/md_theme_onSecondaryContainer" />
+            android:textColor="@color/md_theme_onSecondaryContainer"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/card_title"/>
+
+        <Button
+            android:id="@+id/card_edit_workout_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/edit_workout"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/card_title"
+            app:layout_constraintBottom_toBottomOf="@id/card_description"/>
 
         <Button
             android:id="@+id/card_start_workout_button"
@@ -48,8 +64,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_gravity="center_horizontal"
-            android:text="@string/start_workout" />
+            android:text="@string/start_workout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/card_description"/>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
 

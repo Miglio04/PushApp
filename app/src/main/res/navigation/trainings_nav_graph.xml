@@ -21,5 +21,17 @@
         android:name="com.example.pushapp.ui.main.fragments.TrainingDaysFragment"
         tools:layout="@layout/fragment_training_days"
         android:label="fragment_training_days">
+        <action
+            android:id="@+id/nav_training_days_to_edit"
+            app:destination="@id/nav_edit_training_day">
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_edit_training_day"
+        android:name="com.example.pushapp.ui.main.fragments.EditTrainingDayFragment"
+        tools:layout="@layout/fragment_edit_training_day"
+        android:label="fragment_edit_training_day">
+
     </fragment>
 </navigation>

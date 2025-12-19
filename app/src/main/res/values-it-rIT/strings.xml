@@ -75,4 +75,8 @@
     <string name="start">inizia</string>
     <string name="stop">ferna</string>
     <string name="start_workout">Inizia workout</string>
+    <string name="delete_set_title">Cancella serie</string>
+    <string name="delete_set_confirm">Sei sicuro di voler eliminare questa serie?</string>
+    <string name="edit_set_title">Modifica serie</string>
+    <string name="invalid_input">Valori non validi</string>
 </resources>

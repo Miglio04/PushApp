@@ -9,15 +9,15 @@ public class Training {
 
     private String description;
 
-    public ArrayList<Workout> getWorkoutList() {
-        return workoutList;
+    public ArrayList<TrainingDay> getTrainingDaysList() {
+        return TrainingDaysList;
     }
 
-    public void setWorkoutList(ArrayList<Workout> workoutList) {
-        this.workoutList = workoutList;
+    public void setTrainingDaysList(ArrayList<TrainingDay> trainingDaysList) {
+        this.TrainingDaysList = trainingDaysList;
     }
 
-    private ArrayList<Workout> workoutList;
+    private ArrayList<TrainingDay> TrainingDaysList;
 
 
     public Training(int id, String name, String description){
@@ -26,11 +26,11 @@ public class Training {
         setDescription(description);
     }
 
-    public Training(int id, String name, String description, ArrayList<Workout> workoutList){
+    public Training(int id, String name, String description, ArrayList<TrainingDay> TrainingDaysList){
         setId(id);
         setName(name);
         setDescription(description);
-        setWorkoutList(workoutList);
+        setTrainingDaysList(TrainingDaysList);
     }
 
     public int getId() {
