@@ -15,41 +15,54 @@
         android:padding="24dp">
 
         <ImageView
+            android:id="@+id/iconError"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:src="@drawable/ic_check_circle"
-            app:tint="#4CAF50"
+            android:src="@drawable/ic_error_vector"
+            app:tint="#D32F2F"
+            android:contentDescription="Error Icon"
             android:layout_marginBottom="16dp"/>
 
         <TextView
-            android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Success!"
-            android:textColor="#4CAF50"
+            android:text="Account Not Found"
+            android:textColor="#D32F2F"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp"/>
 
         <TextView
-            android:id="@+id/tvMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Operation completed."
+            android:text="This email is not registered. Do you want to create a new account?"
             android:gravity="center"
             android:textColor="#757575"
             android:textSize="14sp"
             android:layout_marginBottom="24dp"/>
 
         <Button
-            android:id="@+id/btnAction"
+            android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:text="OK"
+            android:text="REGISTER NOW"
             android:textColor="@android:color/white"
             android:background="@drawable/bg_button_blue"
             app:backgroundTint="@null"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp"/>
+
+        <TextView
+            android:id="@+id/btnTryAgain"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="No, Try Again"
+            android:gravity="center"
+            android:textColor="#757575"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"/>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

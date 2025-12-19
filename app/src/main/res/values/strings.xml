@@ -82,4 +82,5 @@
     <string name="delete_set_confirm">Are you sure to delete this set?</string>
     <string name="edit_set_title">Edit set</string>
     <string name="invalid_input">Please insert valid values</string>
+    <string name="sign_up_with_google">Sign up with Google</string>
 </resources>
