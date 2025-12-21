@@ -1,5 +1,7 @@
 package com.example.pushapp.ui.main;
 
+import static android.content.Intent.getIntent;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
