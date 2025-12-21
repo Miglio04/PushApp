@@ -33,6 +33,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -211,14 +212,7 @@ public class RegisterActivity extends AppCompatActivity {
         
         Map<String, Object> user = new HashMap<>();
         user.put("email", email);
-        user.put("createdAt", System.currentTimeMillis());
-        user.put("height", 0);
-        user.put("weight", 0);
-        user.put("goalWeight", 0);
-        user.put("gender", "");
-        user.put("name", "");
-        user.put("surname", "");
-        user.put("age", 0);
+        user.put("createdAt", FieldValue.serverTimestamp());
         user.put("trainingPlans", new ArrayList<String>());
         user.put("weightProgress", new ArrayList<Double>());
         user.put("currentTrainingPlan", "");

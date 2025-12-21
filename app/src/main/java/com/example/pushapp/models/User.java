@@ -1,5 +1,6 @@
 package com.example.pushapp.models;
 
+import com.google.firebase.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class User {
     private double weight;
     private int height;
     private double goalWeight;
-    private long createdAt;
+    private Timestamp createdAt;
     private List<String> trainingPlans;
     private List<Double> weightProgress;
 
@@ -49,8 +50,8 @@ public class User {
     public double getGoalWeight() { return goalWeight; }
     public void setGoalWeight(double goalWeight) { this.goalWeight = goalWeight; }
 
-    public long getCreatedAt() { return createdAt; }
-    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
     public List<String> getTrainingPlans() {
         if (trainingPlans == null) trainingPlans = new ArrayList<>();
