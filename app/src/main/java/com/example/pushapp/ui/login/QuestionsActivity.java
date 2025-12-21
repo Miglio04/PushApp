@@ -24,9 +24,11 @@ import com.example.pushapp.R;
 import com.example.pushapp.ui.main.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -271,6 +273,7 @@ public class QuestionsActivity extends AppCompatActivity {
         userData.put("weight", weight);
         userData.put("height", height);
         userData.put("goalWeight", goalWeight);
+        userData.put("weightProgress", FieldValue.arrayUnion(weight));
 
         db.collection("users").document(uid)
                 .set(userData, SetOptions.merge())
