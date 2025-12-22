@@ -213,7 +213,7 @@ public class RegisterActivity extends AppCompatActivity {
         Map<String, Object> user = new HashMap<>();
         user.put("email", email);
         user.put("createdAt", FieldValue.serverTimestamp());
-        user.put("trainingPlans", new ArrayList<String>());
+        user.put("workoutPlans", new ArrayList<String>());
         user.put("weightProgress", new ArrayList<Double>());
         user.put("currentTrainingPlan", "");
 
