@@ -81,4 +81,16 @@
     <string name="edit_set_title">Modifica serie</string>
     <string name="invalid_input">Valori non validi</string>
     <string name="sign_up_with_google">Registrati con Google</string>
+
+    <!-- Profile Activity Strings IT -->
+    <string name="profile">Profilo</string>
+    <string name="personal_data">Dati Personali</string>
+    <string name="goals">Obiettivi</string>
+    <string name="notifications">Notifiche</string>
+    <string name="theme">Tema</string>
+    <string name="detail_email">Email: %1$s</string>
+    <string name="detail_gender">Genere: %1$s</string>
+    <string name="detail_age">Età: %1$d</string>
+    <string name="detail_height">Altezza: %1$d cm</string>
+    <string name="detail_weight">Peso: %1$.1f kg</string>
 </resources>

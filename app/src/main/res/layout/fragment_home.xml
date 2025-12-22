@@ -19,11 +19,10 @@
             android:layout_marginBottom="24dp">
 
             <TextView
-                android:id="@+id/appName"
+                android:id="@+id/nameTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="8dp"
-                android:text="Username"
                 android:textColor="@color/md_theme_onBackground"
                 android:textSize="24sp"
                 android:textStyle="bold"
@@ -41,7 +40,7 @@
                 android:textColor="@color/md_theme_onBackground_mediumContrast"
                 android:textSize="16sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/appName" />
+                app:layout_constraintTop_toBottomOf="@id/nameTitle" />
 
             <!-- avatar -->
             <com.google.android.material.card.MaterialCardView
@@ -60,6 +59,7 @@
                 app:strokeWidth="1dp">
 
                 <TextView
+                    android:id="@+id/tvAvatarInitial"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/btn_gradient"
@@ -123,7 +123,8 @@
                         android:layout_width="wrap_content"/>
 
                     <TextView
-                        android:text="-2.0 kg"
+                        android:id="@+id/tvWeightDiff"
+                        android:text=""
                         android:textColor="@color/md_theme_onSecondaryContainer"
                         android:textSize="14sp"
                         android:layout_marginStart="8dp"
