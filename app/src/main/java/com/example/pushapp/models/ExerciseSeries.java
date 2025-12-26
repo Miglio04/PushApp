@@ -3,23 +3,23 @@ package com.example.pushapp.models;
 import java.util.ArrayList;
 
 public class ExerciseSeries {
-    private int id;
+    private String id;
     private ArrayList<SeriesReps> reps;
     private Exercise exercise;
     private int restTime;
 
-    public ExerciseSeries(int id, ArrayList<SeriesReps> reps, Exercise exercise, int restTime) {
+    public ExerciseSeries(String id, ArrayList<SeriesReps> reps, Exercise exercise, int restTime) {
         this.id = id;
         this.reps = reps;
         this.exercise = exercise;
         this.restTime = restTime;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

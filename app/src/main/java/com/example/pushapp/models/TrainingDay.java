@@ -1,46 +1,56 @@
 package com.example.pushapp.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TrainingDay {
-    private int id;
+    private String id;
     private String name;
+    private int dayOrder;
+    private List<Exercise> exercises;
+    private String notes;
 
-    public ArrayList<ExerciseSeries> getExercises() {
-        return exercises;
+    // Costruttore vuoto richiesto da Firebase
+    public TrainingDay() {
+        this.exercises = new ArrayList<>();
     }
 
-    public void setExercises(ArrayList<ExerciseSeries> exercises) {
+    public TrainingDay(String name, int dayOrder) {
+        this.name = name;
+        this.dayOrder = dayOrder;
+        this.exercises = new ArrayList<>();
+    }
+
+    // Ha senso questo costruttore?
+    public TrainingDay(String name, int dayOrder, ArrayList<Exercise> exercises) {
+        this.name = name;
+        this.dayOrder = dayOrder;
+        this.exercises = exercises != null ? exercises : new ArrayList<>();
+    }
+
+    // Getters e Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public int getDayOrder() { return dayOrder; }
+    public void setDayOrder(int dayOrder) { this.dayOrder = dayOrder; }
+
+    public List<Exercise> getExercises() { return exercises; }
+    public void setExercises(List<Exercise> exercises) {
         this.exercises = exercises;
     }
 
-    private ArrayList<ExerciseSeries> exercises;
+    public String getNotes() { return notes; }
+    public void setNotes(String notes) { this.notes = notes; }
 
-
-    public String getName() {
-        return name;
+    public void addExercise(Exercise exercise) {
+        this.exercises.add(exercise);
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public TrainingDay(int id, String name, ArrayList<ExerciseSeries> exercises){
-        setId(id);
-        setName(name);
-        setExercises(exercises);
-    }
-
-    public TrainingDay(int id, String name){
-        setId(id);
-        setName(name);
+    public int getTotalExercises() {
+        return exercises.size();
     }
 }

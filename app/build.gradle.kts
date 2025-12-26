@@ -63,7 +63,18 @@ dependencies {
 
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
-    implementation("com.google.firebase:firebase-auth")
+
+    // Firebase Firestore
+    implementation ("com.google.firebase:firebase-firestore")
+
+    // Firebase Authentication
+    implementation ("com.google.firebase:firebase-auth")
+
+    // ADD THIS LINE: Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+    // ViewModel e LiveData
+    implementation ("androidx.lifecycle:lifecycle-viewmodel:2.7.0")
+    implementation ("androidx.lifecycle:lifecycle-livedata:2.7.0")
 
 }

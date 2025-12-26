@@ -150,7 +150,7 @@ public class TrainingsRecyclerViewAdapter
     private void handleCardClick(ViewHolder viewholder){
         NavController navController = Navigation.findNavController(viewholder.itemView);
         Bundle id = new Bundle();
-        id.putInt("trainingId", trainings.get(viewholder.getBindingAdapterPosition()).getId());
+        id.putString("trainingId", trainings.get(viewholder.getBindingAdapterPosition()).getId());
         navController.navigate(R.id.nav_training_to_training_days, id);
 
     }
