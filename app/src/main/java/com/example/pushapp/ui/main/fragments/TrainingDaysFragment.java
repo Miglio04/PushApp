@@ -1,3 +1,4 @@
+// Sostituisci l'intero contenuto di TrainingDaysFragment.java con questo
 package com.example.pushapp.ui.main.fragments;
 
 import android.os.Bundle;
@@ -15,47 +16,40 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.pushapp.R;
 import com.example.pushapp.models.Training;
+import com.example.pushapp.models.TrainingDay; // <-- Import corretto
+import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.utils.TrainingDaysCard;
 import com.example.pushapp.utils.TrainingDaysCardAdapter;
-import com.example.pushapp.utils.TrainingListGenerator;
+import com.example.pushapp.utils.TrainingViewModel; // <-- USA IL VIEWMODEL CORRETTO
 import com.example.pushapp.utils.WorkoutViewModel;
 
+import java.io.Serializable; // <-- Aggiungi import per il passaggio dati
 import java.util.ArrayList;
 import java.util.List;
 
 public class TrainingDaysFragment extends Fragment {
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-    private int trainingId;
-
-    private String mParam1;
-    private String mParam2;
+    private String trainingId;
+    private TrainingViewModel trainingViewModel; // <-- USA IL VIEWMODEL CORRETTO
     private WorkoutViewModel workoutViewModel;
-
+    private TrainingDaysCardAdapter adapter;
+    private Training currentTraining; // Campo per memorizzare il training corrente
 
     public TrainingDaysFragment() { }
-
-    public static TrainingDaysFragment newInstance(String param1, String param2) {
-        TrainingDaysFragment fragment = new TrainingDaysFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Inizializza ENTRAMBI i ViewModel
+        trainingViewModel = new ViewModelProvider(requireActivity()).get(TrainingViewModel.class);
         workoutViewModel = new ViewModelProvider(requireActivity()).get(WorkoutViewModel.class);
+
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-            trainingId = getArguments().getInt("trainingId");
+            trainingId = getArguments().getString("trainingId");
         }
     }
 
@@ -67,37 +61,96 @@ public class TrainingDaysFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         RecyclerView recyclerView = view.findViewById(R.id.recycler_training_days);
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext(),
-                LinearLayoutManager.VERTICAL, false));
-
-        // Genera 6 schede di allenamento, esempio arbitrario
-        int count = 6;
-        List<TrainingDaysCard> cards = generateCards();
-
-        TrainingDaysCardAdapter adapter = getTrainingDaysCardAdapter(cards);
-
-        recyclerView.setAdapter(adapter);
-
+        setupRecyclerView(recyclerView);
+        observeViewModel();
     }
 
-    @NonNull
-    private TrainingDaysCardAdapter getTrainingDaysCardAdapter(List<TrainingDaysCard> cards) {
-        TrainingDaysCardAdapter adapter = new TrainingDaysCardAdapter(cards);
+    private void setupRecyclerView(RecyclerView recyclerView) {
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        // Crea l'adapter una sola volta con una lista vuota
+        adapter = new TrainingDaysCardAdapter(new ArrayList<>());
+        recyclerView.setAdapter(adapter);
 
-        adapter.setStartWorkoutListener(card -> {
-            Boolean isWorkoutInProgress = workoutViewModel.isWorkoutInProgress().getValue();
+        // Imposta i listener sull'adapter
+        adapter.setStartWorkoutListener(this::handleStartWorkoutClick);
+        adapter.setEditWorkoutListener(this::handleEditDayClick);
+    }
 
-            if (Boolean.TRUE.equals(isWorkoutInProgress)) {
-                showReplaceWorkoutDialog(card);
-            } else {
-                startNewWorkout(card);
+    private void observeViewModel() {
+        // Osserva la lista completa di allenamenti
+        trainingViewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
+            if (trainings == null || trainingId == null) return;
+
+            // Cerca il training specifico che ci interessa usando l'ID (String)
+            for (Training training : trainings) {
+                if (trainingId.equals(training.getId())) {
+                    currentTraining = training; // Salva il training trovato
+                    // Genera le card usando i dati REALI dal training trovato
+                    List<TrainingDaysCard> cards = generateCardsFromTraining(currentTraining);
+                    adapter.updateCards(cards); // Aggiorna l'adapter con le nuove card
+                    break;
+                }
             }
         });
+    }
 
-        adapter.setEditWorkoutListener(this::handleEditDayClick);
+    // --- NUOVI METODI HELPER ---
 
-        return adapter;
+    private List<TrainingDaysCard> generateCardsFromTraining(Training training) {
+        List<TrainingDaysCard> cards = new ArrayList<>();
+        if (training == null || training.getTrainingDaysList() == null) {
+            return cards;
+        }
+
+        // Crea una card per ogni giorno di allenamento reale
+        for (TrainingDay day : training.getTrainingDaysList()) {
+            cards.add(new TrainingDaysCard(day.getName(), "Exercises: " + day.getTotalExercises(), day.getId()));
+        }
+        return cards;
+    }
+
+    private void handleStartWorkoutClick(TrainingDaysCard card) {
+        Boolean isWorkoutInProgress = workoutViewModel.isWorkoutInProgress().getValue();
+        if (Boolean.TRUE.equals(isWorkoutInProgress)) {
+            showReplaceWorkoutDialog(card);
+        } else {
+            startNewWorkout(card);
+        }
+    }
+
+    private void handleEditDayClick(TrainingDaysCard card) {
+        if (getView() != null && card.getTrainingDayId() != null) {
+            NavController navController = Navigation.findNavController(getView());
+            Bundle args = new Bundle();
+            args.putString("trainingId", trainingId);
+            args.putString("trainingDayId", card.getTrainingDayId());
+            navController.navigate(R.id.nav_training_days_to_edit, args);
+        } else {
+            // Opzionale: mostra un messaggio di errore
+            Toast.makeText(getContext(), "Errore: ID del giorno non disponibile", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void startNewWorkout(TrainingDaysCard card) {
+        if (currentTraining == null) return;
+
+        String cardDayId = card.getTrainingDayId();
+        if (cardDayId == null) return; // Aggiungi questo check
+
+        // Trova il TrainingDay completo da passare al WorkoutFragment
+        for (TrainingDay day : currentTraining.getTrainingDaysList()) {
+            if (cardDayId.equals(day.getId())) { // Inverti il confronto
+                NavController navController = NavHostFragment.findNavController(this);
+                Bundle args = new Bundle();
+                args.putSerializable("trainingDay", (Serializable) day);
+                args.putSerializable("parentTraining", (Serializable) currentTraining);
+                navController.navigate(R.id.nav_workouts, args);
+                break;
+            }
+        }
     }
 
     private void showReplaceWorkoutDialog(TrainingDaysCard card) {
@@ -105,51 +158,20 @@ public class TrainingDaysFragment extends Fragment {
                 .setTitle("Workout in corso")
                 .setMessage("Hai già un workout in corso. Vuoi scartarlo e avviarne uno nuovo?")
                 .setPositiveButton("Scarta e avvia", (dialog, which) -> {
-                    workoutViewModel.stopWorkout();
-                    startNewWorkout(card);
+                    workoutViewModel.stopWorkout(new FirebaseCallback<Void>() {
+                        @Override
+                        public void onSuccess(Void result) {
+                            startNewWorkout(card);
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            // Avvia comunque il nuovo workout anche se il salvataggio fallisce
+                            startNewWorkout(card);
+                        }
+                    });
                 })
-                .setNegativeButton("Annulla", (dialog, which) -> dialog.dismiss())
-                .setNeutralButton("Riprendi attuale", (dialog, which) -> {
-                    NavController navController = NavHostFragment.findNavController(TrainingDaysFragment.this);
-                    navController.navigate(R.id.nav_workouts);
-                })
+                .setNegativeButton("Annulla", null)
                 .show();
-    }
-
-    private void startNewWorkout(TrainingDaysCard card) {
-        NavController navController = NavHostFragment.findNavController(TrainingDaysFragment.this);
-        Bundle args = new Bundle();
-        args.putString("param1", card.getTitle());
-        args.putString("param2", card.getDescription());
-        navController.navigate(R.id.nav_workouts, args);
-    }
-
-    // method not used anymore
-    private List<TrainingDaysCard> generateCards(int count) {
-        List<TrainingDaysCard> list = new ArrayList<>(count);
-        for (int i = 1; i <= count; i++) {
-            //Stringhe provvisorie
-            list.add(new TrainingDaysCard("Routine " + i, "Routine description " + i));
-        }
-        return list;
-    }
-
-    private List<TrainingDaysCard> generateCards(){
-        Training training = TrainingListGenerator.generateTrainingList().get(trainingId);
-        List<TrainingDaysCard> cards = new ArrayList<>(training.getTrainingDaysList().size());
-        for(int i = 0; i < training.getTrainingDaysList().size(); i++){
-            cards.add(new TrainingDaysCard(training.getTrainingDaysList().get(i).getName(),
-                    "description", i));
-        }
-        return cards;
-    }
-
-    private void handleEditDayClick(TrainingDaysCard card){
-        if(getView() != null){
-            NavController navController = Navigation.findNavController(getView());
-            Bundle trainingDayId = new Bundle();
-            trainingDayId.putInt("trainingDayId", card.getTrainingDayId());
-            navController.navigate(R.id.nav_training_days_to_edit, trainingDayId);
-        }
     }
 }

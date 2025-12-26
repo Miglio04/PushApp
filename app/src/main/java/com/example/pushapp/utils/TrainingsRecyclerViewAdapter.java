@@ -5,40 +5,71 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ImageButton;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
 import com.example.pushapp.models.Training;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.ArrayList;
+import java.util.List;
 
-public class TrainingsRecyclerViewAdapter
-        extends RecyclerView.Adapter<TrainingsRecyclerViewAdapter.ViewHolder> {
-    private final ArrayList<Training> trainings;
+public class TrainingsRecyclerViewAdapter extends RecyclerView.Adapter<TrainingsRecyclerViewAdapter.ViewHolder> {
 
-    public TrainingsRecyclerViewAdapter(ArrayList<Training> trainings) {
-        this.trainings = trainings;
+    private List<Training> trainings;
+    private final OnTrainingInteractionListener listener;
+
+    // 1. Interfaccia per comunicare con il Fragment
+    public interface OnTrainingInteractionListener {
+        void onTrainingClicked(Training training);
+        void onTrainingDeleteClicked(Training training);
+        void onTrainingEditFinished(Training training, String newName, String newDescription);
     }
 
+    public TrainingsRecyclerViewAdapter(List<Training> trainings, OnTrainingInteractionListener listener) {
+        this.trainings = trainings;
+        this.listener = listener;
+    }
+
+    // Metodo per aggiornare i dati dal LiveData
+    public void updateTrainings(List<Training> newTrainings) {
+        this.trainings.clear();
+        if (newTrainings != null) {
+            this.trainings.addAll(newTrainings);
+        }
+        Log.d("Adapter", "Updated with " + this.trainings.size() + " trainings");
+        notifyDataSetChanged();
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.training_card_view, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        Training training = trainings.get(position);
+        holder.bind(training, listener);
+    }
+
+    @Override
+    public int getItemCount() {
+        return trainings != null ? trainings.size() : 0;
+    }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextInputEditText textInputName;
         private final TextInputEditText textInputDescription;
         private final ImageButton editButton;
         private final ImageButton deleteButton;
-
-        // tells if the user is editing the text fields in the card
         private boolean isEditing = false;
-
 
         public ViewHolder(View view) {
             super(view);
@@ -48,110 +79,37 @@ public class TrainingsRecyclerViewAdapter
             deleteButton = view.findViewById(R.id.delete_image_button);
         }
 
-        public TextInputEditText getTextViewName() {
-            return textInputName;
+        public void bind(Training training, OnTrainingInteractionListener listener) {
+            textInputName.setText(training.getName());
+            textInputDescription.setText(training.getDescription());
+
+            // Reset stato di modifica
+            setEditingState(false);
+
+            itemView.setOnClickListener(v -> listener.onTrainingClicked(training));
+            deleteButton.setOnClickListener(v -> listener.onTrainingDeleteClicked(training));
+            editButton.setOnClickListener(v -> {
+                if (isEditing) {
+                    // Clic su "Salva" (check)
+                    String newName = textInputName.getText().toString();
+                    String newDescription = textInputDescription.getText().toString();
+                    listener.onTrainingEditFinished(training, newName, newDescription);
+                }
+                // Inverte lo stato di modifica
+                setEditingState(!isEditing);
+            });
         }
 
-        public TextInputEditText getTextViewDescription() {
-            return textInputDescription;
-        }
-
-        public ImageButton getEditButton() {
-            return editButton;
-        }
-
-        public ImageButton getDeleteButton() {
-            return deleteButton;
-        }
-
-        public boolean isEditing() {
-            return isEditing;
-        }
-
-        public void setEditing(boolean editing) {
+        private void setEditingState(boolean editing) {
             isEditing = editing;
+            textInputName.setFocusable(editing);
+            textInputDescription.setFocusable(editing);
+            textInputName.setFocusableInTouchMode(editing);
+            textInputDescription.setFocusableInTouchMode(editing);
+            editButton.setImageResource(editing ? R.drawable.check : R.drawable.edit);
+            if (editing) {
+                textInputName.requestFocus();
+            }
         }
-    }
-
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
-        // Create a new view, which defines the UI of the list item
-        View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.training_card_view, viewGroup, false);
-
-        return new ViewHolder(view);
-    }
-
-    // Replace the contents of a view (invoked by the layout manager)
-    @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int position) {
-
-        viewHolder.getTextViewName().setText(trainings.get(position).getName());
-        viewHolder.getTextViewDescription().setText(trainings.get(position).getDescription());
-
-        viewHolder.getEditButton().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view){
-                handleEditButtonClick(viewHolder);
-            }});
-
-        viewHolder.getDeleteButton().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view){
-                handleDeleteButtonClick(viewHolder);
-            }});
-
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view){
-                handleCardClick(viewHolder);
-            }});
-    }
-
-    // Return the size of your dataset (invoked by the layout manager)
-    @Override
-    public int getItemCount() {
-        return trainings.size();
-    }
-
-    private void handleEditButtonClick(ViewHolder viewHolder){
-        if(viewHolder.isEditing()) {
-            viewHolder.getTextViewName().setFocusable(false);
-            viewHolder.getTextViewDescription().setFocusable(false);
-            viewHolder.getTextViewName().setFocusableInTouchMode(false);
-            viewHolder.getTextViewDescription().setFocusableInTouchMode(false);
-            viewHolder.setEditing(false);
-            viewHolder.getEditButton().setImageResource(R.drawable.edit);
-
-        } else {
-            viewHolder.getTextViewName().setFocusable(true);
-            viewHolder.getTextViewDescription().setFocusable(true);
-            viewHolder.getTextViewName().setFocusableInTouchMode(true);
-            viewHolder.getTextViewDescription().setFocusableInTouchMode(true);
-            viewHolder.setEditing(true);
-            viewHolder.getEditButton().setImageResource(R.drawable.check);
-        }
-    }
-
-    private void handleDeleteButtonClick(ViewHolder viewHolder) {
-        new MaterialAlertDialogBuilder(viewHolder.itemView.getContext())
-                .setTitle(R.string.confirm_operation)
-                .setMessage(R.string.are_you_sure_delete)
-                .setPositiveButton(R.string.confirm, (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .setNegativeButton(R.string.cancel, (dialog, which) -> {
-                    dialog.dismiss();
-                })
-                .show();
-
-    }
-
-    private void handleCardClick(ViewHolder viewholder){
-        NavController navController = Navigation.findNavController(viewholder.itemView);
-        Bundle id = new Bundle();
-        id.putString("trainingId", trainings.get(viewholder.getBindingAdapterPosition()).getId());
-        navController.navigate(R.id.nav_training_to_training_days, id);
-
     }
 }

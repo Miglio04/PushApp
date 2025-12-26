@@ -1,9 +1,10 @@
 package com.example.pushapp.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Training {
+public class Training implements Serializable {
     private String id;
     private String userId;
     private String name;

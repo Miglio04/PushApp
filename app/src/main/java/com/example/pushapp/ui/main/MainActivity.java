@@ -20,6 +20,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.pushapp.R;
+import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.utils.WorkoutViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -105,7 +106,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         discardButton.setOnClickListener(v -> {
-            workoutViewModel.stopWorkout();
+            workoutViewModel.stopWorkout(new FirebaseCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    // Workout scartato con successo
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    // Gestisci l'errore se necessario
+                }
+            });
         });
     }
 

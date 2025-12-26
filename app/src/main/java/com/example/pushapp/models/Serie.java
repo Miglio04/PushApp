@@ -1,6 +1,8 @@
 package com.example.pushapp.models;
 
-public class Serie {
+import java.io.Serializable;
+
+public class Serie implements Serializable {
     private int serieNumber;
     private int targetReps;
     private double targetWeight;

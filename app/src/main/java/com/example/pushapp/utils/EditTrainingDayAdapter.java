@@ -1,15 +1,11 @@
 package com.example.pushapp.utils;
 
-import android.app.AlertDialog;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
 import com.example.pushapp.models.Exercise;
-import com.example.pushapp.models.ExerciseSeries;
 import com.example.pushapp.models.Serie;
 
 import java.util.List;

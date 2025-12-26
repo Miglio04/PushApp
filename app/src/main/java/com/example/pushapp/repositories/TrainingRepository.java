@@ -1,11 +1,14 @@
 package com.example.pushapp.repositories;
 
+import android.util.Log;
+
 import com.example.pushapp.models.Training;
-import com.example.pushapp.utils.FirebaseCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +17,7 @@ public class TrainingRepository {
     private static final String COLLECTION_TRAININGS = "trainings";
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
+    private ListenerRegistration trainingsListener;
 
     public TrainingRepository() {
         this.db = FirebaseFirestore.getInstance();
@@ -61,7 +65,8 @@ public class TrainingRepository {
     }
 
     // READ - Tutti i training dell'utente
-    public void getUserTrainings(FirebaseCallback<List<Training>> callback) {
+    // Commmentato per evitare conflitti con l'osservatore nel ViewModel
+    /*public void getUserTrainings(FirebaseCallback<List<Training>> callback) {
         String userId = getCurrentUserId();
         if (userId == null) {
             callback.onError(new Exception("User not authenticated"));
@@ -78,6 +83,68 @@ public class TrainingRepository {
                     callback.onSuccess(trainings);
                 })
                 .addOnFailureListener(callback::onError);
+    }*/
+
+    public void attachUserTrainingsListener(FirebaseCallback<List<Training>> callback) {
+        String userId = getCurrentUserId();
+        Log.d("TrainingRepository", "attachUserTrainingsListener called for userId: " + userId);
+
+        if (userId == null) {
+            callback.onError(new Exception("User not authenticated"));
+            return;
+        }
+
+        // Se c'è già un listener attivo, lo rimuoviamo prima di crearne uno nuovo
+        if (trainingsListener != null) {
+            Log.d("TrainingRepository", "Removing existing listener");
+            trainingsListener.remove();
+        }
+
+        Log.d("TrainingRepository", "Creating new snapshot listener...");
+
+        trainingsListener = db.collection(COLLECTION_TRAININGS)
+                .whereEqualTo("userId", userId)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .addSnapshotListener((querySnapshot, error) -> {
+                    Log.d("TrainingRepository", "Snapshot listener triggered!");
+
+                    if (error != null) {
+                        Log.e("TrainingRepository", "Listener error: " + error.getMessage());
+                        callback.onError(error);
+                        return;
+                    }
+
+                    List<Training> trainings = new ArrayList<>();
+
+                    if (querySnapshot != null) {
+                        Log.d("TrainingRepository", "Snapshot received with " + querySnapshot.size() + " documents");
+                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                            Training t = doc.toObject(Training.class);
+                            if (t != null) {
+                                t.setId(doc.getId()); // Assicurati che l'ID sia impostato
+                                Log.d("TrainingRepository", "  Doc ID: " + doc.getId());
+                                trainings.add(t);
+                            }
+                        }
+                    } else {
+                        Log.d("TrainingRepository", "querySnapshot is null");
+                    }
+
+                    callback.onSuccess(trainings);
+
+                });
+        Log.d("TrainingRepository", "Listener attached successfully");
+
+    }
+
+    /**
+     * Rimuove il listener quando non è più necessario (es. quando il ViewModel viene distrutto).
+     */
+    public void detachTrainingsListener() {
+        if (trainingsListener != null) {
+            trainingsListener.remove();
+            trainingsListener = null;
+        }
     }
 
     // READ - Training attivo

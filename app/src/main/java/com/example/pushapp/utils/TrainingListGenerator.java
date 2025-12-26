@@ -29,7 +29,8 @@ public class TrainingListGenerator {
     }
 
     private static Exercise createExercise(String name, String muscleGroup, int order, int numSeries, int targetReps, double targetWeight) {
-        Exercise exercise = new Exercise(name, muscleGroup, order);
+        int fakeBaseId = name.hashCode();
+        Exercise exercise = new Exercise(fakeBaseId, name, order);
         List<Serie> series = new ArrayList<>();
         for (int i = 0; i < numSeries; i++) {
             series.add(new Serie(i + 1, targetReps, targetWeight));
@@ -40,15 +41,15 @@ public class TrainingListGenerator {
 
     public static List<Exercise> getAvailableExercises() {
         List<Exercise> available = new ArrayList<>();
-        available.add(new Exercise("Bench Press", "Petto", 0));
-        available.add(new Exercise("Squat", "Gambe", 0));
-        available.add(new Exercise("Deadlift", "Schiena/Gambe", 0));
-        available.add(new Exercise("Overhead Press", "Spalle", 0));
-        available.add(new Exercise("Pull-ups", "Dorso", 0));
-        available.add(new Exercise("Dips", "Tricipiti/Petto", 0));
-        available.add(new Exercise("Barbell Rows", "Dorso", 0));
-        available.add(new Exercise("Bicep Curls", "Bicipiti", 0));
-        // Aggiungi qui tutti gli altri esercizi che vuoi rendere disponibili
+        // Usa il costruttore corretto: (baseId, name, order)
+        available.add(new Exercise(1, "Bench Press", 0));
+        available.add(new Exercise(2, "Squat", 0));
+        available.add(new Exercise(3, "Deadlift", 0));
+        available.add(new Exercise(4, "Overhead Press", 0));
+        available.add(new Exercise(5, "Pull-ups", 0));
+        available.add(new Exercise(6, "Dips", 0));
+        available.add(new Exercise(7, "Barbell Rows", 0));
+        available.add(new Exercise(8, "Bicep Curls", 0));
         return available;
     }
 
