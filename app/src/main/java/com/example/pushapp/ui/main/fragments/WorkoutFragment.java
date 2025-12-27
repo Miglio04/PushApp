@@ -1,10 +1,6 @@
 package com.example.pushapp.ui.main.fragments;
 
-import java.util.ArrayList;
-import java.util.Locale;
-
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -12,7 +8,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,28 +15,34 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.pushapp.R;
-import com.example.pushapp.utils.WorkoutCardAdapter;
-import com.example.pushapp.utils.WorkoutSet;
+import com.example.pushapp.models.Exercise;
+import com.example.pushapp.models.Serie;
+import com.example.pushapp.models.Training;
+import com.example.pushapp.models.TrainingDay;
+import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.utils.WorkoutViewModel;
+// 1. Importa il NUOVO adapter per gli esercizi durante l'allenamento
+import com.example.pushapp.utils.WorkoutExerciseAdapter;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Locale;
 
-public class WorkoutFragment extends Fragment implements WorkoutCardAdapter.OnCardInteractionListener {
+// 2. Implementa la NUOVA interfaccia, che ora ha un solo metodo
+public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.OnWorkoutInteractionListener {
 
-    public static final String TAG = "WorkoutFragment";
-    private String mParam1;
-    private String mParam2;
-
+    // I tuoi campi rimangono invariati
     private WorkoutViewModel workoutViewModel;
+    private WorkoutExerciseAdapter workoutAdapter; // <-- Usa il nuovo adapter
     private ImageButton workoutBackButton;
     private RecyclerView recyclerView;
     private TextView timerText;
     private ImageButton startPauseButton;
     private ImageButton stopButton;
     private TextView headerTitle;
-
-    // Rest timer
     private View restTimerContainer;
     private TextView restTimerText;
     private ProgressBar restTimerProgress;
@@ -53,14 +54,16 @@ public class WorkoutFragment extends Fragment implements WorkoutCardAdapter.OnCa
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         workoutViewModel = new ViewModelProvider(requireActivity()).get(WorkoutViewModel.class);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString("param1");
-            mParam2 = getArguments().getString("param2");
 
-            // If the workout is NOT already in progress, start a new one
-            if (workoutViewModel.isWorkoutInProgress().getValue() == null ||
-                    Boolean.FALSE.equals(workoutViewModel.isWorkoutInProgress().getValue())) {
-                workoutViewModel.startWorkout(mParam1);
+        if (getArguments() != null) {
+            // Assicurati che le classi modello implementino Serializable
+            if ((workoutViewModel.isWorkoutInProgress().getValue() == null || !workoutViewModel.isWorkoutInProgress().getValue())) {
+                TrainingDay dayToStart = (TrainingDay) getArguments().getSerializable("trainingDay");
+                Training parentTraining = (Training) getArguments().getSerializable("parentTraining");
+
+                if (dayToStart != null) {
+                    workoutViewModel.startWorkout(dayToStart, parentTraining);
+                }
             }
         }
     }
@@ -73,24 +76,22 @@ public class WorkoutFragment extends Fragment implements WorkoutCardAdapter.OnCa
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        // L'inizializzazione delle viste è corretta e rimane invariata
         workoutBackButton = view.findViewById(R.id.workout_back_button);
         headerTitle = view.findViewById(R.id.header_title);
         timerText = view.findViewById(R.id.workout_timer_text);
         startPauseButton = view.findViewById(R.id.workout_start_pause_button);
         stopButton = view.findViewById(R.id.workout_stop_button);
         recyclerView = view.findViewById(R.id.recycler_workout);
-
-        // Rest timer views
         restTimerContainer = view.findViewById(R.id.rest_timer_container);
         restTimerText = restTimerContainer.findViewById(R.id.rest_timer_text);
         restTimerProgress = restTimerContainer.findViewById(R.id.rest_timer_progress);
         restTimerSkip = restTimerContainer.findViewById(R.id.rest_timer_skip);
 
-        // Observe viewmodel
+        // Gli observer per i timer e i bottoni sono corretti e rimangono invariati
         workoutViewModel.getFormattedTime().observe(getViewLifecycleOwner(), time -> timerText.setText(time));
         workoutViewModel.getWorkoutTitle().observe(getViewLifecycleOwner(), title -> headerTitle.setText(title));
         workoutViewModel.isWorkoutTimerRunning().observe(getViewLifecycleOwner(), this::updateStartPauseIcon);
-        // Rest timer observers viewmodel
         workoutViewModel.isRestTimerRunning().observe(getViewLifecycleOwner(), isRunning -> {
             restTimerContainer.setVisibility(isRunning ? View.VISIBLE : View.GONE);
         });
@@ -98,7 +99,6 @@ public class WorkoutFragment extends Fragment implements WorkoutCardAdapter.OnCa
             int mins = seconds / 60;
             int secs = seconds % 60;
             restTimerText.setText(String.format(Locale.getDefault(), "%02d:%02d", mins, secs));
-
             Integer total = workoutViewModel.getRestTotalSeconds().getValue();
             if (total != null && total > 0) {
                 int progress = (int) ((seconds * 100f) / total);
@@ -106,12 +106,7 @@ public class WorkoutFragment extends Fragment implements WorkoutCardAdapter.OnCa
             }
         });
 
-        // Back button
-        workoutBackButton.setOnClickListener(v -> {
-            NavHostFragment.findNavController(this).popBackStack();
-        });
-
-        // Start/Pause button
+        workoutBackButton.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
         startPauseButton.setOnClickListener(v -> {
             if (Boolean.TRUE.equals(workoutViewModel.isWorkoutTimerRunning().getValue())) {
                 workoutViewModel.pauseWorkoutTimer();
@@ -119,67 +114,72 @@ public class WorkoutFragment extends Fragment implements WorkoutCardAdapter.OnCa
                 workoutViewModel.startWorkoutTimer();
             }
         });
-
-        // Stop button
         stopButton.setOnClickListener(v -> {
-            NavHostFragment.findNavController(this).popBackStack();
-            workoutViewModel.stopWorkout();
-        });
+            workoutViewModel.stopWorkout(new FirebaseCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    NavHostFragment.findNavController(WorkoutFragment.this).popBackStack();
+                }
 
-        // Rest timer skip button
+                @Override
+                public void onError(Exception e) {
+                    Toast.makeText(requireContext(), "Errore nel salvataggio", Toast.LENGTH_SHORT).show();
+                    NavHostFragment.findNavController(WorkoutFragment.this).popBackStack();
+                }
+            });
+        });
         restTimerSkip.setOnClickListener(v -> workoutViewModel.skipRestTimer());
 
-        // Set RecyclerView's LayoutManager
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        // Create the adapter with an empty list initially
-        WorkoutCardAdapter adapter = new WorkoutCardAdapter(new ArrayList<>(), this);
-        recyclerView.setAdapter(adapter);
+        // --- INIZIO BLOCCO DA MODIFICARE ---
 
-        // Observe livedata for workout cards
-        workoutViewModel.getWorkoutCards().observe(getViewLifecycleOwner(), cards -> {
-            if (cards != null) {
-                adapter.setCards(cards);
+        // 3. Crea il NUOVO adapter
+        workoutAdapter = new WorkoutExerciseAdapter(new ArrayList<>(), this);
+        recyclerView.setAdapter(workoutAdapter);
+
+        // 4. Osserva il NUOVO LiveData
+        workoutViewModel.getActiveTrainingDay().observe(getViewLifecycleOwner(), trainingDay -> {
+            if (trainingDay != null) {
+                // Passa la lista di Exercise al nuovo adapter
+                workoutAdapter.setExercises(trainingDay.getExercises());
             }
         });
 
-        // Aggiorna header con il nome della routine ricevuta
-        if (mParam1 != null) headerTitle.setText(mParam1);
+        // --- FINE BLOCCO DA MODIFICARE ---
 
-        // Nasconde bottom navigation in WorkoutFragment
+        // La logica per nascondere la bottom nav e il mini-player è corretta
         hideBottomNav();
-
-        // Assicura che la mini-player sia nascosta all'ingresso in WorkoutFragment
         View mini = requireActivity().findViewById(R.id.workout_miniplayer);
         if (mini != null) {
             mini.setVisibility(View.GONE);
         }
-
     }
 
-    // --- Implementazione dei metodi dell'interfaccia ---
-
+    // --- Implementazione della NUOVA interfaccia ---
+    // 5. Implementa il SOLO metodo richiesto dalla nuova interfaccia
     @Override
-    public void onNoteChanged(int cardPosition, String newNote) {
-        workoutViewModel.updateNoteForCard(cardPosition, newNote);
-    }
-
-    // Agiunge un nuovo set vuoto alla scheda specificata, si può decidere un diverso default
-    @Override
-    public void onAddSetClicked(int cardPosition) {
-        workoutViewModel.addSetToCard(cardPosition, new WorkoutSet(0f, 0));
+    public void onSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds) {
+        workoutViewModel.toggleSetCompleted(exercisePosition, setPosition, restTimeSeconds);
     }
 
     @Override
-    public void onRestTimeChanged(int cardPosition, int newRestTime) {
-        workoutViewModel.updateRestTimeForCard(cardPosition, newRestTime);
+    public void onSetDataChanged(int exercisePosition, int setPosition, double actualWeight, int actualReps) {
+        workoutViewModel.updateSetData(exercisePosition, setPosition, actualWeight, actualReps);
     }
 
     @Override
-    public void onSetCompleted(int cardPosition, int setPosition) {
-        workoutViewModel.setSetCompletedState(cardPosition, setPosition);
+    public void onAddSet(int exercisePosition) {
+        workoutViewModel.addSetToExercise(exercisePosition);
     }
 
+    @Override
+    public void onSetDeleted(int exercisePosition, int setPosition) {
+        workoutViewModel.deleteSetFromExercise(exercisePosition, setPosition);
+    }
+
+
+    // I metodi helper rimangono invariati
     private void updateStartPauseIcon(boolean isRunning) {
         if (isRunning) {
             startPauseButton.setImageResource(android.R.drawable.ic_media_pause);

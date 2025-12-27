@@ -1,4 +1,4 @@
-//Probabilmente da cambiare package. Magari una cartella viewmodel o simile
+// Sostituisci l'intero contenuto di WorkoutViewModel.java
 package com.example.pushapp.utils;
 
 import android.os.Handler;
@@ -9,110 +9,188 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.pushapp.R;
+import com.example.pushapp.models.Exercise;
+import com.example.pushapp.models.Serie;
+import com.example.pushapp.models.Training;
+import com.example.pushapp.models.TrainingDay;
+import com.example.pushapp.models.api.ExerciseInfo;
+import com.example.pushapp.repositories.ExerciseRepository;
+import com.example.pushapp.repositories.FirebaseCallback;
+import com.example.pushapp.repositories.TrainingRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class WorkoutViewModel extends ViewModel {
 
-    // Utility
+    // --- REPOSITORIES ---
+    private final ExerciseRepository exerciseRepository;
+    private final TrainingRepository trainingRepository;
+
+    // --- TRAINING PADRE ---
+    private Training parentTraining;
+
+    // --- CAMPI TIMER ---
     private long startTime = 0L;
     private long timeWhenPaused = 0L;
+    private long restEndTime = 0L;
+    private final Handler timerHandler = new Handler(Looper.getMainLooper());
 
-    // Workout State
+    // --- LIVE DATA PER LO STATO DELL'ALLENAMENTO ---
     private final MutableLiveData<String> workoutTitle = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isWorkoutInProgress = new MutableLiveData<>(false);
-    private final MutableLiveData<List<WorkoutCard>> workoutCards = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<TrainingDay> activeTrainingDay = new MutableLiveData<>(); // <-- CAMPO MANCANTE, ORA AGGIUNTO
 
-    // Workout Timer State
+    // --- LIVE DATA PER IL TIMER PRINCIPALE ---
     private final MutableLiveData<Boolean> isWorkoutTimerRunning = new MutableLiveData<>(false);
     private final MutableLiveData<String> formattedTime = new MutableLiveData<>("00:00");
     private final MutableLiveData<Long> elapsedMillis = new MutableLiveData<>(0L);
 
-    // Rest Timer State
+    // --- LIVE DATA PER IL TIMER DI RIPOSO ---
     private final MutableLiveData<Boolean> isRestTimerRunning = new MutableLiveData<>(false);
     private final MutableLiveData<Integer> restSecondsRemaining = new MutableLiveData<>(0);
     private final MutableLiveData<Integer> restTotalSeconds = new MutableLiveData<>(0);
-    private long restEndTime = 0L;
 
-    // Handler for both workout and rest timers
-    private final Handler timerHandler = new Handler(Looper.getMainLooper());
+    // --- LIVE DATA PER IL CATALOGO ESERCIZI (API) ---
+    private final MutableLiveData<List<ExerciseInfo>> availableExercises = new MutableLiveData<>();
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
-    // Runnable for workout timer updates
-    private final Runnable updateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (Boolean.TRUE.equals(isWorkoutTimerRunning.getValue())) {
-                long now = SystemClock.elapsedRealtime();
-                long totalMillis = timeWhenPaused + (now - startTime);
-                elapsedMillis.setValue(totalMillis);
-                formattedTime.setValue(formatMillis(totalMillis));
-                timerHandler.postDelayed(this, 100L);
-            }
-        }
-    };
+    // --- COSTRUTTORE ---
+    public WorkoutViewModel() {
+        this.exerciseRepository = new ExerciseRepository();
+        this.trainingRepository = new TrainingRepository();
+    }
 
-    // Runnable for rest timer updates
-    private final Runnable restUpdateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (Boolean.TRUE.equals(isRestTimerRunning.getValue())) {
-                long now = SystemClock.elapsedRealtime();
-                long remaining = restEndTime - now;
+    // --- GETTERS ---
+    public LiveData<String> getWorkoutTitle() {
+        return workoutTitle;
+    }
 
-                if (remaining <= 0) {
-                    restSecondsRemaining.setValue(0);
-                    isRestTimerRunning.setValue(false);
-                } else {
-                    restSecondsRemaining.setValue((int) (remaining / 1000));
-                    timerHandler.postDelayed(this, 100L);
-                }
-            }
-        }
-    };
+    public LiveData<Boolean> isWorkoutInProgress() {
+        return isWorkoutInProgress;
+    }
 
-    // LiveData Getters for workout
-    public LiveData<String> getWorkoutTitle() { return workoutTitle; }
-    public LiveData<Boolean> isWorkoutInProgress() { return isWorkoutInProgress; }
-    public LiveData<Boolean> isWorkoutTimerRunning() { return isWorkoutTimerRunning; }
-    public LiveData<String> getFormattedTime() { return formattedTime; }
-    public LiveData<List<WorkoutCard>> getWorkoutCards() { return workoutCards; }
+    public LiveData<TrainingDay> getActiveTrainingDay() {
+        return activeTrainingDay;
+    } // Ora questo getter è valido
 
-    // Getters for rest timer
-    public LiveData<Boolean> isRestTimerRunning() { return isRestTimerRunning; }
-    public LiveData<Integer> getRestSecondsRemaining() { return restSecondsRemaining; }
-    public LiveData<Integer> getRestTotalSeconds() { return restTotalSeconds; }
+    public LiveData<Boolean> isWorkoutTimerRunning() {
+        return isWorkoutTimerRunning;
+    }
 
-    // Public Control Methods
+    public LiveData<String> getFormattedTime() {
+        return formattedTime;
+    }
 
-    // Workout control methods
-    public void startWorkout(String title) {
-        workoutTitle.setValue(title);
+    public LiveData<Boolean> isRestTimerRunning() {
+        return isRestTimerRunning;
+    }
+
+    public LiveData<Integer> getRestSecondsRemaining() {
+        return restSecondsRemaining;
+    }
+
+    public LiveData<Integer> getRestTotalSeconds() {
+        return restTotalSeconds;
+    }
+
+    public LiveData<List<ExerciseInfo>> getAvailableExercises() {
+        return availableExercises;
+    }
+
+    public LiveData<String> getErrorMessage() {
+        return errorMessage;
+    }
+
+    // --- LOGICA DI CONTROLLO PRINCIPALE ---
+
+    public void startWorkout(TrainingDay day, Training parentTraining) {
+        if (day == null) return;
+        this.parentTraining = parentTraining;
+        workoutTitle.setValue(day.getName());
+        activeTrainingDay.setValue(day);
         isWorkoutInProgress.setValue(true);
         resetWorkoutTimer();
         startWorkoutTimer();
-        // Inizializza le card solo se non esistono già
-        if (workoutCards.getValue() == null || workoutCards.getValue().isEmpty()) {
-            workoutCards.setValue(generateInitialCards());
+    }
+
+    public void stopWorkout(FirebaseCallback<Void> callback) {
+        if (parentTraining != null) {
+            // Aggiorna il training intero (che contiene il TrainingDay modificato)
+            trainingRepository.updateTraining(parentTraining, new FirebaseCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    resetWorkoutState();
+                    if (callback != null) callback.onSuccess(null);
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    resetWorkoutState();
+                    if (callback != null) callback.onError(e);
+                }
+            });
+        } else {
+            resetWorkoutState();
+            if (callback != null) callback.onSuccess(null);
         }
     }
-    
-    public void stopWorkout() {
+
+    private void resetWorkoutState() {
+        parentTraining = null; // Reset anche questo
         workoutTitle.setValue(null);
+        activeTrainingDay.setValue(null);
         isWorkoutInProgress.setValue(false);
         pauseWorkoutTimer();
         resetWorkoutTimer();
         stopRestTimer();
-        // Reset cards
-        workoutCards.setValue(new ArrayList<>());
     }
 
-    // Workout timer methods
+    public void toggleSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds) {
+        TrainingDay currentDay = activeTrainingDay.getValue();
+        if (currentDay == null || currentDay.getExercises() == null) return;
+        List<Exercise> exercises = currentDay.getExercises();
+        if (exercisePosition >= 0 && exercisePosition < exercises.size()) {
+            Exercise exercise = exercises.get(exercisePosition);
+            if (exercise.getSeries() != null && setPosition >= 0 && setPosition < exercise.getSeries().size()) {
+                Serie serie = exercise.getSeries().get(setPosition);
+                boolean newState = !serie.isCompleted();
+                serie.setCompleted(newState);
+                if (newState) {
+                    startRestTimer(restTimeSeconds);
+                } else {
+                    stopRestTimer();
+                }
+                activeTrainingDay.setValue(currentDay);
+            }
+        }
+    }
+
+
+    // --- LOGICA DI RETE (API) ---
+
+    public void loadAvailableExercises() {
+        if (availableExercises.getValue() != null && !availableExercises.getValue().isEmpty()) {
+            return;
+        }
+        exerciseRepository.getAvailableExercises(new FirebaseCallback<List<ExerciseInfo>>() {
+            @Override
+            public void onSuccess(List<ExerciseInfo> result) {
+                availableExercises.setValue(result);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                errorMessage.setValue("API Error: " + e.getMessage());
+            }
+        });
+    }
+
+    // --- METODI DEI TIMER (INVARIATI) ---
+
     public void startWorkoutTimer() {
         if (Boolean.TRUE.equals(isWorkoutTimerRunning.getValue())) return;
-        startTime = SystemClock.elapsedRealtime();
+        startTime = SystemClock.elapsedRealtime() - timeWhenPaused; // Correzione per ripartire
         isWorkoutTimerRunning.setValue(true);
         timerHandler.post(updateRunnable);
     }
@@ -124,7 +202,6 @@ public class WorkoutViewModel extends ViewModel {
         timerHandler.removeCallbacks(updateRunnable);
     }
 
-    // Rest timer methods
     public void startRestTimer(int seconds) {
         stopRestTimer();
         restTotalSeconds.setValue(seconds);
@@ -144,76 +221,109 @@ public class WorkoutViewModel extends ViewModel {
         stopRestTimer();
     }
 
-    public void updateCard(int position, WorkoutCard card) {
-        List<WorkoutCard> current = workoutCards.getValue();
-        if (current != null && position >= 0 && position < current.size()) {
-            current.set(position, card);
-            workoutCards.setValue(current);
+    public void addSetToExercise(int exercisePosition) {
+        TrainingDay currentDay = activeTrainingDay.getValue();
+        if (currentDay == null || currentDay.getExercises() == null) return;
+
+        List<Exercise> exercises = currentDay.getExercises();
+        if (exercisePosition >= 0 && exercisePosition < exercises.size()) {
+            Exercise exercise = exercises.get(exercisePosition);
+            List<Serie> series = exercise.getSeries();
+
+            if (series == null) {
+                series = new java.util.ArrayList<>();
+                exercise.setSeries(series);
+            }
+
+            Serie newSerie = new Serie();
+            newSerie.setSerieNumber(series.size() + 1);
+
+            if (!series.isEmpty()) {
+                Serie lastSerie = series.get(series.size() - 1);
+                newSerie.setTargetWeight(lastSerie.getTargetWeight());
+                newSerie.setTargetReps(lastSerie.getTargetReps());
+            } else {
+                newSerie.setTargetWeight(0);
+                newSerie.setTargetReps(10);
+            }
+
+            series.add(newSerie);
+            activeTrainingDay.setValue(currentDay); // Aggiorna solo la UI locale
         }
     }
 
-    public void updateNoteForCard(int cardPosition, String newNote) {
-        List<WorkoutCard> currentCards = workoutCards.getValue();
-        if (currentCards != null && cardPosition >= 0 && cardPosition < currentCards.size()) {
-            currentCards.get(cardPosition).setNote(newNote);
-        }
-    }
+    public void updateSetData(int exercisePosition, int setPosition, double actualWeight, int actualReps) {
+        TrainingDay currentDay = activeTrainingDay.getValue();
+        if (currentDay == null || currentDay.getExercises() == null) return;
 
-    public void updateRestTimeForCard(int cardPosition, int newRestTime) {
-        List<WorkoutCard> currentCards = workoutCards.getValue();
-        if (currentCards != null && cardPosition >= 0 && cardPosition < currentCards.size()) {
-            currentCards.get(cardPosition).setRestTimeSeconds(newRestTime);
-        }
-    }
+        List<Exercise> exercises = currentDay.getExercises();
+        if (exercisePosition >= 0 && exercisePosition < exercises.size()) {
+            Exercise exercise = exercises.get(exercisePosition);
+            if (exercise.getSeries() != null && setPosition >= 0 && setPosition < exercise.getSeries().size()) {
+                Serie serie = exercise.getSeries().get(setPosition);
 
-    public void setSetCompletedState(int cardPosition, int setPosition) {
-        List<WorkoutCard> currentCards = workoutCards.getValue();
-        if (currentCards == null) return;
-
-        if (cardPosition >= 0 && cardPosition < currentCards.size()) {
-            WorkoutCard card = currentCards.get(cardPosition);
-            List<WorkoutSet> sets = card.getSets();
-
-            if (sets != null && setPosition >= 0 && setPosition < sets.size()) {
-                WorkoutSet set = sets.get(setPosition);
-                boolean newState = !set.isCompleted();
-                set.setCompleted(newState);
-                if (newState) {
-                    startRestTimer(card.getRestTimeSeconds());
-                } else {
-                    stopRestTimer();
-                }
-
-                workoutCards.setValue(currentCards);
+                // Aggiorna i campi 'actual' dell'oggetto Serie
+                serie.setActualWeight(actualWeight);
+                serie.setActualReps(actualReps);
             }
         }
     }
 
-    // Metodo non testato
-    public void setWorkoutCards(List<WorkoutCard> cards) {
-        workoutCards.setValue(cards);
-    }
+    public void deleteSetFromExercise(int exercisePosition, int setPosition) {
+        TrainingDay currentDay = activeTrainingDay.getValue();
+        if (currentDay == null || currentDay.getExercises() == null) return;
 
-    // Metodo non testato
-    public void addSetToCard(int cardPosition, WorkoutSet set) {
-        List<WorkoutCard> current = workoutCards.getValue();
-        if (current != null && cardPosition >= 0 && cardPosition < current.size()) {
-            current.get(cardPosition).addSet(set);
-            workoutCards.setValue(current);
+        List<Exercise> exercises = currentDay.getExercises();
+        if (exercisePosition >= 0 && exercisePosition < exercises.size()) {
+            Exercise exercise = exercises.get(exercisePosition);
+            List<Serie> series = exercise.getSeries();
+
+            if (series != null && setPosition >= 0 && setPosition < series.size()) {
+                series.remove(setPosition);
+
+                // Rinumera le serie rimanenti
+                for (int i = 0; i < series.size(); i++) {
+                    series.get(i).setSerieNumber(i + 1);
+                }
+
+                activeTrainingDay.setValue(currentDay);
+            }
         }
     }
 
-    private List<WorkoutCard> generateInitialCards() {
-        List<WorkoutCard> cards = new ArrayList<>();
-        for (int i = 1; i <= 8; i++) {
-            WorkoutCard c = new WorkoutCard("Exercise " + i, "Exercise description " + i, R.drawable.ic_launcher_foreground);
-            c.addSet(new WorkoutSet(420f, 69));
-            cards.add(c);
-        }
-        return cards;
-    }
 
-    // Utility
+    // --- RUNNABLES (INVARIATI) ---
+    private final Runnable updateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (Boolean.TRUE.equals(isWorkoutTimerRunning.getValue())) {
+                long now = SystemClock.elapsedRealtime();
+                long totalMillis = timeWhenPaused + (now - startTime);
+                elapsedMillis.setValue(totalMillis);
+                formattedTime.setValue(formatMillis(totalMillis));
+                timerHandler.postDelayed(this, 100L);
+            }
+        }
+    };
+    private final Runnable restUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (Boolean.TRUE.equals(isRestTimerRunning.getValue())) {
+                long now = SystemClock.elapsedRealtime();
+                long remaining = restEndTime - now;
+
+                if (remaining <= 0) {
+                    restSecondsRemaining.setValue(0);
+                   isRestTimerRunning.setValue(false);
+                } else {
+                    restSecondsRemaining.setValue((int) (remaining / 1000));
+                    timerHandler.postDelayed(this, 100L);
+                }
+            }
+        }
+    };
+
+    // --- UTILITY (INVARIATE) ---
     private String formatMillis(long millis) {
         long totalSeconds = millis / 1000;
         long hours = totalSeconds / 3600;
@@ -225,7 +335,6 @@ public class WorkoutViewModel extends ViewModel {
             return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
         }
     }
-
     private void resetWorkoutTimer() {
         timeWhenPaused = 0L;
         elapsedMillis.setValue(0L);
@@ -239,4 +348,3 @@ public class WorkoutViewModel extends ViewModel {
         timerHandler.removeCallbacks(restUpdateRunnable);
     }
 }
-

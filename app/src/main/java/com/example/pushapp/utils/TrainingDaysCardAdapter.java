@@ -71,5 +71,12 @@ public class TrainingDaysCardAdapter extends RecyclerView.Adapter<TrainingDaysCa
             editWorkoutButton = itemView.findViewById(R.id.card_edit_workout_button);
         }
     }
+
+    public void updateCards(List<TrainingDaysCard> newCards) {
+        this.items.clear();
+        this.items.addAll(newCards);
+        notifyDataSetChanged();
+    }
+
 }
 

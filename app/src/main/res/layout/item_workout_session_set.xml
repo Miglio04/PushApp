@@ -1,0 +1,59 @@
+<!-- Nuovo file: res/layout/item_workout_session_set.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="8dp">
+
+    <TextView
+        android:id="@+id/set_number_session"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:text="1"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/set_target_details"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Target: 80kg x 8"
+        android:textColor="?android:attr/textColorSecondary" />
+
+    <EditText
+        android:id="@+id/set_actual_weight"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:hint="kg"
+        android:inputType="numberDecimal"
+        android:textSize="14sp" />
+
+    <EditText
+        android:id="@+id/set_actual_reps"
+        android:layout_width="70dp"
+        android:layout_height="wrap_content"
+        android:hint="reps"
+        android:inputType="number"
+        android:textSize="14sp" />
+
+    <ImageButton
+        android:id="@+id/set_delete_button_session"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@android:drawable/ic_menu_delete"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Elimina set"
+        app:tint="@color/md_theme_error" />
+
+    <ImageButton
+        android:id="@+id/set_complete_button_session"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/checkbox_off_background"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Completa serie" />
+
+</LinearLayout>

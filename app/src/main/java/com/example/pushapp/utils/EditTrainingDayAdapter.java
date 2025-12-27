@@ -1,15 +1,11 @@
 package com.example.pushapp.utils;
 
-import android.app.AlertDialog;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,37 +14,31 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
 import com.example.pushapp.models.Exercise;
-import com.example.pushapp.models.ExerciseSeries;
+import com.example.pushapp.models.Serie;
 
 import java.util.List;
 
 public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDayAdapter.ViewHolder> {
 
-    private final List<ExerciseUiModel> items;
+    private List<Exercise> exercises;
 
-    public EditTrainingDayAdapter(List<ExerciseUiModel> items) {
-        this.items = items;
+    public interface OnExerciseInteractionListener {
+        void onEditExercise(int position);
+        void onDeleteExercise(int position);
+        void onSetUpdated(int exercisePosition, int setPosition, double newWeight, int newReps);
+        void onSetDeleted(int exercisePosition, int setPosition);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        public final TextView nameTextView;
-        public final ImageView arrowIcon;
-        public final LinearLayout headerLayout;
-        public final LinearLayout expandableLayout;
-        public final RecyclerView setsRecyclerView;
-        public final ImageButton btnEditExercise;
-        public final ImageButton btnDeleteExercise;
+    private final OnExerciseInteractionListener listener;
 
-        public ViewHolder(View view) {
-            super(view);
-            nameTextView = view.findViewById(R.id.exercise_name);
-            arrowIcon = view.findViewById(R.id.arrow_icon);
-            headerLayout = view.findViewById(R.id.header_layout);
-            expandableLayout = view.findViewById(R.id.expandable_layout);
-            setsRecyclerView = view.findViewById(R.id.sets_recycler_view);
-            btnEditExercise = view.findViewById(R.id.btn_edit_exercise);
-            btnDeleteExercise = view.findViewById(R.id.btn_delete_exercise);
-        }
+    public EditTrainingDayAdapter(List<Exercise> exercises, OnExerciseInteractionListener listener) {
+        this.exercises = exercises;
+        this.listener = listener;
+    }
+
+    public void setExercises(List<Exercise> newExercises) {
+        this.exercises = newExercises;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -61,99 +51,86 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ExerciseUiModel item = items.get(position);
-        ExerciseSeries series = item.getExerciseSeries();
+        Exercise exercise = exercises.get(position);
+        holder.nameTextView.setText(exercise.getName());
 
-        holder.nameTextView.setText(series.getExercise().getName());
-
-        boolean isExpanded = item.isExpanded();
+        boolean isExpanded = exercise.isExpanded();
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         holder.arrowIcon.setRotation(isExpanded ? 180f : 0f);
 
-        holder.btnDeleteExercise.setOnClickListener(v -> handleDeleteExercise(holder));
-
-        // Listener Modifica Esercizio (Cambia tipo)
-        holder.btnEditExercise.setOnClickListener(v -> {
-            int currentPos = holder.getBindingAdapterPosition();
-            if (currentPos != RecyclerView.NO_POSITION) {
-                showChangeExerciseDialog(holder.itemView.getContext(), series, currentPos);
-            }
-        });
-
-        // Gestione espansione click header
         holder.headerLayout.setOnClickListener(v -> {
-            boolean newState = !item.isExpanded();
-            item.setExpanded(newState);
+            exercise.setExpanded(!exercise.isExpanded());
             notifyItemChanged(holder.getBindingAdapterPosition());
         });
 
-        // Configurazione RecyclerView annidata per i Set
-        setupSetsRecyclerView(holder, series);
-    }
-
-    private void setupSetsRecyclerView(ViewHolder holder, ExerciseSeries series) {
-        holder.setsRecyclerView.setLayoutManager(new LinearLayoutManager(holder.itemView.getContext()));
-        SetsAdapter setsAdapter = new SetsAdapter(series.getReps(), () -> {
-            // Callback opzionale
-        });
-        holder.setsRecyclerView.setAdapter(setsAdapter);
-    }
-
-    private void handleDeleteExercise(ViewHolder holder) {
-        int position = holder.getBindingAdapterPosition();
-        if (position == RecyclerView.NO_POSITION) return;
-
-        ExerciseUiModel item = items.get(position);
-        String exerciseName = item.getExerciseSeries().getExercise().getName();
-
-        new AlertDialog.Builder(holder.itemView.getContext())
-                .setTitle("Elimina Esercizio")
-                .setMessage("Sei sicuro di voler eliminare " + exerciseName + "?")
-                .setPositiveButton("Elimina", null)
-                .setNegativeButton("Annulla", null)
-                .show();
-    }
-
-    private void showChangeExerciseDialog(Context context, ExerciseSeries series, int position) {
-        Exercise[] availableExercises = TrainingListGenerator.generateExercises();
-        
-        String[] exerciseNames = new String[availableExercises.length];
-        int selectedIndex = 0;
-        for (int i = 0; i < availableExercises.length; i++) {
-            exerciseNames[i] = availableExercises[i].getName();
-            if (availableExercises[i].getId() == series.getExercise().getId() || 
-                availableExercises[i].getName().equals(series.getExercise().getName())) {
-                selectedIndex = i;
+        holder.btnDeleteExercise.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onDeleteExercise(holder.getBindingAdapterPosition());
             }
-        }
+        });
 
-        LinearLayout layout = new LinearLayout(context);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 40, 50, 10);
+        holder.btnEditExercise.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onEditExercise(holder.getBindingAdapterPosition());
+            }
+        });
 
-        final Spinner spinner = new Spinner(context);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, exerciseNames);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setSelection(selectedIndex);
-        
-        layout.addView(spinner);
+        holder.setupInnerRecyclerView(exercise.getSeries(), listener, holder.getBindingAdapterPosition());
 
-        new AlertDialog.Builder(context)
-                .setTitle("Cambia Esercizio")
-                .setView(layout)
-                .setPositiveButton("Salva", (dialog, which) -> {
-                    int newIndex = spinner.getSelectedItemPosition();
-                    Exercise newExercise = availableExercises[newIndex];
-                    series.setExercise(newExercise);
-                    notifyItemChanged(position);
-                })
-                .setNegativeButton("Annulla", null)
-                .show();
     }
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return exercises == null ? 0 : exercises.size();
+    }
+
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        public final TextView nameTextView;
+        public final ImageView arrowIcon;
+        public final LinearLayout headerLayout;
+        public final LinearLayout expandableLayout;
+        public final ImageButton btnEditExercise;
+        public final ImageButton btnDeleteExercise;
+        final RecyclerView recyclerSeries;
+        private SetsAdapter setsAdapter;
+
+        public ViewHolder(View view) {
+            super(view);
+            nameTextView = view.findViewById(R.id.exercise_name);
+            arrowIcon = view.findViewById(R.id.arrow_icon);
+            headerLayout = view.findViewById(R.id.header_layout);
+            expandableLayout = view.findViewById(R.id.expandable_layout);
+            btnEditExercise = view.findViewById(R.id.btn_edit_exercise);
+            btnDeleteExercise = view.findViewById(R.id.btn_delete_exercise);
+            recyclerSeries = view.findViewById(R.id.sets_recycler_view);
+        }
+
+            // Metodo helper per configurare il RecyclerView interno
+            void setupInnerRecyclerView(java.util.List<Serie> series, OnExerciseInteractionListener mainListener, int exercisePosition) {
+                recyclerSeries.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
+
+                // 2. Crea il listener per l'adapter interno
+                SetsAdapter.OnSetInteractionListener innerListener = new SetsAdapter.OnSetInteractionListener() {
+                    @Override
+                    public void onSetUpdated(int setPosition, double newWeight, int newReps) {
+                        // 3. Propaga l'evento verso l'esterno, aggiungendo l'indice dell'esercizio
+                        if (mainListener != null) {
+                            mainListener.onSetUpdated(exercisePosition, setPosition, newWeight, newReps);
+                        }
+                    }
+
+                    @Override
+                    public void onSetDeleted(int setPosition) {
+                        // 3. Propaga l'evento verso l'esterno
+                        if (mainListener != null) {
+                            mainListener.onSetDeleted(exercisePosition, setPosition);
+                        }
+                    }
+                };
+
+                // 4. Crea e imposta l'adapter interno
+                setsAdapter = new SetsAdapter(series, innerListener);
+                recyclerSeries.setAdapter(setsAdapter);
+        }
     }
 }

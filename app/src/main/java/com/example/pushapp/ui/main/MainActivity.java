@@ -1,5 +1,10 @@
 package com.example.pushapp.ui.main;
 
+import static android.content.Intent.getIntent;
+
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,6 +19,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import com.example.pushapp.R;
+import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.utils.UserViewModel;
 import com.example.pushapp.utils.WorkoutViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -92,7 +98,19 @@ public class MainActivity extends AppCompatActivity {
             navController.navigate(R.id.nav_workouts);
         });
 
-        discardButton.setOnClickListener(v -> workoutViewModel.stopWorkout());
+        discardButton.setOnClickListener(v -> {
+            workoutViewModel.stopWorkout(new FirebaseCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    // Workout scartato con successo
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    // Gestisci l'errore se necessario
+                }
+            });
+        });
     }
 
 }

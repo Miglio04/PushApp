@@ -1,65 +1,56 @@
 package com.example.pushapp.utils;
 
 import com.example.pushapp.models.Exercise;
-import com.example.pushapp.models.ExerciseSeries;
+import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.TrainingDay;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TrainingListGenerator {
-    //generates a list of workout plans
-    public static ArrayList<Training> generateTrainingList(){
+
+    public static ArrayList<Training> generateTrainingList() {
         ArrayList<Training> trainings = new ArrayList<>();
-
-        trainings.add(new Training(0, "Push Pull Legs", "Classic split"));
-        trainings.add(new Training(1, "Bro Split", "Terrible Split"));
-        trainings.add(new Training(2, "Push Pull Push Pull", "Great split"));
-        trainings.add(new Training(3, "Everything but legs", "Best split"));
-        trainings.add(new Training(4, "Milkshake", "Banana split"));
-
-        // generates workout days for each training
-        for(int i = 0; i < trainings.size(); i++){
-            ArrayList<TrainingDay> workouts = new ArrayList<>();
-            for(int j = 0; j < 5; j++) {
-                workouts.add(new TrainingDay(i * 10 + j, trainings.get(i).getName() + j, generateExerciseSeries()));
-            }
-            trainings.get(i).setTrainingDaysList(workouts);
-        }
-
+        Training ppl = new Training("Push Pull Legs", "Split classico PPL");
+        ppl.setTrainingDaysList(generatePPLDays());
+        trainings.add(ppl);
         return trainings;
     }
 
-    public static ArrayList<ExerciseSeries> generateExerciseSeries (){
-        // 5 esercizi
-        Exercise[] es = generateExercises();
+    private static ArrayList<TrainingDay> generatePPLDays() {
+        ArrayList<TrainingDay> days = new ArrayList<>();
+        TrainingDay pushDay = new TrainingDay("Push Day", 1);
+        pushDay.addExercise(createExercise("Bench Press", "Petto", 1, 4, 8, 80));
+        pushDay.addExercise(createExercise("Overhead Press", "Spalle", 2, 3, 10, 40));
+        days.add(pushDay);
+        // ... aggiungi altri giorni se vuoi ...
+        return days;
+    }
 
-        ArrayList<ExerciseSeries> exercises = new ArrayList<>();
-        for(int i = 0; i < 5; i++) {
-            exercises.add(new ExerciseSeries(i, generateSeriesReps(), es[i], 90));
+    private static Exercise createExercise(String name, String muscleGroup, int order, int numSeries, int targetReps, double targetWeight) {
+        int fakeBaseId = name.hashCode();
+        Exercise exercise = new Exercise(fakeBaseId, name, order);
+        List<Serie> series = new ArrayList<>();
+        for (int i = 0; i < numSeries; i++) {
+            series.add(new Serie(i + 1, targetReps, targetWeight));
         }
-
-        return exercises;
-
+        exercise.setSeries(series);
+        return exercise;
     }
 
-    public static ArrayList<ExerciseSeries.SeriesReps> generateSeriesReps (){
-        ArrayList<ExerciseSeries.SeriesReps> series = new ArrayList<>();
-        for(int i = 0; i < 3; i++) {
-            series.add(new ExerciseSeries.SeriesReps(8, 100));
-        }
-        return series;
-
-
+    public static List<Exercise> getAvailableExercises() {
+        List<Exercise> available = new ArrayList<>();
+        // Usa il costruttore corretto: (baseId, name, order)
+        available.add(new Exercise(1, "Bench Press", 0));
+        available.add(new Exercise(2, "Squat", 0));
+        available.add(new Exercise(3, "Deadlift", 0));
+        available.add(new Exercise(4, "Overhead Press", 0));
+        available.add(new Exercise(5, "Pull-ups", 0));
+        available.add(new Exercise(6, "Dips", 0));
+        available.add(new Exercise(7, "Barbell Rows", 0));
+        available.add(new Exercise(8, "Bicep Curls", 0));
+        return available;
     }
 
-    public static Exercise[] generateExercises(){
-        Exercise[] exercises = new Exercise[5];
-        exercises[0] = new Exercise("Pushups", 0);
-        exercises[1] = new Exercise("Pullups", 1);
-        exercises[2] = new Exercise("Bench Press", 2);
-        exercises[3] = new Exercise("Deadlift", 3);
-        exercises[4] = new Exercise("Squats", 4);
-        return exercises;
-    }
 }

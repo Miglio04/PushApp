@@ -63,9 +63,25 @@ dependencies {
 
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
-    implementation("com.google.firebase:firebase-auth")
+
+    // Firebase Firestore
+    implementation ("com.google.firebase:firebase-firestore")
+
+    // Firebase Authentication
+    implementation ("com.google.firebase:firebase-auth")
+
+    // ADD THIS LINE: Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.2.0")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+
+    // ViewModel e LiveData
+    implementation ("androidx.lifecycle:lifecycle-viewmodel:2.7.0")
+    implementation ("androidx.lifecycle:lifecycle-livedata:2.7.0")
+
+    // Retrofit per le chiamate API
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0") // Per convertire JSON in oggetti Java
+
 
 }
