@@ -11,7 +11,6 @@ android {
     compileSdk {
         version = release(36)
     }
-
     defaultConfig {
         applicationId = "com.example.pushapp"
         minSdk = 26
@@ -38,6 +37,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.material:material:1.13.0")
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -72,6 +72,8 @@ dependencies {
 
     // ADD THIS LINE: Google Sign-In
     implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.firebase:firebase-firestore")
+    implementation("com.google.firebase:firebase-storage")
 
     // ViewModel e LiveData
     implementation ("androidx.lifecycle:lifecycle-viewmodel:2.7.0")

@@ -30,7 +30,7 @@
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Back"
+                    android:contentDescription="@string/back"
                     android:src="@drawable/arrow_back"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +40,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Profilo"
+                    android:text="@string/profile"
                     android:textColor="@color/md_theme_onBackground"
                     android:textSize="20sp"
                     android:textStyle="bold"
@@ -67,6 +67,7 @@
                     app:cardElevation="0dp">
 
                     <TextView
+                        android:id="@+id/profileInitial"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
@@ -77,19 +78,21 @@
                 </com.google.android.material.card.MaterialCardView>
 
                 <TextView
+                    android:id="@+id/profileFullName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Marco Rossi"
+                    android:text="User Name"
                     android:textColor="@color/md_theme_onBackground"
                     android:textSize="22sp"
                     android:textStyle="bold" />
 
                 <TextView
+                    android:id="@+id/profileEmailTop"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="marco.rossi@email.com"
+                    android:text="user@email.com"
                     android:textColor="@color/md_theme_onBackground_mediumContrast"
                     android:textSize="16sp" />
             </LinearLayout>
@@ -210,6 +213,7 @@
                 
                 <!-- Item Dati Personali -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardPersonalData"
                     app:cardBackgroundColor="@color/md_theme_primaryContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -218,41 +222,108 @@
                     android:clickable="true"
                     android:focusable="true">
 
-                    <RelativeLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="16dp">
-                        
-                        <ImageView
-                            android:id="@+id/icon_personal_data"
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_centerVertical="true"
-                            android:src="@drawable/person"
-                            app:tint="@color/md_theme_onPrimaryContainer"/>
+                        android:orientation="vertical">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <RelativeLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_toEndOf="@id/icon_personal_data"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="16dp"
-                            android:text="Dati Personali"
-                            android:textColor="@color/md_theme_onPrimaryContainer"
-                            android:textSize="16sp"/>
+                            android:padding="16dp">
+                            
+                            <ImageView
+                                android:id="@+id/icon_personal_data"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_centerVertical="true"
+                                android:src="@drawable/person"
+                                app:tint="@color/md_theme_onPrimaryContainer"/>
 
-                        <ImageView
-                            android:layout_width="24dp"
-                            android:layout_height="24dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
-                            android:src="@drawable/ic_expand"
-                            app:tint="@color/md_theme_onPrimary"/>
-                    </RelativeLayout>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_toEndOf="@id/icon_personal_data"
+                                android:layout_centerVertical="true"
+                                android:layout_marginStart="16dp"
+                                android:text="@string/personal_data"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:textSize="16sp"
+                                android:textStyle="bold"/>
+
+                            <ImageView
+                                android:id="@+id/expand_arrow"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerVertical="true"
+                                android:src="@drawable/ic_expand"
+                                app:tint="@color/md_theme_onPrimaryContainer"/>
+                        </RelativeLayout>
+
+                        <!-- Contenitore Espandibile -->
+                        <LinearLayout
+                            android:id="@+id/expandable_personal_data"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="16dp"
+                            android:paddingBottom="16dp"
+                            android:visibility="gone">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/md_theme_onPrimaryContainer"
+                                android:alpha="0.2"
+                                android:layout_marginBottom="12dp"/>
+
+                            <TextView
+                                android:id="@+id/tvDetailEmail"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Email: -"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:layout_marginBottom="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tvDetailGender"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Genere: -"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:layout_marginBottom="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tvDetailAge"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Età: -"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:layout_marginBottom="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tvDetailHeight"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Altezza: - cm"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:layout_marginBottom="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tvDetailWeight"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Peso: - kg"
+                                android:textColor="@color/md_theme_onPrimaryContainer"/>
+
+                        </LinearLayout>
+                    </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
                 
                 <!-- Item Obiettivi -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardGoals"
                     app:cardBackgroundColor="@color/md_theme_primaryContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -280,9 +351,10 @@
                             android:layout_toEndOf="@id/icon_goals"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="16dp"
-                            android:text="Obiettivi"
+                            android:text="@string/goals"
                             android:textColor="@color/md_theme_onPrimaryContainer"
-                            android:textSize="16sp"/>
+                            android:textSize="16sp"
+                            android:textStyle="bold"/>
 
                         <ImageView
                             android:layout_width="24dp"
@@ -290,7 +362,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:src="@drawable/ic_expand"
-                            app:tint="@color/md_theme_onPrimary"/>
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
                     </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -323,9 +395,10 @@
                             android:layout_toEndOf="@id/icon_notifications"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="16dp"
-                            android:text="Notifiche"
+                            android:text="@string/notifications"
                             android:textColor="@color/md_theme_onPrimaryContainer"
-                            android:textSize="16sp"/>
+                            android:textSize="16sp"
+                            android:textStyle="bold"/>
 
                         <ImageView
                             android:layout_width="24dp"
@@ -333,7 +406,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:src="@drawable/ic_expand"
-                            app:tint="@color/md_theme_onPrimary"/>
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
                     </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -365,9 +438,10 @@
                             android:layout_toEndOf="@id/icon_theme"
                             android:layout_centerVertical="true"
                             android:layout_marginStart="16dp"
-                            android:text="Tema"
+                            android:text="@string/theme"
                             android:textColor="@color/md_theme_onPrimaryContainer"
-                            android:textSize="16sp"/>
+                            android:textSize="16sp"
+                            android:textStyle="bold"/>
 
                         <ImageView
                             android:layout_width="24dp"
@@ -375,7 +449,7 @@
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:src="@drawable/ic_expand"
-                            app:tint="@color/md_theme_onPrimary"/>
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
                     </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
 

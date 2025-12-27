@@ -83,4 +83,16 @@
     <string name="edit_set_title">Edit set</string>
     <string name="invalid_input">Please insert valid values</string>
     <string name="sign_up_with_google">Sign up with Google</string>
+
+    <!-- Profile Activity Strings -->
+    <string name="profile">Profile</string>
+    <string name="personal_data">Personal Data</string>
+    <string name="goals">Goals</string>
+    <string name="notifications">Notifications</string>
+    <string name="theme">Theme</string>
+    <string name="detail_email">Email: %1$s</string>
+    <string name="detail_gender">Gender: %1$s</string>
+    <string name="detail_age">Age: %1$d</string>
+    <string name="detail_height">Height: %1$d cm</string>
+    <string name="detail_weight">Weight: %1$.1f kg</string>
 </resources>

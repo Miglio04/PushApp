@@ -5,23 +5,36 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import android.widget.ViewFlipper;
 
-import androidx.appcompat.app.AlertDialog; // Importante per il popup
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.pushapp.R;
-// Assicurati di avere la tua MainActivity creata o usa il nome corretto
 import com.example.pushapp.ui.main.MainActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class QuestionsActivity extends AppCompatActivity {
+
+    private static final String TAG = "QuestionsActivity";
 
     private ViewFlipper viewFlipper;
     private ProgressBar progressBar;
@@ -37,10 +50,17 @@ public class QuestionsActivity extends AppCompatActivity {
     private int currentStep = 0;
     private final int TOTAL_STEPS = 5;
 
+    // Firebase
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_questions);
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         initializeViews();
         updateProgress();
@@ -94,7 +114,6 @@ public class QuestionsActivity extends AppCompatActivity {
             viewFlipper.showNext();
             updateProgress();
         } else if (currentStep == TOTAL_STEPS - 1) {
-            // ULTIMO STEP: Invece di chiudere subito, mostriamo il popup!
             saveDataAndShowPopup();
         }
     }
@@ -140,7 +159,6 @@ public class QuestionsActivity extends AppCompatActivity {
         }
     }
 
-    // (Qui ho mantenuto le tue validazioni, copiate per intero per non rompere nulla)
     private boolean validateStep1_Name() {
         boolean isValid = true;
         if (TextUtils.isEmpty(etName.getText())) {
@@ -227,16 +245,51 @@ public class QuestionsActivity extends AppCompatActivity {
     // --- SALVATAGGIO E POPUP FINALE ---
 
     private void saveDataAndShowPopup() {
-        // 1. QUI SALVERESTI I DATI SU FIREBASE (Lo faremo dopo se vuoi)
-        // Esempio: saveUserDataToFirebase(name, age, weight...);
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // 2. MOSTRA IL POPUP DI COMPLETAMENTO
-        showProfileCompletedDialog();
+        btnNext.setEnabled(false); // Disabilita per evitare click multipli
+
+        String uid = user.getUid();
+        String name = etName.getText().toString().trim();
+        String surname = etSurname.getText().toString().trim();
+        int age = Integer.parseInt(etAge.getText().toString().trim());
+        double weight = Double.parseDouble(etWeight.getText().toString().trim());
+        int height = Integer.parseInt(etHeight.getText().toString().trim());
+        double goalWeight = Double.parseDouble(etGoalWeight.getText().toString().trim());
+
+        int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
+        RadioButton rbSelected = findViewById(selectedGenderId);
+        String gender = rbSelected != null ? rbSelected.getText().toString() : "";
+
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("name", name);
+        userData.put("surname", surname);
+        userData.put("age", age);
+        userData.put("gender", gender);
+        userData.put("weight", weight);
+        userData.put("height", height);
+        userData.put("goalWeight", goalWeight);
+        userData.put("weightProgress", FieldValue.arrayUnion(weight));
+
+        db.collection("users").document(uid)
+                .set(userData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User data updated successfully");
+                    showProfileCompletedDialog();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error updating user data", e);
+                    btnNext.setEnabled(true);
+                    Toast.makeText(QuestionsActivity.this, "Error saving data: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
     }
 
     private void showProfileCompletedDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        // Usiamo lo stesso layout "dialog_success" che abbiamo fatto per la registrazione
         View view = getLayoutInflater().inflate(R.layout.dialog_success, null);
         builder.setView(view);
 
@@ -244,27 +297,24 @@ public class QuestionsActivity extends AppCompatActivity {
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
-        dialog.setCancelable(false); // L'utente DEVE premere il bottone
+        dialog.setCancelable(false);
 
-        // Troviamo i componenti del layout per cambiare il testo
         TextView tvTitle = view.findViewById(R.id.tvTitle);
         TextView tvMessage = view.findViewById(R.id.tvMessage);
         Button btnAction = view.findViewById(R.id.btnAction);
 
-        // Qui cambiamo le scritte rispetto alla registrazione
-        tvTitle.setText("Profile Completed! ");
-        tvMessage.setText("Your data has been saved.\nYou are ready to start training.");
-        btnAction.setText("GO TO HOME");
-
-        btnAction.setOnClickListener(v -> {
-            dialog.dismiss();
-
-            // VAI ALLA MAIN ACTIVITY (HOME)
-            Intent intent = new Intent(QuestionsActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
+        if (tvTitle != null) tvTitle.setText("Profile Completed! ");
+        if (tvMessage != null) tvMessage.setText("Your data has been saved.\nYou are ready to start training.");
+        if (btnAction != null) {
+            btnAction.setText("GO TO HOME");
+            btnAction.setOnClickListener(v -> {
+                dialog.dismiss();
+                Intent intent = new Intent(QuestionsActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            });
+        }
 
         dialog.show();
     }

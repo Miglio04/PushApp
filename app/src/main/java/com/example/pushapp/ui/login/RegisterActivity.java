@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -32,8 +33,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterActivity extends AppCompatActivity {
+
+    private static final String TAG = "RegisterActivity";
 
     // UI Components
     private EditText etEmail, etPassword, etConfirmPassword;
@@ -47,6 +56,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     // Firebase & Google
     private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
     private GoogleSignInClient mGoogleSignInClient;
 
     @Override
@@ -55,6 +65,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
 
         mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
         initializeViews();
 
         // Google Configuration
@@ -124,20 +135,17 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (!isValid) return;
 
-        // Loading (English)
         showLoading(true, "Creating account...");
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
-                    showLoading(false, null);
-
                     if (task.isSuccessful()) {
-                        // Account created successfully!
-                        // REMOVED: user.sendEmailVerification();
-
-                        // Show popup immediately (false = normal email)
-                        showSuccessDialog(false);
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            createUserProfile(user.getUid(), user.getEmail(), false);
+                        }
                     } else {
+                        showLoading(false, null);
                         if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                             showError(etEmail, tvEmailError, "This email is already registered.");
                         } else {
@@ -164,7 +172,7 @@ public class RegisterActivity extends AppCompatActivity {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() != RESULT_OK) {
-                    showLoading(false, null); // Cancelled
+                    showLoading(false, null);
                 }
 
                 if (result.getResultCode() == RESULT_OK) {
@@ -181,21 +189,45 @@ public class RegisterActivity extends AppCompatActivity {
     );
 
     private void firebaseAuthWithGoogle(String idToken) {
-        // Loading (English)
         if(tvLoadingText != null) tvLoadingText.setText("Authenticating...");
 
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
 
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
-                    showLoading(false, null);
-
                     if (task.isSuccessful()) {
-                        // Show popup (true = Google)
-                        showSuccessDialog(true);
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            createUserProfile(user.getUid(), user.getEmail(), true);
+                        }
                     } else {
+                        showLoading(false, null);
                         Toast.makeText(RegisterActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
                     }
+                });
+    }
+
+    private void createUserProfile(String uid, String email, boolean isGoogle) {
+        if (tvLoadingText != null) tvLoadingText.setText("Saving profile...");
+        
+        Map<String, Object> user = new HashMap<>();
+        user.put("email", email);
+        user.put("createdAt", FieldValue.serverTimestamp());
+        user.put("workoutPlans", new ArrayList<String>());
+        user.put("weightProgress", new ArrayList<Double>());
+        user.put("currentTrainingPlan", "");
+
+        db.collection("users").document(uid)
+                .set(user)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "User profile created in Firestore for UID: " + uid);
+                    showLoading(false, null);
+                    showSuccessDialog(isGoogle);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error saving user profile", e);
+                    showLoading(false, null);
+                    Toast.makeText(RegisterActivity.this, "Error saving profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 
@@ -215,18 +247,14 @@ public class RegisterActivity extends AppCompatActivity {
 
         TextView tvTitle = view.findViewById(R.id.tvTitle);
         TextView tvMessage = view.findViewById(R.id.tvMessage);
-
-        // Make sure this ID matches your XML (btnAction)
         Button btnAction = view.findViewById(R.id.btnAction);
 
         if (tvTitle != null) tvTitle.setText("Welcome!");
 
         if (tvMessage != null) {
             if (isGoogle) {
-                // Google Message
                 tvMessage.setText("Account connected via Google.\nYou are ready to setup your profile.");
             } else {
-                // Standard Email Message (Updated: No email verification mentioned)
                 tvMessage.setText("Account created successfully.\nYou are ready to setup your profile.");
             }
         }
@@ -255,7 +283,6 @@ public class RegisterActivity extends AppCompatActivity {
                 loadingOverlay.setVisibility(View.VISIBLE);
                 btnRegister.setEnabled(false);
                 btnGoogle.setEnabled(false);
-
                 if (tvLoadingText != null && message != null) {
                     tvLoadingText.setText(message);
                 }
@@ -278,10 +305,8 @@ public class RegisterActivity extends AppCompatActivity {
     private void resetErrors() {
         if (etEmail != null) etEmail.setBackgroundResource(R.drawable.bg_input_outline);
         if (tvEmailError != null) tvEmailError.setVisibility(View.GONE);
-
         if (etPassword != null) etPassword.setBackgroundResource(R.drawable.bg_input_outline);
         if (tvPasswordError != null) tvPasswordError.setVisibility(View.GONE);
-
         if (etConfirmPassword != null) etConfirmPassword.setBackgroundResource(R.drawable.bg_input_outline);
         if (tvConfirmError != null) tvConfirmError.setVisibility(View.GONE);
     }
