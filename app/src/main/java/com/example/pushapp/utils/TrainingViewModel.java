@@ -8,7 +8,7 @@ import com.example.pushapp.models.Training;
 import com.example.pushapp.models.TrainingDay;
 import com.example.pushapp.models.Exercise;
 import com.example.pushapp.models.Serie;
-import com.example.pushapp.models.api.ExerciseInfo;
+import com.example.pushapp.models.ExerciseApiModel;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.TrainingRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
@@ -24,9 +24,10 @@ public class TrainingViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<TrainingDay> editableTrainingDay = new MutableLiveData<>();
-    private final MutableLiveData<List<ExerciseInfo>> availableExercises = new MutableLiveData<>();
+    private final MutableLiveData<List<ExerciseApiModel>> availableExercises = new MutableLiveData<>();
 
     private boolean isListenerAttached = false;
+    private boolean isExercisesLoaded = false;
 
     public TrainingViewModel() {
         this.trainingRepository = new TrainingRepository();
@@ -38,6 +39,7 @@ public class TrainingViewModel extends ViewModel {
     public LiveData<TrainingDay> getEditableTrainingDay() { return editableTrainingDay; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
+    public LiveData<List<ExerciseApiModel>> getAvailableExercises() { return availableExercises; }
 
     public void loadTrainings() {
         if (isListenerAttached) {
@@ -174,15 +176,22 @@ public class TrainingViewModel extends ViewModel {
 
 
     public void loadAvailableExercises() {
+        if (isExercisesLoaded || (availableExercises.getValue() != null && !availableExercises.getValue().isEmpty())) {
+            return; // API già chiamata o dati già presenti
+        }
+
         isLoading.setValue(true);
-        exerciseRepository.getAvailableExercises(new FirebaseCallback<List<ExerciseInfo>>() {
+        isExercisesLoaded = true; // Impostiamo a true per evitare chiamate concorrenti
+
+        exerciseRepository.getAvailableExercises(new FirebaseCallback<List<ExerciseApiModel>>() {
             @Override
-            public void onSuccess(List<ExerciseInfo> result) {
+            public void onSuccess(List<ExerciseApiModel> result) {
                 availableExercises.setValue(result);
                 isLoading.setValue(false);
             }
             @Override
             public void onError(Exception e) {
+                isExercisesLoaded = false; // Reset in caso di errore per riprovare
                 errorMessage.setValue("Failed to load exercises from API: " + e.getMessage());
                 isLoading.setValue(false);
             }
@@ -197,12 +206,12 @@ public class TrainingViewModel extends ViewModel {
         }
     }
 
-    public void replaceExerciseInDay(int position, ExerciseInfo newExerciseInfo) {
+    public void replaceExerciseInDay(int position, ExerciseApiModel newExerciseInfo) {
         TrainingDay currentDay = editableTrainingDay.getValue();
         if (currentDay != null && currentDay.getExercises() != null && position < currentDay.getExercises().size()) {
             List<Exercise> exercises = currentDay.getExercises();
 
-            Exercise newExercise = new Exercise(newExerciseInfo.getId(), newExerciseInfo.getName(), position + 1);
+            Exercise newExercise = new Exercise(newExerciseInfo.getName().hashCode(), newExerciseInfo.getName(), position + 1);
             newExercise.setSeries(new ArrayList<>()); // Inizializza con serie vuote
 
             exercises.set(position, newExercise);
