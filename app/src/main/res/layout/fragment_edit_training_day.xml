@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/md_theme_background"
+    android:background="?android:attr/colorBackground"
     tools:context=".ui.main.fragments.EditTrainingDayFragment">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -26,12 +26,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/rectangle_round_corners"
-            android:backgroundTint="@color/md_theme_secondaryContainer"
+            android:backgroundTint="?attr/colorSecondaryContainer"
             android:padding="4dp"
             app:navigationIcon="@drawable/baseline_arrow_back_24"
-            app:navigationIconTint="@color/md_theme_onSecondaryContainer"
+            app:navigationIconTint="?attr/colorOnSecondaryContainer"
             app:title="Modifica Giorno"
-            app:titleTextColor="@color/md_theme_onSecondaryContainer" />
+            app:titleTextColor="?attr/colorOnSecondaryContainer" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -55,7 +55,8 @@
         android:layout_margin="16dp"
         android:contentDescription="Aggiungi Esercizio"
         android:src="@drawable/add"
-        app:backgroundTint="@color/md_theme_primary"
+        app:backgroundTint="?attr/colorPrimary"
+        app:tint="?attr/colorOnPrimary"
         app:layout_constraintBottom_toTopOf="@+id/buttons_container"
         app:layout_constraintEnd_toEndOf="parent" />
 
@@ -79,8 +80,8 @@
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
             android:text="Annulla"
-            android:textColor="@color/md_theme_error"
-            app:strokeColor="@color/md_theme_error" />
+            android:textColor="?attr/colorError"
+            app:strokeColor="?attr/colorError" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save_edit"
@@ -89,7 +90,8 @@
             android:layout_weight="1"
             android:layout_marginStart="8dp"
             android:text="Salva Modifiche"
-            android:backgroundTint="@color/md_theme_primary" />
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="?attr/colorOnPrimary"/>
 
     </LinearLayout>
 
@@ -97,7 +99,7 @@
         android:id="@+id/search_panel_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/md_theme_background"
+        android:background="?android:attr/colorBackground"
         android:clickable="true"
         android:focusable="true"
         android:elevation="10dp"
@@ -150,45 +152,17 @@
                         android:layout_height="wrap_content"
                         app:singleSelection="true"
                         app:selectionRequired="true">
+
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_all_muscles"
                             style="@style/Widget.MaterialComponents.Chip.Choice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tutti"
-                            android:checked="true" />
-                    </com.google.android.material.chip.ChipGroup>
-                </HorizontalScrollView>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Attrezzatura"
-                    android:textStyle="bold"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="12dp"/>
-
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scrollbars="none"
-                    android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
-                    android:clipToPadding="false">
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chip_group_equipment_filters"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:singleSelection="true"
-                        app:selectionRequired="true">
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chip_all_equipment"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Tutti"
-                            android:checked="true" />
+                            android:checked="true"
+                            app:chipMinHeight="32dp"
+                            app:ensureMinTouchTargetSize="false"
+                            app:chipBackgroundColor="@color/chip_background_selector"/>
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
 
@@ -214,13 +188,17 @@
                         android:layout_height="wrap_content"
                         app:singleSelection="true"
                         app:selectionRequired="true">
+
                         <com.google.android.material.chip.Chip
                             android:id="@+id/chip_all_difficulty"
                             style="@style/Widget.MaterialComponents.Chip.Choice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Tutti"
-                            android:checked="true" />
+                            android:checked="true"
+                            app:chipMinHeight="32dp"
+                            app:ensureMinTouchTargetSize="false"
+                            app:chipBackgroundColor="@color/chip_background_selector"/>
                     </com.google.android.material.chip.ChipGroup>
                 </HorizontalScrollView>
 

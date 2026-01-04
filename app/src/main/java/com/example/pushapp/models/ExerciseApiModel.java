@@ -1,20 +1,30 @@
 package com.example.pushapp.models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class ExerciseApiModel {
+
+    @SerializedName("name")
     private String name;
+
+    @SerializedName("type")
     private String type;
+
+    @SerializedName("muscle")
     private String muscle;
-    private String equipment;
+
+    @SerializedName("equipment")
+    private String equipment; // <--- Questo ora non potrà più sbagliare!
+
+    @SerializedName("difficulty")
     private String difficulty;
+
+    @SerializedName("instructions")
     private String instructions;
 
     // --- COSTRUTTORI ---
+    public ExerciseApiModel() { }
 
-    // 1. Costruttore vuoto (Obbligatorio per Firebase/Gson)
-    public ExerciseApiModel() {
-    }
-
-    // 2. Costruttore completo (Utile per creare dati di test o manuali)
     public ExerciseApiModel(String name, String type, String muscle, String equipment, String difficulty, String instructions) {
         this.name = name;
         this.type = type;

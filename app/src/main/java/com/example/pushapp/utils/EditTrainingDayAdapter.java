@@ -4,9 +4,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,6 +29,8 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
         void onDeleteExercise(int position);
         void onSetUpdated(int exercisePosition, int setPosition, double newWeight, int newReps);
         void onSetDeleted(int exercisePosition, int setPosition);
+        // --- NUOVO METODO PER MOSTRARE LE ISTRUZIONI ---
+        void onShowInstructions(int position);
     }
 
     public EditTrainingDayAdapter(List<Exercise> exercises, OnExerciseInteractionListener listener) {
@@ -38,8 +40,6 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
     }
 
     public void setExercises(List<Exercise> newExercises) {
-        // Aggiorna la lista e notifica il cambiamento.
-        // Se newExercises è null, usa una lista vuota per evitare crash.
         this.exercises = newExercises != null ? newExercises : new ArrayList<>();
         notifyDataSetChanged();
     }
@@ -70,7 +70,7 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
             if (currentPos != RecyclerView.NO_POSITION) {
                 boolean expanded = exercise.isExpanded();
                 exercise.setExpanded(!expanded);
-                notifyItemChanged(currentPos); // Aggiorna solo questo elemento per animare la freccia/layout
+                notifyItemChanged(currentPos);
             }
         });
 
@@ -90,6 +90,14 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
             }
         });
 
+        // --- CLICK SUL TASTO INFO ---
+        holder.btnInfoExercise.setOnClickListener(v -> {
+            int currentPos = holder.getBindingAdapterPosition();
+            if (listener != null && currentPos != RecyclerView.NO_POSITION) {
+                listener.onShowInstructions(currentPos);
+            }
+        });
+
         // Configura il RecyclerView interno (le Serie)
         holder.setupInnerRecyclerView(exercise.getSeries(), listener);
     }
@@ -106,6 +114,7 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
         public final LinearLayout expandableLayout;
         public final ImageButton btnEditExercise;
         public final ImageButton btnDeleteExercise;
+        public final ImageButton btnInfoExercise; // Bottone Info
         final RecyclerView recyclerSeries;
         private SetsAdapter setsAdapter;
 
@@ -117,6 +126,10 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
             expandableLayout = view.findViewById(R.id.expandable_layout);
             btnEditExercise = view.findViewById(R.id.btn_edit_exercise);
             btnDeleteExercise = view.findViewById(R.id.btn_delete_exercise);
+
+            // Assicurati che nel file XML item_exercise_expandable.xml esista questo ID
+            btnInfoExercise = view.findViewById(R.id.btn_info_exercise);
+
             recyclerSeries = view.findViewById(R.id.sets_recycler_view);
         }
 
@@ -128,7 +141,6 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
             SetsAdapter.OnSetInteractionListener innerListener = new SetsAdapter.OnSetInteractionListener() {
                 @Override
                 public void onSetUpdated(int setPosition, double newWeight, int newReps) {
-                    // Ottieni la posizione corrente dell'esercizio dinamicamente
                     int exercisePosition = getBindingAdapterPosition();
                     if (mainListener != null && exercisePosition != RecyclerView.NO_POSITION) {
                         mainListener.onSetUpdated(exercisePosition, setPosition, newWeight, newReps);
@@ -137,7 +149,6 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
 
                 @Override
                 public void onSetDeleted(int setPosition) {
-                    // Ottieni la posizione corrente dell'esercizio dinamicamente
                     int exercisePosition = getBindingAdapterPosition();
                     if (mainListener != null && exercisePosition != RecyclerView.NO_POSITION) {
                         mainListener.onSetDeleted(exercisePosition, setPosition);
@@ -145,8 +156,6 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
                 }
             };
 
-            // Crea e imposta l'adapter interno
-            // Nota: Se SetsAdapter non gestisce null nel costruttore, passagli una lista vuota se series è null
             List<Serie> safeSeries = series != null ? series : new ArrayList<>();
             setsAdapter = new SetsAdapter(safeSeries, innerListener);
             recyclerSeries.setAdapter(setsAdapter);

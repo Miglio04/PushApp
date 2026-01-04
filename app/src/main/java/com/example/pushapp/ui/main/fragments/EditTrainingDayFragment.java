@@ -1,8 +1,11 @@
 package com.example.pushapp.ui.main.fragments;
 
 import android.app.ProgressDialog;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,29 +47,20 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
 
     private String trainingDayId;
     private String trainingId;
-
     private TrainingViewModel trainingViewModel;
     private WorkoutViewModel workoutViewModel;
-
     private EditTrainingDayAdapter adapter;
     private AvailableExercisesAdapter availableExercisesAdapter;
-
     private MaterialToolbar toolbar;
     private ConstraintLayout searchPanel;
     private RecyclerView mainRecyclerView;
     private FloatingActionButton fabAddExercise;
-
-    // Componenti Filtro
     private SearchView searchView;
     private ChipGroup chipGroupMuscles;
-    private ChipGroup chipGroupEquipment;
-    private ChipGroup chipGroupDifficulty; // NUOVO
-
-    // Stato Filtri
+    private ChipGroup chipGroupDifficulty;
     private String currentQuery = "";
     private String currentMuscleFilter = "Tutti";
-    private String currentEquipmentFilter = "Tutti";
-    private String currentDifficultyFilter = "Tutti"; // NUOVO
+    private String currentDifficultyFilter = "Tutti";
     private boolean areFilterComponentsInitialized = false;
 
     public EditTrainingDayFragment() {
@@ -78,7 +72,6 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
         super.onCreate(savedInstanceState);
         trainingViewModel = new ViewModelProvider(requireActivity()).get(TrainingViewModel.class);
         workoutViewModel = new ViewModelProvider(requireActivity()).get(WorkoutViewModel.class);
-
         if (getArguments() != null) {
             trainingDayId = getArguments().getString("dayId");
             trainingId = getArguments().getString("trainingId");
@@ -94,32 +87,27 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // 1. Inizializzazione View Principali
         toolbar = view.findViewById(R.id.toolbar_edit_day);
         mainRecyclerView = view.findViewById(R.id.recycler_exercises);
         fabAddExercise = view.findViewById(R.id.fab_add_exercise);
         searchPanel = view.findViewById(R.id.search_panel_container);
-
         MaterialButton btnSave = view.findViewById(R.id.btn_save_edit);
         MaterialButton btnCancel = view.findViewById(R.id.btn_cancel_edit);
 
-        // Avvia caricamento esercizi
-        trainingViewModel.loadAvailableExercises();
+        // Correzione colori Chip Statici ("Tutti")
+        applyDynamicColorsToStaticChips(view);
 
+        trainingViewModel.loadAvailableExercises();
         setupToolbar();
         setupMainRecyclerView();
         setupBackButtonHandler();
-
-        // 2. Observer
         observeViewModel();
 
-        // 3. Listeners
         fabAddExercise.setOnClickListener(v -> initializeAndShowSearchPanel());
         btnSave.setOnClickListener(v -> saveChanges());
         btnCancel.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
     }
 
-    // --- CONFIGURAZIONE RECYCLER VIEW PRINCIPALE ---
     private void setupMainRecyclerView() {
         if (mainRecyclerView != null) {
             mainRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -128,39 +116,25 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
         }
     }
 
-    // --- LOGICA PANNELLO DI RICERCA E FILTRI ---
     private void initializeAndShowSearchPanel() {
         if (getView() == null || searchPanel == null) return;
-
         if (!areFilterComponentsInitialized) {
             searchView = getView().findViewById(R.id.search_view);
             chipGroupMuscles = getView().findViewById(R.id.chip_group_muscle_filters);
-            chipGroupEquipment = getView().findViewById(R.id.chip_group_equipment_filters);
-            chipGroupDifficulty = getView().findViewById(R.id.chip_group_difficulty_filters); // NUOVO
+            chipGroupDifficulty = getView().findViewById(R.id.chip_group_difficulty_filters);
 
             setupAvailableExercisesRecycler(getView());
             setupFilterListeners();
 
-            // --- OBSERVERS PER I DATI DEI FILTRI ---
             trainingViewModel.getFilteredAvailableExercises().observe(getViewLifecycleOwner(), exercises -> {
-                if (exercises != null && availableExercisesAdapter != null) {
-                    availableExercisesAdapter.updateExercises(exercises);
-                }
+                if (exercises != null && availableExercisesAdapter != null) availableExercisesAdapter.updateExercises(exercises);
             });
-
             trainingViewModel.getAvailableMuscleGroups().observe(getViewLifecycleOwner(), muscleGroups -> {
                 if (muscleGroups != null) populateFilterChips(chipGroupMuscles, muscleGroups);
             });
-
-            trainingViewModel.getAvailableEquipment().observe(getViewLifecycleOwner(), equipmentList -> {
-                if (equipmentList != null) populateFilterChips(chipGroupEquipment, equipmentList);
-            });
-
-            // NUOVO OBSERVER PER DIFFICOLTÀ
             trainingViewModel.getAvailableDifficulties().observe(getViewLifecycleOwner(), difficultyList -> {
                 if (difficultyList != null) populateFilterChips(chipGroupDifficulty, difficultyList);
             });
-
             areFilterComponentsInitialized = true;
         }
         toggleSearchPanel(true);
@@ -169,7 +143,6 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
     private void setupAvailableExercisesRecycler(View view) {
         RecyclerView filterRecycler = view.findViewById(R.id.recycler_available_exercises);
         if (filterRecycler == null) return;
-
         filterRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
         availableExercisesAdapter = new AvailableExercisesAdapter(new ArrayList<>(), exerciseApiModel -> {
@@ -178,28 +151,59 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
                 return;
             }
             int order = adapter.getItemCount() + 1;
+
+            // --- COPIA DATI E ISTRUZIONI ---
             Exercise newExercise = new Exercise(exerciseApiModel.getName().hashCode(), exerciseApiModel.getName(), order);
+
+            if (exerciseApiModel.getInstructions() != null && !exerciseApiModel.getInstructions().isEmpty()) {
+                newExercise.setInstructions(exerciseApiModel.getInstructions());
+            } else {
+                newExercise.setInstructions("");
+            }
+            // ------------------------------
+
             trainingViewModel.addExerciseToDay(newExercise);
             toggleSearchPanel(false);
             Snackbar.make(requireView(), "Aggiunto: " + exerciseApiModel.getName(), Snackbar.LENGTH_SHORT).show();
         });
-
         filterRecycler.setAdapter(availableExercisesAdapter);
     }
 
-    // --- GESTIONE LOGICA FILTRI MULTIPLI (Query + Muscolo + Equipment + Difficoltà) ---
+    // --- IMPLEMENTAZIONE METODO MANCANTE: MOSTRA ISTRUZIONI ---
+    @Override
+    public void onShowInstructions(int position) {
+        TrainingDay day = trainingViewModel.getEditableTrainingDay().getValue();
+        if (day == null || day.getExercises() == null) return;
+
+        Exercise exercise = day.getExercises().get(position);
+        String instructions = exercise.getInstructions();
+
+        String message;
+        if (instructions != null && !instructions.trim().isEmpty()) {
+            message = instructions;
+        } else {
+            message = "Non sono presenti istruzioni per l'esercizio in questione.";
+        }
+
+        // Mostra Dialog
+        new AlertDialog.Builder(requireContext())
+                .setTitle(exercise.getName())
+                .setMessage(message)
+                .setPositiveButton("Chiudi", null)
+                .setIcon(android.R.drawable.ic_dialog_info)
+                .show();
+    }
+    // ---------------------------------------------------------
+
     private void setupFilterListeners() {
-        // 1. Ricerca Testuale
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(String query) { return false; }
             @Override public boolean onQueryTextChange(String newText) {
                 currentQuery = newText;
-                trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentEquipmentFilter, currentDifficultyFilter);
+                trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
                 return true;
             }
         });
-
-        // 2. Filtro Muscoli
         chipGroupMuscles.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) {
                 currentMuscleFilter = "Tutti";
@@ -209,23 +213,8 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
                 Chip selectedChip = group.findViewById(checkedIds.get(0));
                 if (selectedChip != null) currentMuscleFilter = selectedChip.getText().toString();
             }
-            trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentEquipmentFilter, currentDifficultyFilter);
+            trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
         });
-
-        // 3. Filtro Attrezzatura
-        chipGroupEquipment.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            if (checkedIds.isEmpty()) {
-                currentEquipmentFilter = "Tutti";
-                View allChip = group.findViewById(R.id.chip_all_equipment);
-                if (allChip instanceof Chip) ((Chip) allChip).setChecked(true);
-            } else {
-                Chip selectedChip = group.findViewById(checkedIds.get(0));
-                if (selectedChip != null) currentEquipmentFilter = selectedChip.getText().toString();
-            }
-            trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentEquipmentFilter, currentDifficultyFilter);
-        });
-
-        // 4. Filtro Difficoltà (NUOVO)
         chipGroupDifficulty.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) {
                 currentDifficultyFilter = "Tutti";
@@ -235,139 +224,119 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
                 Chip selectedChip = group.findViewById(checkedIds.get(0));
                 if (selectedChip != null) currentDifficultyFilter = selectedChip.getText().toString();
             }
-            trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentEquipmentFilter, currentDifficultyFilter);
+            trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
         });
     }
 
-    // Metodo Generico per popolare i Chip
+    // --- LOGICA COLORI CHIP ---
     private void populateFilterChips(ChipGroup group, List<String> categories) {
         int childCount = group.getChildCount();
-        if (childCount > 1) {
-            group.removeViews(1, childCount - 1);
-        }
+        if (childCount > 1) group.removeViews(1, childCount - 1);
 
+        ColorStateList textColors = createDynamicColorStateList();
         LayoutInflater inflater = LayoutInflater.from(getContext());
+
         for (String category : categories) {
             Chip chip = (Chip) inflater.inflate(R.layout.item_chip_filter, group, false);
             chip.setText(category);
             chip.setId(View.generateViewId());
+            chip.setTextColor(textColors);
             group.addView(chip);
         }
     }
 
-    // --- GESTIONE VISIBILITÀ ---
+    private void applyDynamicColorsToStaticChips(View view) {
+        Chip chipAllMuscles = view.findViewById(R.id.chip_all_muscles);
+        Chip chipAllDifficulty = view.findViewById(R.id.chip_all_difficulty);
+        ColorStateList textColors = createDynamicColorStateList();
+        if (chipAllMuscles != null) chipAllMuscles.setTextColor(textColors);
+        if (chipAllDifficulty != null) chipAllDifficulty.setTextColor(textColors);
+    }
+
+    private ColorStateList createDynamicColorStateList() {
+        TypedValue typedValue = new TypedValue();
+        requireContext().getTheme().resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true);
+        int colorOnSurface = typedValue.data;
+
+        int[][] states = new int[][] {
+                new int[] { android.R.attr.state_checked },
+                new int[] { android.R.attr.state_selected },
+                new int[] {}
+        };
+        int[] colors = new int[] {
+                Color.BLACK,
+                Color.BLACK,
+                colorOnSurface
+        };
+        return new ColorStateList(states, colors);
+    }
+
     private void toggleSearchPanel(boolean showSearch) {
         searchPanel.setVisibility(showSearch ? View.VISIBLE : View.GONE);
         if (mainRecyclerView != null) mainRecyclerView.setVisibility(showSearch ? View.GONE : View.VISIBLE);
         if (fabAddExercise != null) fabAddExercise.setVisibility(showSearch ? View.GONE : View.VISIBLE);
         View buttonsContainer = getView().findViewById(R.id.buttons_container);
         if (buttonsContainer != null) buttonsContainer.setVisibility(showSearch ? View.GONE : View.VISIBLE);
-        if (showSearch && searchView != null) {
-            searchView.setIconified(false);
-            searchView.requestFocus();
-        }
+        if (showSearch && searchView != null) { searchView.setIconified(false); searchView.requestFocus(); }
     }
 
     private void observeViewModel() {
         trainingViewModel.getEditableTrainingDay().observe(getViewLifecycleOwner(), trainingDay -> {
             if (trainingDay != null) {
                 toolbar.setTitle(trainingDay.getName());
-                if (trainingDay.getExercises() != null) {
-                    adapter.setExercises(trainingDay.getExercises());
-                } else {
-                    adapter.setExercises(new ArrayList<>());
-                }
+                adapter.setExercises(trainingDay.getExercises() != null ? trainingDay.getExercises() : new ArrayList<>());
             }
         });
         trainingViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null && !error.isEmpty()) Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
         });
-        if (trainingId != null && trainingDayId != null) {
-            trainingViewModel.loadTrainingDayForEdit(trainingId, trainingDayId);
-        }
+        if (trainingId != null && trainingDayId != null) trainingViewModel.loadTrainingDayForEdit(trainingId, trainingDayId);
     }
 
-    // --- SETUP ALTRE COMPONENTI ---
-    private void setupToolbar() {
-        toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
-    }
+    private void setupToolbar() { toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack()); }
 
     private void setupBackButtonHandler() {
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (searchPanel != null && searchPanel.getVisibility() == View.VISIBLE) {
-                    toggleSearchPanel(false);
-                } else {
-                    setEnabled(false);
-                    if (isAdded()) NavHostFragment.findNavController(EditTrainingDayFragment.this).popBackStack();
-                }
+            @Override public void handleOnBackPressed() {
+                if (searchPanel != null && searchPanel.getVisibility() == View.VISIBLE) toggleSearchPanel(false);
+                else { setEnabled(false); if (isAdded()) NavHostFragment.findNavController(EditTrainingDayFragment.this).popBackStack(); }
             }
         });
     }
 
     private void saveChanges() {
         trainingViewModel.saveTrainingDayChanges(trainingId, new FirebaseCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                Toast.makeText(getContext(), "Modifiche salvate!", Toast.LENGTH_SHORT).show();
-                NavHostFragment.findNavController(EditTrainingDayFragment.this).popBackStack();
-            }
-            @Override
-            public void onError(Exception e) {
-                Toast.makeText(getContext(), "Errore salvataggio: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
+            @Override public void onSuccess(Void result) { Toast.makeText(getContext(), "Modifiche salvate!", Toast.LENGTH_SHORT).show(); NavHostFragment.findNavController(EditTrainingDayFragment.this).popBackStack(); }
+            @Override public void onError(Exception e) { Toast.makeText(getContext(), "Errore: " + e.getMessage(), Toast.LENGTH_LONG).show(); }
         });
     }
 
-    // --- INTERFACCE ADAPTER ---
-    @Override
-    public void onEditExercise(int position) {
-        showAddOrReplaceExerciseDialog(position);
-    }
+    @Override public void onEditExercise(int position) { showAddOrReplaceExerciseDialog(position); }
 
-    @Override
-    public void onDeleteExercise(int position) {
+    @Override public void onDeleteExercise(int position) {
         TrainingDay day = trainingViewModel.getEditableTrainingDay().getValue();
         if(day == null) return;
-        Exercise exercise = day.getExercises().get(position);
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Elimina Esercizio")
-                .setMessage("Eliminare " + exercise.getName() + "?")
-                .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteExerciseFromDay(position))
-                .setNegativeButton("Annulla", null)
-                .show();
+        new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + day.getExercises().get(position).getName() + "?")
+                .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteExerciseFromDay(position)).setNegativeButton("Annulla", null).show();
     }
 
-    @Override
-    public void onSetUpdated(int exercisePosition, int setPosition, double newWeight, int newReps) {
-        trainingViewModel.updateSetInExercise(exercisePosition, setPosition, newWeight, newReps);
+    @Override public void onSetUpdated(int exPos, int setPos, double w, int r) { trainingViewModel.updateSetInExercise(exPos, setPos, w, r); }
+
+    @Override public void onSetDeleted(int exPos, int setPos) {
+        new AlertDialog.Builder(requireContext()).setTitle("Elimina Serie").setMessage("Eliminare questa serie?")
+                .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteSetFromExercise(exPos, setPos)).setNegativeButton("Annulla", null).show();
     }
 
-    @Override
-    public void onSetDeleted(int exercisePosition, int setPosition) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Elimina Serie")
-                .setMessage("Eliminare questa serie?")
-                .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteSetFromExercise(exercisePosition, setPosition))
-                .setNegativeButton("Annulla", null)
-                .show();
-    }
-
-    // --- DIALOG PER SOSTITUZIONE ---
     private void showAddOrReplaceExerciseDialog(final int positionToReplace) {
         List<ExerciseApiModel> available = trainingViewModel.getAvailableExercises().getValue();
-        if (available != null && !available.isEmpty()) {
-            openSelectionDialog(available, positionToReplace);
-        } else {
+        if (available != null && !available.isEmpty()) openSelectionDialog(available, positionToReplace);
+        else {
             ProgressDialog progressDialog = new ProgressDialog(getContext());
-            progressDialog.setMessage("Caricamento esercizi...");
-            progressDialog.setCancelable(false);
+            progressDialog.setMessage("Caricamento...");
             progressDialog.show();
             trainingViewModel.loadAvailableExercises();
             trainingViewModel.getAvailableExercises().observe(getViewLifecycleOwner(), new Observer<List<ExerciseApiModel>>() {
-                @Override
-                public void onChanged(List<ExerciseApiModel> exerciseApiModels) {
+                @Override public void onChanged(List<ExerciseApiModel> exerciseApiModels) {
                     if (exerciseApiModels != null && !exerciseApiModels.isEmpty()) {
                         progressDialog.dismiss();
                         trainingViewModel.getAvailableExercises().removeObserver(this);
@@ -375,26 +344,14 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
                     }
                 }
             });
-            new Handler().postDelayed(() -> {
-                if (progressDialog.isShowing()) {
-                    progressDialog.dismiss();
-                    Toast.makeText(getContext(), "Errore connessione.", Toast.LENGTH_SHORT).show();
-                }
-            }, 5000);
+            new Handler().postDelayed(() -> { if (progressDialog.isShowing()) progressDialog.dismiss(); }, 5000);
         }
     }
 
     private void openSelectionDialog(List<ExerciseApiModel> exercises, int positionToReplace) {
         String[] names = new String[exercises.size()];
-        for (int i = 0; i < exercises.size(); i++) {
-            names[i] = exercises.get(i).getName();
-        }
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Sostituisci Esercizio")
-                .setItems(names, (dialog, which) -> {
-                    trainingViewModel.replaceExerciseInDay(positionToReplace, exercises.get(which));
-                })
-                .setNegativeButton("Annulla", null)
-                .show();
+        for (int i = 0; i < exercises.size(); i++) names[i] = exercises.get(i).getName();
+        new AlertDialog.Builder(requireContext()).setTitle("Sostituisci").setItems(names, (dialog, which) ->
+                trainingViewModel.replaceExerciseInDay(positionToReplace, exercises.get(which))).setNegativeButton("Annulla", null).show();
     }
 }

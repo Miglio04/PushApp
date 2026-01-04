@@ -14,7 +14,9 @@ import com.example.pushapp.repositories.TrainingRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,10 +38,9 @@ public class TrainingViewModel extends ViewModel {
     private final MutableLiveData<List<ExerciseApiModel>> availableExercises = new MutableLiveData<>();
     private final MutableLiveData<List<ExerciseApiModel>> filteredAvailableExercises = new MutableLiveData<>();
 
-    // LiveData per le Categorie dei Filtri
+    // LiveData per le Categorie dei Filtri (Rimosso Equipment)
     private final MutableLiveData<List<String>> availableMuscleGroups = new MutableLiveData<>();
-    private final MutableLiveData<List<String>> availableEquipment = new MutableLiveData<>();
-    private final MutableLiveData<List<String>> availableDifficulties = new MutableLiveData<>(); // NUOVO
+    private final MutableLiveData<List<String>> availableDifficulties = new MutableLiveData<>();
 
     // Cache esercizi
     private List<ExerciseApiModel> fullExerciseList = new ArrayList<>();
@@ -62,8 +63,7 @@ public class TrainingViewModel extends ViewModel {
 
     // Getters per le Categorie
     public LiveData<List<String>> getAvailableMuscleGroups() { return availableMuscleGroups; }
-    public LiveData<List<String>> getAvailableEquipment() { return availableEquipment; }
-    public LiveData<List<String>> getAvailableDifficulties() { return availableDifficulties; } // NUOVO
+    public LiveData<List<String>> getAvailableDifficulties() { return availableDifficulties; }
 
     // --- CARICAMENTO TRAINING ---
     public void loadTrainings() {
@@ -220,7 +220,7 @@ public class TrainingViewModel extends ViewModel {
     }
 
     // ===================================================================================
-    // CARICAMENTO ESERCIZI (AGGIORNATO PER 3 FILTRI)
+    // CARICAMENTO ESERCIZI
     // ===================================================================================
 
     public void loadAvailableExercises() {
@@ -237,8 +237,6 @@ public class TrainingViewModel extends ViewModel {
                 fullExerciseList = result;
                 availableExercises.setValue(result);
                 filteredAvailableExercises.setValue(fullExerciseList);
-
-                // ESTRAIAMO TUTTE LE CATEGORIE (MUSCOLI, ATTREZZATURA, DIFFICOLTÀ)
                 extractFilterCategories(result);
             }
 
@@ -249,27 +247,17 @@ public class TrainingViewModel extends ViewModel {
         });
     }
 
-    // --- METODO PER ESTRARRE TUTTE LE CATEGORIE ---
     private void extractFilterCategories(List<ExerciseApiModel> exercises) {
         Set<String> muscleSet = new HashSet<>();
-        Set<String> equipmentSet = new HashSet<>();
-        Set<String> difficultySet = new HashSet<>(); // NUOVO
+        Set<String> difficultySet = new HashSet<>();
 
         for (ExerciseApiModel exercise : exercises) {
-            // Estrai Muscoli
-            if (exercise.getMuscle() != null) {
+            // Muscoli
+            if (exercise.getMuscle() != null && !exercise.getMuscle().isEmpty()) {
                 muscleSet.add(capitalize(exercise.getMuscle()));
             }
-            // Estrai Attrezzatura
-            if (exercise.getEquipment() != null) {
-                String eq = capitalize(exercise.getEquipment());
-                if (eq.equalsIgnoreCase("Body only") || eq.equalsIgnoreCase("Body_only")) {
-                    eq = "Corpo Libero";
-                }
-                equipmentSet.add(eq);
-            }
-            // Estrai Difficoltà (NUOVO)
-            if (exercise.getDifficulty() != null) {
+            // Difficoltà
+            if (exercise.getDifficulty() != null && !exercise.getDifficulty().isEmpty()) {
                 difficultySet.add(capitalize(exercise.getDifficulty()));
             }
         }
@@ -278,17 +266,32 @@ public class TrainingViewModel extends ViewModel {
         Collections.sort(sortedMuscles);
         availableMuscleGroups.setValue(sortedMuscles);
 
-        List<String> sortedEquipment = new ArrayList<>(equipmentSet);
-        Collections.sort(sortedEquipment);
-        availableEquipment.setValue(sortedEquipment);
-
+        // ORDINAMENTO PERSONALIZZATO DIFFICOLTÀ: Beginner -> Intermediate -> Expert
         List<String> sortedDifficulties = new ArrayList<>(difficultySet);
-        Collections.sort(sortedDifficulties);
-        availableDifficulties.setValue(sortedDifficulties); // NUOVO
+        final List<String> order = Arrays.asList("Beginner", "Intermediate", "Expert");
+
+        Collections.sort(sortedDifficulties, new Comparator<String>() {
+            @Override
+            public int compare(String d1, String d2) {
+                int i1 = order.indexOf(d1);
+                int i2 = order.indexOf(d2);
+
+                // Se entrambi sono nella lista, usa l'ordine definito
+                if (i1 != -1 && i2 != -1) return Integer.compare(i1, i2);
+
+                // Se uno non è nella lista, mettilo in fondo
+                if (i1 == -1 && i2 == -1) return d1.compareToIgnoreCase(d2); // Fallback alfabetico
+                if (i1 == -1) return 1;
+                if (i2 == -1) return -1;
+                return 0;
+            }
+        });
+
+        availableDifficulties.setValue(sortedDifficulties);
     }
 
-    // --- LOGICA DI FILTRO A 4 ARGOMENTI (Query, Muscolo, Attrezzatura, Difficoltà) ---
-    public void applyFilters(String query, String muscleGroup, String equipmentGroup, String difficultyGroup) {
+    // --- LOGICA DI FILTRO (3 ARGOMENTI: Query, Muscolo, Difficoltà) ---
+    public void applyFilters(String query, String muscleGroup, String difficultyGroup) {
         List<ExerciseApiModel> tempFilteredList = new ArrayList<>(fullExerciseList);
         List<ExerciseApiModel> nextStageList = new ArrayList<>();
 
@@ -306,25 +309,7 @@ public class TrainingViewModel extends ViewModel {
         tempFilteredList = new ArrayList<>(nextStageList);
         nextStageList.clear();
 
-        // 2. FILTRO ATTREZZATURA
-        String eqFilter = (equipmentGroup == null) ? "Tutti" : equipmentGroup;
-        if (eqFilter.equalsIgnoreCase("Tutti")) {
-            nextStageList.addAll(tempFilteredList);
-        } else {
-            for (ExerciseApiModel exercise : tempFilteredList) {
-                String exerciseEq = capitalize(exercise.getEquipment());
-                if (eqFilter.equals("Corpo Libero") && (exerciseEq.equalsIgnoreCase("Body only") || exerciseEq.equalsIgnoreCase("Body_only"))) {
-                    nextStageList.add(exercise);
-                }
-                else if (exercise.getEquipment() != null && exerciseEq.equalsIgnoreCase(eqFilter)) {
-                    nextStageList.add(exercise);
-                }
-            }
-        }
-        tempFilteredList = new ArrayList<>(nextStageList);
-        nextStageList.clear();
-
-        // 3. FILTRO DIFFICOLTÀ (NUOVO)
+        // 2. FILTRO DIFFICOLTÀ
         String diffFilter = (difficultyGroup == null) ? "Tutti" : difficultyGroup;
         if (diffFilter.equalsIgnoreCase("Tutti")) {
             nextStageList.addAll(tempFilteredList);
@@ -338,7 +323,7 @@ public class TrainingViewModel extends ViewModel {
         tempFilteredList = new ArrayList<>(nextStageList);
         nextStageList.clear();
 
-        // 4. FILTRO RICERCA TESTUALE
+        // 3. FILTRO RICERCA TESTUALE
         if (query == null || query.isEmpty()) {
             filteredAvailableExercises.setValue(tempFilteredList);
         } else {

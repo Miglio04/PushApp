@@ -2,17 +2,12 @@
 <com.google.android.material.chip.Chip
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/Widget.MaterialComponents.Chip.Filter"
+    style="@style/Widget.MaterialComponents.Chip.Choice"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Esempio"
-
-    android:paddingTop="12dp"
-    android:paddingBottom="12dp"
-    app:chipMinHeight="40dp"
-
-    app:chipBackgroundColor="@color/chip_background_selector"
-    app:chipStrokeColor="@color/md_theme_outline"
-    app:chipStrokeWidth="1dp"
-
-    app:ensureMinTouchTargetSize="false" />
+    app:chipMinHeight="32dp"
+    app:ensureMinTouchTargetSize="false"
+    android:textAlignment="center"
+    android:paddingStart="4dp"
+    android:paddingEnd="4dp"
+    android:textColor="?attr/colorOnSurface" />

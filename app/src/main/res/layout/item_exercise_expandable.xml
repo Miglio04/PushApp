@@ -10,6 +10,7 @@
     app:cardElevation="2dp"
     app:strokeWidth="0dp"
     app:cardBackgroundColor="?attr/colorSurface">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,6 +34,19 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface"/>
+
+            <ImageButton
+                android:id="@+id/btn_info_exercise"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@android:drawable/ic_dialog_info"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:scaleType="centerInside"
+                android:layout_marginEnd="4dp"
+                android:focusable="false"
+                app:tint="?attr/colorPrimary"
+                android:padding="4dp"/>
+
             <ImageButton
                 android:id="@+id/btn_edit_exercise"
                 android:layout_width="32dp"
@@ -44,6 +58,7 @@
                 android:focusable="false"
                 app:tint="?attr/colorOnSurfaceVariant"
                 android:padding="4dp"/>
+
             <ImageButton
                 android:id="@+id/btn_delete_exercise"
                 android:layout_width="32dp"
@@ -55,6 +70,7 @@
                 android:focusable="false"
                 app:tint="?attr/colorError"
                 android:padding="4dp"/>
+
             <ImageView
                 android:id="@+id/arrow_icon"
                 android:layout_width="24dp"
@@ -71,6 +87,7 @@
             android:visibility="gone"
             android:padding="8dp"
             android:background="?attr/colorPrimaryContainer">
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/sets_recycler_view"
                 android:layout_width="match_parent"
@@ -81,5 +98,4 @@
         </LinearLayout>
 
     </LinearLayout>
-
 </com.google.android.material.card.MaterialCardView>
