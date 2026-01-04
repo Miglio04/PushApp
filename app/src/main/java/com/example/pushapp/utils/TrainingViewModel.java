@@ -14,37 +14,60 @@ import com.example.pushapp.repositories.TrainingRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class TrainingViewModel extends ViewModel {
     private final TrainingRepository trainingRepository;
     private final ExerciseRepository exerciseRepository;
+
+    // LiveData principali
     private final MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
     private final MutableLiveData<Training> activeTraining = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+
+    // LiveData per la modifica
     private final MutableLiveData<TrainingDay> editableTrainingDay = new MutableLiveData<>();
+
+    // LiveData per esercizi e filtri
     private final MutableLiveData<List<ExerciseApiModel>> availableExercises = new MutableLiveData<>();
+    private final MutableLiveData<List<ExerciseApiModel>> filteredAvailableExercises = new MutableLiveData<>();
+
+    // LiveData per le Categorie dei Filtri
+    private final MutableLiveData<List<String>> availableMuscleGroups = new MutableLiveData<>();
+    private final MutableLiveData<List<String>> availableEquipment = new MutableLiveData<>();
+    private final MutableLiveData<List<String>> availableDifficulties = new MutableLiveData<>(); // NUOVO
+
+    // Cache esercizi
+    private List<ExerciseApiModel> fullExerciseList = new ArrayList<>();
 
     private boolean isListenerAttached = false;
-    private boolean isExercisesLoaded = false;
 
     public TrainingViewModel() {
         this.trainingRepository = new TrainingRepository();
         this.exerciseRepository = new ExerciseRepository();
     }
 
+    // --- GETTERS ---
     public LiveData<List<Training>> getTrainings() { return trainings; }
     public LiveData<Training> getActiveTraining() { return activeTraining; }
     public LiveData<TrainingDay> getEditableTrainingDay() { return editableTrainingDay; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
     public LiveData<List<ExerciseApiModel>> getAvailableExercises() { return availableExercises; }
+    public LiveData<List<ExerciseApiModel>> getFilteredAvailableExercises() { return filteredAvailableExercises; }
 
+    // Getters per le Categorie
+    public LiveData<List<String>> getAvailableMuscleGroups() { return availableMuscleGroups; }
+    public LiveData<List<String>> getAvailableEquipment() { return availableEquipment; }
+    public LiveData<List<String>> getAvailableDifficulties() { return availableDifficulties; } // NUOVO
+
+    // --- CARICAMENTO TRAINING ---
     public void loadTrainings() {
-        if (isListenerAttached) {
-            return; // Evita di attaccare listener multipli
-        }
+        if (isListenerAttached) return;
 
         isLoading.setValue(true);
         isListenerAttached = true;
@@ -64,7 +87,6 @@ public class TrainingViewModel extends ViewModel {
         });
     }
 
-
     public void loadActiveTraining() {
         trainingRepository.getActiveTraining(new FirebaseCallback<Training>() {
             @Override
@@ -79,6 +101,7 @@ public class TrainingViewModel extends ViewModel {
         });
     }
 
+    // --- CRUD OPERAZIONI ---
     public void createTraining(Training training, FirebaseCallback<String> callback) {
         isLoading.setValue(true);
         trainingRepository.createTraining(training, new FirebaseCallback<String>() {
@@ -107,7 +130,6 @@ public class TrainingViewModel extends ViewModel {
             public void onSuccess(Void result) {
                 callback.onSuccess(result);
             }
-
             @Override
             public void onError(Exception e) {
                 callback.onError(e);
@@ -115,33 +137,59 @@ public class TrainingViewModel extends ViewModel {
         });
     }
 
+    // --- EDIT MODE LOGIC ---
     public void loadTrainingDayForEdit(String trainingId, String trainingDayId) {
         isLoading.setValue(true);
 
         if (trainingId == null || trainingDayId == null) {
-            errorMessage.setValue("Training ID or Day ID is null.");
+            errorMessage.setValue("ID mancante per il caricamento.");
             isLoading.setValue(false);
             return;
         }
 
-        // Cerca il training corretto nella lista già caricata
         List<Training> currentTrainings = trainings.getValue();
-        if (currentTrainings != null && trainingId != null) {
-            for (Training t : currentTrainings) {
-                if (trainingId.equals(t.getId()) && t.getTrainingDaysList() != null) {
-                    // Trovato il training, ora cerca il giorno
+        boolean foundInCache = false;
+
+        if (currentTrainings != null && !currentTrainings.isEmpty()) {
+            foundInCache = attemptToFindAndSetDay(currentTrainings, trainingId, trainingDayId);
+        }
+
+        if (!foundInCache) {
+            trainingRepository.attachUserTrainingsListener(new FirebaseCallback<List<Training>>() {
+                @Override
+                public void onSuccess(List<Training> result) {
+                    trainings.setValue(result);
+                    boolean foundAfterFetch = attemptToFindAndSetDay(result, trainingId, trainingDayId);
+                    if (!foundAfterFetch) {
+                        errorMessage.setValue("Giorno non trovato nemmeno dopo il caricamento.");
+                        isLoading.setValue(false);
+                    }
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    errorMessage.setValue("Impossibile scaricare i dati: " + e.getMessage());
+                    isLoading.setValue(false);
+                }
+            });
+        }
+    }
+
+    private boolean attemptToFindAndSetDay(List<Training> trainingList, String trainingId, String trainingDayId) {
+        for (Training t : trainingList) {
+            if (t.getId() != null && t.getId().trim().equals(trainingId.trim())) {
+                if (t.getTrainingDaysList() != null) {
                     for (TrainingDay day : t.getTrainingDaysList()) {
-                        if (trainingDayId.equals(day.getId())) {
-                            editableTrainingDay.setValue(day); // Pubblica il giorno reale
+                        if (day.getId() != null && day.getId().trim().equals(trainingDayId.trim())) {
+                            editableTrainingDay.setValue(day);
                             isLoading.setValue(false);
-                            return;
+                            return true;
                         }
                     }
                 }
             }
         }
-        errorMessage.setValue("Training day not found.");
-        isLoading.setValue(false);
+        return false;
     }
 
     public void saveTrainingDayChanges(String trainingId, FirebaseCallback<Void> callback) {
@@ -153,77 +201,224 @@ public class TrainingViewModel extends ViewModel {
             return;
         }
 
-        // Trova il training e aggiorna il giorno modificato
         for (Training training : currentTrainings) {
             if (trainingId.equals(training.getId())) {
                 List<TrainingDay> days = training.getTrainingDaysList();
                 if (days != null) {
                     for (int i = 0; i < days.size(); i++) {
                         if (editedDay.getId().equals(days.get(i).getId())) {
-                            days.set(i, editedDay); // Sostituisce con il giorno modificato
+                            days.set(i, editedDay);
                             break;
                         }
                     }
                 }
-                // Salva il training aggiornato su Firebase
                 trainingRepository.updateTraining(training, callback);
                 return;
             }
         }
-
         callback.onError(new Exception("Training non trovato"));
     }
 
+    // ===================================================================================
+    // CARICAMENTO ESERCIZI (AGGIORNATO PER 3 FILTRI)
+    // ===================================================================================
 
     public void loadAvailableExercises() {
-        if (isExercisesLoaded || (availableExercises.getValue() != null && !availableExercises.getValue().isEmpty())) {
-            return; // API già chiamata o dati già presenti
+        if (!fullExerciseList.isEmpty()) {
+            if (availableExercises.getValue() == null) {
+                availableExercises.setValue(fullExerciseList);
+            }
+            return;
         }
-
-        isLoading.setValue(true);
-        isExercisesLoaded = true; // Impostiamo a true per evitare chiamate concorrenti
 
         exerciseRepository.getAvailableExercises(new FirebaseCallback<List<ExerciseApiModel>>() {
             @Override
             public void onSuccess(List<ExerciseApiModel> result) {
+                fullExerciseList = result;
                 availableExercises.setValue(result);
-                isLoading.setValue(false);
+                filteredAvailableExercises.setValue(fullExerciseList);
+
+                // ESTRAIAMO TUTTE LE CATEGORIE (MUSCOLI, ATTREZZATURA, DIFFICOLTÀ)
+                extractFilterCategories(result);
             }
+
             @Override
             public void onError(Exception e) {
-                isExercisesLoaded = false; // Reset in caso di errore per riprovare
-                errorMessage.setValue("Failed to load exercises from API: " + e.getMessage());
-                isLoading.setValue(false);
+                errorMessage.setValue("Errore caricamento esercizi: " + e.getMessage());
             }
         });
+    }
+
+    // --- METODO PER ESTRARRE TUTTE LE CATEGORIE ---
+    private void extractFilterCategories(List<ExerciseApiModel> exercises) {
+        Set<String> muscleSet = new HashSet<>();
+        Set<String> equipmentSet = new HashSet<>();
+        Set<String> difficultySet = new HashSet<>(); // NUOVO
+
+        for (ExerciseApiModel exercise : exercises) {
+            // Estrai Muscoli
+            if (exercise.getMuscle() != null) {
+                muscleSet.add(capitalize(exercise.getMuscle()));
+            }
+            // Estrai Attrezzatura
+            if (exercise.getEquipment() != null) {
+                String eq = capitalize(exercise.getEquipment());
+                if (eq.equalsIgnoreCase("Body only") || eq.equalsIgnoreCase("Body_only")) {
+                    eq = "Corpo Libero";
+                }
+                equipmentSet.add(eq);
+            }
+            // Estrai Difficoltà (NUOVO)
+            if (exercise.getDifficulty() != null) {
+                difficultySet.add(capitalize(exercise.getDifficulty()));
+            }
+        }
+
+        List<String> sortedMuscles = new ArrayList<>(muscleSet);
+        Collections.sort(sortedMuscles);
+        availableMuscleGroups.setValue(sortedMuscles);
+
+        List<String> sortedEquipment = new ArrayList<>(equipmentSet);
+        Collections.sort(sortedEquipment);
+        availableEquipment.setValue(sortedEquipment);
+
+        List<String> sortedDifficulties = new ArrayList<>(difficultySet);
+        Collections.sort(sortedDifficulties);
+        availableDifficulties.setValue(sortedDifficulties); // NUOVO
+    }
+
+    // --- LOGICA DI FILTRO A 4 ARGOMENTI (Query, Muscolo, Attrezzatura, Difficoltà) ---
+    public void applyFilters(String query, String muscleGroup, String equipmentGroup, String difficultyGroup) {
+        List<ExerciseApiModel> tempFilteredList = new ArrayList<>(fullExerciseList);
+        List<ExerciseApiModel> nextStageList = new ArrayList<>();
+
+        // 1. FILTRO MUSCOLI
+        String muscleFilter = (muscleGroup == null) ? "Tutti" : muscleGroup;
+        if (muscleFilter.equalsIgnoreCase("Tutti")) {
+            nextStageList.addAll(tempFilteredList);
+        } else {
+            for (ExerciseApiModel exercise : tempFilteredList) {
+                if (exercise.getMuscle() != null && capitalize(exercise.getMuscle()).equalsIgnoreCase(muscleFilter)) {
+                    nextStageList.add(exercise);
+                }
+            }
+        }
+        tempFilteredList = new ArrayList<>(nextStageList);
+        nextStageList.clear();
+
+        // 2. FILTRO ATTREZZATURA
+        String eqFilter = (equipmentGroup == null) ? "Tutti" : equipmentGroup;
+        if (eqFilter.equalsIgnoreCase("Tutti")) {
+            nextStageList.addAll(tempFilteredList);
+        } else {
+            for (ExerciseApiModel exercise : tempFilteredList) {
+                String exerciseEq = capitalize(exercise.getEquipment());
+                if (eqFilter.equals("Corpo Libero") && (exerciseEq.equalsIgnoreCase("Body only") || exerciseEq.equalsIgnoreCase("Body_only"))) {
+                    nextStageList.add(exercise);
+                }
+                else if (exercise.getEquipment() != null && exerciseEq.equalsIgnoreCase(eqFilter)) {
+                    nextStageList.add(exercise);
+                }
+            }
+        }
+        tempFilteredList = new ArrayList<>(nextStageList);
+        nextStageList.clear();
+
+        // 3. FILTRO DIFFICOLTÀ (NUOVO)
+        String diffFilter = (difficultyGroup == null) ? "Tutti" : difficultyGroup;
+        if (diffFilter.equalsIgnoreCase("Tutti")) {
+            nextStageList.addAll(tempFilteredList);
+        } else {
+            for (ExerciseApiModel exercise : tempFilteredList) {
+                if (exercise.getDifficulty() != null && capitalize(exercise.getDifficulty()).equalsIgnoreCase(diffFilter)) {
+                    nextStageList.add(exercise);
+                }
+            }
+        }
+        tempFilteredList = new ArrayList<>(nextStageList);
+        nextStageList.clear();
+
+        // 4. FILTRO RICERCA TESTUALE
+        if (query == null || query.isEmpty()) {
+            filteredAvailableExercises.setValue(tempFilteredList);
+        } else {
+            String lowerCaseQuery = query.toLowerCase().trim();
+            for (ExerciseApiModel exercise : tempFilteredList) {
+                if (exercise.getName() != null && exercise.getName().toLowerCase().contains(lowerCaseQuery)) {
+                    nextStageList.add(exercise);
+                }
+            }
+            filteredAvailableExercises.setValue(nextStageList);
+        }
+    }
+
+    private String capitalize(String str) {
+        if (str == null || str.isEmpty()) return str;
+        String formatted = str.replace("_", " ");
+        return formatted.substring(0, 1).toUpperCase() + formatted.substring(1);
+    }
+
+    // ===================================================================================
+    // GESTIONE ESERCIZI NEL GIORNO
+    // ===================================================================================
+
+    private List<Serie> createDefaultSeries() {
+        List<Serie> series = new ArrayList<>();
+        // Crea 4 serie di default
+        for (int i = 0; i < 4; i++) {
+            Serie defaultSet = new Serie();
+            defaultSet.setTargetWeight(0.0);
+            defaultSet.setTargetReps(0);
+            series.add(defaultSet);
+        }
+        return series;
     }
 
     public void addExerciseToDay(Exercise exercise) {
         TrainingDay currentDay = editableTrainingDay.getValue();
         if (currentDay != null) {
-            currentDay.addExercise(exercise);
+            List<Exercise> currentList = currentDay.getExercises();
+            if (currentList == null) currentList = new ArrayList<>();
+
+            List<Exercise> updatedList = new ArrayList<>(currentList);
+
+            if (exercise.getSeries() == null || exercise.getSeries().isEmpty()) {
+                exercise.setSeries(createDefaultSeries());
+            }
+
+            updatedList.add(exercise);
+            currentDay.setExercises(updatedList);
             editableTrainingDay.setValue(currentDay);
+        } else {
+            errorMessage.setValue("Errore: Giorno non caricato.");
         }
     }
 
     public void replaceExerciseInDay(int position, ExerciseApiModel newExerciseInfo) {
         TrainingDay currentDay = editableTrainingDay.getValue();
         if (currentDay != null && currentDay.getExercises() != null && position < currentDay.getExercises().size()) {
-            List<Exercise> exercises = currentDay.getExercises();
+
+            List<Exercise> updatedList = new ArrayList<>(currentDay.getExercises());
 
             Exercise newExercise = new Exercise(newExerciseInfo.getName().hashCode(), newExerciseInfo.getName(), position + 1);
-            newExercise.setSeries(new ArrayList<>()); // Inizializza con serie vuote
+            newExercise.setSeries(createDefaultSeries());
 
-            exercises.set(position, newExercise);
+            updatedList.set(position, newExercise);
+            currentDay.setExercises(updatedList);
+
             editableTrainingDay.setValue(currentDay);
         }
     }
 
     public void deleteExerciseFromDay(int position) {
         TrainingDay currentDay = editableTrainingDay.getValue();
-        if (currentDay != null && currentDay.getExercises() != null && position >= 0 && position < currentDay.getExercises().size()) {
-            currentDay.getExercises().remove(position);
-            editableTrainingDay.setValue(currentDay);
+        if (currentDay != null && currentDay.getExercises() != null) {
+            List<Exercise> updatedList = new ArrayList<>(currentDay.getExercises());
+            if (position >= 0 && position < updatedList.size()) {
+                updatedList.remove(position);
+                currentDay.setExercises(updatedList);
+                editableTrainingDay.setValue(currentDay);
+            }
         }
     }
 
@@ -261,5 +456,4 @@ public class TrainingViewModel extends ViewModel {
         trainingRepository.detachTrainingsListener();
         isListenerAttached = false;
     }
-
 }

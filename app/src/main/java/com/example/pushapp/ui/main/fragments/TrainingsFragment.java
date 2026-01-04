@@ -1,4 +1,3 @@
-// Sostituisci l'intero contenuto di TrainingsFragment.java con questo
 package com.example.pushapp.ui.main.fragments;
 
 import android.os.Bundle;
