@@ -2,6 +2,7 @@ package com.example.pushapp.models;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.google.firebase.Timestamp;
@@ -11,6 +12,7 @@ import java.util.List;
 @Entity
 public class User {
     @PrimaryKey
+    @ColumnInfo(name = "uid")
     private String uid;
     @ColumnInfo(name = "email")
     private String email;
@@ -29,8 +31,10 @@ public class User {
     @ColumnInfo(name = "goalWeight")
     private double goalWeight;
     @ColumnInfo(name = "createdAt")
-    private Timestamp createdAt;
+    private long createdAt;
+    @Ignore
     private List<String> trainingPlans;
+    @Ignore
     private List<Double> weightProgress;
 
     public User() {
@@ -65,18 +69,33 @@ public class User {
     public double getGoalWeight() { return goalWeight; }
     public void setGoalWeight(double goalWeight) { this.goalWeight = goalWeight; }
 
-    public Timestamp getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
 
+    // Metodi di utilità per conversione Firebase Timestamp
+    @Ignore
+    public Timestamp getCreatedAtTimestamp() {
+        return new Timestamp(createdAt / 1000, (int) ((createdAt % 1000) * 1000000));
+    }
+
+    @Ignore
+    public void setCreatedAtFromTimestamp(Timestamp timestamp) {
+        if (timestamp != null) {
+            this.createdAt = timestamp.getSeconds() * 1000 + timestamp.getNanoseconds() / 1000000;
+        }
+    }
+    @Ignore
     public List<String> getTrainingPlans() {
         if (trainingPlans == null) trainingPlans = new ArrayList<>();
         return trainingPlans;
     }
+    @Ignore
     public void setTrainingPlans(List<String> trainingPlans) { this.trainingPlans = trainingPlans; }
-
+    @Ignore
     public List<Double> getWeightProgress() {
         if (weightProgress == null) weightProgress = new ArrayList<>();
         return weightProgress;
     }
+    @Ignore
     public void setWeightProgress(List<Double> weightProgress) { this.weightProgress = weightProgress; }
 }

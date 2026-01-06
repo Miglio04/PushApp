@@ -8,19 +8,18 @@ import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
 
-@Entity(
-        tableName = "serie",
+@Entity(tableName = "serie",
         foreignKeys = @ForeignKey(
                 entity = Exercise.class,
                 parentColumns = "id",
                 childColumns = "exerciseId",
-                onDelete = ForeignKey.CASCADE
-        ),
-        indices = @Index("exerciseId")
-)
+                onDelete = ForeignKey.CASCADE),
+        indices = @Index("exerciseId"))
 public class Serie implements Serializable {
     @PrimaryKey
+    @ColumnInfo(name = "id")
     private int id;
+    @ColumnInfo(name = "exerciseId")
     private int exerciseId;
     @ColumnInfo(name = "serieNumber")
     private int serieNumber;
@@ -45,6 +44,11 @@ public class Serie implements Serializable {
     }
 
     // Getters e Setters
+    public int getId() { return id; }
+
+    public void setId(int id) { this.id = id; }
+    public int getExerciseId() { return exerciseId; }
+    public void setExerciseId(int exerciseId) { this.exerciseId = exerciseId; }
     public int getSerieNumber() { return serieNumber; }
     public void setSerieNumber(int serieNumber) { this.serieNumber = serieNumber; }
 
@@ -63,19 +67,4 @@ public class Serie implements Serializable {
     public boolean isCompleted() { return completed; }
     public void setCompleted(boolean completed) { this.completed = completed; }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getExerciseId() {
-        return exerciseId;
-    }
-
-    public void setExerciseId(int exerciseId) {
-        this.exerciseId = exerciseId;
-    }
 }
