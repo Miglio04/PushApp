@@ -1,19 +1,34 @@
 package com.example.pushapp.models;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
 import com.google.firebase.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class User {
+    @PrimaryKey
     private String uid;
+    @ColumnInfo(name = "email")
     private String email;
+    @ColumnInfo(name = "name")
     private String name;
+    @ColumnInfo(name = "surname")
     private String surname;
+    @ColumnInfo(name = "gender")
     private String gender;
+    @ColumnInfo(name = "age")
     private int age;
+    @ColumnInfo(name = "weight")
     private double weight;
+    @ColumnInfo(name = "height")
     private int height;
+    @ColumnInfo(name = "goalWeight")
     private double goalWeight;
+    @ColumnInfo(name = "createdAt")
     private Timestamp createdAt;
     private List<String> trainingPlans;
     private List<Double> weightProgress;

@@ -1,17 +1,31 @@
 package com.example.pushapp.models;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Training implements Serializable {
+    @PrimaryKey
     private String id;
+    @ColumnInfo(name = "userId")
     private String userId;
+    @ColumnInfo(name = "name")
     private String name;
+    @ColumnInfo(name = "description")
     private String description;
+    @Ignore
     private List<TrainingDay> trainingDaysList;
+    @ColumnInfo(name = "isActive")
     private boolean isActive;
+    @ColumnInfo(name = "createdAt")
     private long createdAt;
+    @ColumnInfo(name = "updatedAt")
     private long updatedAt;
 
     // Costruttore vuoto richiesto da Firebase
