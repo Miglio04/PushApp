@@ -1,5 +1,6 @@
 package com.example.pushapp.models;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -12,18 +13,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Entity(tableName = "training_day",
+@Entity(tableName = "trainingDay",
         foreignKeys = @ForeignKey(
                 entity = Training.class,
-                parentColumns = "id",
-                childColumns = "training_id",
+                parentColumns = "trainingId",
+                childColumns = "trainingId",
                 onDelete = ForeignKey.CASCADE),
-        indices = {@Index(value = "training_id")})
+        indices = {@Index(value = "trainingId")})
 public class TrainingDay implements Serializable {
     @PrimaryKey
-    @ColumnInfo(name = "id")
-    private String id;
-    @ColumnInfo(name = "training_id")
+    @ColumnInfo(name = "trainingDayId")
+    @NonNull
+    private String trainingDayId;
+    @ColumnInfo(name = "trainingId")
     private String trainingId;
     @ColumnInfo(name = "name")
     private String name;
@@ -36,12 +38,12 @@ public class TrainingDay implements Serializable {
 
     // Costruttore vuoto richiesto da Firebase
     public TrainingDay() {
-        this.id = UUID.randomUUID().toString();
+        this.trainingDayId = UUID.randomUUID().toString();
         this.exercises = new ArrayList<>();
     }
 
     public TrainingDay(String name, int dayOrder) {
-        this.id = UUID.randomUUID().toString();
+        this.trainingDayId = UUID.randomUUID().toString();
         this.name = name;
         this.dayOrder = dayOrder;
         this.exercises = new ArrayList<>();
@@ -50,15 +52,15 @@ public class TrainingDay implements Serializable {
     // Ha senso questo costruttore?
     @Ignore
     public TrainingDay(String name, int dayOrder, ArrayList<Exercise> exercises) {
-        this.id = UUID.randomUUID().toString();
+        this.trainingDayId = UUID.randomUUID().toString();
         this.name = name;
         this.dayOrder = dayOrder;
         this.exercises = exercises != null ? exercises : new ArrayList<>();
     }
 
     // Getters e Setters
-    public String getId() { return id; }
-    public void setId(String id) { if (id != null) { this.id = id; } }
+    public String getTrainingDayId() { return trainingDayId; }
+    public void setTrainingDayId(String trainingDayId) { if (trainingDayId != null) { this.trainingDayId = trainingDayId; } }
     public String getTrainingId() { return trainingId; }
     public void setTrainingId(String trainingId) { this.trainingId = trainingId; }
     public String getName() { return name; }

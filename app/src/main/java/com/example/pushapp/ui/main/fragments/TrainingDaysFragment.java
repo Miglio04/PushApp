@@ -86,7 +86,7 @@ public class TrainingDaysFragment extends Fragment {
 
             // Cerca il training specifico che ci interessa usando l'ID (String)
             for (Training training : trainings) {
-                if (trainingId.equals(training.getId())) {
+                if (trainingId.equals(training.getTrainingId())) {
                     currentTraining = training; // Salva il training trovato
                     // Genera le card usando i dati REALI dal training trovato
                     List<TrainingDaysCard> cards = generateCardsFromTraining(currentTraining);
@@ -107,7 +107,7 @@ public class TrainingDaysFragment extends Fragment {
 
         // Crea una card per ogni giorno di allenamento reale
         for (TrainingDay day : training.getTrainingDaysList()) {
-            cards.add(new TrainingDaysCard(day.getName(), "Exercises: " + day.getTotalExercises(), day.getId()));
+            cards.add(new TrainingDaysCard(day.getName(), "Exercises: " + day.getTotalExercises(), day.getTrainingDayId()));
         }
         return cards;
     }
@@ -142,7 +142,7 @@ public class TrainingDaysFragment extends Fragment {
 
         // Trova il TrainingDay completo da passare al WorkoutFragment
         for (TrainingDay day : currentTraining.getTrainingDaysList()) {
-            if (cardDayId.equals(day.getId())) { // Inverti il confronto
+            if (cardDayId.equals(day.getTrainingDayId())) { // Inverti il confronto
                 NavController navController = NavHostFragment.findNavController(this);
                 Bundle args = new Bundle();
                 args.putSerializable("trainingDay", (Serializable) day);

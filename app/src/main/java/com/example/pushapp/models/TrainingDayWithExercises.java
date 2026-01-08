@@ -9,6 +9,6 @@ public class TrainingDayWithExercises {
     @Embedded
     public TrainingDay trainingDay;
 
-    @Relation(parentColumn = "id", entityColumn = "training_day_id")
+    @Relation(parentColumn = "trainingDayId", entityColumn = "trainingDayId")
     public List<Exercise> exercises;
 }

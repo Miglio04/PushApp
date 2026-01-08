@@ -25,13 +25,13 @@ public interface SerieDao {
     @Delete
     void delete(Serie serie);
 
-    @Query("SELECT * FROM serie WHERE id = :id")
+    @Query("SELECT * FROM serie WHERE serieId = :id")
     Serie getById(String id);
 
-    @Query("SELECT * FROM serie WHERE exerciseId = :exerciseId ORDER BY serieNumber")
+    @Query("SELECT * FROM serie WHERE baseExerciseId = :exerciseId ORDER BY serieNumber")
     List<Serie> getByExerciseId(String exerciseId);
 
-    @Query("DELETE FROM serie WHERE exerciseId = :exerciseId")
+    @Query("DELETE FROM serie WHERE baseExerciseId = :exerciseId")
     void deleteByExerciseId(String exerciseId);
 }
 

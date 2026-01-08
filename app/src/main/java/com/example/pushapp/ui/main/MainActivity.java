@@ -19,9 +19,15 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import com.example.pushapp.R;
+import com.example.pushapp.database.LocalDatabase;
+import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
+import com.example.pushapp.repositories.TrainingLocalDataSource;
+import com.example.pushapp.repositories.TrainingRemoteDataSource;
+import com.example.pushapp.repositories.TrainingRepository;
 import com.example.pushapp.utils.UserViewModel;
 import com.example.pushapp.utils.WorkoutViewModel;
+import com.example.pushapp.utils.WorkoutViewModelFactory;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Objects;
@@ -39,7 +45,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Inizializza i ViewModel
-        workoutViewModel = new ViewModelProvider(this).get(WorkoutViewModel.class);
+        // creazione repositories che vengono passate al viewmodel
+        TrainingLocalDataSource trainingLocalDataSource = new TrainingLocalDataSource(
+                LocalDatabase.getDatabase(this));
+        TrainingRemoteDataSource trainingRemoteDataSource = new TrainingRemoteDataSource();
+        TrainingRepository trainingRepository = new TrainingRepository(trainingLocalDataSource, trainingRemoteDataSource);
+        ExerciseRepository exerciseRepository = new ExerciseRepository();
+
+        //Inizializza il ViewModel
+        workoutViewModel = new ViewModelProvider(
+                this,
+                new WorkoutViewModelFactory(trainingRepository, exerciseRepository)).get(WorkoutViewModel.class);
+
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
 
         // Carica i dati dell'utente all'avvio

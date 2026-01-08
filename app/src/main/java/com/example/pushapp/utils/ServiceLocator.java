@@ -19,8 +19,8 @@ public class ServiceLocator {
         return INSTANCE;
     }
 
-    public TrainingRepository getTrainingRepository() {
+    /*public TrainingRepository getTrainingRepository() {
         return new TrainingRepository();
-    }
+    }*/
 
 }

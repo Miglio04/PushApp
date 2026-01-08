@@ -27,16 +27,16 @@ public interface TrainingDayDao {
     @Delete
     void delete(TrainingDay trainingDay);
 
-    @Query("SELECT * FROM training_day WHERE id = :id")
+    @Query("SELECT * FROM trainingDay WHERE trainingDayId = :id")
     TrainingDay getById(String id);
 
-    @Query("SELECT * FROM training_day WHERE training_id = :trainingId ORDER BY dayOrder")
+    @Query("SELECT * FROM trainingDay WHERE trainingDayId = :trainingId ORDER BY dayOrder")
     List<TrainingDay> getByTrainingId(String trainingId);
 
     @Transaction
-    @Query("SELECT * FROM training_day WHERE id = :id")
+    @Query("SELECT * FROM trainingDay WHERE trainingDayId = :id")
     TrainingDayWithExercises getWithExercises(String id);
 
-    @Query("DELETE FROM training_day WHERE training_id = :trainingId")
+    @Query("DELETE FROM trainingDay WHERE trainingId = :trainingId")
     void deleteByTrainingId(String trainingId);
 }

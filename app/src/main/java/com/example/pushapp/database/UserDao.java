@@ -20,7 +20,7 @@ public interface UserDao {
     @Delete
     void delete(User user);
 
-    @Query("SELECT * FROM user WHERE uid = :uid")
+    @Query("SELECT * FROM user WHERE userId = :uid")
     User getByUid(String uid);
 
     @Query("DELETE FROM user")

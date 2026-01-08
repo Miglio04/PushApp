@@ -1,5 +1,6 @@
 package com.example.pushapp.models;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -11,16 +12,17 @@ import java.io.Serializable;
 @Entity(tableName = "serie",
         foreignKeys = @ForeignKey(
                 entity = Exercise.class,
-                parentColumns = "id",
-                childColumns = "exerciseId",
+                parentColumns = "baseExerciseId",
+                childColumns = "baseExerciseId",
                 onDelete = ForeignKey.CASCADE),
-        indices = @Index("exerciseId"))
+        indices = @Index("baseExerciseId"))
 public class Serie implements Serializable {
     @PrimaryKey
-    @ColumnInfo(name = "id")
-    private int id;
-    @ColumnInfo(name = "exerciseId")
-    private int exerciseId;
+    @ColumnInfo(name = "serieId")
+    @NonNull
+    private int serieId;
+    @ColumnInfo(name = "baseExerciseId")
+    private int baseExerciseId;
     @ColumnInfo(name = "serieNumber")
     private int serieNumber;
     @ColumnInfo(name = "targetReps")
@@ -44,11 +46,11 @@ public class Serie implements Serializable {
     }
 
     // Getters e Setters
-    public int getId() { return id; }
+    public int getSerieId() { return serieId; }
 
-    public void setId(int id) { this.id = id; }
-    public int getExerciseId() { return exerciseId; }
-    public void setExerciseId(int exerciseId) { this.exerciseId = exerciseId; }
+    public void setSerieId(int serieId) { this.serieId = serieId; }
+    public int getBaseExerciseId() { return baseExerciseId; }
+    public void setBaseExerciseId(int baseExerciseId) { this.baseExerciseId = baseExerciseId; }
     public int getSerieNumber() { return serieNumber; }
     public void setSerieNumber(int serieNumber) { this.serieNumber = serieNumber; }
 

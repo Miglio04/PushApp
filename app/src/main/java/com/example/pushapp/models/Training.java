@@ -1,5 +1,6 @@
 package com.example.pushapp.models;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -12,7 +13,9 @@ import java.util.List;
 @Entity(tableName = "training")
 public class Training implements Serializable {
     @PrimaryKey
-    private String id;
+    @NonNull
+    @ColumnInfo(name = "trainingId")
+    private String trainingId;
     @ColumnInfo(name = "userId")
     private String userId;
     @ColumnInfo(name = "name")
@@ -54,8 +57,8 @@ public class Training implements Serializable {
     }
 
     // Getters e Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public String getTrainingId() { return trainingId; }
+    public void setTrainingId(String trainingId) { this.trainingId = trainingId; }
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
 

@@ -10,7 +10,7 @@ public class ExerciseWithSeries {
     @Embedded
     public Exercise exercise;
 
-    @Relation(parentColumn = "id", entityColumn = "exerciseId")
+    @Relation(parentColumn = "baseExerciseId", entityColumn = "baseExerciseId")
     public List<Serie> series;
 
 }

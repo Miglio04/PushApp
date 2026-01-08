@@ -1,5 +1,6 @@
 package com.example.pushapp.models;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -15,7 +16,7 @@ import java.util.List;
 @Entity(tableName = "exercise",
         foreignKeys = @ForeignKey(
                 entity = TrainingDay.class,
-                parentColumns = "id",
+                parentColumns = "trainingDayId",
                 childColumns = "trainingDayId",
                 onDelete = ForeignKey.CASCADE),
         indices = @Index("trainingDayId"))
@@ -23,6 +24,7 @@ import java.util.List;
 public class Exercise implements Serializable {
     @PrimaryKey
     @ColumnInfo(name = "baseExerciseId")
+    @NonNull
     private int baseExerciseId;
     @ColumnInfo(name = "trainingDayId")
     private String trainingDayId;

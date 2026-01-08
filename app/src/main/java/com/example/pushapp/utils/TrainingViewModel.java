@@ -28,9 +28,9 @@ public class TrainingViewModel extends ViewModel {
 
     private boolean isListenerAttached = false;
 
-    public TrainingViewModel() {
-        this.trainingRepository = new TrainingRepository();
-        this.exerciseRepository = new ExerciseRepository();
+    public TrainingViewModel(TrainingRepository trainingRepository, ExerciseRepository exerciseRepository){
+        this.trainingRepository = trainingRepository;
+        this.exerciseRepository = exerciseRepository;
     }
 
     public LiveData<List<Training>> getTrainings() { return trainings; }
@@ -96,7 +96,7 @@ public class TrainingViewModel extends ViewModel {
     }
 
     public void updateTraining(Training training, FirebaseCallback<Void> callback) {
-        trainingRepository.updateTraining(training, callback);
+        trainingRepository.updateTraining(training);
     }
 
     public void deleteTraining(String trainingId, FirebaseCallback<Void> callback) {
@@ -126,10 +126,10 @@ public class TrainingViewModel extends ViewModel {
         List<Training> currentTrainings = trainings.getValue();
         if (currentTrainings != null && trainingId != null) {
             for (Training t : currentTrainings) {
-                if (trainingId.equals(t.getId()) && t.getTrainingDaysList() != null) {
+                if (trainingId.equals(t.getTrainingId()) && t.getTrainingDaysList() != null) {
                     // Trovato il training, ora cerca il giorno
                     for (TrainingDay day : t.getTrainingDaysList()) {
-                        if (trainingDayId.equals(day.getId())) {
+                        if (trainingDayId.equals(day.getTrainingDayId())) {
                             editableTrainingDay.setValue(day); // Pubblica il giorno reale
                             isLoading.setValue(false);
                             return;
@@ -153,18 +153,18 @@ public class TrainingViewModel extends ViewModel {
 
         // Trova il training e aggiorna il giorno modificato
         for (Training training : currentTrainings) {
-            if (trainingId.equals(training.getId())) {
+            if (trainingId.equals(training.getTrainingId())) {
                 List<TrainingDay> days = training.getTrainingDaysList();
                 if (days != null) {
                     for (int i = 0; i < days.size(); i++) {
-                        if (editedDay.getId().equals(days.get(i).getId())) {
+                        if (editedDay.getTrainingDayId().equals(days.get(i).getTrainingDayId())) {
                             days.set(i, editedDay); // Sostituisce con il giorno modificato
                             break;
                         }
                     }
                 }
                 // Salva il training aggiornato su Firebase
-                trainingRepository.updateTraining(training, callback);
+                trainingRepository.updateTraining(training);
                 return;
             }
         }

@@ -1,5 +1,6 @@
 package com.example.pushapp.models;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -12,8 +13,9 @@ import java.util.List;
 @Entity
 public class User {
     @PrimaryKey
-    @ColumnInfo(name = "uid")
-    private String uid;
+    @ColumnInfo(name = "userId")
+    @NonNull
+    private String userId;
     @ColumnInfo(name = "email")
     private String email;
     @ColumnInfo(name = "name")
@@ -31,7 +33,7 @@ public class User {
     @ColumnInfo(name = "goalWeight")
     private double goalWeight;
     @ColumnInfo(name = "createdAt")
-    private long createdAt;
+    private Timestamp createdAt;
     @Ignore
     private List<String> trainingPlans;
     @Ignore
@@ -42,8 +44,8 @@ public class User {
     }
 
     // Getters and Setters
-    public String getUid() { return uid; }
-    public void setUid(String uid) { this.uid = uid; }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
@@ -69,21 +71,8 @@ public class User {
     public double getGoalWeight() { return goalWeight; }
     public void setGoalWeight(double goalWeight) { this.goalWeight = goalWeight; }
 
-    public long getCreatedAt() { return createdAt; }
-    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
-
-    // Metodi di utilità per conversione Firebase Timestamp
-    @Ignore
-    public Timestamp getCreatedAtTimestamp() {
-        return new Timestamp(createdAt / 1000, (int) ((createdAt % 1000) * 1000000));
-    }
-
-    @Ignore
-    public void setCreatedAtFromTimestamp(Timestamp timestamp) {
-        if (timestamp != null) {
-            this.createdAt = timestamp.getSeconds() * 1000 + timestamp.getNanoseconds() / 1000000;
-        }
-    }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
     @Ignore
     public List<String> getTrainingPlans() {
         if (trainingPlans == null) trainingPlans = new ArrayList<>();

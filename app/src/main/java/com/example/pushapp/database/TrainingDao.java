@@ -24,7 +24,7 @@ public interface TrainingDao {
     @Delete
     void delete(Training training);
 
-    @Query("SELECT * FROM training WHERE id = :id")
+    @Query("SELECT * FROM training WHERE trainingId = :id")
     Training getById(String id);
 
     @Query("SELECT * FROM training WHERE userId = :userId")
@@ -34,10 +34,13 @@ public interface TrainingDao {
     Training getActiveByUserId(String userId);
 
     @Transaction
-    @Query("SELECT * FROM training WHERE id = :id")
+    @Query("SELECT * FROM training WHERE trainingId = :id")
     TrainingWithDays getWithDays(String id);
 
     @Query("DELETE FROM training WHERE userId = :userId")
     void deleteAllByUserId(String userId);
+
+    @Query("SELECT * FROM training")
+    List<Training> getAllTrainings();
 }
 
