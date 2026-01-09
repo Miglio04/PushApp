@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
 import com.example.pushapp.database.LocalDatabase;
+import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
@@ -34,6 +35,7 @@ import com.example.pushapp.utils.TrainingsRecyclerViewAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TrainingsFragment extends Fragment implements TrainingsRecyclerViewAdapter.OnTrainingInteractionListener {
 
@@ -89,7 +91,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         observeViewModel();
 
         // 5. Carica i dati iniziali da Firebase
-        viewModel.loadTrainings();
+        viewModel.fetchTrainings();
         Log.d("TrainingsFragment", "loadTrainings() called");
     }
 
@@ -101,19 +103,17 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
 
     private void observeViewModel() {
         viewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
-            if (trainings != null) {
-                Log.d("TrainingsFragment", "Received " + trainings.size() + " trainings:");
-                for (Training t : trainings) {
+            if (trainings == null ) {
+                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
+            } else if (trainings.isSuccess()){
+                List<Training> trainingsList = ((Result.Success) trainings).getData();
+                Log.d("TrainingsFragment", "Received " + trainingsList.size() + " trainings:");
+                for (Training t : trainingsList) {
                     Log.d("TrainingsFragment", "  - ID: " + t.getTrainingId() + ", Name: " + t.getName());
                 }
-                adapter.updateTrainings(trainings); // Assicurati che questo metodo esista nell'adapter
-            }
-        });
-
-        // Observer per i messaggi di errore
-        viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null && !error.isEmpty()) {
-                Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                adapter.updateTrainings(trainingsList);
+            }else{
+                Toast.makeText(getContext(), ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

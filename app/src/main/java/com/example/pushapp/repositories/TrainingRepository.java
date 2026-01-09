@@ -4,6 +4,7 @@ import static com.example.pushapp.utils.Constants.COLLECTION_TRAININGS;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
@@ -42,8 +43,18 @@ public class TrainingRepository implements TrainingCallback{
         return auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
     }
 
-    public MutableLiveData<Result> getTrainingList() {
+    public LiveData<Result> getTrainingList() {
+        return oldGetTrainingList();
+    }
+
+    public MutableLiveData<Result> oldGetTrainingList() {
         trainingLocalDataSource.getTrainings();
+        return trainingList;
+    }
+
+    public MutableLiveData<Result> newGetTrainingList(){
+        trainingLocalDataSource.getTrainings();
+        trainingRemoteDataSource.fetchTrainings();
         return trainingList;
     }
 
@@ -258,6 +269,11 @@ public class TrainingRepository implements TrainingCallback{
     public void onFailureFromLocal(Exception exception) {
         Result.Error resultError = new Result.Error(exception.getMessage());
         trainingList.postValue(resultError);
+    }
+
+    // to implement
+    public void onSuccessFromRemote(List<Training> trainingListSuccess) {
+        Result.Success result = new Result.Success(new ArrayList<Training>(trainingListSuccess));
     }
 
     public void onFailureFromRemote(Exception exception){
