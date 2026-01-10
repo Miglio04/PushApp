@@ -28,6 +28,9 @@ public class TrainingRepository implements TrainingCallback{
     private final TrainingRemoteDataSource trainingRemoteDataSource;
     private final MutableLiveData<Result> trainingList;
 
+    // attributo temporaneo; da rimuovere quando si implementa versioning.
+    private boolean isFirstFetchCompleted = false;
+
     public TrainingRepository(TrainingLocalDataSource trainingLocalDataSource, TrainingRemoteDataSource trainingRemoteDataSource) {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
@@ -44,7 +47,7 @@ public class TrainingRepository implements TrainingCallback{
     }
 
     public LiveData<Result> getTrainingList() {
-        return oldGetTrainingList();
+        return newGetTrainingList();
     }
 
     public MutableLiveData<Result> oldGetTrainingList() {
@@ -98,27 +101,6 @@ public class TrainingRepository implements TrainingCallback{
                 })
                 .addOnFailureListener(callback::onError);
     }
-
-    // READ - Tutti i training dell'utente
-    // Commmentato per evitare conflitti con l'osservatore nel ViewModel
-    /*public void getUserTrainings(FirebaseCallback<List<Training>> callback) {
-        String userId = getCurrentUserId();
-        if (userId == null) {
-            callback.onError(new Exception("User not authenticated"));
-            return;
-        }
-
-        db.collection(COLLECTION_TRAININGS)
-                .whereEqualTo("userId", userId)
-                .orderBy("createdAt", Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    List<Training> trainings = new ArrayList<>();
-                    querySnapshot.forEach(doc -> trainings.add(doc.toObject(Training.class)));
-                    callback.onSuccess(trainings);
-                })
-                .addOnFailureListener(callback::onError);
-    }*/
 
     public void attachUserTrainingsListener(FirebaseCallback<List<Training>> callback) {
         String userId = getCurrentUserId();
@@ -271,11 +253,13 @@ public class TrainingRepository implements TrainingCallback{
         trainingList.postValue(resultError);
     }
 
-    // to implement
+    // metodo in versione temporanea: non considera il versioning
     public void onSuccessFromRemote(List<Training> trainingListSuccess) {
-        Result.Success result = new Result.Success(new ArrayList<Training>(trainingListSuccess));
+        if(!isFirstFetchCompleted){
+            trainingLocalDataSource.overwriteTrainigs(trainingListSuccess, getCurrentUserId());
+            isFirstFetchCompleted = true;
+        }
     }
-
     public void onFailureFromRemote(Exception exception){
         // to implement: ritentare aggiornamento con workManager
     }

@@ -53,4 +53,12 @@ public class TrainingLocalDataSource {
             getTrainings();
         });
     }
+
+    public void overwriteTrainigs(List<Training> trainingList, String userId) {
+        LocalDatabase.databaseWriteExecutor.execute(() -> {
+            trainingDao.deleteAllByUserId(userId);
+            trainingDao.insertAll(trainingList);
+            getTrainings();
+        });
+    }
 }

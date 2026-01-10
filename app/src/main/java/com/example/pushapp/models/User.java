@@ -34,6 +34,14 @@ public class User {
     private double goalWeight;
     @ColumnInfo(name = "createdAt")
     private Timestamp createdAt;
+
+    //questi due campi andranno inseriti nel database quando verrà implementato il versioning
+    // @ColumnInfo(name = "userUpdatedAt")
+    @Ignore
+    private Timestamp userUpdatedAt;
+    // @ColumnInfo(name = "trainingsUpdatedAt")
+    @Ignore
+    private Timestamp trainingsUpdatedAt;
     @Ignore
     private List<String> trainingPlans;
     @Ignore
@@ -73,6 +81,10 @@ public class User {
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
+    public Timestamp getUserUpdatedAt() { return userUpdatedAt; }
+    public void setUserUpdatedAt(Timestamp userUpdatedAt) { this.userUpdatedAt = userUpdatedAt; }
+    public Timestamp getTrainingsUpdatedAt() { return trainingsUpdatedAt; }
+    public void setTrainingsUpdatedAt(Timestamp trainingsUpdatedAt) { this.trainingsUpdatedAt = trainingsUpdatedAt; }
     @Ignore
     public List<String> getTrainingPlans() {
         if (trainingPlans == null) trainingPlans = new ArrayList<>();

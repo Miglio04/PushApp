@@ -9,6 +9,7 @@ import androidx.room.Transaction;
 import androidx.room.Update;
 
 import com.example.pushapp.models.Training;
+import com.example.pushapp.models.TrainingDay;
 import com.example.pushapp.models.TrainingWithDays;
 
 import java.util.List;
@@ -17,6 +18,8 @@ import java.util.List;
 public interface TrainingDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Training training);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAll(List<Training> trainings);
 
     @Update
     void update(Training training);
