@@ -133,8 +133,8 @@ public class TrainingViewModel extends ViewModel {
         }
 
         // Cerca il training corretto nella lista già caricata
-        if(trainings.getValue().isSuccess()){
-            List<Training> currentTrainings = ((Result.Success) trainings.getValue()).getData();;
+        if(trainings.getValue().isTrainingsSuccess()){
+            List<Training> currentTrainings = ((Result.TrainingsSuccess) trainings.getValue()).getData();;
             if (currentTrainings != null && trainingId != null) {
                 for (Training t : currentTrainings) {
                     if (trainingId.equals(t.getTrainingId()) && t.getTrainingDaysList() != null) {
@@ -156,8 +156,8 @@ public class TrainingViewModel extends ViewModel {
 
     public void saveTrainingDayChanges(String trainingId, FirebaseCallback<Void> callback) {
         TrainingDay editedDay = editableTrainingDay.getValue();
-        if(trainings.getValue().isSuccess()) {
-            List<Training> currentTrainings = ((Result.Success) trainings.getValue()).getData();
+        if(trainings.getValue().isTrainingsSuccess()) {
+            List<Training> currentTrainings = ((Result.TrainingsSuccess) trainings.getValue()).getData();
 
             if (editedDay == null || currentTrainings == null || trainingId == null) {
                 callback.onError(new Exception("Dati mancanti per il salvataggio"));

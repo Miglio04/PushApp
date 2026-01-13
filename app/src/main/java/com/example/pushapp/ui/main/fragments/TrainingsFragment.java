@@ -105,8 +105,8 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         viewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
             if (trainings == null ) {
                 Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
-            } else if (trainings.isSuccess()){
-                List<Training> trainingsList = ((Result.Success) trainings).getData();
+            } else if (trainings.isTrainingsSuccess()){
+                List<Training> trainingsList = ((Result.TrainingsSuccess) trainings).getData();
                 Log.d("TrainingsFragment", "Received " + trainingsList.size() + " trainings:");
                 for (Training t : trainingsList) {
                     Log.d("TrainingsFragment", "  - ID: " + t.getTrainingId() + ", Name: " + t.getName());

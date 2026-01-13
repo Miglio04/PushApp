@@ -6,16 +6,22 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.pushapp.models.User;
+import com.example.pushapp.repositories.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class UserViewModel extends ViewModel {
     private static final String TAG = "UserViewModel";
+    private final UserRepository userRepository;
     private final MutableLiveData<User> userLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+    public UserViewModel(UserRepository userRepository){
+        this.userRepository = userRepository;
+    }
 
     public LiveData<User> getUserLiveData() {
         return userLiveData;

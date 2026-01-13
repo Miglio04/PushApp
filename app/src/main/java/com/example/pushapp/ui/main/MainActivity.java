@@ -22,10 +22,15 @@ import com.example.pushapp.R;
 import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
+import com.example.pushapp.repositories.SessionDataSource;
 import com.example.pushapp.repositories.TrainingLocalDataSource;
 import com.example.pushapp.repositories.TrainingRemoteDataSource;
 import com.example.pushapp.repositories.TrainingRepository;
+import com.example.pushapp.repositories.UserLocalDataSource;
+import com.example.pushapp.repositories.UserRemoteDataSource;
+import com.example.pushapp.repositories.UserRepository;
 import com.example.pushapp.utils.UserViewModel;
+import com.example.pushapp.utils.UserViewModelFactory;
 import com.example.pushapp.utils.WorkoutViewModel;
 import com.example.pushapp.utils.WorkoutViewModelFactory;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -44,12 +49,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Inizializza i ViewModel
-        // creazione repositories che vengono passate al viewmodel
+        // creazione repositories e dataSource che vengono passate al viewmodel
+        //NOTA: prossimamente si rimuoverà questo codice, quando si implementeranno le repo come singleton
         TrainingLocalDataSource trainingLocalDataSource = new TrainingLocalDataSource(
                 LocalDatabase.getDatabase(this));
         TrainingRemoteDataSource trainingRemoteDataSource = new TrainingRemoteDataSource();
         TrainingRepository trainingRepository = new TrainingRepository(trainingLocalDataSource, trainingRemoteDataSource);
+        UserRemoteDataSource userRemoteDataSource = new UserRemoteDataSource();
+        UserLocalDataSource userLocalDataSource = new UserLocalDataSource(LocalDatabase.getDatabase(this));
+        SessionDataSource sessionDataSource = new SessionDataSource();
+        UserRepository userRepository = new UserRepository(userLocalDataSource, userRemoteDataSource, sessionDataSource);
         ExerciseRepository exerciseRepository = new ExerciseRepository();
 
         //Inizializza il ViewModel
@@ -57,7 +66,9 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 new WorkoutViewModelFactory(trainingRepository, exerciseRepository)).get(WorkoutViewModel.class);
 
-        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
+        userViewModel = new ViewModelProvider(
+                this,
+                new UserViewModelFactory(userRepository)).get(UserViewModel.class);
 
         // Carica i dati dell'utente all'avvio
         userViewModel.loadUserData();

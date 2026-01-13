@@ -84,10 +84,10 @@ public class TrainingDaysFragment extends Fragment {
         trainingViewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
             if (trainings == null) {
                 Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
-            }else if(!trainings.isSuccess()){
+            }else if(!trainings.isTrainingsSuccess()){
                 Toast.makeText(getContext(), ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
             }else{
-                List<Training> trainingsList = ((Result.Success) trainings).getData();
+                List<Training> trainingsList = ((Result.TrainingsSuccess) trainings).getData();
                 for (Training training : trainingsList) {
                     if (trainingId.equals(training.getTrainingId())) {
                         currentTraining = training;

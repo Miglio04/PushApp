@@ -244,7 +244,7 @@ public class TrainingRepository implements TrainingCallback{
     }
 
     public void onSuccessFromLocal(List<Training> trainingListSuccess) {
-        Result.Success result = new Result.Success(new ArrayList<Training>(trainingListSuccess));
+        Result.TrainingsSuccess result = new Result.TrainingsSuccess(new ArrayList<Training>(trainingListSuccess));
         trainingList.postValue(result);
     }
 
