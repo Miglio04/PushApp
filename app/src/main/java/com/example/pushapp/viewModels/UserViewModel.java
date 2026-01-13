@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.viewModels;
 
 import android.util.Log;
 import androidx.lifecycle.LiveData;
@@ -18,6 +18,10 @@ public class UserViewModel extends ViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
+    public UserViewModel() {
+        this.userRepository = null;
+    }
 
     public UserViewModel(UserRepository userRepository){
         this.userRepository = userRepository;

@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.adapter;
 
 import android.content.Context;
 import android.text.InputType;

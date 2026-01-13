@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.viewModels;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -59,6 +59,10 @@ public class TrainingViewModel extends ViewModel {
     public LiveData<String> getErrorMessage() { return errorMessage; }
     public LiveData<List<ExerciseApiModel>> getAvailableExercises() { return availableExercises; }
     public LiveData<List<ExerciseApiModel>> getFilteredAvailableExercises() { return filteredAvailableExercises; }
+
+    public LiveData<List<String>> getAvailableMuscleGroups() { return availableMuscleGroups; }
+    public LiveData<List<String>> getAvailableDifficulties() { return availableDifficulties; }
+
 
     public void fetchTrainings(){
         newFetchTrainings();
@@ -153,8 +157,9 @@ public class TrainingViewModel extends ViewModel {
         }
 
         // Cerca il training corretto nella lista già caricata
-        if(trainings.getValue().isTrainingsSuccess()){
-            List<Training> currentTrainings = ((Result.TrainingsSuccess) trainings.getValue()).getData();;
+        if (trainings.getValue().isTrainingsSuccess()) {
+            List<Training> currentTrainings = ((Result.TrainingsSuccess) trainings.getValue()).getData();
+            ;
             if (currentTrainings != null && trainingId != null) {
                 for (Training t : currentTrainings) {
                     if (trainingId.equals(t.getTrainingId()) && t.getTrainingDaysList() != null) {
@@ -165,40 +170,44 @@ public class TrainingViewModel extends ViewModel {
                                 isLoading.setValue(false);
                                 return;
                             }
-        List<Training> currentTrainings = trainings.getValue();
-        boolean foundInCache = false;
+                            boolean foundInCache = false;
 
-        if (currentTrainings != null && !currentTrainings.isEmpty()) {
-            foundInCache = attemptToFindAndSetDay(currentTrainings, trainingId, trainingDayId);
-        }
+                            if (currentTrainings != null && !currentTrainings.isEmpty()) {
+                                foundInCache = attemptToFindAndSetDay(currentTrainings, trainingId, trainingDayId);
+                            }
 
-        if (!foundInCache) {
-            trainingRepository.attachUserTrainingsListener(new FirebaseCallback<List<Training>>() {
-                @Override
-                public void onSuccess(List<Training> result) {
-                    trainings.setValue(result);
-                    boolean foundAfterFetch = attemptToFindAndSetDay(result, trainingId, trainingDayId);
-                    if (!foundAfterFetch) {
-                        errorMessage.setValue("Giorno non trovato nemmeno dopo il caricamento.");
-                        isLoading.setValue(false);
+                            /*if (!foundInCache) {
+                                trainingRepository.attachUserTrainingsListener(new FirebaseCallback<List<Training>>() {
+                                    @Override
+                                    public void onSuccess(List<Training> result) {
+                                        trainings.setValue(new Result.TrainingsSuccess(result));
+                                        boolean foundAfterFetch = attemptToFindAndSetDay(result, trainingId, trainingDayId);
+                                        if (!foundAfterFetch) {
+                                            errorMessage.setValue("Giorno non trovato nemmeno dopo il caricamento.");
+                                            isLoading.setValue(false);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(Exception e) {
+                                        errorMessage.setValue("Impossibile scaricare i dati: " + e.getMessage());
+                                        isLoading.setValue(false);
+                                    }
+                                });
+                            }*/
+                        }
                     }
                 }
-
-                @Override
-                public void onError(Exception e) {
-                    errorMessage.setValue("Impossibile scaricare i dati: " + e.getMessage());
-                    isLoading.setValue(false);
-                }
-            });
+            }
         }
     }
 
     private boolean attemptToFindAndSetDay(List<Training> trainingList, String trainingId, String trainingDayId) {
         for (Training t : trainingList) {
-            if (t.getId() != null && t.getId().trim().equals(trainingId.trim())) {
+            if (t.getTrainingId() != null && t.getTrainingId().trim().equals(trainingId.trim())) {
                 if (t.getTrainingDaysList() != null) {
                     for (TrainingDay day : t.getTrainingDaysList()) {
-                        if (day.getId() != null && day.getId().trim().equals(trainingDayId.trim())) {
+                        if (day.getTrainingId() != null && day.getTrainingId().trim().equals(trainingDayId.trim())) {
                             editableTrainingDay.setValue(day);
                             isLoading.setValue(false);
                             return true;
@@ -212,29 +221,28 @@ public class TrainingViewModel extends ViewModel {
 
     public void saveTrainingDayChanges(String trainingId, FirebaseCallback<Void> callback) {
         TrainingDay editedDay = editableTrainingDay.getValue();
-        if(trainings.getValue().isTrainingsSuccess()) {
+        if (trainings.getValue().isTrainingsSuccess()) {
             List<Training> currentTrainings = ((Result.TrainingsSuccess) trainings.getValue()).getData();
 
             if (editedDay == null || currentTrainings == null || trainingId == null) {
                 callback.onError(new Exception("Dati mancanti per il salvataggio"));
             }
 
-        for (Training training : currentTrainings) {
-            if (trainingId.equals(training.getId())) {
-                List<TrainingDay> days = training.getTrainingDaysList();
-                if (days != null) {
-                    for (int i = 0; i < days.size(); i++) {
-                        if (editedDay.getId().equals(days.get(i).getId())) {
-                            days.set(i, editedDay);
-                            break;
+            for (Training training : currentTrainings) {
+                if (trainingId.equals(training.getTrainingId())) {
+                    List<TrainingDay> days = training.getTrainingDaysList();
+                    if (days != null) {
+                        for (int i = 0; i < days.size(); i++) {
+                            if (editedDay.getTrainingId().equals(days.get(i).getTrainingId())) {
+                                days.set(i, editedDay);
+                                break;
+                            }
                         }
+                        // Salva il training aggiornato su Firebase
+                        trainingRepository.updateTraining(training);
                     }
-                    // Salva il training aggiornato su Firebase
-                    trainingRepository.updateTraining(training);
                 }
             }
-        }else{
-            callback.onError(new Exception("Training non trovato"));
         }
     }
 

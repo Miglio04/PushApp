@@ -1,5 +1,5 @@
 // Sostituisci l'intero contenuto di WorkoutExerciseAdapter.java con questo
-package com.example.pushapp.utils;
+package com.example.pushapp.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
 import com.example.pushapp.models.Exercise;
-import com.example.pushapp.models.Serie;
+
 import java.util.List;
 
 public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExerciseAdapter.ExerciseViewHolder> {

@@ -22,10 +22,10 @@ import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.TrainingDay; // <-- Import corretto
 import com.example.pushapp.repositories.FirebaseCallback;
-import com.example.pushapp.utils.TrainingDaysCard;
-import com.example.pushapp.utils.TrainingDaysCardAdapter;
-import com.example.pushapp.utils.TrainingViewModel; // <-- USA IL VIEWMODEL CORRETTO
-import com.example.pushapp.utils.WorkoutViewModel;
+import com.example.pushapp.ui.main.graphicComponents.TrainingDaysCard;
+import com.example.pushapp.adapter.TrainingDaysCardAdapter;
+import com.example.pushapp.viewModels.TrainingViewModel; // <-- USA IL VIEWMODEL CORRETTO
+import com.example.pushapp.viewModels.WorkoutViewModel;
 
 import java.io.Serializable; // <-- Aggiungi import per il passaggio dati
 import java.util.ArrayList;

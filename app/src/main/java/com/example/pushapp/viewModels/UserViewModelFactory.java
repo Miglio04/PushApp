@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.viewModels;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;

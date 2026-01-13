@@ -1,10 +1,5 @@
 package com.example.pushapp.ui.main;
 
-import static android.content.Intent.getIntent;
-
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,20 +17,18 @@ import com.example.pushapp.R;
 import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
-import com.example.pushapp.repositories.SessionDataSource;
-import com.example.pushapp.repositories.TrainingLocalDataSource;
-import com.example.pushapp.repositories.TrainingRemoteDataSource;
+import com.example.pushapp.repositories.dataSources.SessionDataSource;
+import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
+import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
 import com.example.pushapp.repositories.TrainingRepository;
-import com.example.pushapp.repositories.UserLocalDataSource;
-import com.example.pushapp.repositories.UserRemoteDataSource;
+import com.example.pushapp.repositories.dataSources.UserLocalDataSource;
+import com.example.pushapp.repositories.dataSources.UserRemoteDataSource;
 import com.example.pushapp.repositories.UserRepository;
-import com.example.pushapp.utils.UserViewModel;
-import com.example.pushapp.utils.UserViewModelFactory;
-import com.example.pushapp.utils.WorkoutViewModel;
-import com.example.pushapp.utils.WorkoutViewModelFactory;
+import com.example.pushapp.viewModels.UserViewModel;
+import com.example.pushapp.viewModels.UserViewModelFactory;
+import com.example.pushapp.viewModels.WorkoutViewModel;
+import com.example.pushapp.viewModels.WorkoutViewModelFactory;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 

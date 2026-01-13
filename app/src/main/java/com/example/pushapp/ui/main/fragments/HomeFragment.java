@@ -13,9 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pushapp.R;
-import com.example.pushapp.models.User;
 import com.example.pushapp.ui.profile.ProfileActivity;
-import com.example.pushapp.utils.UserViewModel;
+import com.example.pushapp.viewModels.UserViewModel;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;

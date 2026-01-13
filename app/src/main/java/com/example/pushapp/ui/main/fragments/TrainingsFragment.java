@@ -24,13 +24,13 @@ import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
-import com.example.pushapp.repositories.TrainingLocalDataSource;
-import com.example.pushapp.repositories.TrainingRemoteDataSource;
+import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
+import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
 import com.example.pushapp.repositories.TrainingRepository;
 import com.example.pushapp.utils.TrainingListGenerator;
-import com.example.pushapp.utils.TrainingViewModel;
-import com.example.pushapp.utils.TrainingViewModelFactory;
-import com.example.pushapp.utils.TrainingsRecyclerViewAdapter;
+import com.example.pushapp.viewModels.TrainingViewModel;
+import com.example.pushapp.viewModels.TrainingViewModelFactory;
+import com.example.pushapp.adapter.TrainingsRecyclerViewAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;

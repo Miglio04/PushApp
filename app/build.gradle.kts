@@ -1,3 +1,4 @@
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -8,12 +9,12 @@ plugins {
 
 android {
     namespace = "com.example.pushapp"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.pushapp"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
@@ -56,7 +57,7 @@ dependencies {
     // --- Core Android ---
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
-    implementation("androidx.activity:activity-compose:1.9.1")
+    implementation("androidx.activity:activity-compose:1.12.0") // Updated to match requires
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.material:material:1.13.0")
@@ -87,32 +88,32 @@ dependencies {
     implementation("androidx.compose.material3:material3")
 
     // --- UI Claws ---
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.appcompat:appcompat:1.7.1") // Updated to 1.7.1
+    implementation("com.google.android.material:material:1.13.0") // Updated to 1.13.0
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1") // Updated
     implementation("androidx.cardview:cardview:1.0.0")
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     // --- Navigation ---
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.6") // Updated
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.6") // Updated
 
     // --- Lifecycle ---
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
-    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0") // Updated
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.10.0") // Updated
 
     // --- Firebase ---
-    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation(platform("com.google.firebase:firebase-bom:34.7.0")) // Updated
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
 
     // --- Google Auth ---
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.android.gms:play-services-auth:21.3.0") // Updated
 
     // --- Networking ---
-    implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.retrofit2:retrofit:2.11.0") // Updated
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0") // Updated
 
     // --- Charts ---
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")

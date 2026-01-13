@@ -92,16 +92,11 @@ public class Exercise implements Serializable {
     }
     @Ignore
     public void setSeries(List<Serie> series) { this.series = series; }
-
-    public String getNotes() { return notes != null ? notes : ""; }
-    public void setNotes(String notes) { this.notes = notes; }
-
     public void addSerie(Serie serie) {
         getSeries().add(serie);
     }
 
-    public int getRestTimeIndex() { return restTimeIndex; }
-    public void setRestTimeIndex(int restTimeIndex) { this.restTimeIndex = restTimeIndex; }
+
 
     // --- GETTER E SETTER PER LE ISTRUZIONI ---
     public String getInstructions() { return instructions != null ? instructions : ""; }

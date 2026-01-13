@@ -19,28 +19,23 @@ import android.widget.Toast;
 
 import com.example.pushapp.R;
 import com.example.pushapp.database.LocalDatabase;
-import com.example.pushapp.models.Exercise;
-import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.TrainingDay;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
-import com.example.pushapp.repositories.TrainingLocalDataSource;
-import com.example.pushapp.repositories.TrainingRemoteDataSource;
+import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
+import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
 import com.example.pushapp.repositories.TrainingRepository;
-import com.example.pushapp.utils.TrainingViewModel;
-import com.example.pushapp.utils.TrainingViewModelFactory;
-import com.example.pushapp.utils.WorkoutViewModel;
+import com.example.pushapp.viewModels.WorkoutViewModel;
 // 1. Importa il NUOVO adapter per gli esercizi durante l'allenamento
-import com.example.pushapp.utils.WorkoutExerciseAdapter;
-import com.example.pushapp.utils.WorkoutViewModelFactory;
+import com.example.pushapp.adapter.WorkoutExerciseAdapter;
+import com.example.pushapp.viewModels.WorkoutViewModelFactory;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Locale;
 
 // 2. Implementa la NUOVA interfaccia, che ora ha un solo metodo
-public abstract class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.OnWorkoutInteractionListener {
+public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.OnWorkoutInteractionListener {
 
     // I tuoi campi rimangono invariati
     private WorkoutViewModel workoutViewModel;

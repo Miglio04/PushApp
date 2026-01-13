@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
+import com.example.pushapp.ui.main.graphicComponents.TrainingDaysCard;
 
 import java.util.List;
 

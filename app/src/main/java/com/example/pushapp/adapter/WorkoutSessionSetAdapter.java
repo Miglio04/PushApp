@@ -1,6 +1,5 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.adapter;
 
-import android.graphics.Paint;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;

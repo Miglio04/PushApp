@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.adapter;
 
 import android.graphics.Paint;
 import android.text.Editable;
@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.WorkoutSet;
 
 import java.util.List;
 

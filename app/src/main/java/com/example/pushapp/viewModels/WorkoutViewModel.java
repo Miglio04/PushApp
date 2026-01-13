@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.viewModels;
 
 import android.os.Handler;
 import android.os.Looper;

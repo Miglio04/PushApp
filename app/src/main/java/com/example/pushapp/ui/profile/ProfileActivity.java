@@ -15,10 +15,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pushapp.R;
-import com.example.pushapp.utils.UserViewModel;
+import com.example.pushapp.viewModels.UserViewModel;
 import com.google.android.material.card.MaterialCardView;
-
-import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity {
 

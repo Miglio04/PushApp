@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.models;
 
 public class WorkoutSet {
     private float weight;

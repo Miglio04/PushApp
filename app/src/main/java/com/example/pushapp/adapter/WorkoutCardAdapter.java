@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.adapter;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
+import com.example.pushapp.ui.main.graphicComponents.WorkoutCard;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;

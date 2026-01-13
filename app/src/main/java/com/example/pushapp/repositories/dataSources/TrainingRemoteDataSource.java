@@ -1,8 +1,9 @@
-package com.example.pushapp.repositories;
+package com.example.pushapp.repositories.dataSources;
 
 import static com.example.pushapp.utils.Constants.COLLECTION_TRAININGS;
 
 import com.example.pushapp.models.Training;
+import com.example.pushapp.repositories.TrainingCallback;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;

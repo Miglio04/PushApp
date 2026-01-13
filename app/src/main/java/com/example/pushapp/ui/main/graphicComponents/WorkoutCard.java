@@ -1,4 +1,6 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.ui.main.graphicComponents;
+
+import com.example.pushapp.models.WorkoutSet;
 
 import java.util.ArrayList;
 import java.util.List;

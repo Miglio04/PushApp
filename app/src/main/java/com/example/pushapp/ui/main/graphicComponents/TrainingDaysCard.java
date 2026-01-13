@@ -1,4 +1,4 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.ui.main.graphicComponents;
 
 public class TrainingDaysCard {
     private final String title;
