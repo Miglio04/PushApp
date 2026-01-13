@@ -15,13 +15,9 @@
         android:theme="@style/Theme.PushApp">
 
         <activity
-            android:name=".ui.login.RegisterActivity"
-            android:exported="false" />
-
-        <activity
-            android:name=".ui.login.LoginActivity"
-            android:theme="@style/Theme.PushApp.Splash"
-            android:exported="true">
+            android:name=".ui.login.AuthActivity"
+            android:exported="true"
+            android:theme="@style/Theme.PushApp.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -36,12 +32,11 @@
             android:name=".ui.profile.ProfileActivity"
             android:exported="false" />
 
-        <activity android:name=".ui.login.QuestionsActivity"
+        <activity
+            android:name=".ui.login.QuestionsActivity"
             android:exported="false" />
 
-        <activity
-            android:name=".ui.login.ForgotPasswordActivity"
-            android:exported="false" />
+
     </application>
 
 </manifest>

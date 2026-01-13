@@ -1,24 +1,26 @@
-
 plugins {
-    alias(libs.plugins.android.application)
-    // Add the Google services Gradle plugin
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    // Modifica importante: Rimosso 'version' e 'apply false' perché già gestito dal progetto
+    id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.gms.google-services")
-
 }
 
 android {
     namespace = "com.example.pushapp"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 35
+
     defaultConfig {
         applicationId = "com.example.pushapp"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-        vectorDrawables.useSupportLibrary = true
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildTypes {
@@ -30,58 +32,77 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+
+    buildFeatures {
+        compose = true
+        viewBinding = true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
 }
 
 dependencies {
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation("com.google.android.material:material:1.13.0")
-    implementation(libs.appcompat)
-    implementation(libs.material)
-    implementation(libs.activity)
-    implementation(libs.constraintlayout)
-    implementation(libs.navigation.fragment)
-    implementation(libs.navigation.ui)
-    implementation(libs.lifecycle.viewmodel)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso.core)
-    implementation(libs.blurview)
-    //LIBRERIE ESTERNE
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.11.0")
+    // --- Core Android ---
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
+    implementation("androidx.activity:activity-compose:1.9.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
+
+    // --- Compose ---
+    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+
+    // --- UI Claws ---
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
+    implementation("androidx.cardview:cardview:1.0.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
-    // Jetpack Navigation
-    implementation("androidx.navigation:navigation-fragment:2.7.7")
-    implementation("androidx.navigation:navigation-ui:2.7.7")
+    // --- Navigation ---
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 
-    // Import the Firebase BoM
-    implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
+    // --- Lifecycle ---
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.8.4")
 
-    // Firebase Firestore
-    implementation ("com.google.firebase:firebase-firestore")
-
-    // Firebase Authentication
-    implementation ("com.google.firebase:firebase-auth")
-
-    // ADD THIS LINE: Google Sign-In
-    implementation("com.google.android.gms:play-services-auth:21.2.0")
+    // --- Firebase ---
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
 
-    // ViewModel e LiveData
-    implementation ("androidx.lifecycle:lifecycle-viewmodel:2.7.0")
-    implementation ("androidx.lifecycle:lifecycle-livedata:2.7.0")
+    // --- Google Auth ---
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
-    // Retrofit per le chiamate API
+    // --- Networking ---
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.9.0") // Per convertire JSON in oggetti Java
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
+    // --- Charts ---
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
+    // --- JSON & Scanner (Per FoodFragment) ---
+    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.3")
+
+    // --- Debugging ---
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

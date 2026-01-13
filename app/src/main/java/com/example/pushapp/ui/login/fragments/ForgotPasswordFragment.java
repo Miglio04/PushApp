@@ -1,48 +1,66 @@
-package com.example.pushapp.ui.login;
+package com.example.pushapp.ui.login.fragments;
 
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.fragment.app.Fragment;
+import androidx.navigation.Navigation;
 
 import com.example.pushapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
-public class ForgotPasswordActivity extends AppCompatActivity {
+public class ForgotPasswordFragment extends Fragment {
 
     private EditText etEmail;
     private TextView tvError;
     private LinearLayout loadingOverlay;
     private FirebaseAuth mAuth;
 
+    public ForgotPasswordFragment() {
+        // Costruttore vuoto richiesto
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_forgot_password);
-
         mAuth = FirebaseAuth.getInstance();
+    }
 
-        etEmail = findViewById(R.id.etEmailReset);
-        tvError = findViewById(R.id.tvResetError);
-        loadingOverlay = findViewById(R.id.loadingOverlay);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate del layout per questo fragment
+        return inflater.inflate(R.layout.fragment_forgot_password, container, false);
+    }
 
-        AppCompatButton btnReset = findViewById(R.id.btnResetPassword);
-        TextView btnBack = findViewById(R.id.btnBack);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        // Click: Torna indietro
-        btnBack.setOnClickListener(v -> finish());
+        // Collegamento viste
+        etEmail = view.findViewById(R.id.etEmailReset);
+        tvError = view.findViewById(R.id.tvResetError);
+        loadingOverlay = view.findViewById(R.id.loadingOverlay);
+
+        AppCompatButton btnReset = view.findViewById(R.id.btnResetPassword);
+        TextView btnBack = view.findViewById(R.id.btnBack); // Assumendo che sia una TextView o ImageButton
+
+        // Click: Torna indietro (Navigation)
+        btnBack.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
 
         // Click: Invia Mail
         btnReset.setOnClickListener(v -> sendResetEmail());
@@ -58,16 +76,18 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         // Validazione Input
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             etEmail.setBackgroundResource(R.drawable.bg_input_error);
-            tvError.setText("@string/please_enter_a_valid_email");
+            // Nota: R.string.please_enter_a_valid_email dovrebbe essere usato con getString(),
+            // qui ho messo il testo fisso per sicurezza come nel tuo codice originale
+            tvError.setText("Please enter a valid email address");
             tvError.setVisibility(View.VISIBLE);
             return;
         }
 
-        loadingOverlay.setVisibility(View.VISIBLE);
+        if (loadingOverlay != null) loadingOverlay.setVisibility(View.VISIBLE);
 
         mAuth.sendPasswordResetEmail(email)
-                .addOnCompleteListener(task -> {
-                    loadingOverlay.setVisibility(View.GONE);
+                .addOnCompleteListener(requireActivity(), task -> {
+                    if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
 
                     if (task.isSuccessful()) {
                         // SUCCESSO: L'utente esiste -> Mostra Popup Verde
@@ -89,8 +109,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     // --- POPUP 1: MAIL INVIATA (SUCCESSO) ---
     private void showSuccessDialog(String email) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_success, null);
+        if (getContext() == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.dialog_success, null);
         builder.setView(view);
 
         final AlertDialog dialog = builder.create();
@@ -101,19 +123,17 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         TextView tvTitle = view.findViewById(R.id.tvTitle);
         TextView tvMessage = view.findViewById(R.id.tvMessage);
-
-        // Controlla ID bottone (btnAction o btnOkay nel tuo XML)
         Button btnAction = view.findViewById(R.id.btnAction);
-        // Se nel tuo XML è btnOkay, cambia la riga sopra.
 
-        tvTitle.setText("Check your Email!");
-        tvMessage.setText("We sent a password reset link to:\n" + email);
+        if (tvTitle != null) tvTitle.setText("Check your Email!");
+        if (tvMessage != null) tvMessage.setText("We sent a password reset link to:\n" + email);
 
         if (btnAction != null) {
             btnAction.setText("BACK TO LOGIN");
             btnAction.setOnClickListener(v -> {
                 dialog.dismiss();
-                finish(); // Torna al login
+                // Torna al login usando Navigation
+                Navigation.findNavController(getView()).navigateUp();
             });
         }
 
@@ -122,8 +142,9 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     // --- POPUP 2: UTENTE NON TROVATO (ERRORE) ---
     private void showUserNotFoundDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        // Usiamo lo stesso layout "Account Not Found" del Login
+        if (getContext() == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View view = getLayoutInflater().inflate(R.layout.dialog_account_not_found, null);
         builder.setView(view);
 
@@ -136,20 +157,30 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         // Bottone "Registrati Ora"
         Button btnRegister = view.findViewById(R.id.btnRegister);
-        btnRegister.setOnClickListener(v -> {
-            dialog.dismiss();
-            // Vai alla registrazione
-            Intent intent = new Intent(ForgotPasswordActivity.this, RegisterActivity.class);
-            startActivity(intent);
-            finish(); // Chiudi password dimenticata
-        });
+        if (btnRegister != null) {
+            btnRegister.setOnClickListener(v -> {
+                dialog.dismiss();
+                // Vai alla registrazione (Action definita nel nav graph)
+                // Assicurati che l'ID corrisponda a quello nel nav_graph_auth.xml
+                // Se non hai un action diretta da Forgot a Register, torna al login e poi vai a register,
+                // oppure aggiungi l'action nel graph.
+
+                // Opzione sicura: Torna indietro (Login) e l'utente andrà su Register
+                Navigation.findNavController(getView()).navigateUp();
+
+                // Opzione diretta (Se hai aggiunto l'action nel graph):
+                // Navigation.findNavController(getView()).navigate(R.id.action_forgotPasswordFragment_to_registerFragment);
+            });
+        }
 
         // Bottone "Riprova"
         View btnTryAgain = view.findViewById(R.id.btnTryAgain);
-        btnTryAgain.setOnClickListener(v -> {
-            dialog.dismiss();
-            etEmail.requestFocus();
-        });
+        if (btnTryAgain != null) {
+            btnTryAgain.setOnClickListener(v -> {
+                dialog.dismiss();
+                if (etEmail != null) etEmail.requestFocus();
+            });
+        }
 
         dialog.show();
     }
