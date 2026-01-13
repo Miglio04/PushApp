@@ -1,21 +1,50 @@
 package com.example.pushapp.models;
 
+import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
+
 import com.google.firebase.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class User {
-    private String uid;
+    @PrimaryKey
+    @ColumnInfo(name = "userId")
+    @NonNull
+    private String userId;
+    @ColumnInfo(name = "email")
     private String email;
+    @ColumnInfo(name = "name")
     private String name;
+    @ColumnInfo(name = "surname")
     private String surname;
+    @ColumnInfo(name = "gender")
     private String gender;
+    @ColumnInfo(name = "age")
     private int age;
+    @ColumnInfo(name = "weight")
     private double weight;
+    @ColumnInfo(name = "height")
     private int height;
+    @ColumnInfo(name = "goalWeight")
     private double goalWeight;
+    @ColumnInfo(name = "createdAt")
     private Timestamp createdAt;
+
+    //questi due campi andranno inseriti nel database quando verrà implementato il versioning
+    // @ColumnInfo(name = "userUpdatedAt")
+    @Ignore
+    private Timestamp userUpdatedAt;
+    // @ColumnInfo(name = "trainingsUpdatedAt")
+    @Ignore
+    private Timestamp trainingsUpdatedAt;
+    @Ignore
     private List<String> trainingPlans;
+    @Ignore
     private List<Double> weightProgress;
 
     public User() {
@@ -23,8 +52,8 @@ public class User {
     }
 
     // Getters and Setters
-    public String getUid() { return uid; }
-    public void setUid(String uid) { this.uid = uid; }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
@@ -52,16 +81,22 @@ public class User {
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
-
+    public Timestamp getUserUpdatedAt() { return userUpdatedAt; }
+    public void setUserUpdatedAt(Timestamp userUpdatedAt) { this.userUpdatedAt = userUpdatedAt; }
+    public Timestamp getTrainingsUpdatedAt() { return trainingsUpdatedAt; }
+    public void setTrainingsUpdatedAt(Timestamp trainingsUpdatedAt) { this.trainingsUpdatedAt = trainingsUpdatedAt; }
+    @Ignore
     public List<String> getTrainingPlans() {
         if (trainingPlans == null) trainingPlans = new ArrayList<>();
         return trainingPlans;
     }
+    @Ignore
     public void setTrainingPlans(List<String> trainingPlans) { this.trainingPlans = trainingPlans; }
-
+    @Ignore
     public List<Double> getWeightProgress() {
         if (weightProgress == null) weightProgress = new ArrayList<>();
         return weightProgress;
     }
+    @Ignore
     public void setWeightProgress(List<Double> weightProgress) { this.weightProgress = weightProgress; }
 }

@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.TrainingDay;
 import com.example.pushapp.models.Exercise;
@@ -24,9 +25,7 @@ import java.util.Set;
 public class TrainingViewModel extends ViewModel {
     private final TrainingRepository trainingRepository;
     private final ExerciseRepository exerciseRepository;
-
-    // LiveData principali
-    private final MutableLiveData<List<Training>> trainings = new MutableLiveData<>();
+    private final LiveData<Result> trainings;
     private final MutableLiveData<Training> activeTraining = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
@@ -47,13 +46,13 @@ public class TrainingViewModel extends ViewModel {
 
     private boolean isListenerAttached = false;
 
-    public TrainingViewModel() {
-        this.trainingRepository = new TrainingRepository();
-        this.exerciseRepository = new ExerciseRepository();
+    public TrainingViewModel(TrainingRepository trainingRepository, ExerciseRepository exerciseRepository){
+        this.trainingRepository = trainingRepository;
+        this.exerciseRepository = exerciseRepository;
+        this.trainings = trainingRepository.getTrainingList();
     }
 
-    // --- GETTERS ---
-    public LiveData<List<Training>> getTrainings() { return trainings; }
+    public LiveData<Result> getTrainings() { return trainings; }
     public LiveData<Training> getActiveTraining() { return activeTraining; }
     public LiveData<TrainingDay> getEditableTrainingDay() { return editableTrainingDay; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
@@ -61,13 +60,14 @@ public class TrainingViewModel extends ViewModel {
     public LiveData<List<ExerciseApiModel>> getAvailableExercises() { return availableExercises; }
     public LiveData<List<ExerciseApiModel>> getFilteredAvailableExercises() { return filteredAvailableExercises; }
 
-    // Getters per le Categorie
-    public LiveData<List<String>> getAvailableMuscleGroups() { return availableMuscleGroups; }
-    public LiveData<List<String>> getAvailableDifficulties() { return availableDifficulties; }
+    public void fetchTrainings(){
+        newFetchTrainings();
+    }
 
-    // --- CARICAMENTO TRAINING ---
-    public void loadTrainings() {
-        if (isListenerAttached) return;
+    public void oldFetchTrainings() {
+        if (isListenerAttached) {
+            return; // Evita di attaccare listener multipli
+        }
 
         isLoading.setValue(true);
         isListenerAttached = true;
@@ -75,7 +75,7 @@ public class TrainingViewModel extends ViewModel {
         trainingRepository.attachUserTrainingsListener(new FirebaseCallback<List<Training>>() {
             @Override
             public void onSuccess(List<Training> result) {
-                trainings.setValue(result);
+                //trainings.setValue(result);
                 isLoading.setValue(false);
             }
 
@@ -86,6 +86,11 @@ public class TrainingViewModel extends ViewModel {
             }
         });
     }
+
+    public void newFetchTrainings(){
+        trainingRepository.getTrainingList();
+    }
+
 
     public void loadActiveTraining() {
         trainingRepository.getActiveTraining(new FirebaseCallback<Training>() {
@@ -121,7 +126,7 @@ public class TrainingViewModel extends ViewModel {
     }
 
     public void updateTraining(Training training, FirebaseCallback<Void> callback) {
-        trainingRepository.updateTraining(training, callback);
+        trainingRepository.updateTraining(training);
     }
 
     public void deleteTraining(String trainingId, FirebaseCallback<Void> callback) {
@@ -147,6 +152,19 @@ public class TrainingViewModel extends ViewModel {
             return;
         }
 
+        // Cerca il training corretto nella lista già caricata
+        if(trainings.getValue().isTrainingsSuccess()){
+            List<Training> currentTrainings = ((Result.TrainingsSuccess) trainings.getValue()).getData();;
+            if (currentTrainings != null && trainingId != null) {
+                for (Training t : currentTrainings) {
+                    if (trainingId.equals(t.getTrainingId()) && t.getTrainingDaysList() != null) {
+                        // Trovato il training, ora cerca il giorno
+                        for (TrainingDay day : t.getTrainingDaysList()) {
+                            if (trainingDayId.equals(day.getTrainingDayId())) {
+                                editableTrainingDay.setValue(day); // Pubblica il giorno reale
+                                isLoading.setValue(false);
+                                return;
+                            }
         List<Training> currentTrainings = trainings.getValue();
         boolean foundInCache = false;
 
@@ -194,12 +212,12 @@ public class TrainingViewModel extends ViewModel {
 
     public void saveTrainingDayChanges(String trainingId, FirebaseCallback<Void> callback) {
         TrainingDay editedDay = editableTrainingDay.getValue();
-        List<Training> currentTrainings = trainings.getValue();
+        if(trainings.getValue().isTrainingsSuccess()) {
+            List<Training> currentTrainings = ((Result.TrainingsSuccess) trainings.getValue()).getData();
 
-        if (editedDay == null || currentTrainings == null || trainingId == null) {
-            callback.onError(new Exception("Dati mancanti per il salvataggio"));
-            return;
-        }
+            if (editedDay == null || currentTrainings == null || trainingId == null) {
+                callback.onError(new Exception("Dati mancanti per il salvataggio"));
+            }
 
         for (Training training : currentTrainings) {
             if (trainingId.equals(training.getId())) {
@@ -211,12 +229,13 @@ public class TrainingViewModel extends ViewModel {
                             break;
                         }
                     }
+                    // Salva il training aggiornato su Firebase
+                    trainingRepository.updateTraining(training);
                 }
-                trainingRepository.updateTraining(training, callback);
-                return;
             }
+        }else{
+            callback.onError(new Exception("Training non trovato"));
         }
-        callback.onError(new Exception("Training non trovato"));
     }
 
     // ===================================================================================

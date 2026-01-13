@@ -84,5 +84,9 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0") // Per convertire JSON in oggetti Java
 
+    // dependencies per utilizzare Room
+    val room_version = "2.8.4"
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
 
-}
+    }

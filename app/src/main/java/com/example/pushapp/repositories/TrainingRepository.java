@@ -1,7 +1,13 @@
 package com.example.pushapp.repositories;
 
+import static com.example.pushapp.utils.Constants.COLLECTION_TRAININGS;
+
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -13,22 +19,50 @@ import com.google.firebase.firestore.ListenerRegistration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrainingRepository {
-    private static final String COLLECTION_TRAININGS = "trainings";
+public class TrainingRepository implements TrainingCallback{
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
     private ListenerRegistration trainingsListener;
+    private final TrainingLocalDataSource trainingLocalDataSource;
 
-    public TrainingRepository() {
+    private final TrainingRemoteDataSource trainingRemoteDataSource;
+    private final MutableLiveData<Result> trainingList;
+
+    // attributo temporaneo; da rimuovere quando si implementa versioning.
+    private boolean isFirstFetchCompleted = false;
+
+    public TrainingRepository(TrainingLocalDataSource trainingLocalDataSource, TrainingRemoteDataSource trainingRemoteDataSource) {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
+        trainingList = new MutableLiveData<>();
+        this.trainingLocalDataSource = trainingLocalDataSource;
+        this.trainingRemoteDataSource = trainingRemoteDataSource;
+        trainingLocalDataSource.setTrainingCallback(this);
+        trainingRemoteDataSource.setTrainingCallback(this);
     }
 
+    // da spostare nella repository dell'utente
     private String getCurrentUserId() {
         return auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
     }
 
+    public LiveData<Result> getTrainingList() {
+        return newGetTrainingList();
+    }
+
+    public MutableLiveData<Result> oldGetTrainingList() {
+        trainingLocalDataSource.getTrainings();
+        return trainingList;
+    }
+
+    public MutableLiveData<Result> newGetTrainingList(){
+        trainingLocalDataSource.getTrainings();
+        trainingRemoteDataSource.fetchTrainings();
+        return trainingList;
+    }
+
     // CREATE
+    // metodo da rimuovere (aggiorna direttamente Firestore)
     public void createTraining(Training training, FirebaseCallback<String> callback) {
         String userId = getCurrentUserId();
         if (userId == null) {
@@ -41,11 +75,15 @@ public class TrainingRepository {
         training.setUpdatedAt(System.currentTimeMillis());
 
         DocumentReference docRef = db.collection(COLLECTION_TRAININGS).document();
-        training.setId(docRef.getId());
+        training.setTrainingId(docRef.getId());
 
         docRef.set(training)
-                .addOnSuccessListener(aVoid -> callback.onSuccess(training.getId()))
+                .addOnSuccessListener(aVoid -> callback.onSuccess(training.getTrainingId()))
                 .addOnFailureListener(callback::onError);
+    }
+
+    public void createTraining(Training training) {
+        trainingLocalDataSource.createTraining(training);
     }
 
     // READ - Singolo training
@@ -63,27 +101,6 @@ public class TrainingRepository {
                 })
                 .addOnFailureListener(callback::onError);
     }
-
-    // READ - Tutti i training dell'utente
-    // Commmentato per evitare conflitti con l'osservatore nel ViewModel
-    /*public void getUserTrainings(FirebaseCallback<List<Training>> callback) {
-        String userId = getCurrentUserId();
-        if (userId == null) {
-            callback.onError(new Exception("User not authenticated"));
-            return;
-        }
-
-        db.collection(COLLECTION_TRAININGS)
-                .whereEqualTo("userId", userId)
-                .orderBy("createdAt", Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    List<Training> trainings = new ArrayList<>();
-                    querySnapshot.forEach(doc -> trainings.add(doc.toObject(Training.class)));
-                    callback.onSuccess(trainings);
-                })
-                .addOnFailureListener(callback::onError);
-    }*/
 
     public void attachUserTrainingsListener(FirebaseCallback<List<Training>> callback) {
         String userId = getCurrentUserId();
@@ -121,7 +138,7 @@ public class TrainingRepository {
                         for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
                             Training t = doc.toObject(Training.class);
                             if (t != null) {
-                                t.setId(doc.getId()); // Assicurati che l'ID sia impostato
+                                t.setTrainingId(doc.getId()); // Assicurati che l'ID sia impostato
                                 Log.d("TrainingRepository", "  Doc ID: " + doc.getId());
                                 trainings.add(t);
                             }
@@ -173,8 +190,9 @@ public class TrainingRepository {
     }
 
     // UPDATE
+    // metodo da rimuovere (aggiorna direttamente Firestore)
     public void updateTraining(Training training, FirebaseCallback<Void> callback) {
-        if (training.getId() == null) {
+        if (training.getTrainingId() == null) {
             callback.onError(new Exception("Training ID is null"));
             return;
         }
@@ -182,10 +200,17 @@ public class TrainingRepository {
         training.setUpdatedAt(System.currentTimeMillis());
 
         db.collection(COLLECTION_TRAININGS)
-                .document(training.getId())
+                .document(training.getTrainingId())
                 .set(training)
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
                 .addOnFailureListener(callback::onError);
+    }
+
+    public void updateTraining(Training training){
+        if(training != null){
+            trainingLocalDataSource.updateTraining(training);
+            trainingRemoteDataSource.updateTraining(training);
+        }
     }
 
     // DELETE
@@ -216,5 +241,26 @@ public class TrainingRepository {
                     callback.onSuccess(null);
                 })
                 .addOnFailureListener(callback::onError);
+    }
+
+    public void onSuccessFromLocal(List<Training> trainingListSuccess) {
+        Result.TrainingsSuccess result = new Result.TrainingsSuccess(new ArrayList<Training>(trainingListSuccess));
+        trainingList.postValue(result);
+    }
+
+    public void onFailureFromLocal(Exception exception) {
+        Result.Error resultError = new Result.Error(exception.getMessage());
+        trainingList.postValue(resultError);
+    }
+
+    // metodo in versione temporanea: non considera il versioning
+    public void onSuccessFromRemote(List<Training> trainingListSuccess) {
+        if(!isFirstFetchCompleted){
+            trainingLocalDataSource.overwriteTrainigs(trainingListSuccess, getCurrentUserId());
+            isFirstFetchCompleted = true;
+        }
+    }
+    public void onFailureFromRemote(Exception exception){
+        // to implement: ritentare aggiornamento con workManager
     }
 }

@@ -55,9 +55,9 @@ public class WorkoutViewModel extends ViewModel {
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
     // --- COSTRUTTORE ---
-    public WorkoutViewModel() {
-        this.exerciseRepository = new ExerciseRepository();
-        this.trainingRepository = new TrainingRepository();
+    public WorkoutViewModel(TrainingRepository trainingRepository, ExerciseRepository exerciseRepository){
+        this.trainingRepository = trainingRepository;
+        this.exerciseRepository = exerciseRepository;
     }
 
     // --- GETTERS ---
