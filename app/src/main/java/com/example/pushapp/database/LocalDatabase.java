@@ -22,8 +22,8 @@ import java.util.concurrent.Executors;
 public abstract class LocalDatabase extends RoomDatabase {
     private static volatile LocalDatabase INSTANCE;
     public abstract TrainingDao trainingDao();
-    public abstract RoutineDao trainingDayDao();
-    public abstract WorkoutExerciseDao exerciseDao();
+    public abstract RoutineDao routineDao();
+    public abstract WorkoutExerciseDao workoutExerciseDao();
     public abstract SerieDao serieDao();
     public abstract UserDao userDao();
 

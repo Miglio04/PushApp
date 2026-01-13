@@ -29,4 +29,8 @@ public class SessionRepository {
     public String getCurrentUserId() {
         return sessionDataSource.getCurrentUserId();
     }
+
+    public void forgotPassoword(){
+
+    }
 }
