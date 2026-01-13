@@ -1,12 +1,15 @@
-package com.example.pushapp.ui.login;
+package com.example.pushapp.ui.login.fragments;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Patterns;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -15,9 +18,12 @@ import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatButton;
+import androidx.fragment.app.Fragment;
+// import androidx.navigation.Navigation; // Non serve più qui perché lo switch è gestito dall'Activity
 
 import com.example.pushapp.R;
 import com.example.pushapp.ui.login.QuestionsActivity;
@@ -40,9 +46,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterFragment extends Fragment {
 
-    private static final String TAG = "RegisterActivity";
+    private static final String TAG = "RegisterFragment";
 
     // UI Components
     private EditText etEmail, etPassword, etConfirmPassword;
@@ -59,54 +65,88 @@ public class RegisterActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private GoogleSignInClient mGoogleSignInClient;
 
+    // Launcher per il risultato del Google Sign-In
+    private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() != Activity.RESULT_OK) {
+                    showLoading(false, null);
+                }
+
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
+                    try {
+                        GoogleSignInAccount account = task.getResult(ApiException.class);
+                        firebaseAuthWithGoogle(account.getIdToken());
+                    } catch (ApiException e) {
+                        showLoading(false, null);
+                        Toast.makeText(requireContext(), "Google Error: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+    );
+
+    public RegisterFragment() {
+        // Required empty public constructor
+    }
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        initializeViews();
 
         // Google Configuration
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-
-        // 1. Tab Login
-        TextView tabLogin = findViewById(R.id.tabLogin);
-        if (tabLogin != null) {
-            tabLogin.setOnClickListener(v -> {
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-            });
-        }
-
-        // 2. Register Button
-        btnRegister.setOnClickListener(v -> handleRegistration());
-
-        // 3. Google Button
-        btnGoogle.setOnClickListener(v -> signInWithGoogle());
+        mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
     }
 
-    private void initializeViews() {
-        etEmail = findViewById(R.id.etEmailRegister);
-        etPassword = findViewById(R.id.etPasswordRegister);
-        etConfirmPassword = findViewById(R.id.etConfirmPasswordRegister);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        return inflater.inflate(R.layout.fragment_register, container, false);
+    }
 
-        tvEmailError = findViewById(R.id.tvEmailError);
-        tvPasswordError = findViewById(R.id.tvPasswordError);
-        tvConfirmError = findViewById(R.id.tvConfirmPasswordError);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        btnRegister = findViewById(R.id.btnRegister);
-        btnGoogle = findViewById(R.id.btnGoogle);
+        initializeViews(view);
+
+        // --- IL BLOCCO CHE CAUSAVA L'ERRORE È STATO RIMOSSO ---
+        // Non cerchiamo più R.id.tabLogin qui.
+
+        // Register Button Listener
+        if (btnRegister != null) {
+            btnRegister.setOnClickListener(v -> handleRegistration());
+        }
+
+        // Google Button Listener
+        if (btnGoogle != null) {
+            btnGoogle.setOnClickListener(v -> signInWithGoogle());
+        }
+    }
+
+    private void initializeViews(View view) {
+        etEmail = view.findViewById(R.id.etEmailRegister);
+        etPassword = view.findViewById(R.id.etPasswordRegister);
+        etConfirmPassword = view.findViewById(R.id.etConfirmPasswordRegister);
+
+        tvEmailError = view.findViewById(R.id.tvEmailError);
+        tvPasswordError = view.findViewById(R.id.tvPasswordError);
+        tvConfirmError = view.findViewById(R.id.tvConfirmPasswordError);
+
+        btnRegister = view.findViewById(R.id.btnRegister);
+        btnGoogle = view.findViewById(R.id.btnGoogle);
 
         // Overlay
-        loadingOverlay = findViewById(R.id.loadingOverlay);
-        tvLoadingText = findViewById(R.id.tvLoadingText);
+        loadingOverlay = view.findViewById(R.id.loadingOverlay);
+        tvLoadingText = view.findViewById(R.id.tvLoadingText);
     }
 
     // ==========================================
@@ -138,7 +178,7 @@ public class RegisterActivity extends AppCompatActivity {
         showLoading(true, "Creating account...");
 
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, task -> {
+                .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
@@ -150,7 +190,7 @@ public class RegisterActivity extends AppCompatActivity {
                             showError(etEmail, tvEmailError, "This email is already registered.");
                         } else {
                             String errorMsg = task.getException() != null ? task.getException().getMessage() : "Registration failed.";
-                            Toast.makeText(RegisterActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                            Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -168,33 +208,13 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() != RESULT_OK) {
-                    showLoading(false, null);
-                }
-
-                if (result.getResultCode() == RESULT_OK) {
-                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
-                    try {
-                        GoogleSignInAccount account = task.getResult(ApiException.class);
-                        firebaseAuthWithGoogle(account.getIdToken());
-                    } catch (ApiException e) {
-                        showLoading(false, null);
-                        Toast.makeText(this, "Google Error: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-    );
-
     private void firebaseAuthWithGoogle(String idToken) {
         if(tvLoadingText != null) tvLoadingText.setText("Authenticating...");
 
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
 
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
+                .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
@@ -202,14 +222,14 @@ public class RegisterActivity extends AppCompatActivity {
                         }
                     } else {
                         showLoading(false, null);
-                        Toast.makeText(RegisterActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "Authentication Failed.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void createUserProfile(String uid, String email, boolean isGoogle) {
         if (tvLoadingText != null) tvLoadingText.setText("Saving profile...");
-        
+
         Map<String, Object> user = new HashMap<>();
         user.put("email", email);
         user.put("createdAt", FieldValue.serverTimestamp());
@@ -227,7 +247,7 @@ public class RegisterActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Error saving user profile", e);
                     showLoading(false, null);
-                    Toast.makeText(RegisterActivity.this, "Error saving profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(requireContext(), "Error saving profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
     }
 
@@ -235,7 +255,9 @@ public class RegisterActivity extends AppCompatActivity {
     // UTILITY: POPUP & LOADING
     // ==========================================
     private void showSuccessDialog(boolean isGoogle) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if (getContext() == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View view = getLayoutInflater().inflate(R.layout.dialog_success, null);
         builder.setView(view);
 
@@ -271,10 +293,12 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void goToQuestionsActivity() {
-        Intent intent = new Intent(RegisterActivity.this, QuestionsActivity.class);
+        if (getContext() == null) return;
+
+        Intent intent = new Intent(requireContext(), QuestionsActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
-        finish();
+        requireActivity().finish();
     }
 
     private void showLoading(boolean isLoading, String message) {
