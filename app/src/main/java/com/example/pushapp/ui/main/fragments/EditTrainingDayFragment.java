@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 import com.example.pushapp.R;
 import com.example.pushapp.models.Exercise;
-import com.example.pushapp.models.api.ExerciseInfo;
+import com.example.pushapp.models.ExerciseApiModel;
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.utils.EditTrainingDayAdapter;
 import com.example.pushapp.utils.TrainingViewModel;
@@ -35,8 +35,6 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
     private WorkoutViewModel workoutViewModel;
     private EditTrainingDayAdapter adapter;
     private MaterialToolbar toolbar;
-    // Rimuoviamo la dichiarazione duplicata del FAB da qui, verrà gestito in onViewCreated
-    // private FloatingActionButton fabAddExercise;
 
     public EditTrainingDayFragment() {
         // Required empty public constructor
@@ -51,7 +49,9 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
             trainingDayId = getArguments().getString("trainingDayId");
             trainingId = getArguments().getString("trainingId");
             trainingViewModel.loadTrainingDayForEdit(trainingId, trainingDayId);
-            workoutViewModel.loadAvailableExercises();        }
+            // Assicuriamoci che gli esercizi siano caricati
+            trainingViewModel.loadAvailableExercises();
+        }
     }
 
     @Override
@@ -64,7 +64,6 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         toolbar = view.findViewById(R.id.toolbar_edit_day);
-        // La variabile fabAddExercise è locale a questo metodo, il che va bene
         FloatingActionButton fabAddExercise = view.findViewById(R.id.fab_add_exercise);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_exercises);
 
@@ -106,10 +105,6 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
             }
         });
 
-        trainingViewModel.getIsLoading().observe(getViewLifecycleOwner(), isLoading -> {
-            // TODO: Logica per mostrare un indicatore di caricamento
-        });
-
         trainingViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null && !error.isEmpty()) {
                 Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
@@ -139,11 +134,12 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
     }
 
     private void showAddOrReplaceExerciseDialog(final int positionToReplace) {
-        List<ExerciseInfo> availableExercises = workoutViewModel.getAvailableExercises().getValue();
+        // Prendiamo gli esercizi dal TrainingViewModel (dove abbiamo implementato il caricamento API)
+        List<ExerciseApiModel> availableExercises = trainingViewModel.getAvailableExercises().getValue();
 
         if (availableExercises == null || availableExercises.isEmpty()) {
-            Toast.makeText(getContext(), "Caricamento lista esercizi dall'API...", Toast.LENGTH_SHORT).show();
-            workoutViewModel.loadAvailableExercises();
+            Toast.makeText(getContext(), "Caricamento esercizi in corso...", Toast.LENGTH_SHORT).show();
+            trainingViewModel.loadAvailableExercises();
             return;
         }
 
@@ -157,10 +153,11 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
         new AlertDialog.Builder(requireContext())
                 .setTitle(dialogTitle)
                 .setItems(exerciseNames, (dialog, which) -> {
-                    ExerciseInfo selected = availableExercises.get(which);
+                    ExerciseApiModel selected = availableExercises.get(which);
                     if (positionToReplace == -1) {
                         int order = adapter.getItemCount() + 1;
-                        Exercise newExercise = new Exercise(selected.getId(), selected.getName(), order);
+                        // Usiamo l'hashcode come ID base visto che Ninja API non ne fornisce uno numerico
+                        Exercise newExercise = new Exercise(selected.getName().hashCode(), selected.getName(), order);
                         trainingViewModel.addExerciseToDay(newExercise);
                     } else {
                         trainingViewModel.replaceExerciseInDay(positionToReplace, selected);
@@ -170,8 +167,6 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
                 .show();
     }
 
-    // Tutti gli altri metodi (onDeleteExercise, onSetUpdated, ecc.)
-    // sono già corretti e non richiedono modifiche.
     @Override
     public void onDeleteExercise(int position) {
         final Exercise exerciseToDelete = trainingViewModel.getEditableTrainingDay().getValue().getExercises().get(position);
@@ -205,4 +200,3 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
                 .show();
     }
 }
-
