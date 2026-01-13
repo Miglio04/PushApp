@@ -1,4 +1,3 @@
-// Sostituisci l'intero contenuto di TrainingDaysFragment.java con questo
 package com.example.pushapp.ui.main.fragments;
 
 import android.os.Bundle;
@@ -19,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.TrainingDay; // <-- Import corretto
 import com.example.pushapp.repositories.FirebaseCallback;
@@ -80,18 +80,20 @@ public class TrainingDaysFragment extends Fragment {
     }
 
     private void observeViewModel() {
-        // Osserva la lista completa di allenamenti
         trainingViewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
-            if (trainings == null || trainingId == null) return;
-
-            // Cerca il training specifico che ci interessa usando l'ID (String)
-            for (Training training : trainings) {
-                if (trainingId.equals(training.getId())) {
-                    currentTraining = training; // Salva il training trovato
-                    // Genera le card usando i dati REALI dal training trovato
-                    List<TrainingDaysCard> cards = generateCardsFromTraining(currentTraining);
-                    adapter.updateCards(cards); // Aggiorna l'adapter con le nuove card
-                    break;
+            if (trainings == null) {
+                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
+            }else if(!trainings.isTrainingsSuccess()){
+                Toast.makeText(getContext(), ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
+            }else{
+                List<Training> trainingsList = ((Result.TrainingsSuccess) trainings).getData();
+                for (Training training : trainingsList) {
+                    if (trainingId.equals(training.getTrainingId())) {
+                        currentTraining = training;
+                        List<TrainingDaysCard> cards = generateCardsFromTraining(currentTraining);
+                        adapter.updateCards(cards);
+                        break;
+                    }
                 }
             }
         });
@@ -107,7 +109,7 @@ public class TrainingDaysFragment extends Fragment {
 
         // Crea una card per ogni giorno di allenamento reale
         for (TrainingDay day : training.getTrainingDaysList()) {
-            cards.add(new TrainingDaysCard(day.getName(), "Exercises: " + day.getTotalExercises(), day.getId()));
+            cards.add(new TrainingDaysCard(day.getName(), "Exercises: " + day.getTotalExercises(), day.getTrainingDayId()));
         }
         return cards;
     }
@@ -125,11 +127,13 @@ public class TrainingDaysFragment extends Fragment {
         if (getView() != null && card.getTrainingDayId() != null) {
             NavController navController = Navigation.findNavController(getView());
             Bundle args = new Bundle();
+
             args.putString("trainingId", trainingId);
-            args.putString("trainingDayId", card.getTrainingDayId());
+
+            args.putString("dayId", card.getTrainingDayId());
+
             navController.navigate(R.id.nav_training_days_to_edit, args);
         } else {
-            // Opzionale: mostra un messaggio di errore
             Toast.makeText(getContext(), "Errore: ID del giorno non disponibile", Toast.LENGTH_SHORT).show();
         }
     }
@@ -142,7 +146,7 @@ public class TrainingDaysFragment extends Fragment {
 
         // Trova il TrainingDay completo da passare al WorkoutFragment
         for (TrainingDay day : currentTraining.getTrainingDaysList()) {
-            if (cardDayId.equals(day.getId())) { // Inverti il confronto
+            if (cardDayId.equals(day.getTrainingDayId())) { // Inverti il confronto
                 NavController navController = NavHostFragment.findNavController(this);
                 Bundle args = new Bundle();
                 args.putSerializable("trainingDay", (Serializable) day);

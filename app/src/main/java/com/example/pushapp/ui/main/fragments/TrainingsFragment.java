@@ -1,4 +1,3 @@
-// Sostituisci l'intero contenuto di TrainingsFragment.java con questo
 package com.example.pushapp.ui.main.fragments;
 
 import android.os.Bundle;
@@ -20,15 +19,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
+import com.example.pushapp.database.LocalDatabase;
+import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
+import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
+import com.example.pushapp.repositories.TrainingLocalDataSource;
+import com.example.pushapp.repositories.TrainingRemoteDataSource;
+import com.example.pushapp.repositories.TrainingRepository;
 import com.example.pushapp.utils.TrainingListGenerator;
 import com.example.pushapp.utils.TrainingViewModel;
+import com.example.pushapp.utils.TrainingViewModelFactory;
 import com.example.pushapp.utils.TrainingsRecyclerViewAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class TrainingsFragment extends Fragment implements TrainingsRecyclerViewAdapter.OnTrainingInteractionListener {
 
@@ -55,9 +61,17 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
 
         navController = Navigation.findNavController(view);
 
-        // 1. Inizializza il ViewModel
-        viewModel = new ViewModelProvider(requireActivity()).get(TrainingViewModel.class);
+        // creazione repositories che vengono passate al viewmodel
+        TrainingLocalDataSource trainingLocalDataSource = new TrainingLocalDataSource(
+                LocalDatabase.getDatabase(getContext()));
+        TrainingRemoteDataSource trainingRemoteDataSource = new TrainingRemoteDataSource();
+        TrainingRepository trainingRepository = new TrainingRepository(trainingLocalDataSource, trainingRemoteDataSource);
+        ExerciseRepository exerciseRepository = new ExerciseRepository();
 
+        // 1. Inizializza il ViewModel
+        viewModel = new ViewModelProvider(
+                requireActivity(),
+                new TrainingViewModelFactory(trainingRepository, exerciseRepository)).get(TrainingViewModel.class);
         // 2. Setup della RecyclerView
         RecyclerView recyclerView = view.findViewById(R.id.training_list);
         setupRecyclerView(recyclerView);
@@ -76,7 +90,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         observeViewModel();
 
         // 5. Carica i dati iniziali da Firebase
-        viewModel.loadTrainings();
+        viewModel.fetchTrainings();
         Log.d("TrainingsFragment", "loadTrainings() called");
     }
 
@@ -88,19 +102,17 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
 
     private void observeViewModel() {
         viewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
-            if (trainings != null) {
-                Log.d("TrainingsFragment", "Received " + trainings.size() + " trainings:");
-                for (Training t : trainings) {
-                    Log.d("TrainingsFragment", "  - ID: " + t.getId() + ", Name: " + t.getName());
+            if (trainings == null ) {
+                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
+            } else if (trainings.isTrainingsSuccess()){
+                List<Training> trainingsList = ((Result.TrainingsSuccess) trainings).getData();
+                Log.d("TrainingsFragment", "Received " + trainingsList.size() + " trainings:");
+                for (Training t : trainingsList) {
+                    Log.d("TrainingsFragment", "  - ID: " + t.getTrainingId() + ", Name: " + t.getName());
                 }
-                adapter.updateTrainings(trainings); // Assicurati che questo metodo esista nell'adapter
-            }
-        });
-
-        // Observer per i messaggi di errore
-        viewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null && !error.isEmpty()) {
-                Toast.makeText(getContext(), "Error: " + error, Toast.LENGTH_LONG).show();
+                adapter.updateTrainings(trainingsList);
+            }else{
+                Toast.makeText(getContext(), ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -108,7 +120,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     @Override
     public void onTrainingClicked(Training training) {
         Bundle bundle = new Bundle();
-        bundle.putString("trainingId", training.getId());
+        bundle.putString("trainingId", training.getTrainingId());
         navController.navigate(R.id.nav_training_to_training_days, bundle);
     }
 
@@ -118,7 +130,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
                 .setTitle("Conferma Eliminazione")
                 .setMessage("Sei sicuro di voler eliminare la scheda '" + training.getName() + "'?")
                 .setPositiveButton("Elimina", (dialog, which) -> {
-                    viewModel.deleteTraining(training.getId(), new FirebaseCallback<Void>() {
+                    viewModel.deleteTraining(training.getTrainingId(), new FirebaseCallback<Void>() {
                         @Override public void onSuccess(Void result) {
                             Toast.makeText(getContext(), "Scheda eliminata", Toast.LENGTH_SHORT).show();
                         }

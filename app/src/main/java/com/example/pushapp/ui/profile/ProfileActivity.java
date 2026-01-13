@@ -82,7 +82,6 @@ public class ProfileActivity extends AppCompatActivity {
         tvDetailHeight = findViewById(R.id.tvDetailHeight);
         tvDetailWeight = findViewById(R.id.tvDetailWeight);
     }
-
     private void setupViewModel() {
         userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
         userViewModel.loadUserData();

@@ -18,21 +18,29 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.pushapp.R;
+import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.models.Exercise;
 import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.TrainingDay;
+import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
+import com.example.pushapp.repositories.TrainingLocalDataSource;
+import com.example.pushapp.repositories.TrainingRemoteDataSource;
+import com.example.pushapp.repositories.TrainingRepository;
+import com.example.pushapp.utils.TrainingViewModel;
+import com.example.pushapp.utils.TrainingViewModelFactory;
 import com.example.pushapp.utils.WorkoutViewModel;
 // 1. Importa il NUOVO adapter per gli esercizi durante l'allenamento
 import com.example.pushapp.utils.WorkoutExerciseAdapter;
+import com.example.pushapp.utils.WorkoutViewModelFactory;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Locale;
 
 // 2. Implementa la NUOVA interfaccia, che ora ha un solo metodo
-public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.OnWorkoutInteractionListener {
+public abstract class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.OnWorkoutInteractionListener {
 
     // I tuoi campi rimangono invariati
     private WorkoutViewModel workoutViewModel;
@@ -53,7 +61,17 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        workoutViewModel = new ViewModelProvider(requireActivity()).get(WorkoutViewModel.class);
+        // creazione repositories che vengono passate al viewmodel
+        TrainingLocalDataSource trainingLocalDataSource = new TrainingLocalDataSource(
+                LocalDatabase.getDatabase(getContext()));
+        TrainingRemoteDataSource trainingRemoteDataSource = new TrainingRemoteDataSource();
+        TrainingRepository trainingRepository = new TrainingRepository(trainingLocalDataSource, trainingRemoteDataSource);
+        ExerciseRepository exerciseRepository = new ExerciseRepository();
+
+        //Inizializza il ViewModel
+        workoutViewModel = new ViewModelProvider(
+                requireActivity(),
+                new WorkoutViewModelFactory(trainingRepository, exerciseRepository)).get(WorkoutViewModel.class);
 
         if (getArguments() != null) {
             // Assicurati che le classi modello implementino Serializable
