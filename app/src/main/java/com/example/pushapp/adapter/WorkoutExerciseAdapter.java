@@ -14,13 +14,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
-import com.example.pushapp.models.Exercise;
+import com.example.pushapp.models.WorkoutExercise;
 
 import java.util.List;
 
 public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExerciseAdapter.ExerciseViewHolder> {
 
-    private List<Exercise> exercises;
+    private List<WorkoutExercise> workoutExercises;
     private final OnWorkoutInteractionListener listener;
 
     // 1. Interfaccia corretta
@@ -31,13 +31,13 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
         void onSetDeleted(int exercisePosition, int setPosition);
     }
 
-    public WorkoutExerciseAdapter(List<Exercise> exercises, OnWorkoutInteractionListener listener) {
-        this.exercises = exercises;
+    public WorkoutExerciseAdapter(List<WorkoutExercise> workoutExercises, OnWorkoutInteractionListener listener) {
+        this.workoutExercises = workoutExercises;
         this.listener = listener;
     }
 
-    public void setExercises(List<Exercise> newExercises) {
-        this.exercises = newExercises;
+    public void setExercises(List<WorkoutExercise> newWorkoutExercises) {
+        this.workoutExercises = newWorkoutExercises;
         notifyDataSetChanged();
     }
 
@@ -51,11 +51,11 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
 
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
-        Exercise exercise = exercises.get(position);
+        WorkoutExercise workoutExercise = workoutExercises.get(position);
 
-        holder.cardTitle.setText(exercise.getName());
-        holder.cardDescription.setText(exercise.getSeries() != null ?
-                exercise.getSeries().size() + " serie" : "0 serie");
+        holder.cardTitle.setText(workoutExercise.getName());
+        holder.cardDescription.setText(workoutExercise.getSeries() != null ?
+                workoutExercise.getSeries().size() + " serie" : "0 serie");
 
         // Configura lo spinner per il tempo di recupero
         String[] restTimes = {"30s", "60s", "90s", "120s", "180s"};
@@ -66,12 +66,12 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
                 restTimes);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         holder.restSpinner.setAdapter(spinnerAdapter);
-        holder.restSpinner.setSelection(exercise.getRestTimeIndex());
+        holder.restSpinner.setSelection(workoutExercise.getRestTimeIndex());
 
         holder.restSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int pos, long id) {
-                exercise.setRestTimeIndex(pos);
+                workoutExercise.setRestTimeIndex(pos);
             }
 
             @Override
@@ -104,13 +104,13 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
         });
 
         // Crea e imposta il NUOVO adapter per le serie
-        WorkoutSessionSetAdapter setAdapter = new WorkoutSessionSetAdapter(exercise.getSeries(), innerListener);
+        WorkoutSessionSetAdapter setAdapter = new WorkoutSessionSetAdapter(workoutExercise.getSeries(), innerListener);
         holder.setsRecyclerView.setAdapter(setAdapter);
     }
 
     @Override
     public int getItemCount() {
-        return exercises != null ? exercises.size() : 0;
+        return workoutExercises != null ? workoutExercises.size() : 0;
     }
 
     public static class ExerciseViewHolder extends RecyclerView.ViewHolder {

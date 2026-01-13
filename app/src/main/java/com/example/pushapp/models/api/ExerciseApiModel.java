@@ -1,4 +1,4 @@
-package com.example.pushapp.models;
+package com.example.pushapp.models.api;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -14,8 +14,7 @@ public class ExerciseApiModel {
     private String muscle;
 
     @SerializedName("equipment")
-    private String equipment; // <--- Questo ora non potrà più sbagliare!
-
+    private String equipment;
     @SerializedName("difficulty")
     private String difficulty;
 

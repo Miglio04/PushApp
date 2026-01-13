@@ -10,16 +10,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
-import com.example.pushapp.ui.main.graphicComponents.TrainingDaysCard;
+import com.example.pushapp.ui.main.graphicComponents.RoutinesCard;
 
 import java.util.List;
 
-public class TrainingDaysCardAdapter extends RecyclerView.Adapter<TrainingDaysCardAdapter.ViewHolder> {
+public class RoutineCardAdapter extends RecyclerView.Adapter<RoutineCardAdapter.ViewHolder> {
 
-    private final List<TrainingDaysCard> items;
-    public TrainingDaysCardAdapter(List<TrainingDaysCard> items) { this.items = items; }
+    private final List<RoutinesCard> items;
+    public RoutineCardAdapter(List<RoutinesCard> items) { this.items = items; }
 
-    public interface OnItemClickListener { void onItemClick(TrainingDaysCard item); }
+    public interface OnItemClickListener { void onItemClick(RoutinesCard item); }
     private OnItemClickListener startWorkoutListener;
 
     private OnItemClickListener editWorkoutListener;
@@ -29,16 +29,16 @@ public class TrainingDaysCardAdapter extends RecyclerView.Adapter<TrainingDaysCa
 
     @NonNull
     @Override
-    public TrainingDaysCardAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                                                                 int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_training_days_card,
+    public RoutineCardAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                                            int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_routines_card,
                 parent, false);
         return new ViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TrainingDaysCardAdapter.ViewHolder holder, int position) {
-        TrainingDaysCard card = items.get(position);
+    public void onBindViewHolder(@NonNull RoutineCardAdapter.ViewHolder holder, int position) {
+        RoutinesCard card = items.get(position);
         holder.title.setText(card.getTitle());
         holder.description.setText(card.getDescription());
         holder.startWorkoutButton.setOnClickListener(v -> {
@@ -73,7 +73,7 @@ public class TrainingDaysCardAdapter extends RecyclerView.Adapter<TrainingDaysCa
         }
     }
 
-    public void updateCards(List<TrainingDaysCard> newCards) {
+    public void updateCards(List<RoutinesCard> newCards) {
         this.items.clear();
         this.items.addAll(newCards);
         notifyDataSetChanged();

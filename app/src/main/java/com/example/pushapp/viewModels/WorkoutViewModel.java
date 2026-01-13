@@ -8,11 +8,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.pushapp.models.Exercise;
+import com.example.pushapp.models.WorkoutExercise;
 import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.models.TrainingDay;
-import com.example.pushapp.models.ExerciseApiModel;
+import com.example.pushapp.models.Routine;
+import com.example.pushapp.models.api.ExerciseApiModel;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.repositories.TrainingRepository;
@@ -38,7 +38,7 @@ public class WorkoutViewModel extends ViewModel {
     // --- LIVE DATA PER LO STATO DELL'ALLENAMENTO ---
     private final MutableLiveData<String> workoutTitle = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isWorkoutInProgress = new MutableLiveData<>(false);
-    private final MutableLiveData<TrainingDay> activeTrainingDay = new MutableLiveData<>();
+    private final MutableLiveData<Routine> activeTrainingDay = new MutableLiveData<>();
 
     // --- LIVE DATA PER IL TIMER PRINCIPALE ---
     private final MutableLiveData<Boolean> isWorkoutTimerRunning = new MutableLiveData<>(false);
@@ -69,7 +69,7 @@ public class WorkoutViewModel extends ViewModel {
         return isWorkoutInProgress;
     }
 
-    public LiveData<TrainingDay> getActiveTrainingDay() {
+    public LiveData<Routine> getActiveTrainingDay() {
         return activeTrainingDay;
     }
 
@@ -103,7 +103,7 @@ public class WorkoutViewModel extends ViewModel {
 
     // --- LOGICA DI CONTROLLO PRINCIPALE ---
 
-    public void startWorkout(TrainingDay day, Training parentTraining) {
+    public void startWorkout(Routine day, Training parentTraining) {
         if (day == null) return;
         this.parentTraining = parentTraining;
         workoutTitle.setValue(day.getName());
@@ -146,13 +146,13 @@ public class WorkoutViewModel extends ViewModel {
     }
 
     public void toggleSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds) {
-        TrainingDay currentDay = activeTrainingDay.getValue();
-        if (currentDay == null || currentDay.getExercises() == null) return;
-        List<Exercise> exercises = currentDay.getExercises();
-        if (exercisePosition >= 0 && exercisePosition < exercises.size()) {
-            Exercise exercise = exercises.get(exercisePosition);
-            if (exercise.getSeries() != null && setPosition >= 0 && setPosition < exercise.getSeries().size()) {
-                Serie serie = exercise.getSeries().get(setPosition);
+        Routine currentDay = activeTrainingDay.getValue();
+        if (currentDay == null || currentDay.getWorkoutExercises() == null) return;
+        List<WorkoutExercise> workoutExercises = currentDay.getWorkoutExercises();
+        if (exercisePosition >= 0 && exercisePosition < workoutExercises.size()) {
+            WorkoutExercise workoutExercise = workoutExercises.get(exercisePosition);
+            if (workoutExercise.getSeries() != null && setPosition >= 0 && setPosition < workoutExercise.getSeries().size()) {
+                Serie serie = workoutExercise.getSeries().get(setPosition);
                 boolean newState = !serie.isCompleted();
                 serie.setCompleted(newState);
                 if (newState) {
@@ -221,17 +221,17 @@ public class WorkoutViewModel extends ViewModel {
     }
 
     public void addSetToExercise(int exercisePosition) {
-        TrainingDay currentDay = activeTrainingDay.getValue();
-        if (currentDay == null || currentDay.getExercises() == null) return;
+        Routine currentDay = activeTrainingDay.getValue();
+        if (currentDay == null || currentDay.getWorkoutExercises() == null) return;
 
-        List<Exercise> exercises = currentDay.getExercises();
-        if (exercisePosition >= 0 && exercisePosition < exercises.size()) {
-            Exercise exercise = exercises.get(exercisePosition);
-            List<Serie> series = exercise.getSeries();
+        List<WorkoutExercise> workoutExercises = currentDay.getWorkoutExercises();
+        if (exercisePosition >= 0 && exercisePosition < workoutExercises.size()) {
+            WorkoutExercise workoutExercise = workoutExercises.get(exercisePosition);
+            List<Serie> series = workoutExercise.getSeries();
 
             if (series == null) {
                 series = new java.util.ArrayList<>();
-                exercise.setSeries(series);
+                workoutExercise.setSeries(series);
             }
 
             Serie newSerie = new Serie();
@@ -252,14 +252,14 @@ public class WorkoutViewModel extends ViewModel {
     }
 
     public void updateSetData(int exercisePosition, int setPosition, double actualWeight, int actualReps) {
-        TrainingDay currentDay = activeTrainingDay.getValue();
-        if (currentDay == null || currentDay.getExercises() == null) return;
+        Routine currentDay = activeTrainingDay.getValue();
+        if (currentDay == null || currentDay.getWorkoutExercises() == null) return;
 
-        List<Exercise> exercises = currentDay.getExercises();
-        if (exercisePosition >= 0 && exercisePosition < exercises.size()) {
-            Exercise exercise = exercises.get(exercisePosition);
-            if (exercise.getSeries() != null && setPosition >= 0 && setPosition < exercise.getSeries().size()) {
-                Serie serie = exercise.getSeries().get(setPosition);
+        List<WorkoutExercise> workoutExercises = currentDay.getWorkoutExercises();
+        if (exercisePosition >= 0 && exercisePosition < workoutExercises.size()) {
+            WorkoutExercise workoutExercise = workoutExercises.get(exercisePosition);
+            if (workoutExercise.getSeries() != null && setPosition >= 0 && setPosition < workoutExercise.getSeries().size()) {
+                Serie serie = workoutExercise.getSeries().get(setPosition);
 
                 // Aggiorna i campi 'actual' dell'oggetto Serie
                 serie.setActualWeight(actualWeight);
@@ -269,13 +269,13 @@ public class WorkoutViewModel extends ViewModel {
     }
 
     public void deleteSetFromExercise(int exercisePosition, int setPosition) {
-        TrainingDay currentDay = activeTrainingDay.getValue();
-        if (currentDay == null || currentDay.getExercises() == null) return;
+        Routine currentDay = activeTrainingDay.getValue();
+        if (currentDay == null || currentDay.getWorkoutExercises() == null) return;
 
-        List<Exercise> exercises = currentDay.getExercises();
-        if (exercisePosition >= 0 && exercisePosition < exercises.size()) {
-            Exercise exercise = exercises.get(exercisePosition);
-            List<Serie> series = exercise.getSeries();
+        List<WorkoutExercise> workoutExercises = currentDay.getWorkoutExercises();
+        if (exercisePosition >= 0 && exercisePosition < workoutExercises.size()) {
+            WorkoutExercise workoutExercise = workoutExercises.get(exercisePosition);
+            List<Serie> series = workoutExercise.getSeries();
 
             if (series != null && setPosition >= 0 && setPosition < series.size()) {
                 series.remove(setPosition);

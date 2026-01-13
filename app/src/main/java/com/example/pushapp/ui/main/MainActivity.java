@@ -17,6 +17,7 @@ import com.example.pushapp.R;
 import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
+import com.example.pushapp.repositories.SessionRepository;
 import com.example.pushapp.repositories.dataSources.SessionDataSource;
 import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
 import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
@@ -50,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
         TrainingRepository trainingRepository = new TrainingRepository(trainingLocalDataSource, trainingRemoteDataSource);
         UserRemoteDataSource userRemoteDataSource = new UserRemoteDataSource();
         UserLocalDataSource userLocalDataSource = new UserLocalDataSource(LocalDatabase.getDatabase(this));
-        SessionDataSource sessionDataSource = new SessionDataSource();
-        UserRepository userRepository = new UserRepository(userLocalDataSource, userRemoteDataSource, sessionDataSource);
+        SessionRepository sessionRepository = new SessionRepository();
+        UserRepository userRepository = new UserRepository(userLocalDataSource, userRemoteDataSource, sessionRepository);
         ExerciseRepository exerciseRepository = new ExerciseRepository();
 
         //Inizializza il ViewModel

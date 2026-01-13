@@ -30,7 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.pushapp.R;
-import com.example.pushapp.models.api.EdamamApi;
+import com.example.pushapp.api.EdamamApi;
 import com.example.pushapp.models.api.food.EdamamResponse;
 import com.example.pushapp.models.api.food.Food;
 import com.google.android.material.bottomsheet.BottomSheetDialog;

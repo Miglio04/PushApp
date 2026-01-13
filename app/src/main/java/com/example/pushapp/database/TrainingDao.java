@@ -9,8 +9,7 @@ import androidx.room.Transaction;
 import androidx.room.Update;
 
 import com.example.pushapp.models.Training;
-import com.example.pushapp.models.TrainingDay;
-import com.example.pushapp.models.TrainingWithDays;
+import com.example.pushapp.models.roomModels.helpers.TrainingWithRoutines;
 
 import java.util.List;
 
@@ -38,7 +37,7 @@ public interface TrainingDao {
 
     @Transaction
     @Query("SELECT * FROM training WHERE trainingId = :id")
-    TrainingWithDays getWithDays(String id);
+    TrainingWithRoutines getTrainingWithRoutines(String id);
 
     @Query("DELETE FROM training WHERE userId = :userId")
     void deleteAllByUserId(String userId);

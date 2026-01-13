@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
-import com.example.pushapp.models.ExerciseApiModel;
+import com.example.pushapp.models.api.ExerciseApiModel;
 import com.google.android.material.chip.Chip;
 import java.util.List;
 

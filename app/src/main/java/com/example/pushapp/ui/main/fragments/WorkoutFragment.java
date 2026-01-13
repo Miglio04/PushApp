@@ -19,8 +19,8 @@ import android.widget.Toast;
 
 import com.example.pushapp.R;
 import com.example.pushapp.database.LocalDatabase;
+import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.models.TrainingDay;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
@@ -71,7 +71,7 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         if (getArguments() != null) {
             // Assicurati che le classi modello implementino Serializable
             if ((workoutViewModel.isWorkoutInProgress().getValue() == null || !workoutViewModel.isWorkoutInProgress().getValue())) {
-                TrainingDay dayToStart = (TrainingDay) getArguments().getSerializable("trainingDay");
+                Routine dayToStart = (Routine) getArguments().getSerializable("trainingDay");
                 Training parentTraining = (Training) getArguments().getSerializable("parentTraining");
 
                 if (dayToStart != null) {
@@ -155,7 +155,7 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         workoutViewModel.getActiveTrainingDay().observe(getViewLifecycleOwner(), trainingDay -> {
             if (trainingDay != null) {
                 // Passa la lista di Exercise al nuovo adapter
-                workoutAdapter.setExercises(trainingDay.getExercises());
+                workoutAdapter.setExercises(trainingDay.getWorkoutExercises());
             }
         });
 

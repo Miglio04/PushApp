@@ -1,10 +1,12 @@
 package com.example.pushapp.api;
 
+import com.example.pushapp.utils.Constants;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+
 public class ApiClient {
-    private static final String BASE_URL = "https://api.api-ninjas.com/";
+    private static final String BASE_URL = Constants.BASE_EXERCISES_API_URL;
     private static Retrofit retrofit = null;
 
     public static Retrofit getClient() {

@@ -25,12 +25,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
-import com.example.pushapp.models.Exercise;
-import com.example.pushapp.models.ExerciseApiModel;
-import com.example.pushapp.models.TrainingDay;
+import com.example.pushapp.models.WorkoutExercise;
+import com.example.pushapp.models.api.ExerciseApiModel;
+import com.example.pushapp.models.Routine;
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.adapter.AvailableExercisesAdapter;
-import com.example.pushapp.adapter.EditTrainingDayAdapter;
+import com.example.pushapp.adapter.EditRoutineAdapter;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.WorkoutViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -43,13 +43,13 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditTrainingDayFragment extends Fragment implements EditTrainingDayAdapter.OnExerciseInteractionListener {
+public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.OnExerciseInteractionListener {
 
     private String trainingDayId;
     private String trainingId;
     private TrainingViewModel trainingViewModel;
     private WorkoutViewModel workoutViewModel;
-    private EditTrainingDayAdapter adapter;
+    private EditRoutineAdapter adapter;
     private AvailableExercisesAdapter availableExercisesAdapter;
     private MaterialToolbar toolbar;
     private ConstraintLayout searchPanel;
@@ -63,7 +63,7 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
     private String currentDifficultyFilter = "Tutti";
     private boolean areFilterComponentsInitialized = false;
 
-    public EditTrainingDayFragment() {
+    public EditRoutineFragment() {
         // Required empty public constructor
     }
 
@@ -111,7 +111,7 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
     private void setupMainRecyclerView() {
         if (mainRecyclerView != null) {
             mainRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-            adapter = new EditTrainingDayAdapter(new ArrayList<>(), this);
+            adapter = new EditRoutineAdapter(new ArrayList<>(), this);
             mainRecyclerView.setAdapter(adapter);
         }
     }
@@ -153,16 +153,16 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
             int order = adapter.getItemCount() + 1;
 
             // --- COPIA DATI E ISTRUZIONI ---
-            Exercise newExercise = new Exercise(exerciseApiModel.getName().hashCode(), exerciseApiModel.getName(), order);
+            WorkoutExercise newWorkoutExercise = new WorkoutExercise(exerciseApiModel.getName().hashCode(), exerciseApiModel.getName(), order);
 
             if (exerciseApiModel.getInstructions() != null && !exerciseApiModel.getInstructions().isEmpty()) {
-                newExercise.setInstructions(exerciseApiModel.getInstructions());
+                newWorkoutExercise.setInstructions(exerciseApiModel.getInstructions());
             } else {
-                newExercise.setInstructions("");
+                newWorkoutExercise.setInstructions("");
             }
             // ------------------------------
 
-            trainingViewModel.addExerciseToDay(newExercise);
+            trainingViewModel.addExerciseToDay(newWorkoutExercise);
             toggleSearchPanel(false);
             Snackbar.make(requireView(), "Aggiunto: " + exerciseApiModel.getName(), Snackbar.LENGTH_SHORT).show();
         });
@@ -172,11 +172,11 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
     // --- IMPLEMENTAZIONE METODO MANCANTE: MOSTRA ISTRUZIONI ---
     @Override
     public void onShowInstructions(int position) {
-        TrainingDay day = trainingViewModel.getEditableTrainingDay().getValue();
-        if (day == null || day.getExercises() == null) return;
+        Routine day = trainingViewModel.getEditableTrainingDay().getValue();
+        if (day == null || day.getWorkoutExercises() == null) return;
 
-        Exercise exercise = day.getExercises().get(position);
-        String instructions = exercise.getInstructions();
+        WorkoutExercise workoutExercise = day.getWorkoutExercises().get(position);
+        String instructions = workoutExercise.getInstructions();
 
         String message;
         if (instructions != null && !instructions.trim().isEmpty()) {
@@ -187,7 +187,7 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
 
         // Mostra Dialog
         new AlertDialog.Builder(requireContext())
-                .setTitle(exercise.getName())
+                .setTitle(workoutExercise.getName())
                 .setMessage(message)
                 .setPositiveButton("Chiudi", null)
                 .setIcon(android.R.drawable.ic_dialog_info)
@@ -284,7 +284,7 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
         trainingViewModel.getEditableTrainingDay().observe(getViewLifecycleOwner(), trainingDay -> {
             if (trainingDay != null) {
                 toolbar.setTitle(trainingDay.getName());
-                adapter.setExercises(trainingDay.getExercises() != null ? trainingDay.getExercises() : new ArrayList<>());
+                adapter.setExercises(trainingDay.getWorkoutExercises() != null ? trainingDay.getWorkoutExercises() : new ArrayList<>());
             }
         });
         trainingViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
@@ -299,14 +299,14 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
                 if (searchPanel != null && searchPanel.getVisibility() == View.VISIBLE) toggleSearchPanel(false);
-                else { setEnabled(false); if (isAdded()) NavHostFragment.findNavController(EditTrainingDayFragment.this).popBackStack(); }
+                else { setEnabled(false); if (isAdded()) NavHostFragment.findNavController(EditRoutineFragment.this).popBackStack(); }
             }
         });
     }
 
     private void saveChanges() {
         trainingViewModel.saveTrainingDayChanges(trainingId, new FirebaseCallback<Void>() {
-            @Override public void onSuccess(Void result) { Toast.makeText(getContext(), "Modifiche salvate!", Toast.LENGTH_SHORT).show(); NavHostFragment.findNavController(EditTrainingDayFragment.this).popBackStack(); }
+            @Override public void onSuccess(Void result) { Toast.makeText(getContext(), "Modifiche salvate!", Toast.LENGTH_SHORT).show(); NavHostFragment.findNavController(EditRoutineFragment.this).popBackStack(); }
             @Override public void onError(Exception e) { Toast.makeText(getContext(), "Errore: " + e.getMessage(), Toast.LENGTH_LONG).show(); }
         });
     }
@@ -314,9 +314,9 @@ public class EditTrainingDayFragment extends Fragment implements EditTrainingDay
     @Override public void onEditExercise(int position) { showAddOrReplaceExerciseDialog(position); }
 
     @Override public void onDeleteExercise(int position) {
-        TrainingDay day = trainingViewModel.getEditableTrainingDay().getValue();
+        Routine day = trainingViewModel.getEditableTrainingDay().getValue();
         if(day == null) return;
-        new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + day.getExercises().get(position).getName() + "?")
+        new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + day.getWorkoutExercises().get(position).getName() + "?")
                 .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteExerciseFromDay(position)).setNegativeButton("Annulla", null).show();
     }
 

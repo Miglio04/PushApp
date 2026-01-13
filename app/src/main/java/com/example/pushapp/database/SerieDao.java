@@ -28,10 +28,10 @@ public interface SerieDao {
     @Query("SELECT * FROM serie WHERE serieId = :id")
     Serie getById(String id);
 
-    @Query("SELECT * FROM serie WHERE baseExerciseId = :exerciseId ORDER BY serieNumber")
-    List<Serie> getByExerciseId(String exerciseId);
+    @Query("SELECT * FROM serie WHERE workoutExerciseId = :workoutExerciseId ORDER BY serieNumber")
+    List<Serie> getByWorkoutExerciseId(String workoutExerciseId);
 
-    @Query("DELETE FROM serie WHERE baseExerciseId = :exerciseId")
-    void deleteByExerciseId(String exerciseId);
+    @Query("DELETE FROM serie WHERE workoutExerciseId = :workoutExerciseId")
+    void deleteByWorkoutExerciseId(String workoutExerciseId);
 }
 

@@ -29,28 +29,28 @@ public class Training implements Serializable {
     @ColumnInfo(name = "updatedAt")
     private long updatedAt;
     @Ignore
-    private List<TrainingDay> trainingDaysList;
+    private List<Routine> routinesList;
 
     // Costruttore vuoto richiesto da Firebase
     public Training() {
-        this.trainingDaysList = new ArrayList<>();
+        this.routinesList = new ArrayList<>();
     }
 
     @Ignore
     public Training(String name, String description) {
         this.name = name;
         this.description = description;
-        this.trainingDaysList = new ArrayList<>();
+        this.routinesList = new ArrayList<>();
         this.isActive = false;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
     }
 
     @Ignore
-    public Training(String name, String description, ArrayList<TrainingDay> trainingDaysList) {
+    public Training(String name, String description, ArrayList<Routine> routinesList) {
         this.name = name;
         this.description = description;
-        this.trainingDaysList = trainingDaysList != null ? trainingDaysList : new ArrayList<>();
+        this.routinesList = routinesList != null ? routinesList : new ArrayList<>();
         this.isActive = false;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
@@ -75,17 +75,17 @@ public class Training implements Serializable {
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
     @Ignore
-    public List<TrainingDay> getTrainingDaysList() { return trainingDaysList; }
+    public List<Routine> getRoutinesList() { return routinesList; }
     @Ignore
-    public void setTrainingDaysList(ArrayList<TrainingDay> trainingDaysList) {
-        this.trainingDaysList = trainingDaysList;
+    public void setRoutinesList(ArrayList<Routine> routinesList) {
+        this.routinesList = routinesList;
     }
     @Ignore
-    public void addTrainingDay(TrainingDay day) {
-        this.trainingDaysList.add(day);
+    public void addRoutine(Routine day) {
+        this.routinesList.add(day);
     }
     @Ignore
-    public int getTotalDays() {
-        return trainingDaysList.size();
+    public int getRoutinesListSize() {
+        return routinesList.size();
     }
 }

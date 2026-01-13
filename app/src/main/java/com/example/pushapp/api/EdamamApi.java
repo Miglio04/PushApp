@@ -1,4 +1,4 @@
-package com.example.pushapp.models.api;
+package com.example.pushapp.api;
 import com.example.pushapp.models.api.food.EdamamResponse;
 
 import java.util.List;

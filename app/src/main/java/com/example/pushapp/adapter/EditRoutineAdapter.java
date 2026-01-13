@@ -13,15 +13,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
-import com.example.pushapp.models.Exercise;
+import com.example.pushapp.models.WorkoutExercise;
 import com.example.pushapp.models.Serie;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDayAdapter.ViewHolder> {
+public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.ViewHolder> {
 
-    private List<Exercise> exercises;
+    private List<WorkoutExercise> workoutExercises;
     private final OnExerciseInteractionListener listener;
 
     public interface OnExerciseInteractionListener {
@@ -33,14 +33,14 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
         void onShowInstructions(int position);
     }
 
-    public EditTrainingDayAdapter(List<Exercise> exercises, OnExerciseInteractionListener listener) {
+    public EditRoutineAdapter(List<WorkoutExercise> workoutExercises, OnExerciseInteractionListener listener) {
         // Inizializzazione sicura: mai lasciare la lista null
-        this.exercises = exercises != null ? exercises : new ArrayList<>();
+        this.workoutExercises = workoutExercises != null ? workoutExercises : new ArrayList<>();
         this.listener = listener;
     }
 
-    public void setExercises(List<Exercise> newExercises) {
-        this.exercises = newExercises != null ? newExercises : new ArrayList<>();
+    public void setExercises(List<WorkoutExercise> newWorkoutExercises) {
+        this.workoutExercises = newWorkoutExercises != null ? newWorkoutExercises : new ArrayList<>();
         notifyDataSetChanged();
     }
 
@@ -54,13 +54,13 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Exercise exercise = exercises.get(position);
+        WorkoutExercise workoutExercise = workoutExercises.get(position);
 
         // Imposta i dati dell'esercizio
-        holder.nameTextView.setText(exercise.getName());
+        holder.nameTextView.setText(workoutExercise.getName());
 
         // Gestione espansione (Visibility e Rotazione freccia)
-        boolean isExpanded = exercise.isExpanded();
+        boolean isExpanded = workoutExercise.isExpanded();
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         holder.arrowIcon.setRotation(isExpanded ? 180f : 0f);
 
@@ -68,8 +68,8 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
         holder.headerLayout.setOnClickListener(v -> {
             int currentPos = holder.getBindingAdapterPosition();
             if (currentPos != RecyclerView.NO_POSITION) {
-                boolean expanded = exercise.isExpanded();
-                exercise.setExpanded(!expanded);
+                boolean expanded = workoutExercise.isExpanded();
+                workoutExercise.setExpanded(!expanded);
                 notifyItemChanged(currentPos);
             }
         });
@@ -99,12 +99,12 @@ public class EditTrainingDayAdapter extends RecyclerView.Adapter<EditTrainingDay
         });
 
         // Configura il RecyclerView interno (le Serie)
-        holder.setupInnerRecyclerView(exercise.getSeries(), listener);
+        holder.setupInnerRecyclerView(workoutExercise.getSeries(), listener);
     }
 
     @Override
     public int getItemCount() {
-        return exercises.size();
+        return workoutExercises.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

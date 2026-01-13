@@ -4,21 +4,20 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.User;
-import com.example.pushapp.repositories.dataSources.SessionDataSource;
+import com.example.pushapp.repositories.SessionRepository;
 import com.example.pushapp.repositories.dataSources.UserLocalDataSource;
 import com.example.pushapp.repositories.dataSources.UserRemoteDataSource;
 
 public class UserRepository implements UserCallback {
-    private final SessionDataSource sessionDataSource;
+    private final SessionRepository sessionRepository;
     private final UserLocalDataSource localDataSource;
     private final UserRemoteDataSource remoteDataSource;
     private final MutableLiveData<Result> currentUser;
 
-    public UserRepository(UserLocalDataSource localDataSource, UserRemoteDataSource remoteDataSource, SessionDataSource sessionDataSource) {
+    public UserRepository(UserLocalDataSource localDataSource, UserRemoteDataSource remoteDataSource, SessionRepository sessionRepository) {
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
-        this.sessionDataSource = sessionDataSource;
-        this.sessionDataSource.setUserCallback(this);
+        this.sessionRepository = sessionRepository;
         this.localDataSource.setUserCallback(this);
         this.remoteDataSource.setUserCallback(this);
         this.currentUser = new MutableLiveData<>();
@@ -32,7 +31,7 @@ public class UserRepository implements UserCallback {
     // calls the update of the liveData
     // temporary version of method: not considering versioning and user's local storage
     public void fetchCurrentUser() {
-        String userId = sessionDataSource.getCurrentUserId();
+        String userId = sessionRepository.getCurrentUserId();
         if(userId == null){
             remoteDataSource.fetchCurrentUser();
         }

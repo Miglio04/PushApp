@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 
 import com.example.pushapp.api.ApiClient;
 import com.example.pushapp.api.NinjaApiService;
-import com.example.pushapp.models.ExerciseApiModel;
+import com.example.pushapp.models.api.ExerciseApiModel;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;

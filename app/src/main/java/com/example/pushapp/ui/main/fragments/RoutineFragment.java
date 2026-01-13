@@ -20,10 +20,10 @@ import android.widget.Toast;
 import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.models.TrainingDay; // <-- Import corretto
+import com.example.pushapp.models.Routine; // <-- Import corretto
 import com.example.pushapp.repositories.FirebaseCallback;
-import com.example.pushapp.ui.main.graphicComponents.TrainingDaysCard;
-import com.example.pushapp.adapter.TrainingDaysCardAdapter;
+import com.example.pushapp.ui.main.graphicComponents.RoutinesCard;
+import com.example.pushapp.adapter.RoutineCardAdapter;
 import com.example.pushapp.viewModels.TrainingViewModel; // <-- USA IL VIEWMODEL CORRETTO
 import com.example.pushapp.viewModels.WorkoutViewModel;
 
@@ -31,15 +31,15 @@ import java.io.Serializable; // <-- Aggiungi import per il passaggio dati
 import java.util.ArrayList;
 import java.util.List;
 
-public class TrainingDaysFragment extends Fragment {
+public class RoutineFragment extends Fragment {
 
     private String trainingId;
     private TrainingViewModel trainingViewModel; // <-- USA IL VIEWMODEL CORRETTO
     private WorkoutViewModel workoutViewModel;
-    private TrainingDaysCardAdapter adapter;
+    private RoutineCardAdapter adapter;
     private Training currentTraining; // Campo per memorizzare il training corrente
 
-    public TrainingDaysFragment() { }
+    public RoutineFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class TrainingDaysFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_training_days, container, false);
+        return inflater.inflate(R.layout.fragment_routines, container, false);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class TrainingDaysFragment extends Fragment {
     private void setupRecyclerView(RecyclerView recyclerView) {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         // Crea l'adapter una sola volta con una lista vuota
-        adapter = new TrainingDaysCardAdapter(new ArrayList<>());
+        adapter = new RoutineCardAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
         // Imposta i listener sull'adapter
@@ -90,7 +90,7 @@ public class TrainingDaysFragment extends Fragment {
                 for (Training training : trainingsList) {
                     if (trainingId.equals(training.getTrainingId())) {
                         currentTraining = training;
-                        List<TrainingDaysCard> cards = generateCardsFromTraining(currentTraining);
+                        List<RoutinesCard> cards = generateCardsFromTraining(currentTraining);
                         adapter.updateCards(cards);
                         break;
                     }
@@ -101,20 +101,20 @@ public class TrainingDaysFragment extends Fragment {
 
     // --- NUOVI METODI HELPER ---
 
-    private List<TrainingDaysCard> generateCardsFromTraining(Training training) {
-        List<TrainingDaysCard> cards = new ArrayList<>();
-        if (training == null || training.getTrainingDaysList() == null) {
+    private List<RoutinesCard> generateCardsFromTraining(Training training) {
+        List<RoutinesCard> cards = new ArrayList<>();
+        if (training == null || training.getRoutinesList() == null) {
             return cards;
         }
 
         // Crea una card per ogni giorno di allenamento reale
-        for (TrainingDay day : training.getTrainingDaysList()) {
-            cards.add(new TrainingDaysCard(day.getName(), "Exercises: " + day.getTotalExercises(), day.getTrainingDayId()));
+        for (Routine day : training.getRoutinesList()) {
+            cards.add(new RoutinesCard(day.getName(), "Exercises: " + day.getWorkoutTotalExercises(), day.getRoutineId()));
         }
         return cards;
     }
 
-    private void handleStartWorkoutClick(TrainingDaysCard card) {
+    private void handleStartWorkoutClick(RoutinesCard card) {
         Boolean isWorkoutInProgress = workoutViewModel.isWorkoutInProgress().getValue();
         if (Boolean.TRUE.equals(isWorkoutInProgress)) {
             showReplaceWorkoutDialog(card);
@@ -123,7 +123,7 @@ public class TrainingDaysFragment extends Fragment {
         }
     }
 
-    private void handleEditDayClick(TrainingDaysCard card) {
+    private void handleEditDayClick(RoutinesCard card) {
         if (getView() != null && card.getTrainingDayId() != null) {
             NavController navController = Navigation.findNavController(getView());
             Bundle args = new Bundle();
@@ -138,15 +138,15 @@ public class TrainingDaysFragment extends Fragment {
         }
     }
 
-    private void startNewWorkout(TrainingDaysCard card) {
+    private void startNewWorkout(RoutinesCard card) {
         if (currentTraining == null) return;
 
         String cardDayId = card.getTrainingDayId();
         if (cardDayId == null) return; // Aggiungi questo check
 
         // Trova il TrainingDay completo da passare al WorkoutFragment
-        for (TrainingDay day : currentTraining.getTrainingDaysList()) {
-            if (cardDayId.equals(day.getTrainingDayId())) { // Inverti il confronto
+        for (Routine day : currentTraining.getRoutinesList()) {
+            if (cardDayId.equals(day.getRoutineId())) { // Inverti il confronto
                 NavController navController = NavHostFragment.findNavController(this);
                 Bundle args = new Bundle();
                 args.putSerializable("trainingDay", (Serializable) day);
@@ -157,7 +157,7 @@ public class TrainingDaysFragment extends Fragment {
         }
     }
 
-    private void showReplaceWorkoutDialog(TrainingDaysCard card) {
+    private void showReplaceWorkoutDialog(RoutinesCard card) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Workout in corso")
                 .setMessage("Hai già un workout in corso. Vuoi scartarlo e avviarne uno nuovo?")

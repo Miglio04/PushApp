@@ -1,6 +1,6 @@
 package com.example.pushapp.api;
 
-import com.example.pushapp.models.ExerciseApiModel;
+import com.example.pushapp.models.api.ExerciseApiModel;
 import java.util.List;
 import retrofit2.Call;
 import retrofit2.http.GET;

@@ -11,18 +11,18 @@ import java.io.Serializable;
 
 @Entity(tableName = "serie",
         foreignKeys = @ForeignKey(
-                entity = Exercise.class,
-                parentColumns = "baseExerciseId",
-                childColumns = "baseExerciseId",
+                entity = WorkoutExercise.class,
+                parentColumns = "workoutExerciseId",
+                childColumns = "workoutExerciseId",
                 onDelete = ForeignKey.CASCADE),
-        indices = @Index("baseExerciseId"))
+        indices = @Index("workoutExerciseId"))
 public class Serie implements Serializable {
     @PrimaryKey
     @ColumnInfo(name = "serieId")
     @NonNull
     private int serieId;
-    @ColumnInfo(name = "baseExerciseId")
-    private int baseExerciseId;
+    @ColumnInfo(name = "workoutExerciseId")
+    private int workoutExerciseId;
     @ColumnInfo(name = "serieNumber")
     private int serieNumber;
     @ColumnInfo(name = "targetReps")
@@ -49,8 +49,8 @@ public class Serie implements Serializable {
     public int getSerieId() { return serieId; }
 
     public void setSerieId(int serieId) { this.serieId = serieId; }
-    public int getBaseExerciseId() { return baseExerciseId; }
-    public void setBaseExerciseId(int baseExerciseId) { this.baseExerciseId = baseExerciseId; }
+    public int getWorkoutExerciseId() { return workoutExerciseId; }
+    public void setWorkoutExerciseId(int workoutExerciseId) { this.workoutExerciseId = workoutExerciseId; }
     public int getSerieNumber() { return serieNumber; }
     public void setSerieNumber(int serieNumber) { this.serieNumber = serieNumber; }
 

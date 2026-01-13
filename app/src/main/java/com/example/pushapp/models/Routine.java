@@ -13,18 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Entity(tableName = "trainingDay",
+@Entity(tableName = "routine",
         foreignKeys = @ForeignKey(
                 entity = Training.class,
                 parentColumns = "trainingId",
                 childColumns = "trainingId",
                 onDelete = ForeignKey.CASCADE),
         indices = {@Index(value = "trainingId")})
-public class TrainingDay implements Serializable {
+public class Routine implements Serializable {
     @PrimaryKey
-    @ColumnInfo(name = "trainingDayId")
+    @ColumnInfo(name = "routineId")
     @NonNull
-    private String trainingDayId;
+    private String routineId;
     @ColumnInfo(name = "trainingId")
     private String trainingId;
     @ColumnInfo(name = "name")
@@ -34,33 +34,33 @@ public class TrainingDay implements Serializable {
     @ColumnInfo(name = "notes")
     private String notes;
     @Ignore
-    private List<Exercise> exercises;
+    private List<WorkoutExercise> workoutExercises;
 
     // Costruttore vuoto richiesto da Firebase
-    public TrainingDay() {
-        this.trainingDayId = UUID.randomUUID().toString();
-        this.exercises = new ArrayList<>();
+    public Routine() {
+        this.routineId = UUID.randomUUID().toString();
+        this.workoutExercises = new ArrayList<>();
     }
 
-    public TrainingDay(String name, int dayOrder) {
-        this.trainingDayId = UUID.randomUUID().toString();
+    public Routine(String name, int dayOrder) {
+        this.routineId = UUID.randomUUID().toString();
         this.name = name;
         this.dayOrder = dayOrder;
-        this.exercises = new ArrayList<>();
+        this.workoutExercises = new ArrayList<>();
     }
 
     // Ha senso questo costruttore?
     @Ignore
-    public TrainingDay(String name, int dayOrder, ArrayList<Exercise> exercises) {
-        this.trainingDayId = UUID.randomUUID().toString();
+    public Routine(String name, int dayOrder, ArrayList<WorkoutExercise> workoutExercises) {
+        this.routineId = UUID.randomUUID().toString();
         this.name = name;
         this.dayOrder = dayOrder;
-        this.exercises = exercises != null ? exercises : new ArrayList<>();
+        this.workoutExercises = workoutExercises != null ? workoutExercises : new ArrayList<>();
     }
 
     // Getters e Setters
-    public String getTrainingDayId() { return trainingDayId; }
-    public void setTrainingDayId(String trainingDayId) { if (trainingDayId != null) { this.trainingDayId = trainingDayId; } }
+    public String getRoutineId() { return routineId; }
+    public void setRoutineId(String routineId) { if (routineId != null) { this.routineId = routineId; } }
     public String getTrainingId() { return trainingId; }
     public void setTrainingId(String trainingId) { this.trainingId = trainingId; }
     public String getName() { return name; }
@@ -71,16 +71,16 @@ public class TrainingDay implements Serializable {
     public void setNotes(String notes) { this.notes = notes; }
 
     @Ignore
-    public List<Exercise> getExercises() {
-        if (exercises == null) exercises = new ArrayList<>();
-        return exercises;
+    public List<WorkoutExercise> getWorkoutExercises() {
+        if (workoutExercises == null) workoutExercises = new ArrayList<>();
+        return workoutExercises;
     }
     @Ignore
-    public void setExercises(List<Exercise> exercises) { this.exercises = exercises; }
+    public void setWorkoutExercises(List<WorkoutExercise> workoutExercises) { this.workoutExercises = workoutExercises; }
     @Ignore
-    public void addExercise(Exercise exercise) { this.exercises.add(exercise); }
+    public void addWorkoutExercise(WorkoutExercise workoutExercise) { this.workoutExercises.add(workoutExercise); }
     @Ignore
-    public int getTotalExercises() {
-        return exercises.size();
+    public int getWorkoutTotalExercises() {
+        return workoutExercises.size();
     }
 }

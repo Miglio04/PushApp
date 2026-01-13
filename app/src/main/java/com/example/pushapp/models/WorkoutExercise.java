@@ -13,21 +13,22 @@ import com.google.firebase.firestore.Exclude;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(tableName = "exercise",
+@Entity(tableName = "workoutExercise",
         foreignKeys = @ForeignKey(
-                entity = TrainingDay.class,
-                parentColumns = "trainingDayId",
-                childColumns = "trainingDayId",
+                entity = Routine.class,
+                parentColumns = "routineId",
+                childColumns = "routineId",
                 onDelete = ForeignKey.CASCADE),
-        indices = @Index("trainingDayId"))
+        indices = @Index("routineId"))
 
-public class Exercise implements Serializable {
+public class WorkoutExercise implements Serializable {
+
     @PrimaryKey
-    @ColumnInfo(name = "baseExerciseId")
+    @ColumnInfo(name = "workoutExerciseId")
     @NonNull
-    private int baseExerciseId;
-    @ColumnInfo(name = "trainingDayId")
-    private String trainingDayId;
+    private int workoutExerciseId;
+    @ColumnInfo(name = "routineId")
+    private String routineId;
     @ColumnInfo(name = "name")
     private String name;
     @ColumnInfo(name = "exerciseOrder")
@@ -51,7 +52,7 @@ public class Exercise implements Serializable {
     private String muscleGroup;
 
     // Costruttore vuoto per Firebase
-    public Exercise() {
+    public WorkoutExercise() {
         this.series = new ArrayList<>();
         this.name = "";
         this.notes = "";
@@ -59,8 +60,8 @@ public class Exercise implements Serializable {
     }
 
     // Costruttore per creare un nuovo esercizio a partire da un esercizio base dell'API
-    public Exercise(int baseExerciseId, String name, int order) {
-        this.baseExerciseId = baseExerciseId;
+    public WorkoutExercise(int workoutExerciseId, String name, int order) {
+        this.workoutExerciseId = workoutExerciseId;
         this.name = name;
         this.order = order;
         this.series = new ArrayList<>();
@@ -68,10 +69,10 @@ public class Exercise implements Serializable {
     }
 
     // --- GETTERS E SETTERS ---
-    public int getBaseExerciseId() { return baseExerciseId; }
-    public void setBaseExerciseId(int baseExerciseId) { this.baseExerciseId = baseExerciseId; }
-    public String getTrainingDayId() { return trainingDayId; }
-    public void setTrainingDayId(String trainingDayId) { this.trainingDayId = trainingDayId; }
+    public int getWorkoutExerciseId() { return workoutExerciseId; }
+    public void setWorkoutExerciseId(int workoutExerciseId) { this.workoutExerciseId = workoutExerciseId; }
+    public String getRoutineId() { return routineId; }
+    public void setRoutineId(String routineId) { this.routineId = routineId; }
 
     public String getName() { return name != null ? name : ""; }
     public void setName(String name) { this.name = name; }

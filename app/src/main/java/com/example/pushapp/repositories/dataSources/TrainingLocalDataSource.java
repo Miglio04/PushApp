@@ -1,9 +1,9 @@
 package com.example.pushapp.repositories.dataSources;
 
-import com.example.pushapp.database.ExerciseDao;
+import com.example.pushapp.database.WorkoutExerciseDao;
+import com.example.pushapp.database.RoutineDao;
 import com.example.pushapp.database.SerieDao;
 import com.example.pushapp.database.TrainingDao;
-import com.example.pushapp.database.TrainingDayDao;
 import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.repositories.TrainingCallback;
@@ -13,15 +13,15 @@ import java.util.List;
 public class TrainingLocalDataSource {
     private TrainingCallback trainingCallback;
     private final TrainingDao trainingDao;
-    private TrainingDayDao trainingDayDao;
-    private ExerciseDao exerciseDao;
+    private RoutineDao routineDao;
+    private WorkoutExerciseDao workoutExerciseDao;
     private SerieDao serieDao;
 
 
     public TrainingLocalDataSource(LocalDatabase localDatabase) {
         this.trainingDao = localDatabase.trainingDao();
-        this.trainingDayDao = localDatabase.trainingDayDao();
-        this.exerciseDao = localDatabase.exerciseDao();
+        this.routineDao = localDatabase.trainingDayDao();
+        this.workoutExerciseDao = localDatabase.exerciseDao();
         this.serieDao = localDatabase.serieDao();
         this.trainingCallback = null;
     }
