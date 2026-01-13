@@ -1,22 +1,33 @@
 package com.example.pushapp.repositories;
 
+import android.util.Log;
+import androidx.annotation.NonNull;
+
+import com.example.pushapp.api.ApiClient;
 import com.example.pushapp.api.NinjaApiService;
 import com.example.pushapp.models.ExerciseApiModel;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ExerciseRepository {
-    private static final String BASE_URL = "https://api.api-ninjas.com/";
+
+    private final FirebaseFirestore db;
+    private final CollectionReference exercisesRef;
+
+    // API KEY
     private static final String API_KEY = "GbwJ1ZlJJQxuPTIf8Hnr5Q==g0AjKf0qK6MD3GpX";
-    private final NinjaApiService apiService;
 
     private final List<String> muscles = Arrays.asList(
             "abdominals", "abductors", "adductors", "biceps", "calves",
@@ -25,56 +36,85 @@ public class ExerciseRepository {
     );
 
     public ExerciseRepository() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        apiService = retrofit.create(NinjaApiService.class);
+        db = FirebaseFirestore.getInstance();
+        // V4: Nuova versione per forzare il riscaricamento con il mapping corretto
+        exercisesRef = db.collection("available_exercises");
     }
 
-    public void fetchExercisesByMuscle(String muscle, FirebaseCallback<List<ExerciseApiModel>> callback) {
-        apiService.getExercises(API_KEY, muscle).enqueue(new Callback<List<ExerciseApiModel>>() {
-            @Override
-            public void onResponse(Call<List<ExerciseApiModel>> call, Response<List<ExerciseApiModel>> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    callback.onSuccess(response.body());
-                } else {
-                    callback.onError(new Exception("API Error: " + response.code()));
-                }
-            }
+    public void getAvailableExercises(final FirebaseCallback<List<ExerciseApiModel>> callback) {
+        exercisesRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot result = task.getResult();
 
-            @Override
-            public void onFailure(Call<List<ExerciseApiModel>> call, Throwable t) {
-                callback.onError(new Exception(t));
+                if (result != null && !result.isEmpty()) {
+                    Log.d("REPO", "Cache V4 trovata: " + result.size() + " esercizi.");
+                    List<ExerciseApiModel> exercises = new ArrayList<>();
+                    for (QueryDocumentSnapshot document : result) {
+                        exercises.add(document.toObject(ExerciseApiModel.class));
+                    }
+                    Collections.sort(exercises, (e1, e2) -> e1.getName().compareToIgnoreCase(e2.getName()));
+                    callback.onSuccess(exercises);
+                } else {
+                    Log.d("REPO", "Cache V4 vuota. Avvio scaricamento API...");
+                    fetchAllMusclesFromApi(callback);
+                }
+            } else {
+                callback.onError(task.getException());
             }
         });
     }
 
-    public void getAllExercises(FirebaseCallback<List<ExerciseApiModel>> callback) {
-        List<ExerciseApiModel> allExercises = Collections.synchronizedList(new ArrayList<>());
+    private void fetchAllMusclesFromApi(final FirebaseCallback<List<ExerciseApiModel>> callback) {
+        NinjaApiService apiService = ApiClient.getClient().create(NinjaApiService.class);
+
+        List<ExerciseApiModel> allDownloadedExercises = Collections.synchronizedList(new ArrayList<>());
         AtomicInteger completedRequests = new AtomicInteger(0);
-        AtomicInteger errorCount = new AtomicInteger(0);
+        int totalRequests = muscles.size();
 
         for (String muscle : muscles) {
-            fetchExercisesByMuscle(muscle, new FirebaseCallback<List<ExerciseApiModel>>() {
+            Call<List<ExerciseApiModel>> call = apiService.getExercises(API_KEY, muscle);
+
+            call.enqueue(new Callback<List<ExerciseApiModel>>() {
                 @Override
-                public void onSuccess(List<ExerciseApiModel> result) {
-                    allExercises.addAll(result);
+                public void onResponse(@NonNull Call<List<ExerciseApiModel>> call, @NonNull Response<List<ExerciseApiModel>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<ExerciseApiModel> results = response.body();
+                        Log.d("REPO", "Muscle: " + muscle + " | Items: " + results.size());
+
+                        // DEBUG: Stampa il primo elemento per vedere se equipment c'è
+                        if(!results.isEmpty()) {
+                            Log.d("REPO", "Check Equipment: " + results.get(0).getName() + " -> " + results.get(0).getEquipment());
+                        }
+
+                        if (!results.isEmpty()) {
+                            // Pulizia Dati
+                            for(ExerciseApiModel ex : results) {
+                                // Se l'equipment è nullo, proviamo a dedurlo o impostarlo a body_only se è type cardio/stretching
+                                if (ex.getEquipment() == null || ex.getEquipment().isEmpty()) {
+                                    if("body_only".equals(ex.getEquipment())) continue; // already set
+                                    // Fallback opzionale, altrimenti lascia null ma gson dovrebbe averlo preso ora
+                                }
+                            }
+                            allDownloadedExercises.addAll(results);
+                            saveBatchToFirebase(results);
+                        }
+                    }
                     checkCompletion();
                 }
 
                 @Override
-                public void onError(Exception e) {
-                    errorCount.incrementAndGet();
+                public void onFailure(@NonNull Call<List<ExerciseApiModel>> call, @NonNull Throwable t) {
+                    Log.e("REPO", "Fail: " + muscle + " -> " + t.getMessage());
                     checkCompletion();
                 }
 
                 private void checkCompletion() {
-                    if (completedRequests.incrementAndGet() == muscles.size()) {
-                        if (allExercises.isEmpty() && errorCount.get() > 0) {
-                            callback.onError(new Exception("Failed to fetch exercises for all muscle groups"));
+                    if (completedRequests.incrementAndGet() == totalRequests) {
+                        if (allDownloadedExercises.isEmpty()) {
+                            callback.onError(new Exception("Nessun esercizio."));
                         } else {
-                            callback.onSuccess(new ArrayList<>(allExercises));
+                            Collections.sort(allDownloadedExercises, (e1, e2) -> e1.getName().compareToIgnoreCase(e2.getName()));
+                            callback.onSuccess(new ArrayList<>(allDownloadedExercises));
                         }
                     }
                 }
@@ -82,7 +122,12 @@ public class ExerciseRepository {
         }
     }
 
-    public void getAvailableExercises(FirebaseCallback<List<ExerciseApiModel>> callback) {
-        getAllExercises(callback);
+    private void saveBatchToFirebase(List<ExerciseApiModel> exercises) {
+        for (ExerciseApiModel ex : exercises) {
+            if (ex.getName() != null) {
+                String safeId = ex.getName().replaceAll("/", "-").replaceAll("\\.", "");
+                exercisesRef.document(safeId).set(ex);
+            }
+        }
     }
 }

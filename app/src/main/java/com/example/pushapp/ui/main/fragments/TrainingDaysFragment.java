@@ -1,4 +1,3 @@
-// Sostituisci l'intero contenuto di TrainingDaysFragment.java con questo
 package com.example.pushapp.ui.main.fragments;
 
 import android.os.Bundle;
@@ -125,11 +124,13 @@ public class TrainingDaysFragment extends Fragment {
         if (getView() != null && card.getTrainingDayId() != null) {
             NavController navController = Navigation.findNavController(getView());
             Bundle args = new Bundle();
+
             args.putString("trainingId", trainingId);
-            args.putString("trainingDayId", card.getTrainingDayId());
+
+            args.putString("dayId", card.getTrainingDayId());
+
             navController.navigate(R.id.nav_training_days_to_edit, args);
         } else {
-            // Opzionale: mostra un messaggio di errore
             Toast.makeText(getContext(), "Errore: ID del giorno non disponibile", Toast.LENGTH_SHORT).show();
         }
     }
