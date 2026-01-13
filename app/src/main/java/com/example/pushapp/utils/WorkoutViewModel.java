@@ -1,4 +1,3 @@
-// Sostituisci l'intero contenuto di WorkoutViewModel.java
 package com.example.pushapp.utils;
 
 import android.os.Handler;
@@ -13,7 +12,7 @@ import com.example.pushapp.models.Exercise;
 import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.TrainingDay;
-import com.example.pushapp.models.api.ExerciseInfo;
+import com.example.pushapp.models.ExerciseApiModel;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.repositories.TrainingRepository;
@@ -39,7 +38,7 @@ public class WorkoutViewModel extends ViewModel {
     // --- LIVE DATA PER LO STATO DELL'ALLENAMENTO ---
     private final MutableLiveData<String> workoutTitle = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isWorkoutInProgress = new MutableLiveData<>(false);
-    private final MutableLiveData<TrainingDay> activeTrainingDay = new MutableLiveData<>(); // <-- CAMPO MANCANTE, ORA AGGIUNTO
+    private final MutableLiveData<TrainingDay> activeTrainingDay = new MutableLiveData<>();
 
     // --- LIVE DATA PER IL TIMER PRINCIPALE ---
     private final MutableLiveData<Boolean> isWorkoutTimerRunning = new MutableLiveData<>(false);
@@ -52,7 +51,7 @@ public class WorkoutViewModel extends ViewModel {
     private final MutableLiveData<Integer> restTotalSeconds = new MutableLiveData<>(0);
 
     // --- LIVE DATA PER IL CATALOGO ESERCIZI (API) ---
-    private final MutableLiveData<List<ExerciseInfo>> availableExercises = new MutableLiveData<>();
+    private final MutableLiveData<List<ExerciseApiModel>> availableExercises = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
     // --- COSTRUTTORE ---
@@ -72,7 +71,7 @@ public class WorkoutViewModel extends ViewModel {
 
     public LiveData<TrainingDay> getActiveTrainingDay() {
         return activeTrainingDay;
-    } // Ora questo getter è valido
+    }
 
     public LiveData<Boolean> isWorkoutTimerRunning() {
         return isWorkoutTimerRunning;
@@ -94,7 +93,7 @@ public class WorkoutViewModel extends ViewModel {
         return restTotalSeconds;
     }
 
-    public LiveData<List<ExerciseInfo>> getAvailableExercises() {
+    public LiveData<List<ExerciseApiModel>> getAvailableExercises() {
         return availableExercises;
     }
 
@@ -173,9 +172,9 @@ public class WorkoutViewModel extends ViewModel {
         if (availableExercises.getValue() != null && !availableExercises.getValue().isEmpty()) {
             return;
         }
-        exerciseRepository.getAvailableExercises(new FirebaseCallback<List<ExerciseInfo>>() {
+        exerciseRepository.getAvailableExercises(new FirebaseCallback<List<ExerciseApiModel>>() {
             @Override
-            public void onSuccess(List<ExerciseInfo> result) {
+            public void onSuccess(List<ExerciseApiModel> result) {
                 availableExercises.setValue(result);
             }
 
@@ -314,7 +313,7 @@ public class WorkoutViewModel extends ViewModel {
 
                 if (remaining <= 0) {
                     restSecondsRemaining.setValue(0);
-                   isRestTimerRunning.setValue(false);
+                    isRestTimerRunning.setValue(false);
                 } else {
                     restSecondsRemaining.setValue((int) (remaining / 1000));
                     timerHandler.postDelayed(this, 100L);
@@ -339,12 +338,5 @@ public class WorkoutViewModel extends ViewModel {
         timeWhenPaused = 0L;
         elapsedMillis.setValue(0L);
         formattedTime.setValue("00:00");
-    }
-
-    @Override
-    protected void onCleared() {
-        super.onCleared();
-        timerHandler.removeCallbacks(updateRunnable);
-        timerHandler.removeCallbacks(restUpdateRunnable);
     }
 }

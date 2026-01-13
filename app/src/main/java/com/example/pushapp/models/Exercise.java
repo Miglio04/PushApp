@@ -39,19 +39,23 @@ public class Exercise implements Serializable {
     @Ignore
     private List<Serie> series;
 
+    // --- NUOVO CAMPO PER LE ISTRUZIONI ---
+    private String instructions;
+
     // --- CAMPI TRANSIENTI (NON SALVATI SU FIREBASE) ---
     @Ignore
     @Exclude
     private boolean isExpanded = false;
     @Ignore
     @Exclude
-    private String muscleGroup; // Verrà popolato dopo aver caricato i dettagli dall'API
+    private String muscleGroup;
 
     // Costruttore vuoto per Firebase
     public Exercise() {
         this.series = new ArrayList<>();
         this.name = "";
         this.notes = "";
+        this.instructions = ""; // Inizializza vuoto per sicurezza
     }
 
     // Costruttore per creare un nuovo esercizio a partire da un esercizio base dell'API
@@ -60,6 +64,7 @@ public class Exercise implements Serializable {
         this.name = name;
         this.order = order;
         this.series = new ArrayList<>();
+        this.instructions = ""; // Inizializza vuoto
     }
 
     // --- GETTERS E SETTERS ---
@@ -87,9 +92,21 @@ public class Exercise implements Serializable {
     }
     @Ignore
     public void setSeries(List<Serie> series) { this.series = series; }
-    @Ignore
-    public void addSerie(Serie serie) { getSeries().add(serie);; }
-    @Ignore
+
+    public String getNotes() { return notes != null ? notes : ""; }
+    public void setNotes(String notes) { this.notes = notes; }
+
+    public void addSerie(Serie serie) {
+        getSeries().add(serie);
+    }
+
+    public int getRestTimeIndex() { return restTimeIndex; }
+    public void setRestTimeIndex(int restTimeIndex) { this.restTimeIndex = restTimeIndex; }
+
+    // --- GETTER E SETTER PER LE ISTRUZIONI ---
+    public String getInstructions() { return instructions != null ? instructions : ""; }
+    public void setInstructions(String instructions) { this.instructions = instructions; }
+
     @Exclude
     public boolean isExpanded() { return isExpanded; }
     @Ignore

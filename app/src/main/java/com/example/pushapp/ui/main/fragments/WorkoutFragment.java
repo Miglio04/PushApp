@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 // 2. Implementa la NUOVA interfaccia, che ora ha un solo metodo
-public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.OnWorkoutInteractionListener {
+public abstract class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.OnWorkoutInteractionListener {
 
     // I tuoi campi rimangono invariati
     private WorkoutViewModel workoutViewModel;
