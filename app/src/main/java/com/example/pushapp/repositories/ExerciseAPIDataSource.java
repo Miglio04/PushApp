@@ -1,4 +1,4 @@
-package com.example.pushapp.repositories.dataSources;
+package com.example.pushapp.repositories;
 
 import android.util.Log;
 
@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import com.example.pushapp.api.ApiClient;
 import com.example.pushapp.api.NinjaApiService;
 import com.example.pushapp.models.api.ExerciseApiModel;
-import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.utils.Constants;
 
 import java.util.ArrayList;
@@ -28,6 +27,10 @@ public class ExerciseAPIDataSource {
             "chest", "forearms", "glutes", "hamstrings", "lats",
             "lower_back", "middle_back", "neck", "quadriceps", "traps", "triceps"
     );
+
+    ExerciseAPIDataSource() {
+        // TO BE IMPLEMENTED
+    }
 
     private void fetchAllMusclesFromApi(final FirebaseCallback<List<ExerciseApiModel>> callback) {
         NinjaApiService apiService = ApiClient.getClient().create(NinjaApiService.class);

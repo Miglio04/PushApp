@@ -19,18 +19,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
-import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
-import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
-import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
-import com.example.pushapp.repositories.TrainingRepository;
 import com.example.pushapp.utils.TrainingListGenerator;
 import com.example.pushapp.viewModels.TrainingViewModel;
-import com.example.pushapp.viewModels.TrainingViewModelFactory;
 import com.example.pushapp.adapter.TrainingsRecyclerViewAdapter;
+import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -61,17 +56,10 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
 
         navController = Navigation.findNavController(view);
 
-        // creazione repositories che vengono passate al viewmodel
-        TrainingLocalDataSource trainingLocalDataSource = new TrainingLocalDataSource(
-                LocalDatabase.getDatabase(getContext()));
-        TrainingRemoteDataSource trainingRemoteDataSource = new TrainingRemoteDataSource();
-        TrainingRepository trainingRepository = new TrainingRepository(trainingLocalDataSource, trainingRemoteDataSource);
-        ExerciseRepository exerciseRepository = new ExerciseRepository();
-
         // 1. Inizializza il ViewModel
         viewModel = new ViewModelProvider(
                 requireActivity(),
-                new TrainingViewModelFactory(trainingRepository, exerciseRepository)).get(TrainingViewModel.class);
+                new ViewModelFactory(requireContext())).get(TrainingViewModel.class);
         // 2. Setup della RecyclerView
         RecyclerView recyclerView = view.findViewById(R.id.training_list);
         setupRecyclerView(recyclerView);

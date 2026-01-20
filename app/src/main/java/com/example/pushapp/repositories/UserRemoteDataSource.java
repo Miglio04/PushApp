@@ -1,6 +1,5 @@
-package com.example.pushapp.repositories.dataSources;
+package com.example.pushapp.repositories;
 
-import com.example.pushapp.repositories.UserCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -9,7 +8,7 @@ public class UserRemoteDataSource {
     private final FirebaseAuth auth;
     private UserCallback userCallback = null;
 
-    public UserRemoteDataSource() {
+    UserRemoteDataSource() {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
     }

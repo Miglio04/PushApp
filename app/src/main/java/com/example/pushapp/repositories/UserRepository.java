@@ -4,9 +4,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.User;
-import com.example.pushapp.repositories.SessionRepository;
-import com.example.pushapp.repositories.dataSources.UserLocalDataSource;
-import com.example.pushapp.repositories.dataSources.UserRemoteDataSource;
 
 public class UserRepository implements UserCallback {
     private final SessionRepository sessionRepository;
@@ -14,7 +11,7 @@ public class UserRepository implements UserCallback {
     private final UserRemoteDataSource remoteDataSource;
     private final MutableLiveData<Result> currentUser;
 
-    public UserRepository(UserLocalDataSource localDataSource, UserRemoteDataSource remoteDataSource, SessionRepository sessionRepository) {
+    UserRepository(UserLocalDataSource localDataSource, UserRemoteDataSource remoteDataSource, SessionRepository sessionRepository) {
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
         this.sessionRepository = sessionRepository;

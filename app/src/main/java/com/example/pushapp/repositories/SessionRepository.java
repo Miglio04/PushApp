@@ -1,12 +1,10 @@
 package com.example.pushapp.repositories;
 
-import com.example.pushapp.repositories.dataSources.SessionDataSource;
-
 public class SessionRepository {
-    private final SessionDataSource sessionDataSource = null;
+    private final SessionDataSource sessionDataSource;
 
-    public SessionRepository() {
-
+    SessionRepository(SessionDataSource sessionDataSource) {
+        this.sessionDataSource = sessionDataSource;
     }
 
     public void signUpWithEmailAndPassword(String email, String password){

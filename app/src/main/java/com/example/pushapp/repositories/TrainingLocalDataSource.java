@@ -1,4 +1,4 @@
-package com.example.pushapp.repositories.dataSources;
+package com.example.pushapp.repositories;
 
 import com.example.pushapp.database.WorkoutExerciseDao;
 import com.example.pushapp.database.RoutineDao;
@@ -6,7 +6,6 @@ import com.example.pushapp.database.SerieDao;
 import com.example.pushapp.database.TrainingDao;
 import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.repositories.TrainingCallback;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class TrainingLocalDataSource {
     private SerieDao serieDao;
 
 
-    public TrainingLocalDataSource(LocalDatabase localDatabase) {
+    TrainingLocalDataSource(LocalDatabase localDatabase) {
         this.trainingDao = localDatabase.trainingDao();
         this.routineDao = localDatabase.routineDao();
         this.workoutExerciseDao = localDatabase.workoutExerciseDao();
