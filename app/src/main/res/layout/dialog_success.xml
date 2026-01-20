@@ -15,9 +15,10 @@
         android:padding="24dp">
 
         <ImageView
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:src="@drawable/ic_success"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/ic_check_circle"
+            app:tint="#4CAF50"
             android:layout_marginBottom="16dp"/>
 
         <TextView
@@ -25,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Success!"
-            android:textColor="@color/md_theme_primary"
+            android:textColor="#4CAF50"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginBottom="8dp"/>
@@ -34,20 +35,20 @@
             android:id="@+id/tvMessage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Operation completed successfully."
+            android:text="Operation completed."
             android:gravity="center"
-            android:textColor="#717785"
+            android:textColor="#757575"
             android:textSize="14sp"
             android:layout_marginBottom="24dp"/>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btnOkay"
+        <Button
+            android:id="@+id/btnAction"
             android:layout_width="match_parent"
             android:layout_height="45dp"
-            android:text="Continue"
+            android:text="OK"
             android:textColor="@android:color/white"
             android:background="@drawable/bg_button_blue"
-            android:textAllCaps="false"
+            app:backgroundTint="@null"
             android:textStyle="bold"/>
 
     </LinearLayout>

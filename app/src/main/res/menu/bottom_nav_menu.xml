@@ -7,7 +7,7 @@
         android:title="Home" />
 
     <item
-        android:id="@+id/nav_trainings"
+        android:id="@+id/trainings_graph"
         android:icon="@drawable/cards_stack"
         android:title="Trainings" />
 
@@ -17,7 +17,7 @@
         android:title="Stats" />
 
     <item
-        android:id="@+id/nav_training_days"
+        android:id="@+id/nav_social"
         android:icon="@drawable/groups"
         android:title="Social" />
 

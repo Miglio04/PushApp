@@ -1,17 +1,235 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.fragments.FoodFragment">
+    android:background="?android:attr/colorBackground"
+    android:orientation="vertical">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/rootScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textColor="@color/md_theme_primary"
-        android:gravity="center"
-        android:textSize="24sp"
-        android:text="@string/coming_soon" />
+        android:fillViewport="true"
+        android:fitsSystemWindows="false">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:fitsSystemWindows="true"
+            android:paddingHorizontal="16dp"
+            android:paddingBottom="40dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="60dp"
+                android:layout_marginBottom="24dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nutrition"
+                    android:textColor="@color/md_theme_onBackground"
+                    android:textSize="28sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tvMotivationalQuote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Fuel your body, fuel your mind."
+                    android:textColor="@color/md_theme_outline"
+                    android:textSize="14sp"
+                    android:textStyle="italic"
+                    android:layout_marginTop="4dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_rounded_white"
+                android:backgroundTint="@color/md_theme_surfaceContainer"
+                android:padding="8dp"
+                android:layout_marginBottom="24dp">
+                <ImageButton
+                    android:id="@+id/btnPrevDay"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/outline_arrow_back_ios_24"
+                    android:background="?selectableItemBackgroundBorderless"
+                    app:tint="@color/md_theme_primary"
+                    android:padding="12dp"
+                    android:scaleType="fitCenter"/>
+                <TextView
+                    android:id="@+id/tvDateDisplay"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Today"
+                    android:textAlignment="center"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/md_theme_primary"/>
+                <ImageButton
+                    android:id="@+id/btnNextDay"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/outline_arrow_forward_ios_24"
+                    android:background="?selectableItemBackgroundBorderless"
+                    app:tint="@color/md_theme_primary"
+                    android:padding="12dp"
+                    android:scaleType="fitCenter"/>
+            </LinearLayout>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/md_theme_secondaryContainer"
+                android:layout_marginBottom="24dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="24dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Calories Today"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/md_theme_onSecondaryContainer" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="bottom"
+                        android:layout_marginTop="8dp">
+                        <TextView
+                            android:id="@+id/tvCaloriesEaten"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="40sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/md_theme_onSecondaryContainer" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" / 2000 kcal"
+                            android:textSize="18sp"
+                            android:textColor="@color/md_theme_onSecondaryContainer"
+                            android:alpha="0.8"
+                            android:layout_marginBottom="6dp"
+                            android:layout_marginStart="8dp"/>
+                    </LinearLayout>
+                    <ProgressBar
+                        android:id="@+id/progressBarCalories"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="12dp"
+                        android:layout_marginTop="16dp"
+                        android:progressDrawable="@drawable/bg_progress_bar"
+                        android:max="100" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="24dp">
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_horizontal">
+                            <TextView android:text="Protein" android:textSize="12sp" android:textColor="@color/md_theme_onSecondaryContainer" android:alpha="0.7" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:id="@+id/tvProteinVal" android:text="0g" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/md_theme_onSecondaryContainer" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_horizontal">
+                            <TextView android:text="Carbs" android:textSize="12sp" android:textColor="@color/md_theme_onSecondaryContainer" android:alpha="0.7" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:id="@+id/tvCarbsVal" android:text="0g" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/md_theme_onSecondaryContainer" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:gravity="center_horizontal">
+                            <TextView android:text="Fat" android:textSize="12sp" android:textColor="@color/md_theme_onSecondaryContainer" android:alpha="0.7" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                            <TextView android:id="@+id/tvFatVal" android:text="0g" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/md_theme_onSecondaryContainer" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/md_theme_surfaceContainer"
+                app:cardBackgroundColor="?android:attr/colorBackground"
+                android:layout_marginBottom="24dp">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:text="Water Tracker" android:textStyle="bold" android:textSize="16sp" android:textColor="@color/md_theme_onSurface" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/tvWaterVal" android:text="0.0 L / 2.5 L" android:textColor="@color/md_theme_primary" android:textSize="18sp" android:textStyle="bold" android:layout_marginTop="4dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <ImageButton android:id="@+id/btnAddWater" android:layout_width="48dp" android:layout_height="48dp" android:src="@drawable/ic_plus" android:background="@drawable/circle_bg_blue" android:padding="12dp" app:tint="@color/md_theme_onPrimary"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Daily Meals"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/md_theme_onBackground_mediumContrast"
+                android:layout_marginBottom="12dp"/>
+
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:cardBackgroundColor="@color/md_theme_surfaceContainer" android:layout_marginBottom="12dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
+                    <LinearLayout android:orientation="vertical" android:layout_centerVertical="true" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                        <TextView android:text="Breakfast" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/md_theme_onSurface" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/tvBreakfastCals" android:text="0 kcal" android:textSize="13sp" android:textColor="@color/md_theme_outline" android:layout_marginTop="4dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <ImageButton android:id="@+id/btnAddBreakfast" android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_plus" android:background="@drawable/circle_bg_blue" android:padding="10dp" app:tint="@color/md_theme_onPrimary" android:layout_alignParentEnd="true" android:layout_centerVertical="true"/>
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:cardBackgroundColor="@color/md_theme_surfaceContainer" android:layout_marginBottom="12dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
+                    <LinearLayout android:orientation="vertical" android:layout_centerVertical="true" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                        <TextView android:text="Snack" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/md_theme_onSurface" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/tvSnack1Cals" android:text="0 kcal" android:textSize="13sp" android:textColor="@color/md_theme_outline" android:layout_marginTop="4dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <ImageButton android:id="@+id/btnAddSnack1" android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_plus" android:background="@drawable/circle_bg_blue" android:padding="10dp" app:tint="@color/md_theme_onPrimary" android:layout_alignParentEnd="true" android:layout_centerVertical="true"/>
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:cardBackgroundColor="@color/md_theme_surfaceContainer" android:layout_marginBottom="12dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
+                    <LinearLayout android:orientation="vertical" android:layout_centerVertical="true" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                        <TextView android:text="Lunch" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/md_theme_onSurface" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/tvLunchCals" android:text="0 kcal" android:textSize="13sp" android:textColor="@color/md_theme_outline" android:layout_marginTop="4dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <ImageButton android:id="@+id/btnAddLunch" android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_plus" android:background="@drawable/circle_bg_blue" android:padding="10dp" app:tint="@color/md_theme_onPrimary" android:layout_alignParentEnd="true" android:layout_centerVertical="true"/>
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView android:layout_width="match_parent" android:layout_height="wrap_content" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:cardBackgroundColor="@color/md_theme_surfaceContainer" android:layout_marginBottom="50dp">
+                <RelativeLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp">
+                    <LinearLayout android:orientation="vertical" android:layout_centerVertical="true" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                        <TextView android:text="Dinner" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/md_theme_onSurface" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/tvDinnerCals" android:text="0 kcal" android:textSize="13sp" android:textColor="@color/md_theme_outline" android:layout_marginTop="4dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                    </LinearLayout>
+                    <ImageButton android:id="@+id/btnAddDinner" android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_plus" android:background="@drawable/circle_bg_blue" android:padding="10dp" app:tint="@color/md_theme_onPrimary" android:layout_alignParentEnd="true" android:layout_centerVertical="true"/>
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

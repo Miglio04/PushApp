@@ -6,18 +6,35 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import com.example.pushapp.R;
-import com.example.pushapp.utils.WorkoutViewModel;
+import com.example.pushapp.database.LocalDatabase;
+import com.example.pushapp.repositories.ExerciseRepository;
+import com.example.pushapp.repositories.FirebaseCallback;
+import com.example.pushapp.repositories.SessionRepository;
+import com.example.pushapp.repositories.dataSources.SessionDataSource;
+import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
+import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
+import com.example.pushapp.repositories.TrainingRepository;
+import com.example.pushapp.repositories.dataSources.UserLocalDataSource;
+import com.example.pushapp.repositories.dataSources.UserRemoteDataSource;
+import com.example.pushapp.repositories.UserRepository;
+import com.example.pushapp.viewModels.UserViewModel;
+import com.example.pushapp.viewModels.UserViewModelFactory;
+import com.example.pushapp.viewModels.WorkoutViewModel;
+import com.example.pushapp.viewModels.WorkoutViewModelFactory;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
     private WorkoutViewModel workoutViewModel;
+    private UserViewModel userViewModel;
     private View miniPlayerView;
     private NavController navController;
 
@@ -25,21 +42,47 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        // 2. Inizializza il ViewModel
-        workoutViewModel = new ViewModelProvider(this).get(WorkoutViewModel.class);
-        // 3. Gestisci gli insets per il padding
+
+        // creazione repositories e dataSource che vengono passate al viewmodel
+        //NOTA: prossimamente si rimuoverà questo codice, quando si implementeranno le repo come singleton
+        TrainingLocalDataSource trainingLocalDataSource = new TrainingLocalDataSource(
+                LocalDatabase.getDatabase(this));
+        TrainingRemoteDataSource trainingRemoteDataSource = new TrainingRemoteDataSource();
+        TrainingRepository trainingRepository = new TrainingRepository(trainingLocalDataSource, trainingRemoteDataSource);
+        UserRemoteDataSource userRemoteDataSource = new UserRemoteDataSource();
+        UserLocalDataSource userLocalDataSource = new UserLocalDataSource(LocalDatabase.getDatabase(this));
+        SessionRepository sessionRepository = new SessionRepository();
+        UserRepository userRepository = new UserRepository(userLocalDataSource, userRemoteDataSource, sessionRepository);
+        ExerciseRepository exerciseRepository = new ExerciseRepository();
+
+        //Inizializza il ViewModel
+        workoutViewModel = new ViewModelProvider(
+                this,
+                new WorkoutViewModelFactory(trainingRepository, exerciseRepository)).get(WorkoutViewModel.class);
+
+        userViewModel = new ViewModelProvider(
+                this,
+                new UserViewModelFactory(userRepository)).get(UserViewModel.class);
+
+        // Carica i dati dell'utente all'avvio
+        userViewModel.loadUserData();
+
+        // Gestisci gli insets per il padding (Fix deprecated)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            v.setPadding(insets.getSystemWindowInsetLeft(), insets.getSystemWindowInsetTop(), insets.getSystemWindowInsetRight(), 0);
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
             return insets;
         });
 
         // Trova il NavHostFragment e il NavController
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
-        navController = navHostFragment.getNavController();
+        if (navHostFragment != null) {
+            navController = navHostFragment.getNavController();
 
-        // Collega la BottomNavigationView al NavController
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        NavigationUI.setupWithNavController(bottomNavigationView, navController);
+            // Collega la BottomNavigationView al NavController
+            BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+            NavigationUI.setupWithNavController(bottomNavigationView, navController);
+        }
 
         // Mini-player
         miniPlayerView = findViewById(R.id.workout_miniplayer);
@@ -53,7 +96,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Hide mini-player when workout is not in progress or when WorkoutFragment is active
         workoutViewModel.isWorkoutInProgress().observe(this, inProgress -> {
-            boolean isWorkoutOnTop = navController.getCurrentDestination() != null && navController.getCurrentDestination().getId() == R.id.nav_workouts;
+            if (navController == null) return;
+            
+            boolean isWorkoutOnTop = navController.getCurrentDestination() != null && 
+                                   navController.getCurrentDestination().getId() == R.id.nav_workouts;
             boolean show = inProgress != null && inProgress && !isWorkoutOnTop;
             miniPlayerView.setVisibility(show ? View.VISIBLE : View.GONE);
         });
@@ -65,14 +111,27 @@ public class MainActivity extends AppCompatActivity {
         });
 
         resumeButton.setOnClickListener(v -> {
-            if (navController.getCurrentDestination() != null && navController.getCurrentDestination().getId() == R.id.nav_workouts) {
+            if (navController == null) return;
+
+            if (navController.getCurrentDestination() != null && 
+                navController.getCurrentDestination().getId() == R.id.nav_workouts) {
                 return;
             }
             navController.navigate(R.id.nav_workouts);
         });
 
         discardButton.setOnClickListener(v -> {
-            workoutViewModel.stopWorkout();
+            workoutViewModel.stopWorkout(new FirebaseCallback<Void>() {
+                @Override
+                public void onSuccess(Void result) {
+                    // Workout scartato con successo
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    // Gestisci l'errore se necessario
+                }
+            });
         });
     }
 

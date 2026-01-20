@@ -1,5 +1,5 @@
 <resources>
-    <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="Theme.PushApp" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/md_theme_primary</item>
         <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
         <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
@@ -47,6 +47,13 @@
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
     </style>
+
+    <style name="Theme.PushApp.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_pushapp</item>
+        <item name="windowSplashScreenBackground">@color/md_theme_background</item>
+        <item name="postSplashScreenTheme">@style/Theme.PushApp</item>
+    </style>
+
     <style name="NoActiveIndicator">
         <item name="android:color">@android:color/transparent</item>
         <item name="android:stateListAnimator">@null</item>
