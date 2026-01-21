@@ -18,7 +18,8 @@ import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.repositories.SessionRepository;
-import com.example.pushapp.repositories.dataSources.SessionDataSource;
+import com.example.pushapp.repositories.dataSources.SessionLocalDataSource;
+import com.example.pushapp.repositories.dataSources.SessionRemoteDataSource;
 import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
 import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
 import com.example.pushapp.repositories.TrainingRepository;
@@ -51,7 +52,9 @@ public class MainActivity extends AppCompatActivity {
         TrainingRepository trainingRepository = new TrainingRepository(trainingLocalDataSource, trainingRemoteDataSource);
         UserRemoteDataSource userRemoteDataSource = new UserRemoteDataSource();
         UserLocalDataSource userLocalDataSource = new UserLocalDataSource(LocalDatabase.getDatabase(this));
-        SessionRepository sessionRepository = new SessionRepository();
+        SessionRemoteDataSource sessionRemoteDataSource = new SessionRemoteDataSource();
+        SessionLocalDataSource sessionLocalDataSource = new SessionLocalDataSource();
+        SessionRepository sessionRepository = new SessionRepository(sessionLocalDataSource, sessionRemoteDataSource);
         UserRepository userRepository = new UserRepository(userLocalDataSource, userRemoteDataSource, sessionRepository);
         ExerciseRepository exerciseRepository = new ExerciseRepository();
 
@@ -62,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         userViewModel = new ViewModelProvider(
                 this,
-                new UserViewModelFactory(userRepository)).get(UserViewModel.class);
+                new UserViewModelFactory(userRepository, sessionRepository)).get(UserViewModel.class);
 
         // Carica i dati dell'utente all'avvio
         userViewModel.loadUserData();

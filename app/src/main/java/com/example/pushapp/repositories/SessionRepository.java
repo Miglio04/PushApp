@@ -1,12 +1,27 @@
 package com.example.pushapp.repositories;
 
-import com.example.pushapp.repositories.dataSources.SessionDataSource;
+import androidx.lifecycle.MutableLiveData;
 
-public class SessionRepository {
-    private final SessionDataSource sessionDataSource = null;
+import com.example.pushapp.models.Result;
+import com.example.pushapp.repositories.dataSources.SessionLocalDataSource;
+import com.example.pushapp.repositories.dataSources.SessionRemoteDataSource;
 
-    public SessionRepository() {
+public class SessionRepository implements SessionCallback {
+    private final SessionLocalDataSource sessionLocalDataSource;
+    private final SessionRemoteDataSource sessionRemoteDataSource;
 
+
+    // provvisorio: bisognerà creare una classe di modello "session"
+    private final MutableLiveData<Result> activeUserIdLiveData = new MutableLiveData<>();
+
+    public SessionRepository(SessionLocalDataSource sessionLocalDataSource, SessionRemoteDataSource sessionRemoteDataSource) {
+        this.sessionLocalDataSource = sessionLocalDataSource;
+        this.sessionRemoteDataSource = sessionRemoteDataSource;
+        sessionRemoteDataSource.setCallback(this);
+    }
+
+    public MutableLiveData<Result> getActiveUserIdLiveData() {
+        return activeUserIdLiveData;
     }
 
     public void signUpWithEmailAndPassword(String email, String password){
@@ -18,19 +33,28 @@ public class SessionRepository {
     }
 
     public void signInWithEmailAndPassword(String email, String password){
-
+        sessionRemoteDataSource.signInWithEmailAndPassword(email, password);
     }
 
     public void signInWithGoogle(String idToken){
 
     }
 
-
     public String getCurrentUserId() {
-        return sessionDataSource.getCurrentUserId();
+        return sessionLocalDataSource.getCurrentUserId();
     }
 
-    public void forgotPassoword(){
+    public void forgotPassword() {
 
+    }
+
+    @Override
+    public void onSuccessFromLogin(String uid) {
+        activeUserIdLiveData.postValue(new Result.SessionSuccess(uid));
+    }
+
+    @Override
+    public void onFailureFromLogin(Exception e) {
+        activeUserIdLiveData.postValue(new Result.Error(e.getMessage()));
     }
 }

@@ -5,7 +5,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.pushapp.models.Result;
 import com.example.pushapp.models.User;
+import com.example.pushapp.repositories.SessionRepository;
 import com.example.pushapp.repositories.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -14,27 +16,36 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class UserViewModel extends ViewModel {
     private static final String TAG = "UserViewModel";
     private final UserRepository userRepository;
+    private final SessionRepository sessionRepository;
     private final MutableLiveData<User> userLiveData = new MutableLiveData<>();
+    private LiveData<Result> activeUserIdLiveData;
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     public UserViewModel() {
         this.userRepository = null;
+        this.sessionRepository = null;
     }
 
-    public UserViewModel(UserRepository userRepository){
+    public UserViewModel(UserRepository userRepository, SessionRepository sessionRepository){
+        this.sessionRepository = sessionRepository;
         this.userRepository = userRepository;
+        this.activeUserIdLiveData = sessionRepository.getActiveUserIdLiveData();
     }
 
     public LiveData<User> getUserLiveData() {
         return userLiveData;
     }
-
+    public LiveData<Result> getActiveUserIdLiveData() {
+        return activeUserIdLiveData;
+    }
     public LiveData<Boolean> getIsLoading() {
         return isLoading;
     }
 
+    // loads user data after login
+    // to modify: it fetches from Firestore
     public void loadUserData() {
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser == null) {
@@ -63,5 +74,8 @@ public class UserViewModel extends ViewModel {
 
     public void setUser(User user) {
         userLiveData.setValue(user);
+    }
+    public void signInWithEmailAndPassword(String email, String password) {
+        sessionRepository.signInWithEmailAndPassword(email, password);
     }
 }

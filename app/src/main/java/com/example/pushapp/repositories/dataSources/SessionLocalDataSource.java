@@ -3,11 +3,11 @@ package com.example.pushapp.repositories.dataSources;
 import com.example.pushapp.repositories.UserCallback;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class SessionDataSource {
+public class SessionLocalDataSource {
     private final FirebaseAuth auth;
     private UserCallback userCallback = null;
 
-    public SessionDataSource() {
+    public SessionLocalDataSource() {
         this.auth = FirebaseAuth.getInstance();
     }
 
