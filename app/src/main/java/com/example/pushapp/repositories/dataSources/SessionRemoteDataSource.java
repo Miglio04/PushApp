@@ -1,10 +1,6 @@
 package com.example.pushapp.repositories.dataSources;
-
-import android.widget.Toast;
-
 import com.example.pushapp.repositories.SessionCallback;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 public class SessionRemoteDataSource {
     private SessionCallback callback = null;
