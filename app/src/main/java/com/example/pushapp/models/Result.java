@@ -8,6 +8,8 @@ public abstract class Result {
         return this instanceof TrainingsSuccess;
     }
     public boolean isUserSuccess(){return this instanceof UserSuccess; }
+    public boolean isSessionSuccess(){return this instanceof SessionSuccess; }
+
 
     /**
      * Class that represents a successful action during the interaction
@@ -30,6 +32,16 @@ public abstract class Result {
         }
         public User getData() {
             return user;
+        }
+    }
+
+    public static final class SessionSuccess extends Result{
+        private final String userId;
+        public SessionSuccess(String userId) {
+            this.userId = userId;
+        }
+        public String getData() {
+            return userId;
         }
     }
 

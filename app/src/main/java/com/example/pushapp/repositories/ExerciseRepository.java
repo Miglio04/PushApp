@@ -40,6 +40,8 @@ public class ExerciseRepository {
         //aggiornare i liveData
     }
 
-
+    // da rimuovere: viene chiamato da TrainingviewModel, ma il viewModel dovrebbe chiamare fetchExercises
+    // serviva a ottenere gli esercizi direttamente dall'API
+    public void getAvailableExercises(FirebaseCallback<List<ExerciseApiModel>> callback){}
 
 }

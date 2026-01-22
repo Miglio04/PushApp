@@ -21,10 +21,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.pushapp.R;
+import com.example.pushapp.database.LocalDatabase;
+import com.example.pushapp.models.Result;
+import com.example.pushapp.repositories.SessionRepository;
+import com.example.pushapp.repositories.UserRepository;
+import com.example.pushapp.repositories.dataSources.SessionLocalDataSource;
+import com.example.pushapp.repositories.dataSources.SessionRemoteDataSource;
+import com.example.pushapp.repositories.dataSources.UserLocalDataSource;
+import com.example.pushapp.repositories.dataSources.UserRemoteDataSource;
 import com.example.pushapp.ui.main.MainActivity;
+import com.example.pushapp.viewModels.UserViewModel;
+import com.example.pushapp.viewModels.UserViewModelFactory;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -43,6 +54,7 @@ public class LoginFragment extends Fragment {
     private EditText etEmail, etPassword;
     private TextView tvEmailError, tvPasswordError;
     private LinearLayout loadingOverlay;
+    private UserViewModel userViewModel;
 
     // --- Strumenti di Firebase e Google ---
     private FirebaseAuth mAuth;
@@ -76,6 +88,18 @@ public class LoginFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
 
+        // creazione data source, repository e viewModel
+        // questo codice andrà rimosso dopo aver implementato service locator
+        SessionRemoteDataSource sessionRemoteDataSource = new SessionRemoteDataSource();
+        SessionLocalDataSource sessionLocalDataSource = new SessionLocalDataSource();
+        SessionRepository sessionRepository = new SessionRepository(sessionLocalDataSource, sessionRemoteDataSource);
+        UserRemoteDataSource userRemoteDataSource = new UserRemoteDataSource();
+        UserLocalDataSource userLocalDataSource = new UserLocalDataSource(LocalDatabase.getDatabase(getContext()));
+        UserRepository userRepository = new UserRepository(userLocalDataSource, userRemoteDataSource, sessionRepository);
+        userViewModel = new ViewModelProvider(
+                this,
+                new UserViewModelFactory(userRepository, sessionRepository)).get(UserViewModel.class);
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -92,6 +116,8 @@ public class LoginFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        observeUserViewModel();
 
         etEmail = view.findViewById(R.id.etEmail);
         etPassword = view.findViewById(R.id.etPassword);
@@ -117,9 +143,22 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    // provvisorio: non distingue se sono sbagliate le credenziali oppure se l'utente non esiste
+    private void observeUserViewModel(){
+        userViewModel.getActiveUserIdLiveData().observe(getViewLifecycleOwner(), userId -> {
+            hideLoading();
+            if(userId.isSessionSuccess()){
+                showLoginSuccessDialog();
+            }else{
+                Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void performLogin() {
         resetErrors();
 
+        // data validation: da spostare in un metodo apposito
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         boolean isValid = true;
@@ -141,22 +180,7 @@ public class LoginFragment extends Fragment {
 
         showLoading();
 
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(requireActivity(), task -> {
-                    if (task.isSuccessful()) {
-                        // SUCCESSO -> Mostra il popup di benvenuto
-                        hideLoading();
-                        showLoginSuccessDialog();
-                    } else {
-                        hideLoading();
-                        if (task.getException() instanceof FirebaseAuthInvalidUserException) {
-                            showUserNotFoundDialog();
-                        } else {
-                            showError(etPassword, tvPasswordError, "Incorrect credentials");
-                            Toast.makeText(requireContext(), "Authentication failed.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        userViewModel.signInWithEmailAndPassword(email, password);
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
