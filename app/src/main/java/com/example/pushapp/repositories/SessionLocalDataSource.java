@@ -1,13 +1,12 @@
-package com.example.pushapp.repositories.dataSources;
+package com.example.pushapp.repositories;
 
-import com.example.pushapp.repositories.UserCallback;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class SessionLocalDataSource {
     private final FirebaseAuth auth;
     private UserCallback userCallback = null;
 
-    public SessionLocalDataSource() {
+    SessionLocalDataSource() {
         this.auth = FirebaseAuth.getInstance();
     }
 

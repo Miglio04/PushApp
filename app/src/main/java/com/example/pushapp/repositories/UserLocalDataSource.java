@@ -1,9 +1,8 @@
-package com.example.pushapp.repositories.dataSources;
+package com.example.pushapp.repositories;
 
 import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.database.UserDao;
 import com.example.pushapp.models.User;
-import com.example.pushapp.repositories.UserCallback;
 
 public class UserLocalDataSource {
     private final UserDao userDao;

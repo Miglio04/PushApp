@@ -4,8 +4,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.api.ExerciseApiModel;
-import com.example.pushapp.repositories.dataSources.ExerciseAPIDataSource;
-import com.example.pushapp.repositories.dataSources.ExerciseLocalDataSource;
 
 import java.util.List;
 

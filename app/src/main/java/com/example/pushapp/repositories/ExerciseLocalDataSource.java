@@ -1,4 +1,4 @@
-package com.example.pushapp.repositories.dataSources;
+package com.example.pushapp.repositories;
 
 import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.models.roomModels.RoomExercise;

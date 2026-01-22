@@ -1,20 +1,8 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.repositories;
 
 import android.content.Context;
 
 import com.example.pushapp.database.LocalDatabase;
-import com.example.pushapp.repositories.ExerciseRepository;
-import com.example.pushapp.repositories.SessionRepository;
-import com.example.pushapp.repositories.TrainingRepository;
-import com.example.pushapp.repositories.UserRepository;
-import com.example.pushapp.repositories.dataSources.ExerciseAPIDataSource;
-import com.example.pushapp.repositories.dataSources.ExerciseLocalDataSource;
-import com.example.pushapp.repositories.dataSources.SessionDataSource;
-import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
-import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
-import com.example.pushapp.repositories.dataSources.UserLocalDataSource;
-import com.example.pushapp.repositories.dataSources.UserRemoteDataSource;
-
 public class ServiceLocator {
 
     private static volatile ServiceLocator instance = null;
@@ -29,10 +17,11 @@ public class ServiceLocator {
     private volatile TrainingLocalDataSource trainingLocalDataSource = null;
     private volatile ExerciseLocalDataSource exerciseLocalDataSource = null;
     private volatile UserLocalDataSource userLocalDataSource = null;
+    private volatile SessionLocalDataSource sessionLocalDataSource = null;
     private volatile TrainingRemoteDataSource trainingRemoteDataSource = null;
     private volatile ExerciseAPIDataSource exerciseAPIDataSource = null;
-    private volatile SessionDataSource sessionDataSource = null;
     private volatile UserRemoteDataSource userRemoteDataSource = null;
+    private volatile SessionRemoteDataSource sessionRemoteDataSource = null;
 
 
     public static ServiceLocator getInstance() {
@@ -71,7 +60,8 @@ public class ServiceLocator {
     public synchronized SessionRepository getSessionRepository(Context context) {
         if(sessionRepository == null){
             sessionRepository = new SessionRepository(
-                    getSessionDataSource()
+                    getSessionLocalDataSource(),
+                    getSessionRemoteDataSource()
             );
         }
         return sessionRepository;
@@ -130,11 +120,11 @@ public class ServiceLocator {
         return exerciseAPIDataSource;
     }
 
-    public synchronized SessionDataSource getSessionDataSource() {
-        if(sessionDataSource == null){
-            sessionDataSource = new SessionDataSource();
+    public synchronized SessionLocalDataSource getSessionLocalDataSource() {
+        if(sessionLocalDataSource == null){
+            sessionLocalDataSource = new SessionLocalDataSource();
         }
-        return sessionDataSource;
+        return sessionLocalDataSource;
     }
 
     public synchronized UserRemoteDataSource getUserRemoteDataSource() {
@@ -142,6 +132,13 @@ public class ServiceLocator {
             userRemoteDataSource = new UserRemoteDataSource();
         }
         return userRemoteDataSource;
+    }
+
+    public synchronized SessionRemoteDataSource getSessionRemoteDataSource() {
+        if(sessionRemoteDataSource == null){
+            sessionRemoteDataSource = new SessionRemoteDataSource();
+        }
+        return sessionRemoteDataSource;
     }
 
     // Database

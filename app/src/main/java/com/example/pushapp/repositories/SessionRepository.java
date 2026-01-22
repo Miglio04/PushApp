@@ -3,8 +3,6 @@ package com.example.pushapp.repositories;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
-import com.example.pushapp.repositories.dataSources.SessionLocalDataSource;
-import com.example.pushapp.repositories.dataSources.SessionRemoteDataSource;
 
 public class SessionRepository implements SessionCallback {
     private final SessionLocalDataSource sessionLocalDataSource;
@@ -14,7 +12,7 @@ public class SessionRepository implements SessionCallback {
     // provvisorio: bisognerà creare una classe di modello "session"
     private final MutableLiveData<Result> activeUserIdLiveData = new MutableLiveData<>();
 
-    public SessionRepository(SessionLocalDataSource sessionLocalDataSource, SessionRemoteDataSource sessionRemoteDataSource) {
+    SessionRepository(SessionLocalDataSource sessionLocalDataSource, SessionRemoteDataSource sessionRemoteDataSource) {
         this.sessionLocalDataSource = sessionLocalDataSource;
         this.sessionRemoteDataSource = sessionRemoteDataSource;
         sessionRemoteDataSource.setCallback(this);

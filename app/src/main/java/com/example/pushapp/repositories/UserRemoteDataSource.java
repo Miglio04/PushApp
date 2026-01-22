@@ -1,6 +1,5 @@
-package com.example.pushapp.repositories.dataSources;
+package com.example.pushapp.repositories;
 
-import com.example.pushapp.repositories.UserCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 

@@ -25,17 +25,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.pushapp.R;
-import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.models.Result;
-import com.example.pushapp.repositories.SessionRepository;
-import com.example.pushapp.repositories.UserRepository;
-import com.example.pushapp.repositories.dataSources.SessionLocalDataSource;
-import com.example.pushapp.repositories.dataSources.SessionRemoteDataSource;
-import com.example.pushapp.repositories.dataSources.UserLocalDataSource;
-import com.example.pushapp.repositories.dataSources.UserRemoteDataSource;
 import com.example.pushapp.ui.main.MainActivity;
 import com.example.pushapp.viewModels.UserViewModel;
-import com.example.pushapp.viewModels.UserViewModelFactory;
+import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -44,8 +37,6 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginFragment extends Fragment {
@@ -88,17 +79,9 @@ public class LoginFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
 
-        // creazione data source, repository e viewModel
-        // questo codice andrà rimosso dopo aver implementato service locator
-        SessionRemoteDataSource sessionRemoteDataSource = new SessionRemoteDataSource();
-        SessionLocalDataSource sessionLocalDataSource = new SessionLocalDataSource();
-        SessionRepository sessionRepository = new SessionRepository(sessionLocalDataSource, sessionRemoteDataSource);
-        UserRemoteDataSource userRemoteDataSource = new UserRemoteDataSource();
-        UserLocalDataSource userLocalDataSource = new UserLocalDataSource(LocalDatabase.getDatabase(getContext()));
-        UserRepository userRepository = new UserRepository(userLocalDataSource, userRemoteDataSource, sessionRepository);
         userViewModel = new ViewModelProvider(
                 this,
-                new UserViewModelFactory(userRepository, sessionRepository)).get(UserViewModel.class);
+                new ViewModelFactory(requireContext())).get(UserViewModel.class);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))

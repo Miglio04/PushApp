@@ -9,8 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
-import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;

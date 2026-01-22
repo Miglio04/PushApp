@@ -1,12 +1,11 @@
-package com.example.pushapp.repositories.dataSources;
-import com.example.pushapp.repositories.SessionCallback;
+package com.example.pushapp.repositories;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class SessionRemoteDataSource {
     private SessionCallback callback = null;
     private final FirebaseAuth mAuth;
 
-    public SessionRemoteDataSource(){
+    SessionRemoteDataSource(){
         mAuth = FirebaseAuth.getInstance();
     }
 

@@ -7,21 +7,11 @@ import android.widget.TextView; // IMPORTANTE
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.pushapp.R;
-import com.example.pushapp.database.LocalDatabase;
-import com.example.pushapp.repositories.SessionRepository;
-import com.example.pushapp.repositories.UserRepository;
-import com.example.pushapp.repositories.dataSources.SessionLocalDataSource;
-import com.example.pushapp.repositories.dataSources.SessionRemoteDataSource;
-import com.example.pushapp.repositories.dataSources.UserLocalDataSource;
-import com.example.pushapp.repositories.dataSources.UserRemoteDataSource;
-import com.example.pushapp.viewModels.UserViewModel;
-import com.example.pushapp.viewModels.UserViewModelFactory;
 import com.google.android.material.tabs.TabLayout;
 
 public class AuthActivity extends AppCompatActivity {

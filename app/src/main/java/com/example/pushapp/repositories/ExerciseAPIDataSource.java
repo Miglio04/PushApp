@@ -1,4 +1,4 @@
-package com.example.pushapp.repositories.dataSources;
+package com.example.pushapp.repositories;
 
 import android.util.Log;
 
@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import com.example.pushapp.api.ApiClient;
 import com.example.pushapp.api.NinjaApiService;
 import com.example.pushapp.models.api.ExerciseApiModel;
-import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.utils.Constants;
 
 import java.util.ArrayList;

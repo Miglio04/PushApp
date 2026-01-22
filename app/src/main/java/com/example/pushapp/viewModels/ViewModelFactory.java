@@ -7,7 +7,8 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pushapp.repositories.ExerciseRepository;
-import com.example.pushapp.utils.ServiceLocator;
+import com.example.pushapp.repositories.ServiceLocator;
+import com.example.pushapp.repositories.SessionRepository;
 import com.example.pushapp.repositories.TrainingRepository;
 import com.example.pushapp.repositories.UserRepository;
 
@@ -36,7 +37,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 
             } else if (modelClass.isAssignableFrom(UserViewModel.class)) {
             UserRepository userRepository = ServiceLocator.getInstance().getUserRepository(context);
-            return (T) new UserViewModel(userRepository);
+            SessionRepository sessionRepository = ServiceLocator.getInstance().getSessionRepository(context);
+            return (T) new UserViewModel(userRepository, sessionRepository);
         }
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());
     }
