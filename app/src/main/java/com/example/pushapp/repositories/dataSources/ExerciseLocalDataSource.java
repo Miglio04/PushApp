@@ -1,10 +1,16 @@
 package com.example.pushapp.repositories.dataSources;
 
+import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.models.roomModels.RoomExercise;
 
 import java.util.List;
 
 public class ExerciseLocalDataSource  {
+
+    ExerciseLocalDataSource(LocalDatabase localDatabase) {
+        // TO BE IMPLEMENTED
+    }
+
     public void getExercises(){
 
     }

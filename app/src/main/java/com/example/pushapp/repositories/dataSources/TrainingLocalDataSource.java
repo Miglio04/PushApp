@@ -18,7 +18,7 @@ public class TrainingLocalDataSource {
     private SerieDao serieDao;
 
 
-    public TrainingLocalDataSource(LocalDatabase localDatabase) {
+    TrainingLocalDataSource(LocalDatabase localDatabase) {
         this.trainingDao = localDatabase.trainingDao();
         this.routineDao = localDatabase.routineDao();
         this.workoutExerciseDao = localDatabase.workoutExerciseDao();

@@ -19,7 +19,7 @@ public class TrainingRemoteDataSource {
     private final FirebaseAuth auth;
     private TrainingCallback trainingCallback;
 
-    public TrainingRemoteDataSource() {
+    TrainingRemoteDataSource() {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
         this.trainingCallback = null;

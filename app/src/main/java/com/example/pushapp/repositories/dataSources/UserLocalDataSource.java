@@ -9,7 +9,7 @@ public class UserLocalDataSource {
     private final UserDao userDao;
     private UserCallback userCallback = null;
 
-    public UserLocalDataSource(LocalDatabase localDatabase) {
+    UserLocalDataSource(LocalDatabase localDatabase) {
         this.userDao = localDatabase.userDao();
     }
 

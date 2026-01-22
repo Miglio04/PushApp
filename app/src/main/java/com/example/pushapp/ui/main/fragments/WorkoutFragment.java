@@ -18,18 +18,12 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.pushapp.R;
-import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
-import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
-import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
-import com.example.pushapp.repositories.TrainingRepository;
+import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.viewModels.WorkoutViewModel;
-// 1. Importa il NUOVO adapter per gli esercizi durante l'allenamento
 import com.example.pushapp.adapter.WorkoutExerciseAdapter;
-import com.example.pushapp.viewModels.WorkoutViewModelFactory;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -56,17 +50,11 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // creazione repositories che vengono passate al viewmodel
-        TrainingLocalDataSource trainingLocalDataSource = new TrainingLocalDataSource(
-                LocalDatabase.getDatabase(getContext()));
-        TrainingRemoteDataSource trainingRemoteDataSource = new TrainingRemoteDataSource();
-        TrainingRepository trainingRepository = new TrainingRepository(trainingLocalDataSource, trainingRemoteDataSource);
-        ExerciseRepository exerciseRepository = new ExerciseRepository();
 
         //Inizializza il ViewModel
         workoutViewModel = new ViewModelProvider(
                 requireActivity(),
-                new WorkoutViewModelFactory(trainingRepository, exerciseRepository)).get(WorkoutViewModel.class);
+                new ViewModelFactory(requireContext())).get(WorkoutViewModel.class);
 
         if (getArguments() != null) {
             // Assicurati che le classi modello implementino Serializable

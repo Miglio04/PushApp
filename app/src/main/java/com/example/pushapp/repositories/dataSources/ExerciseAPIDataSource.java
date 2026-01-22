@@ -29,6 +29,10 @@ public class ExerciseAPIDataSource {
             "lower_back", "middle_back", "neck", "quadriceps", "traps", "triceps"
     );
 
+    ExerciseAPIDataSource() {
+        // TO BE IMPLEMENTED
+    }
+
     private void fetchAllMusclesFromApi(final FirebaseCallback<List<ExerciseApiModel>> callback) {
         NinjaApiService apiService = ApiClient.getClient().create(NinjaApiService.class);
 
