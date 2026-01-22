@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pushapp.repositories.ExerciseRepository;
-import com.example.pushapp.repositories.ServiceLocator;
+import com.example.pushapp.utils.ServiceLocator;
 import com.example.pushapp.repositories.TrainingRepository;
 import com.example.pushapp.repositories.UserRepository;
 

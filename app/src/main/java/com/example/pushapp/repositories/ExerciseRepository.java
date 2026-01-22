@@ -3,8 +3,8 @@ package com.example.pushapp.repositories;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.example.pushapp.repositories.dataSources.ExerciseAPIDataSource;
+import com.example.pushapp.repositories.dataSources.ExerciseLocalDataSource;
 
 public class ExerciseRepository {
 

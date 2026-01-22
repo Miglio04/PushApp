@@ -1,8 +1,19 @@
-package com.example.pushapp.repositories;
+package com.example.pushapp.utils;
 
 import android.content.Context;
 
 import com.example.pushapp.database.LocalDatabase;
+import com.example.pushapp.repositories.ExerciseRepository;
+import com.example.pushapp.repositories.SessionRepository;
+import com.example.pushapp.repositories.TrainingRepository;
+import com.example.pushapp.repositories.UserRepository;
+import com.example.pushapp.repositories.dataSources.ExerciseAPIDataSource;
+import com.example.pushapp.repositories.dataSources.ExerciseLocalDataSource;
+import com.example.pushapp.repositories.dataSources.SessionDataSource;
+import com.example.pushapp.repositories.dataSources.TrainingLocalDataSource;
+import com.example.pushapp.repositories.dataSources.TrainingRemoteDataSource;
+import com.example.pushapp.repositories.dataSources.UserLocalDataSource;
+import com.example.pushapp.repositories.dataSources.UserRemoteDataSource;
 
 public class ServiceLocator {
 
