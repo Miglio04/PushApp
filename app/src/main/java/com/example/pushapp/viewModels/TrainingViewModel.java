@@ -111,6 +111,9 @@ public class TrainingViewModel extends ViewModel {
     }
 
     // --- CRUD OPERAZIONI ---
+    public void createSampleTraining(FirebaseCallback<String> callback) {
+        trainingRepository.createSampleTraining(callback);
+    }
     public void createTraining(Training training, FirebaseCallback<String> callback) {
         isLoading.setValue(true);
         trainingRepository.createTraining(training, new FirebaseCallback<String>() {

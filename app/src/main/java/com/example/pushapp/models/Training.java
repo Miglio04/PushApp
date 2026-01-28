@@ -6,6 +6,8 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.google.firebase.firestore.Exclude;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,6 +76,7 @@ public class Training implements Serializable {
 
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
+    @Exclude
     @Ignore
     public List<Routine> getRoutinesList() { return routinesList; }
     @Ignore
@@ -84,6 +87,7 @@ public class Training implements Serializable {
     public void addRoutine(Routine day) {
         this.routinesList.add(day);
     }
+    @Exclude
     @Ignore
     public int getRoutinesListSize() {
         return routinesList.size();

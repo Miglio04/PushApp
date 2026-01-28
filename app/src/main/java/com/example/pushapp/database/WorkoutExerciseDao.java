@@ -28,15 +28,19 @@ public interface WorkoutExerciseDao {
     void delete(WorkoutExercise workoutExercise);
 
     @Query("SELECT * FROM WorkoutExercise WHERE workoutExerciseId = :id")
-    WorkoutExercise getById(String id);
+    WorkoutExercise getById(int id);
 
     @Query("SELECT * FROM WorkoutExercise WHERE routineId = :routineId ORDER BY exerciseOrder")
     List<WorkoutExercise> getByRoutineId(String routineId);
 
     @Transaction
     @Query("SELECT * FROM WorkoutExercise WHERE workoutExerciseId = :id")
-    WorkoutExerciseWithSeries getWorkoutExerciseWithSeries(String id);
+    WorkoutExerciseWithSeries getWorkoutExerciseWithSeries(int id);
 
     @Query("DELETE FROM WorkoutExercise WHERE routineId = :routineId")
     void deleteByRoutineId(String routineId);
+
+    @Transaction
+    @Query("SELECT * FROM WorkoutExercise WHERE routineId = :routineId")
+    List<WorkoutExerciseWithSeries> getExercisesWithSeriesByRoutineId(String routineId);
 }

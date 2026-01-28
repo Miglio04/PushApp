@@ -22,7 +22,6 @@ import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.repositories.FirebaseCallback;
-import com.example.pushapp.utils.TrainingListGenerator;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.adapter.TrainingsRecyclerViewAdapter;
 import com.example.pushapp.viewModels.ViewModelFactory;
@@ -33,7 +32,7 @@ import java.util.List;
 
 public class TrainingsFragment extends Fragment implements TrainingsRecyclerViewAdapter.OnTrainingInteractionListener {
 
-    private TrainingViewModel viewModel;
+    private TrainingViewModel trainingViewModel;
     private TrainingsRecyclerViewAdapter adapter;
     private NavController navController;
 
@@ -57,7 +56,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         navController = Navigation.findNavController(view);
 
         // 1. Inizializza il ViewModel
-        viewModel = new ViewModelProvider(
+        trainingViewModel = new ViewModelProvider(
                 requireActivity(),
                 new ViewModelFactory(requireContext())).get(TrainingViewModel.class);
         // 2. Setup della RecyclerView
@@ -70,7 +69,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
 
         Button btnAddSampleData = view.findViewById(R.id.btn_add_sample_data);
         btnAddSampleData.setOnClickListener(v -> {
-            addSampleDataToFirebase();
+            createSampleTraining();
             Toast.makeText(getContext(), "Adding sample data to Firebase...", Toast.LENGTH_SHORT).show();
         });
 
@@ -78,7 +77,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         observeViewModel();
 
         // 5. Carica i dati iniziali da Firebase
-        viewModel.fetchTrainings();
+        trainingViewModel.fetchTrainings();
         Log.d("TrainingsFragment", "loadTrainings() called");
     }
 
@@ -89,7 +88,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     }
 
     private void observeViewModel() {
-        viewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
+        trainingViewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
             if (trainings == null ) {
                 Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
             } else if (trainings.isTrainingsSuccess()){
@@ -118,7 +117,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
                 .setTitle("Conferma Eliminazione")
                 .setMessage("Sei sicuro di voler eliminare la scheda '" + training.getName() + "'?")
                 .setPositiveButton("Elimina", (dialog, which) -> {
-                    viewModel.deleteTraining(training.getTrainingId(), new FirebaseCallback<Void>() {
+                    trainingViewModel.deleteTraining(training.getTrainingId(), new FirebaseCallback<Void>() {
                         @Override public void onSuccess(Void result) {
                             Toast.makeText(getContext(), "Scheda eliminata", Toast.LENGTH_SHORT).show();
                         }
@@ -135,7 +134,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     public void onTrainingEditFinished(Training training, String newName, String newDescription) {
         training.setName(newName);
         training.setDescription(newDescription);
-        viewModel.updateTraining(training, new FirebaseCallback<Void>() {
+        trainingViewModel.updateTraining(training, new FirebaseCallback<Void>() {
             @Override public void onSuccess(Void result) {
                 Toast.makeText(getContext(), "Scheda aggiornata", Toast.LENGTH_SHORT).show();
             }
@@ -145,22 +144,22 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         });
     }
 
-    private void addSampleDataToFirebase() {
-        ArrayList<Training> sampleTrainings = TrainingListGenerator.generateTrainingList();
-        for (Training training : sampleTrainings) {
-            viewModel.createTraining(training, new FirebaseCallback<String>() {
-                @Override
-                public void onSuccess(String newTrainingId) {
-                    Log.d("TrainingsFragment", "Sample training created with ID: " + newTrainingId);
-                }
+    // Metodo da modificare: ora crea un training direttamente su firebase dalla repository
+    // In futuro non si dovrà più passare la callback al ViewModel
+    private void createSampleTraining() {
+        FirebaseCallback<String> callback = new FirebaseCallback<String>() {
+            @Override
+            public void onSuccess(String newTrainingId) {
+                Log.d("TrainingsFragment", "Sample training created with ID: " + newTrainingId);
+            }
 
-                @Override
-                public void onError(Exception e) {
-                    Log.e("TrainingsFragment", "Failed to create sample training", e);
-                    Toast.makeText(getContext(), "Error creating sample data", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
+            @Override
+            public void onError(Exception e) {
+                Log.e("TrainingsFragment", "Failed to create sample training", e);
+                Toast.makeText(getContext(), "Error creating sample data", Toast.LENGTH_SHORT).show();
+            }
+        };
+        trainingViewModel.createSampleTraining(callback);
     }
 
     // Metodo per mostrare il dialog di creazione, puoi personalizzarlo

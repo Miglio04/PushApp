@@ -7,50 +7,71 @@ import com.example.pushapp.models.Routine;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TrainingListGenerator {
 
-    public static ArrayList<Training> generateTrainingList() {
-        ArrayList<Training> trainings = new ArrayList<>();
-        Training ppl = new Training("Push Pull Legs", "Split classico PPL");
-        ppl.setRoutinesList(generatePPLDays());
-        trainings.add(ppl);
-        return trainings;
-    }
+    // Contatori atomici per garantire ID interi unici (essenziale per le chiavi primarie di Room)
+    private static final AtomicInteger exerciseIdCounter = new AtomicInteger(0);
+    private static final AtomicInteger serieIdCounter = new AtomicInteger(0);
 
-    private static ArrayList<Routine> generatePPLDays() {
-        ArrayList<Routine> days = new ArrayList<>();
+    /**
+     * Genera una lista di Training di esempio con dati strutturati in modo relazionale.
+     * Ogni oggetto ha le sue chiavi primarie e le chiavi esterne già impostate.
+     * @return una ArrayList di Training pronti per essere inseriti in Room.
+     */
+    public static Training generateTrainingList() {
+
+        // --- Crea il primo Training: "Push Pull Legs" ---
+        Training sampleTraining = new Training("Push Pull Legs", "Split classico PPL");
+        sampleTraining.setTrainingId(UUID.randomUUID().toString());
+
+        // --- Crea le sue Routine ---
+        ArrayList<Routine> pplRoutines = new ArrayList<>();
+
+        // Routine 1: Push Day
         Routine pushDay = new Routine("Push Day", 1);
-        pushDay.addWorkoutExercise(createExercise("Bench Press", "Petto", 1, 4, 8, 80));
-        pushDay.addWorkoutExercise(createExercise("Overhead Press", "Spalle", 2, 3, 10, 40));
-        days.add(pushDay);
-        // ... aggiungi altri giorni se vuoi ...
-        return days;
+        pushDay.setTrainingId(sampleTraining.getTrainingId());
+
+        // Crea e aggiungi gli esercizi alla routine "Push Day"
+        pushDay.addWorkoutExercise(createExercise("Bench Press", 1, 4, 8, 80, pushDay.getRoutineId()));
+        pushDay.addWorkoutExercise(createExercise("Overhead Press", 2, 3, 10, 40, pushDay.getRoutineId()));
+        pushDay.addWorkoutExercise(createExercise("Tricep Pushdown", 3, 3, 12, 25, pushDay.getRoutineId()));
+        pplRoutines.add(pushDay);
+
+        // Routine 2: Pull Day
+        Routine pullDay = new Routine("Pull Day", 2);
+        pullDay.setTrainingId(sampleTraining.getTrainingId());
+
+        // Crea e aggiungi gli esercizi alla routine "Pull Day"
+        pullDay.addWorkoutExercise(createExercise("Pull Ups", 1, 4, 8, 0, pullDay.getRoutineId()));
+        pullDay.addWorkoutExercise(createExercise("Barbell Row", 2, 3, 10, 60, pullDay.getRoutineId()));
+        pplRoutines.add(pullDay);
+
+        // **PASSAGGIO CHIAVE MANCANTE:** Imposta la lista di routine nel training
+        sampleTraining.setRoutinesList(pplRoutines);
+
+        return sampleTraining;
     }
 
-    private static WorkoutExercise createExercise(String name, String muscleGroup, int order, int numSeries, int targetReps, double targetWeight) {
-        int fakeBaseId = name.hashCode();
-        WorkoutExercise workoutExercise = new WorkoutExercise(fakeBaseId, name, order);
+    private static WorkoutExercise createExercise(String name, int order, int numSeries, int targetReps, double targetWeight, String routineId) {
+        int exerciseId = (int)(Math.random() * 100000);
+        WorkoutExercise workoutExercise = new WorkoutExercise(exerciseId, name, order);
+        workoutExercise.setRoutineId(routineId);
+
+        // Crea le sue serie
         List<Serie> series = new ArrayList<>();
         for (int i = 0; i < numSeries; i++) {
-            series.add(new Serie(i + 1, targetReps, targetWeight));
+            int serieId = (int)(Math.random() * 100000);
+            Serie serie = new Serie(i + 1, targetReps, targetWeight);
+            serie.setSerieId(serieId);
+            serie.setWorkoutExerciseId(exerciseId);
+            series.add(serie);
         }
+        // **PASSAGGIO CHIAVE MANCANTE:** Imposta la lista di serie nell'esercizio
         workoutExercise.setSeries(series);
+
         return workoutExercise;
     }
-
-    public static List<WorkoutExercise> getAvailableExercises() {
-        List<WorkoutExercise> available = new ArrayList<>();
-        // Usa il costruttore corretto: (baseId, name, order)
-        available.add(new WorkoutExercise(1, "Bench Press", 0));
-        available.add(new WorkoutExercise(2, "Squat", 0));
-        available.add(new WorkoutExercise(3, "Deadlift", 0));
-        available.add(new WorkoutExercise(4, "Overhead Press", 0));
-        available.add(new WorkoutExercise(5, "Pull-ups", 0));
-        available.add(new WorkoutExercise(6, "Dips", 0));
-        available.add(new WorkoutExercise(7, "Barbell Rows", 0));
-        available.add(new WorkoutExercise(8, "Bicep Curls", 0));
-        return available;
-    }
-
 }
