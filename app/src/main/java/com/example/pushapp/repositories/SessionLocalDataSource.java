@@ -1,5 +1,6 @@
 package com.example.pushapp.repositories;
 
+import com.example.pushapp.models.SessionUser;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class SessionLocalDataSource {
@@ -14,9 +15,9 @@ public class SessionLocalDataSource {
         this.userCallback = userCallback;
     }
 
-    public String getCurrentUserId(){
+    public SessionUser getCurrentSessionUser(){
         if(auth.getCurrentUser() != null) {
-            return auth.getCurrentUser().getUid();
+            return new SessionUser(auth.getCurrentUser().getUid(), auth.getCurrentUser().getEmail());
         }else{
             return null;
         }

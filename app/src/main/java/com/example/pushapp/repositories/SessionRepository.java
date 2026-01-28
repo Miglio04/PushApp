@@ -3,14 +3,12 @@ package com.example.pushapp.repositories;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
+import com.example.pushapp.models.SessionUser;
 
 public class SessionRepository implements SessionCallback {
     private final SessionLocalDataSource sessionLocalDataSource;
     private final SessionRemoteDataSource sessionRemoteDataSource;
-
-
-    // provvisorio: bisognerà creare una classe di modello "session"
-    private final MutableLiveData<Result> activeUserIdLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Result> sessionLiveData = new MutableLiveData<>();
 
     SessionRepository(SessionLocalDataSource sessionLocalDataSource, SessionRemoteDataSource sessionRemoteDataSource) {
         this.sessionLocalDataSource = sessionLocalDataSource;
@@ -18,15 +16,11 @@ public class SessionRepository implements SessionCallback {
         sessionRemoteDataSource.setCallback(this);
     }
 
-    public MutableLiveData<Result> getActiveUserIdLiveData() {
-        return activeUserIdLiveData;
+    public MutableLiveData<Result> getSessionLiveData() {
+        return sessionLiveData;
     }
 
-    public void signUpWithEmailAndPassword(String email, String password){
-
-    }
-
-    public void signUpWithGoogle(String idToken){
+    public void registerWithGoogle(String idToken){
 
     }
 
@@ -34,25 +28,43 @@ public class SessionRepository implements SessionCallback {
         sessionRemoteDataSource.signInWithEmailAndPassword(email, password);
     }
 
+    public void registerWithEmailAndPassword(String email, String password) {
+        sessionRemoteDataSource.registerWithEmailAndPassword(email, password);
+    }
+
     public void signInWithGoogle(String idToken){
 
     }
 
-    public String getCurrentUserId() {
-        return sessionLocalDataSource.getCurrentUserId();
+    public void getCurrentUserId() {
+        SessionUser sessionUser = sessionLocalDataSource.getCurrentSessionUser();
+        if (sessionUser != null) {
+            sessionLiveData.postValue(new Result.SessionSuccess(sessionLocalDataSource.getCurrentSessionUser()));
+        }else{
+            sessionLiveData.postValue(new Result.Error("User not found"));
+        }
     }
 
+    // to implement
     public void forgotPassword() {
 
     }
 
     @Override
-    public void onSuccessFromLogin(String uid) {
-        activeUserIdLiveData.postValue(new Result.SessionSuccess(uid));
+    public void onSuccessFromLogin(SessionUser sessionUser) {
+        sessionLiveData.postValue(new Result.SessionSuccess(sessionUser));
     }
 
     @Override
     public void onFailureFromLogin(Exception e) {
-        activeUserIdLiveData.postValue(new Result.Error(e.getMessage()));
+        sessionLiveData.postValue(new Result.Error(e.getMessage()));
+    }
+
+    public void onSuccessFromRegister(SessionUser sessionUser) {
+        sessionLiveData.setValue(new Result.SessionSuccess(sessionUser));
+    }
+
+    public void onFailureFromRegister(Exception e) {
+        sessionLiveData.setValue(new Result.Error.RegistrationError(e.getMessage()));
     }
 }

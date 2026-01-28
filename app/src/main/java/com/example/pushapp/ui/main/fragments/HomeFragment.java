@@ -13,8 +13,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.Result;
+import com.example.pushapp.models.User;
 import com.example.pushapp.ui.profile.ProfileActivity;
+import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.UserViewModel;
+import com.example.pushapp.viewModels.ViewModelFactory;
+import com.example.pushapp.viewModels.WorkoutViewModel;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
@@ -35,8 +40,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Utilizziamo l'activity come scope per condividere il ViewModel caricato in MainActivity
-        userViewModel = new ViewModelProvider(requireActivity()).get(UserViewModel.class);
     }
 
     @Override
@@ -49,6 +52,10 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        userViewModel = new ViewModelProvider(
+                requireActivity(),
+                new ViewModelFactory(requireContext())).get(UserViewModel.class);
+
         // Inizializzazione view
         nameTitle = view.findViewById(R.id.nameTitle);
         tvAvatarInitial = view.findViewById(R.id.tvAvatarInitial);
@@ -57,39 +64,7 @@ public class HomeFragment extends Fragment {
         MaterialCardView btnUserArea = view.findViewById(R.id.btnUserArea);
 
         // Osserva i dati dell'utente dal ViewModel caricato all'avvio
-        userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), user -> {
-            if (user != null) {
-                // Aggiorna Nome e Iniziale Avatar
-                if (user.getName() != null && !user.getName().isEmpty()) {
-                    nameTitle.setText(user.getName());
-                    if (tvAvatarInitial != null) {
-                        tvAvatarInitial.setText(user.getName().substring(0, 1).toUpperCase());
-                    }
-                }
-
-                // Aggiorna il Peso Attuale
-                if (tvWeightVal != null) {
-                    tvWeightVal.setText(String.format(Locale.getDefault(), "%.1f kg", user.getWeight()));
-                }
-                
-                // Aggiorna la differenza di peso
-                if (tvWeightDiff != null) {
-                    List<Double> progress = user.getWeightProgress();
-                    if (progress != null && progress.size() >= 2) {
-                        // Calcola differenza tra l'ultimo (peso attuale) e il penultimo
-                        double currentWeight = progress.get(progress.size() - 1);
-                        double previousWeight = progress.get(progress.size() - 2);
-                        double diff = currentWeight - previousWeight;
-                        
-                        String sign = diff > 0 ? "+" : "";
-                        tvWeightDiff.setText(String.format(Locale.getDefault(), "%s%.1f kg", sign, diff));
-                    } else {
-                        // Solo un peso o nessuno
-                        tvWeightDiff.setText("0.0 kg");
-                    }
-                }
-            }
-        });
+        observeUserViewModel();
 
         // Configurazione delle card statistiche (Dati statici per ora)
         setupStatCard(view, R.id.cardStreak,
@@ -113,6 +88,43 @@ public class HomeFragment extends Fragment {
         btnUserArea.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ProfileActivity.class);
             startActivity(intent);
+        });
+    }
+
+    private void observeUserViewModel(){
+        userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), result -> {
+            if (result.isUserSuccess()) {
+                User user = ((Result.UserSuccess) result).getData();
+                // Aggiorna Nome e Iniziale Avatar
+                if (user.getName() != null && !user.getName().isEmpty()) {
+                    nameTitle.setText(user.getName());
+                    if (tvAvatarInitial != null) {
+                        tvAvatarInitial.setText(user.getName().substring(0, 1).toUpperCase());
+                    }
+                }
+
+                // Aggiorna il Peso Attuale
+                if (tvWeightVal != null) {
+                    tvWeightVal.setText(String.format(Locale.getDefault(), "%.1f kg", user.getWeight()));
+                }
+
+                // Aggiorna la differenza di peso
+                if (tvWeightDiff != null) {
+                    List<Double> progress = user.getWeightProgress();
+                    if (progress != null && progress.size() >= 2) {
+                        // Calcola differenza tra l'ultimo (peso attuale) e il penultimo
+                        double currentWeight = progress.get(progress.size() - 1);
+                        double previousWeight = progress.get(progress.size() - 2);
+                        double diff = currentWeight - previousWeight;
+
+                        String sign = diff > 0 ? "+" : "";
+                        tvWeightDiff.setText(String.format(Locale.getDefault(), "%s%.1f kg", sign, diff));
+                    } else {
+                        // Solo un peso o nessuno
+                        tvWeightDiff.setText("0.0 kg");
+                    }
+                }
+            }
         });
     }
 

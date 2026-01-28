@@ -7,8 +7,10 @@ public abstract class Result {
     public boolean isTrainingsSuccess() {
         return this instanceof TrainingsSuccess;
     }
-    public boolean isUserSuccess(){return this instanceof UserSuccess; }
-    public boolean isSessionSuccess(){return this instanceof SessionSuccess; }
+    public boolean isUserSuccess(){ return this instanceof UserSuccess; }
+    public boolean isSessionSuccess(){ return this instanceof SessionSuccess; }
+    public boolean isLocalDatabaseError(){ return this instanceof Error.LocalDatabaseError; }
+    public boolean isRegistrationError(){ return this instanceof Error.RegistrationError; }
 
 
     /**
@@ -36,26 +38,35 @@ public abstract class Result {
     }
 
     public static final class SessionSuccess extends Result{
-        private final String userId;
-        public SessionSuccess(String userId) {
-            this.userId = userId;
+        private final SessionUser sessionUser;
+        public SessionSuccess(SessionUser sessionUser) {
+            this.sessionUser= sessionUser;
         }
-        public String getData() {
-            return userId;
-        }
+        public SessionUser getData() { return sessionUser; }
     }
 
     /**
      * Class that represents an error occurred during the interaction
      * with a Web Service or a local database.
      */
-    public static final class Error extends Result {
+    public static class Error extends Result {
         private final String message;
         public Error(String message) {
             this.message = message;
         }
         public String getMessage() {
             return message;
+        }
+
+        public static final class LocalDatabaseError extends Error {
+            public LocalDatabaseError(String message) {
+                super(message);
+            }
+        }
+        public static final class RegistrationError extends Error{
+            public RegistrationError(String message) {
+                super(message);
+            }
         }
     }
 }

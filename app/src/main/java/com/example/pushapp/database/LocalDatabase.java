@@ -17,7 +17,8 @@ import com.example.pushapp.utils.Converters;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Training.class, Routine.class, WorkoutExercise.class, Serie.class, User.class}, version = 1)
+@Database(entities = {Training.class, Routine.class, WorkoutExercise.class, Serie.class, User.class},
+        version = 2)
 @TypeConverters({Converters.class})
 public abstract class LocalDatabase extends RoomDatabase {
     private static volatile LocalDatabase INSTANCE;
@@ -36,7 +37,9 @@ public abstract class LocalDatabase extends RoomDatabase {
                 if (INSTANCE == null) {
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                                     LocalDatabase.class, "LOCAL DATABASE")
-                            .allowMainThreadQueries().build();
+                            .allowMainThreadQueries()
+                            .fallbackToDestructiveMigration()
+                            .build();
                 }
             }
         }

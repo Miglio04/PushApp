@@ -31,4 +31,13 @@ public class UserLocalDataSource {
     }
 
     public void insertNewCurrentUser(User user){}
+
+    public void insertUser(User user) {
+        LocalDatabase.databaseWriteExecutor.execute(() -> {
+            if(user != null) {
+                userDao.insert(user);
+                getUserById(user.getUserId());
+            }
+        });
+    }
 }
