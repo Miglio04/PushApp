@@ -63,38 +63,9 @@ public class TrainingViewModel extends ViewModel {
     public LiveData<List<String>> getAvailableMuscleGroups() { return availableMuscleGroups; }
     public LiveData<List<String>> getAvailableDifficulties() { return availableDifficulties; }
 
-
     public void fetchTrainings(){
-        newFetchTrainings();
-    }
-
-    public void oldFetchTrainings() {
-        if (isListenerAttached) {
-            return; // Evita di attaccare listener multipli
-        }
-
-        isLoading.setValue(true);
-        isListenerAttached = true;
-
-        trainingRepository.attachUserTrainingsListener(new FirebaseCallback<List<Training>>() {
-            @Override
-            public void onSuccess(List<Training> result) {
-                //trainings.setValue(result);
-                isLoading.setValue(false);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                errorMessage.setValue(e.getMessage());
-                isLoading.setValue(false);
-            }
-        });
-    }
-
-    public void newFetchTrainings(){
         trainingRepository.getTrainingList();
     }
-
 
     public void loadActiveTraining() {
         trainingRepository.getActiveTraining(new FirebaseCallback<Training>() {
@@ -111,6 +82,9 @@ public class TrainingViewModel extends ViewModel {
     }
 
     // --- CRUD OPERAZIONI ---
+    public void createSampleTraining(FirebaseCallback<String> callback) {
+        trainingRepository.createSampleTraining(callback);
+    }
     public void createTraining(Training training, FirebaseCallback<String> callback) {
         isLoading.setValue(true);
         trainingRepository.createTraining(training, new FirebaseCallback<String>() {

@@ -8,6 +8,8 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import com.google.firebase.firestore.Exclude;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +71,7 @@ public class Routine implements Serializable {
     public void setDayOrder(int dayOrder) { this.dayOrder = dayOrder; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
-
+    @Exclude
     @Ignore
     public List<WorkoutExercise> getWorkoutExercises() {
         if (workoutExercises == null) workoutExercises = new ArrayList<>();
@@ -79,6 +81,7 @@ public class Routine implements Serializable {
     public void setWorkoutExercises(List<WorkoutExercise> workoutExercises) { this.workoutExercises = workoutExercises; }
     @Ignore
     public void addWorkoutExercise(WorkoutExercise workoutExercise) { this.workoutExercises.add(workoutExercise); }
+    @Exclude
     @Ignore
     public int getWorkoutTotalExercises() {
         return workoutExercises.size();

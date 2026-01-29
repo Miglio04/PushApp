@@ -44,5 +44,9 @@ public interface TrainingDao {
 
     @Query("SELECT * FROM training")
     List<Training> getAllTrainings();
+
+    @Transaction
+    @Query("SELECT * FROM training")
+    List<TrainingWithRoutines> getAllTrainingsWithRoutines();
 }
 

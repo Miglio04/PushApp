@@ -83,7 +83,7 @@ public class WorkoutExercise implements Serializable {
     public void setNotes(String notes) { this.notes = notes; }
     public int getRestTimeIndex() { return restTimeIndex; }
     public void setRestTimeIndex(int restTimeIndex) { this.restTimeIndex = restTimeIndex; }
-
+    @Exclude
     @Ignore
     public List<Serie> getSeries() {
         if (series == null) {

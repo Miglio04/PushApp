@@ -8,13 +8,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
+import com.example.pushapp.models.Routine;
+import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
+import com.example.pushapp.models.WorkoutExercise;
+import com.example.pushapp.utils.TrainingListGenerator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,23 +51,19 @@ public class TrainingRepository implements TrainingCallback{
         return auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
     }
 
-    public LiveData<Result> getTrainingList() {
-        return newGetTrainingList();
-    }
-
-    public MutableLiveData<Result> oldGetTrainingList() {
-        trainingLocalDataSource.getTrainings();
-        return trainingList;
-    }
-
-    public MutableLiveData<Result> newGetTrainingList(){
+    public LiveData<Result> getTrainingList(){
         trainingLocalDataSource.getTrainings();
         trainingRemoteDataSource.fetchTrainings();
         return trainingList;
     }
 
-    // CREATE
-    // metodo da rimuovere (aggiorna direttamente Firestore)
+    public void createSampleTraining(FirebaseCallback<String> callback){
+        createTraining(TrainingListGenerator.generateTrainingList(), callback);
+    }
+
+    // metodo da modificare (aggiorna direttamente Firestore)
+    // viene utilizzato per generare sample trainings e lavora a cascata
+    // il create dovrà creare solo il documento training senza routine/esercizi/serie
     public void createTraining(Training training, FirebaseCallback<String> callback) {
         String userId = getCurrentUserId();
         if (userId == null) {
@@ -70,15 +71,62 @@ public class TrainingRepository implements TrainingCallback{
             return;
         }
 
+        // 1. Prepara un batch di scrittura atomica
+        WriteBatch batch = db.batch();
+
+        // 2. Prepara il documento per il Training principale
+        DocumentReference trainingRef = db.collection(COLLECTION_TRAININGS).document();
+        String newTrainingId = trainingRef.getId();
+
+        training.setTrainingId(newTrainingId);
         training.setUserId(userId);
         training.setCreatedAt(System.currentTimeMillis());
         training.setUpdatedAt(System.currentTimeMillis());
 
-        DocumentReference docRef = db.collection(COLLECTION_TRAININGS).document();
-        training.setTrainingId(docRef.getId());
+        // Aggiungi l'operazione di scrittura del Training al batch.
+        batch.set(trainingRef, training);
 
-        docRef.set(training)
-                .addOnSuccessListener(aVoid -> callback.onSuccess(training.getTrainingId()))
+        // 3. Itera sulle routine per salvarle nella loro collezione
+        if (training.getRoutinesList() != null) {
+            for (Routine routine : training.getRoutinesList()) {
+                DocumentReference routineRef = trainingRef.collection("routines").document(routine.getRoutineId());
+                routine.setTrainingId(newTrainingId);
+                batch.set(routineRef, routine);
+
+                // 4. Itera sugli esercizi per salvarli nella loro collezione
+                if (routine.getWorkoutExercises() != null) {
+                    for (WorkoutExercise exercise : routine.getWorkoutExercises()) {
+                        // Poiché workoutExerciseId è un 'int', non possiamo usarlo come ID documento (che deve essere String).
+                        // Quindi creiamo un nuovo documento con un ID casuale e salviamo il nostro 'int' ID come campo.
+                        DocumentReference exerciseRef = routineRef.collection("workoutExercises").document();
+
+                        // Collega l'esercizio alla sua routine padre
+                        exercise.setRoutineId(routine.getRoutineId());
+
+                        // Aggiungi l'operazione di scrittura dell'Esercizio al batch
+                        batch.set(exerciseRef, exercise);
+
+                        // 5. Itera sulle serie per salvarle nella loro collezione
+                        if (exercise.getSeries() != null) {
+                            for (Serie serie : exercise.getSeries()) {
+                                // Anche qui, creiamo un ID documento casuale per la serie.
+                                DocumentReference serieRef = exerciseRef.collection("series").document();
+
+                                // Collega la serie al suo esercizio padre usando l'ID 'int'
+                                serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
+
+                                // Aggiungi l'operazione di scrittura della Serie al batch
+                                batch.set(serieRef, serie);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 6. Esegui tutte le operazioni nel batch
+        batch.commit()
+                .addOnSuccessListener(aVoid -> callback.onSuccess(newTrainingId))
                 .addOnFailureListener(callback::onError);
     }
 
@@ -86,77 +134,6 @@ public class TrainingRepository implements TrainingCallback{
         trainingLocalDataSource.createTraining(training);
     }
 
-    // READ - Singolo training
-    public void getTraining(String trainingId, FirebaseCallback<Training> callback) {
-        db.collection(COLLECTION_TRAININGS)
-                .document(trainingId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        Training training = doc.toObject(Training.class);
-                        callback.onSuccess(training);
-                    } else {
-                        callback.onError(new Exception("Training not found"));
-                    }
-                })
-                .addOnFailureListener(callback::onError);
-    }
-
-    public void attachUserTrainingsListener(FirebaseCallback<List<Training>> callback) {
-        String userId = getCurrentUserId();
-        Log.d("TrainingRepository", "attachUserTrainingsListener called for userId: " + userId);
-
-        if (userId == null) {
-            callback.onError(new Exception("User not authenticated"));
-            return;
-        }
-
-        // Se c'è già un listener attivo, lo rimuoviamo prima di crearne uno nuovo
-        if (trainingsListener != null) {
-            Log.d("TrainingRepository", "Removing existing listener");
-            trainingsListener.remove();
-        }
-
-        Log.d("TrainingRepository", "Creating new snapshot listener...");
-
-        trainingsListener = db.collection(COLLECTION_TRAININGS)
-                .whereEqualTo("userId", userId)
-                .orderBy("createdAt", Query.Direction.DESCENDING)
-                .addSnapshotListener((querySnapshot, error) -> {
-                    Log.d("TrainingRepository", "Snapshot listener triggered!");
-
-                    if (error != null) {
-                        Log.e("TrainingRepository", "Listener error: " + error.getMessage());
-                        callback.onError(error);
-                        return;
-                    }
-
-                    List<Training> trainings = new ArrayList<>();
-
-                    if (querySnapshot != null) {
-                        Log.d("TrainingRepository", "Snapshot received with " + querySnapshot.size() + " documents");
-                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                            Training t = doc.toObject(Training.class);
-                            if (t != null) {
-                                t.setTrainingId(doc.getId()); // Assicurati che l'ID sia impostato
-                                Log.d("TrainingRepository", "  Doc ID: " + doc.getId());
-                                trainings.add(t);
-                            }
-                        }
-                    } else {
-                        Log.d("TrainingRepository", "querySnapshot is null");
-                    }
-
-                    callback.onSuccess(trainings);
-
-                });
-        Log.d("TrainingRepository", "Listener attached successfully");
-
-    }
-
-    /**
-     * Rimuove il listener quando non è più necessario (es. quando il ViewModel viene distrutto).
-     */
     public void detachTrainingsListener() {
         if (trainingsListener != null) {
             trainingsListener.remove();
@@ -164,7 +141,6 @@ public class TrainingRepository implements TrainingCallback{
         }
     }
 
-    // READ - Training attivo
     public void getActiveTraining(FirebaseCallback<Training> callback) {
         String userId = getCurrentUserId();
         if (userId == null) {
@@ -256,8 +232,9 @@ public class TrainingRepository implements TrainingCallback{
     // metodo in versione temporanea: non considera il versioning
     public void onSuccessFromRemote(List<Training> trainingListSuccess) {
         if(!isFirstFetchCompleted){
-            trainingLocalDataSource.overwriteTrainigs(trainingListSuccess, getCurrentUserId());
-            isFirstFetchCompleted = true;
+            trainingLocalDataSource.overwriteTrainings(trainingListSuccess, getCurrentUserId());
+            // Finché dati sample salvati direttamente in firestore lasciare commentato
+            // isFirstFetchCompleted = true;
         }
     }
     public void onFailureFromRemote(Exception exception){

@@ -30,7 +30,7 @@ public interface RoutineDao {
     @Query("SELECT * FROM Routine WHERE routineId = :id")
     Routine getById(String id);
 
-    @Query("SELECT * FROM Routine WHERE routineId = :trainingId ORDER BY dayOrder")
+    @Query("SELECT * FROM Routine WHERE trainingId = :trainingId ORDER BY dayOrder")
     List<Routine> getByTrainingId(String trainingId);
 
     @Transaction
@@ -39,4 +39,8 @@ public interface RoutineDao {
 
     @Query("DELETE FROM Routine WHERE trainingId = :trainingId")
     void deleteByTrainingId(String trainingId);
+
+    @Transaction
+    @Query("SELECT * FROM Routine WHERE trainingId = :trainingId")
+    List<RoutineWithWorkoutExercises> getRoutinesWithExercisesByTrainingId(String trainingId);
 }
