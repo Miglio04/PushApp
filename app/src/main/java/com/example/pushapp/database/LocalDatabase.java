@@ -12,14 +12,14 @@ import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.User;
-import com.example.pushapp.utils.Converters;
+import com.example.pushapp.utils.converters.TimeConverter;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Database(entities = {Training.class, Routine.class, WorkoutExercise.class, Serie.class, User.class},
         version = 2)
-@TypeConverters({Converters.class})
+@TypeConverters({TimeConverter.class})
 public abstract class LocalDatabase extends RoomDatabase {
     private static volatile LocalDatabase INSTANCE;
     public abstract TrainingDao trainingDao();

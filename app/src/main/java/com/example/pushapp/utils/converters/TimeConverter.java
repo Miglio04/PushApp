@@ -1,12 +1,10 @@
-package com.example.pushapp.utils;
+package com.example.pushapp.utils.converters;
 
 import androidx.room.TypeConverter;
 
 import com.google.firebase.Timestamp;
 
-import java.util.Date;
-
-public class Converters {
+public class TimeConverter {
     @TypeConverter
     public static Timestamp fromTimestamp(Long value) {
         if (value == null) return null;
