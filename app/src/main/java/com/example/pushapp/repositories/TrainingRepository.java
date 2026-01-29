@@ -57,34 +57,14 @@ public class TrainingRepository implements TrainingCallback{
         return trainingList;
     }
 
-    // CREATE
     public void createSampleTraining(FirebaseCallback<String> callback){
         createTraining(TrainingListGenerator.generateTrainingList(), callback);
     }
-    // metodo da rimuovere (aggiorna direttamente Firestore)
+
+    // metodo da modificare (aggiorna direttamente Firestore)
+    // viene utilizzato per generare sample trainings e lavora a cascata
+    // il create dovrà creare solo il documento training senza routine/esercizi/serie
     public void createTraining(Training training, FirebaseCallback<String> callback) {
-        newCreateTraining(training, callback);
-    }
-    public void oldCreateTraining(Training training, FirebaseCallback<String> callback) {
-        String userId = getCurrentUserId();
-        if (userId == null) {
-            callback.onError(new Exception("User not authenticated"));
-            return;
-        }
-
-        training.setUserId(userId);
-        training.setCreatedAt(System.currentTimeMillis());
-        training.setUpdatedAt(System.currentTimeMillis());
-
-        DocumentReference docRef = db.collection(COLLECTION_TRAININGS).document();
-        training.setTrainingId(docRef.getId());
-
-        docRef.set(training)
-                .addOnSuccessListener(aVoid -> callback.onSuccess(training.getTrainingId()))
-                .addOnFailureListener(callback::onError);
-    }
-
-    public void newCreateTraining(Training training, FirebaseCallback<String> callback) {
         String userId = getCurrentUserId();
         if (userId == null) {
             callback.onError(new Exception("User not authenticated"));
@@ -154,77 +134,6 @@ public class TrainingRepository implements TrainingCallback{
         trainingLocalDataSource.createTraining(training);
     }
 
-    // READ - Singolo training
-    public void getTraining(String trainingId, FirebaseCallback<Training> callback) {
-        db.collection(COLLECTION_TRAININGS)
-                .document(trainingId)
-                .get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        Training training = doc.toObject(Training.class);
-                        callback.onSuccess(training);
-                    } else {
-                        callback.onError(new Exception("Training not found"));
-                    }
-                })
-                .addOnFailureListener(callback::onError);
-    }
-
-    public void attachUserTrainingsListener(FirebaseCallback<List<Training>> callback) {
-        String userId = getCurrentUserId();
-        Log.d("TrainingRepository", "attachUserTrainingsListener called for userId: " + userId);
-
-        if (userId == null) {
-            callback.onError(new Exception("User not authenticated"));
-            return;
-        }
-
-        // Se c'è già un listener attivo, lo rimuoviamo prima di crearne uno nuovo
-        if (trainingsListener != null) {
-            Log.d("TrainingRepository", "Removing existing listener");
-            trainingsListener.remove();
-        }
-
-        Log.d("TrainingRepository", "Creating new snapshot listener...");
-
-        trainingsListener = db.collection(COLLECTION_TRAININGS)
-                .whereEqualTo("userId", userId)
-                .orderBy("createdAt", Query.Direction.DESCENDING)
-                .addSnapshotListener((querySnapshot, error) -> {
-                    Log.d("TrainingRepository", "Snapshot listener triggered!");
-
-                    if (error != null) {
-                        Log.e("TrainingRepository", "Listener error: " + error.getMessage());
-                        callback.onError(error);
-                        return;
-                    }
-
-                    List<Training> trainings = new ArrayList<>();
-
-                    if (querySnapshot != null) {
-                        Log.d("TrainingRepository", "Snapshot received with " + querySnapshot.size() + " documents");
-                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                            Training t = doc.toObject(Training.class);
-                            if (t != null) {
-                                t.setTrainingId(doc.getId()); // Assicurati che l'ID sia impostato
-                                Log.d("TrainingRepository", "  Doc ID: " + doc.getId());
-                                trainings.add(t);
-                            }
-                        }
-                    } else {
-                        Log.d("TrainingRepository", "querySnapshot is null");
-                    }
-
-                    callback.onSuccess(trainings);
-
-                });
-        Log.d("TrainingRepository", "Listener attached successfully");
-
-    }
-
-    /**
-     * Rimuove il listener quando non è più necessario (es. quando il ViewModel viene distrutto).
-     */
     public void detachTrainingsListener() {
         if (trainingsListener != null) {
             trainingsListener.remove();
@@ -232,7 +141,6 @@ public class TrainingRepository implements TrainingCallback{
         }
     }
 
-    // READ - Training attivo
     public void getActiveTraining(FirebaseCallback<Training> callback) {
         String userId = getCurrentUserId();
         if (userId == null) {
