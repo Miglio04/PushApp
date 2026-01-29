@@ -1,12 +1,15 @@
 package com.example.pushapp.repositories;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
+import com.example.pushapp.models.SessionUser;
 import com.example.pushapp.models.User;
 
 public class UserRepository implements UserCallback {
-    private final SessionRepository sessionRepository;
+    private final static String TAG = "UserRepository";
     private final UserLocalDataSource localDataSource;
     private final UserRemoteDataSource remoteDataSource;
     private final MutableLiveData<Result> currentUser;
@@ -14,7 +17,6 @@ public class UserRepository implements UserCallback {
     UserRepository(UserLocalDataSource localDataSource, UserRemoteDataSource remoteDataSource, SessionRepository sessionRepository) {
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
-        this.sessionRepository = sessionRepository;
         this.localDataSource.setUserCallback(this);
         this.remoteDataSource.setUserCallback(this);
         this.currentUser = new MutableLiveData<>();
@@ -25,28 +27,31 @@ public class UserRepository implements UserCallback {
         return currentUser;
     }
 
-    // calls the update of the liveData
-    // temporary version of method: not considering versioning and user's local storage
-    public void fetchCurrentUser() {
-        String userId = sessionRepository.getCurrentUserId();
-        if(userId == null){
-            remoteDataSource.fetchCurrentUser();
-        }
+    // provvisorio: prende sempre i dati da Firebase
+    public void fetchUserById(SessionUser user){
+        remoteDataSource.fetchUserById(user.getUserId());
     }
 
-    // to implement
+    public void insertUser(User user){
+        localDataSource.insertUser(user);
+        Log.d(TAG, "Inserting user in local database");
+    }
+
     public void onSuccessFromLocal(User user){
+        currentUser.postValue(new Result.UserSuccess(user));
+        Log.d(TAG, "Local database operation successful");
+        // method not implemented yet
+        remoteDataSource.insertUser(user);
     }
-    //to implement
     public void onFailureFromLocal(Exception exception){
-
+        currentUser.postValue(new Result.Error.LocalDatabaseError(exception.getMessage()));
     }
     //temporary version of method: not considering versioning and user's local storage
     public void onSuccessFromRemote(User user){
-        this.currentUser.postValue(new Result.UserSuccess(user));
+        currentUser.postValue(new Result.UserSuccess(user));
     }
-    // to implement
+    //provvisorio: quando verrà implementato il workmanager dovrà ritentare la richiesta
     public void onFailureFromRemote(Exception exception){
-
+        currentUser.postValue(new Result.Error(exception.getMessage()));
     }
 }

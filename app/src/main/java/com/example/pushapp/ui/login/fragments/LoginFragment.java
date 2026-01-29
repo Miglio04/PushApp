@@ -40,14 +40,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginFragment extends Fragment {
-
-    // --- Componenti dell'interfaccia ---
     private EditText etEmail, etPassword;
     private TextView tvEmailError, tvPasswordError;
     private LinearLayout loadingOverlay;
     private UserViewModel userViewModel;
 
-    // --- Strumenti di Firebase e Google ---
     private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -128,7 +125,7 @@ public class LoginFragment extends Fragment {
 
     // provvisorio: non distingue se sono sbagliate le credenziali oppure se l'utente non esiste
     private void observeUserViewModel(){
-        userViewModel.getActiveUserIdLiveData().observe(getViewLifecycleOwner(), userId -> {
+        userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), userId -> {
             hideLoading();
             if(userId.isSessionSuccess()){
                 showLoginSuccessDialog();

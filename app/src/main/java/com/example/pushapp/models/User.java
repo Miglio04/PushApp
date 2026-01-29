@@ -51,6 +51,12 @@ public class User {
         // Required for Firestore
     }
 
+    public User(String userId, String email) {
+        this.userId = userId;
+        this.email = email;
+        this.createdAt = Timestamp.now();
+    }
+
     // Getters and Setters
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }

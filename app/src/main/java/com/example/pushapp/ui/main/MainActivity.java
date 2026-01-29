@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Inizializza il ViewModel
+        //Inizializza i ViewModel
         workoutViewModel = new ViewModelProvider(
                 this,
                 new ViewModelFactory(getApplicationContext())).get(WorkoutViewModel.class);
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
                 new ViewModelFactory(getApplicationContext())).get(UserViewModel.class);
 
         // Carica i dati dell'utente all'avvio
-        userViewModel.loadUserData();
+        userViewModel.fetchUser();
 
         // Gestisci gli insets per il padding (Fix deprecated)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

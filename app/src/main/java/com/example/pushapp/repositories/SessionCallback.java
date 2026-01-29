@@ -1,6 +1,11 @@
 package com.example.pushapp.repositories;
 
+import com.example.pushapp.models.SessionUser;
+import com.example.pushapp.models.User;
+
 public interface SessionCallback {
-    void onSuccessFromLogin(String uid);
+    void onSuccessFromLogin(SessionUser sessionUser);
     void onFailureFromLogin(Exception e);
+    void onSuccessFromRegister(SessionUser sessionUser);
+    void onFailureFromRegister(Exception e);
 }

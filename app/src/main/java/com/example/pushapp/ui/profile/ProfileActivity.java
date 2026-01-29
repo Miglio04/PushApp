@@ -15,7 +15,10 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.Result;
+import com.example.pushapp.models.User;
 import com.example.pushapp.viewModels.UserViewModel;
+import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.material.card.MaterialCardView;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -81,10 +84,13 @@ public class ProfileActivity extends AppCompatActivity {
         tvDetailWeight = findViewById(R.id.tvDetailWeight);
     }
     private void setupViewModel() {
-        userViewModel = new ViewModelProvider(this).get(UserViewModel.class);
-        userViewModel.loadUserData();
+        userViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(getApplicationContext())).get(UserViewModel.class);
+        userViewModel.fetchUser();
 
-        userViewModel.getUserLiveData().observe(this, user -> {
+        userViewModel.getUserLiveData().observe(this, result-> {
+            User user = ((Result.UserSuccess) result).getData();
             if (user != null) {
                 String name = user.getName() != null ? user.getName() : "";
                 String surname = user.getSurname() != null ? user.getSurname() : "";

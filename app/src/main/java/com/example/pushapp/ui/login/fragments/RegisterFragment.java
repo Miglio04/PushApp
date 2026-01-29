@@ -23,11 +23,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 // import androidx.navigation.Navigation; // Non serve più qui perché lo switch è gestito dall'Activity
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.Result;
 import com.example.pushapp.ui.login.QuestionsActivity;
 
+import com.example.pushapp.viewModels.UserViewModel;
+import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -65,6 +69,8 @@ public class RegisterFragment extends Fragment {
     private FirebaseFirestore db;
     private GoogleSignInClient mGoogleSignInClient;
 
+    private UserViewModel userViewModel;
+
     // Launcher per il risultato del Google Sign-In
     private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -94,6 +100,10 @@ public class RegisterFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        userViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(requireContext())).get(UserViewModel.class);
+
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -116,16 +126,13 @@ public class RegisterFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         initializeViews(view);
+        observeSessionLiveData();
+        observeUserLiveData();
 
-        // --- IL BLOCCO CHE CAUSAVA L'ERRORE È STATO RIMOSSO ---
-        // Non cerchiamo più R.id.tabLogin qui.
-
-        // Register Button Listener
-        if (btnRegister != null) {
+         if (btnRegister != null) {
             btnRegister.setOnClickListener(v -> handleRegistration());
         }
 
-        // Google Button Listener
         if (btnGoogle != null) {
             btnGoogle.setOnClickListener(v -> signInWithGoogle());
         }
@@ -148,12 +155,37 @@ public class RegisterFragment extends Fragment {
         tvLoadingText = view.findViewById(R.id.tvLoadingText);
     }
 
-    // ==========================================
-    // EMAIL REGISTRATION LOGIC
-    // ==========================================
+    public void observeSessionLiveData(){
+        userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
+           if(result.isRegistrationError()){
+               showLoading(false, null);
+               Result.Error.RegistrationError error = (Result.Error.RegistrationError) result;
+               Toast.makeText(requireContext(), "Registration error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+           }else{
+               Log.d(TAG, "Registration successful");
+           }
+        });
+    }
+
+    public void observeUserLiveData(){
+        userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), result -> {
+            showLoading(false, null);
+            if(result.isUserSuccess()){
+                Log.d(TAG, "Local database success");
+                showSuccessDialog(false);
+            }else if(result.isLocalDatabaseError()){
+                Log.d(TAG, "Local database error");
+                Result.Error.LocalDatabaseError error = (Result.Error.LocalDatabaseError) result;
+                // fatal exception
+                Toast.makeText(requireContext(), "Local database error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private void handleRegistration() {
         resetErrors();
 
+        // email validation should be moved into a separate method
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
@@ -176,28 +208,10 @@ public class RegisterFragment extends Fragment {
 
         showLoading(true, "Creating account...");
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(requireActivity(), task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            createUserProfile(user.getUid(), user.getEmail(), false);
-                        }
-                    } else {
-                        showLoading(false, null);
-                        if (task.getException() instanceof FirebaseAuthUserCollisionException) {
-                            showError(etEmail, tvEmailError, "This email is already registered.");
-                        } else {
-                            String errorMsg = task.getException() != null ? task.getException().getMessage() : "Registration failed.";
-                            Toast.makeText(requireContext(), errorMsg, Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+        userViewModel.registerWithEmailAndPassword(email, password);
     }
 
-    // ==========================================
-    // GOOGLE REGISTRATION LOGIC
-    // ==========================================
+    // to be moved into sessionRepository
     private void signInWithGoogle() {
         showLoading(true, "Connecting to Google...");
 
@@ -207,6 +221,7 @@ public class RegisterFragment extends Fragment {
         });
     }
 
+    // to be moved into sessionRepository
     private void firebaseAuthWithGoogle(String idToken) {
         if(tvLoadingText != null) tvLoadingText.setText("Authenticating...");
 
@@ -226,6 +241,8 @@ public class RegisterFragment extends Fragment {
                 });
     }
 
+    // to be moved into sessionRepository
+    // method only used by Google Sign up
     private void createUserProfile(String uid, String email, boolean isGoogle) {
         if (tvLoadingText != null) tvLoadingText.setText("Saving profile...");
 
@@ -250,10 +267,8 @@ public class RegisterFragment extends Fragment {
                 });
     }
 
-    // ==========================================
-    // UTILITY: POPUP & LOADING
-    // ==========================================
     private void showSuccessDialog(boolean isGoogle) {
+        Log.d(TAG, "Showing success dialog");
         if (getContext() == null) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
