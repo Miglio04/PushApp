@@ -1,10 +1,7 @@
 package com.example.pushapp.repositories;
-import android.widget.Toast;
 
 import com.example.pushapp.models.SessionUser;
-import com.example.pushapp.models.User;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseUser;
 
 public class SessionRemoteDataSource {

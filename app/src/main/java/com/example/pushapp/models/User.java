@@ -32,6 +32,9 @@ public class User {
     private int height;
     @ColumnInfo(name = "goalWeight")
     private double goalWeight;
+
+    @ColumnInfo(name = "currentTrainingPlan")
+    private String currentTrainingPlan;
     @ColumnInfo(name = "createdAt")
     private Timestamp createdAt;
 
@@ -46,10 +49,6 @@ public class User {
     private List<String> trainingPlans;
     @Ignore
     private List<Double> weightProgress;
-
-    public User() {
-        // Required for Firestore
-    }
 
     public User(String userId, String email) {
         this.userId = userId;
@@ -105,4 +104,12 @@ public class User {
     }
     @Ignore
     public void setWeightProgress(List<Double> weightProgress) { this.weightProgress = weightProgress; }
+
+    public String getCurrentTrainingPlan() {
+        return currentTrainingPlan;
+    }
+
+    public void setCurrentTrainingPlan(String currentTrainingPlan) {
+        this.currentTrainingPlan = currentTrainingPlan;
+    }
 }

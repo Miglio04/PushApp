@@ -40,7 +40,6 @@ public class UserRepository implements UserCallback {
     public void onSuccessFromLocal(User user){
         currentUser.postValue(new Result.UserSuccess(user));
         Log.d(TAG, "Local database operation successful");
-        // method not implemented yet
         remoteDataSource.insertUser(user);
     }
     public void onFailureFromLocal(Exception exception){

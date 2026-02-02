@@ -232,7 +232,7 @@ public class RegisterFragment extends Fragment {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
-                            createUserProfile(user.getUid(), user.getEmail(), true);
+                            //createUserProfile(user.getUid(), user.getEmail(), true);
                         }
                     } else {
                         showLoading(false, null);
@@ -243,7 +243,7 @@ public class RegisterFragment extends Fragment {
 
     // to be moved into sessionRepository
     // method only used by Google Sign up
-    private void createUserProfile(String uid, String email, boolean isGoogle) {
+    /* private void createUserProfile(String uid, String email, boolean isGoogle) {
         if (tvLoadingText != null) tvLoadingText.setText("Saving profile...");
 
         Map<String, Object> user = new HashMap<>();
@@ -265,7 +265,7 @@ public class RegisterFragment extends Fragment {
                     showLoading(false, null);
                     Toast.makeText(requireContext(), "Error saving profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 });
-    }
+    }*/
 
     private void showSuccessDialog(boolean isGoogle) {
         Log.d(TAG, "Showing success dialog");

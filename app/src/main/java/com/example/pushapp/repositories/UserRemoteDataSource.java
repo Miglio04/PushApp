@@ -3,9 +3,13 @@ package com.example.pushapp.repositories;
 import android.util.Log;
 
 import com.example.pushapp.models.User;
+import com.example.pushapp.models.firebaseModels.FirebaseUser;
+import com.example.pushapp.utils.converters.UserConverter;
 import com.example.pushapp.utils.Constants;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 
 public class UserRemoteDataSource {
     private final FirebaseFirestore db;
@@ -30,8 +34,9 @@ public class UserRemoteDataSource {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        User user = documentSnapshot.toObject(User.class);
-                        if (user != null) {
+                        FirebaseUser firebaseUser = documentSnapshot.toObject(FirebaseUser.class);
+                        if (firebaseUser != null) {
+                            User user = UserConverter.firebaseUserToUser(firebaseUser);
                             userCallback.onSuccessFromRemote(user);
                         }
                     }
@@ -44,9 +49,33 @@ public class UserRemoteDataSource {
                 });
     }
 
-    //to implement
-    public void insertUser(User user){
-        // insert user in Firestore.
-        // callback
+    public void insertUser(User user) {
+
+        if (user == null || user.getUserId() == null) {
+            Log.e("UserRemoteDataSource", "insertUser: User o UserId nullo, operazione annullata");
+            userCallback.onFailureFromRemote(new Exception("null user or userId"));
+        }
+        else{
+            Log.d("UserRemoteDataSource", "insertUser: Inizio conversione e inserimento per UID: " + user.getUserId());
+
+            FirebaseUser firebaseUser = UserConverter.userToFirebaseUser(user);
+
+            db.collection(Constants.COLLECTION_USERS)
+                    .document(user.getUserId())
+                    .set(firebaseUser)
+                    .addOnSuccessListener(aVoid -> {
+                        Log.i("UserRemoteDataSource", "insertUser: Successo! Utente salvato correttamente su Firestore.");
+                        if (userCallback != null) {
+                            // Se vuoi notificare il successo al repository/viewmodel
+                            // userCallback.onSuccessFromRemote(user);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("UserRemoteDataSource", "insertUser: Errore durante l'inserimento dell'utente: " + e.getMessage(), e);
+                        if (userCallback != null) {
+                            userCallback.onFailureFromRemote(e);
+                        }
+                    });
+        }
     }
 }
