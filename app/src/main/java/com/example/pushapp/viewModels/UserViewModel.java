@@ -85,4 +85,12 @@ public class UserViewModel extends ViewModel {
 
         sessionLiveData.observeForever(sessionObserver);
     }
+
+    public void sendPasswordResetEmail(String email) {
+        sessionRepository.sendPasswordResetEmail(email);
+    }
+
+    public void logout() {
+        sessionRepository.logout();
+    }
 }

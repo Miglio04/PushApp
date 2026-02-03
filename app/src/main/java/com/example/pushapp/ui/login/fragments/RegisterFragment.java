@@ -161,7 +161,7 @@ public class RegisterFragment extends Fragment {
                showLoading(false, null);
                Result.Error.RegistrationError error = (Result.Error.RegistrationError) result;
                Toast.makeText(requireContext(), "Registration error: " + error.getMessage(), Toast.LENGTH_LONG).show();
-           }else{
+           }else if(result.isSessionSuccess()){
                Log.d(TAG, "Registration successful");
            }
         });

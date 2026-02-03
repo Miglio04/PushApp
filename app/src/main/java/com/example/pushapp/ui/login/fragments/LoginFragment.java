@@ -129,7 +129,7 @@ public class LoginFragment extends Fragment {
             hideLoading();
             if(userId.isSessionSuccess()){
                 showLoginSuccessDialog();
-            }else{
+            }else if(userId.isRegistrationError()){
                 Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

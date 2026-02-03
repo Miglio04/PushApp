@@ -1,7 +1,10 @@
 package com.example.pushapp.repositories;
 
+import android.view.View;
+
 import com.example.pushapp.models.SessionUser;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 
 public class SessionRemoteDataSource {
@@ -43,5 +46,22 @@ public class SessionRemoteDataSource {
                         callback.onFailureFromRegister(task.getException());
                     }
                 });
+    }
+
+    public void sendPasswordResetEmail(String email) {
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        callback.onSuccessFromPasswordReset(email);
+                    } else if (task.getException() instanceof FirebaseAuthInvalidUserException){
+                        callback.onUserNotFoundFromPasswordReset(new Exception("User not found"));
+                    } else {
+                        callback.onFailureFromPasswordReset(task.getException());
+                    }
+                });
+    }
+
+    public void logout() {
+
     }
 }
