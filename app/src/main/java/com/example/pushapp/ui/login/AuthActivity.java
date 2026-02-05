@@ -1,6 +1,7 @@
 package com.example.pushapp.ui.login;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView; // IMPORTANTE
@@ -16,6 +17,7 @@ import com.google.android.material.tabs.TabLayout;
 
 public class AuthActivity extends AppCompatActivity {
 
+    private final static String TAG = "AuthActivity";
     private NavController navController;
     private LinearLayout headerContainer;
     private TabLayout tabLayout;
@@ -24,6 +26,7 @@ public class AuthActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, "onCreate() called");
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
@@ -69,6 +72,7 @@ public class AuthActivity extends AppCompatActivity {
                     }
                 }
             });
+            Log.d(TAG, "onCreate() finita");
         }
 
         // Listener per i click sui Tab (Switch)

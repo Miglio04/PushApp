@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TrainingRepository implements TrainingCallback{
+    private final String TAG = "TrainingRepository";
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
     private ListenerRegistration trainingsListener;
@@ -240,4 +241,13 @@ public class TrainingRepository implements TrainingCallback{
     public void onFailureFromRemote(Exception exception){
         // to implement: ritentare aggiornamento con workManager
     }
+
+    public void resetLocalDatabase(){
+        try{
+            trainingLocalDataSource.resetDatabase();
+        }catch (Exception e){
+            Log.e(TAG, "resetLocalDatabase: " + e.getMessage());
+        }
+    }
+
 }

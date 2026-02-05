@@ -19,25 +19,34 @@ public class UserLocalDataSource {
     public void getUserById(String id){
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             User user = userDao.getByUserId(id);
-            if (user != null) {
-                userCallback.onSuccessFromLocal(user);
-            }else{
-                userCallback.onFailureFromLocal(new Exception("User is null"));
-            }
+            userCallback.onSuccessFromLocalGet(user);
         });
     }
 
     public void updateCurrentUser(User user) {
+        LocalDatabase.databaseWriteExecutor.execute(() -> {
+            if(user != null) {
+                userDao.update(user);
+                userCallback.onSuccessFromLocalUpdate(user);
+            }
+        });
     }
 
-    public void insertNewCurrentUser(User user){}
+    public void insertNewCurrentUser(User user){
+
+    }
 
     public void insertUser(User user) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             if(user != null) {
                 userDao.insert(user);
-                getUserById(user.getUserId());
+                userCallback.onSuccessFromLocalInsert(user);
             }
         });
     }
+
+    public void resetDatabase() {
+        LocalDatabase.databaseWriteExecutor.execute(userDao::deleteAll);
+    }
+
 }

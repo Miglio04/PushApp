@@ -14,6 +14,7 @@ public abstract class Result {
     public boolean isUserNotFound(){ return this instanceof Error.UserNotFound; }
     public boolean isForgotPasswordError(){ return this instanceof Error.ForgotPasswordError; }
     public boolean isForgotPasswordSuccess() { return this instanceof PasswordResetSuccess; }
+    public boolean isLoginError(){ return this instanceof Error.LoginError; }
 
 
     /**
@@ -90,6 +91,12 @@ public abstract class Result {
 
         public static final class ForgotPasswordError extends Error {
             public ForgotPasswordError(String message) {
+                super(message);
+            }
+        }
+
+        public static final class LoginError extends Error {
+            public LoginError(String message) {
                 super(message);
             }
         }

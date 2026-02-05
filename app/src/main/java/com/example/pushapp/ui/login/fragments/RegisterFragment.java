@@ -104,6 +104,8 @@ public class RegisterFragment extends Fragment {
                 this,
                 new ViewModelFactory(requireContext())).get(UserViewModel.class);
 
+        userViewModel.clearLiveData();
+
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -137,7 +139,6 @@ public class RegisterFragment extends Fragment {
             btnGoogle.setOnClickListener(v -> signInWithGoogle());
         }
     }
-
     private void initializeViews(View view) {
         etEmail = view.findViewById(R.id.etEmailRegister);
         etPassword = view.findViewById(R.id.etPasswordRegister);
@@ -157,11 +158,13 @@ public class RegisterFragment extends Fragment {
 
     public void observeSessionLiveData(){
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
-           if(result.isRegistrationError()){
+           if(result == null) return;
+           if (result.isRegistrationError()) {
                showLoading(false, null);
                Result.Error.RegistrationError error = (Result.Error.RegistrationError) result;
                Toast.makeText(requireContext(), "Registration error: " + error.getMessage(), Toast.LENGTH_LONG).show();
-           }else if(result.isSessionSuccess()){
+               userViewModel.clearSessionLiveData();
+           } else if (result.isSessionSuccess()) {
                Log.d(TAG, "Registration successful");
            }
         });
@@ -169,15 +172,17 @@ public class RegisterFragment extends Fragment {
 
     public void observeUserLiveData(){
         userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), result -> {
+            if(result == null) return;
             showLoading(false, null);
-            if(result.isUserSuccess()){
+            if (result.isUserSuccess()) {
                 Log.d(TAG, "Local database success");
                 showSuccessDialog(false);
-            }else if(result.isLocalDatabaseError()){
+            } else if (result.isLocalDatabaseError()) {
                 Log.d(TAG, "Local database error");
                 Result.Error.LocalDatabaseError error = (Result.Error.LocalDatabaseError) result;
                 // fatal exception
                 Toast.makeText(requireContext(), "Local database error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                userViewModel.clearUserLiveData();
             }
         });
     }

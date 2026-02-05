@@ -52,7 +52,7 @@ public class UserViewModel extends ViewModel {
         sessionRepository.getCurrentUserId();
         Result result = sessionLiveData.getValue();
         if(result instanceof Result.SessionSuccess){
-            userRepository.fetchUserById(((Result.SessionSuccess) result).getData());
+            userRepository.fetchUserById(((Result.SessionSuccess) result).getData().getUserId());
         }
 
         isLoading.setValue(false);
@@ -64,13 +64,19 @@ public class UserViewModel extends ViewModel {
 
     public void registerWithEmailAndPassword(String email, String password) {
         sessionRepository.registerWithEmailAndPassword(email, password);
-        observeSessionUserLiveData();
+        registrationObserveSessionLiveData();
     }
 
-    private void observeSessionUserLiveData() {
+    public void updateCurrentUser(User user){
+        userRepository.updateUser(user);
+    }
+
+    private void registrationObserveSessionLiveData() {
         androidx.lifecycle.Observer<Result> sessionObserver = new androidx.lifecycle.Observer<Result>() {
             @Override
             public void onChanged(Result result) {
+                if(result == null) return;
+                Log.d(TAG, "Session LiveData changed: " + result.getClass().getSimpleName());
                 if (result instanceof Result.SessionSuccess) {
                     String userId = ((Result.SessionSuccess) result).getData().getUserId();
                     String email = ((Result.SessionSuccess) result).getData().getEmail();
@@ -82,15 +88,29 @@ public class UserViewModel extends ViewModel {
                 sessionLiveData.removeObserver(this);
             }
         };
-
         sessionLiveData.observeForever(sessionObserver);
     }
+    public void clearSessionLiveData() {
+        sessionRepository.clearLiveData();
+    }
 
+    public void clearUserLiveData() {
+        userRepository.clearLiveData();
+    }
+
+    public void clearLiveData() {
+        sessionRepository.clearLiveData();
+        userRepository.clearLiveData();
+    }
     public void sendPasswordResetEmail(String email) {
         sessionRepository.sendPasswordResetEmail(email);
     }
 
     public void logout() {
         sessionRepository.logout();
+    }
+
+    public void resetLocalDatabase(){
+        userRepository.resetLocalDatabase();
     }
 }

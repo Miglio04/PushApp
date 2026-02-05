@@ -46,6 +46,7 @@ public class ForgotPasswordFragment extends Fragment {
         userViewModel = new ViewModelProvider(
                 this,
                 new ViewModelFactory(requireContext())).get(UserViewModel.class);
+        userViewModel.clearLiveData();
     }
 
     @Override
@@ -78,15 +79,18 @@ public class ForgotPasswordFragment extends Fragment {
 
     private void observeSessionLiveData() {
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
+            if(result == null) return;
             if (result.isForgotPasswordError()) {
                 Result.Error.ForgotPasswordError error = (Result.Error.ForgotPasswordError) result;
                 tvError.setText(error.getMessage());
                 tvError.setVisibility(View.VISIBLE);
                 loadingOverlay.setVisibility(View.GONE);
+                userViewModel.clearSessionLiveData();
             }else if(result.isForgotPasswordSuccess()){
                 showSuccessDialog(((Result.PasswordResetSuccess) result).getEmail());
             }else if(result.isUserNotFound()){
                 showUserNotFoundDialog();
+                userViewModel.clearSessionLiveData();
             }
         });
     }

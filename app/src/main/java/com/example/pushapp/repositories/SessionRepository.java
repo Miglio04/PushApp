@@ -45,11 +45,6 @@ public class SessionRepository implements SessionCallback {
         }
     }
 
-    // to implement
-    public void forgotPassword() {
-
-    }
-
     public void sendPasswordResetEmail(String email) {
         sessionRemoteDataSource.sendPasswordResetEmail(email);
     }
@@ -65,7 +60,7 @@ public class SessionRepository implements SessionCallback {
 
     @Override
     public void onFailureFromLogin(Exception e) {
-        sessionLiveData.postValue(new Result.Error(e.getMessage()));
+        sessionLiveData.postValue(new Result.Error.LoginError(e.getMessage()));
     }
 
     public void onSuccessFromRegister(SessionUser sessionUser) {
@@ -87,4 +82,9 @@ public class SessionRepository implements SessionCallback {
     public void onUserNotFoundFromPasswordReset(Exception e) {
         sessionLiveData.setValue(new Result.Error.UserNotFound(e.getMessage()));
     }
+
+    public void clearLiveData() {
+        sessionLiveData.setValue(null);
+    }
+
 }

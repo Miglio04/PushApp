@@ -19,9 +19,14 @@ import android.widget.ViewFlipper;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.Result;
+import com.example.pushapp.models.User;
 import com.example.pushapp.ui.main.MainActivity;
+import com.example.pushapp.viewModels.UserViewModel;
+import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
@@ -30,6 +35,7 @@ import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class QuestionsActivity extends AppCompatActivity {
@@ -50,17 +56,18 @@ public class QuestionsActivity extends AppCompatActivity {
     private int currentStep = 0;
     private final int TOTAL_STEPS = 5;
 
-    // Firebase
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    private UserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_questions);
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        userViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(getApplicationContext())).get(UserViewModel.class);
+        userViewModel.clearUserLiveData();
+        userViewModel.fetchUser();
 
         initializeViews();
         updateProgress();
@@ -245,47 +252,39 @@ public class QuestionsActivity extends AppCompatActivity {
     // --- SALVATAGGIO E POPUP FINALE ---
 
     private void saveDataAndShowPopup() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user == null) {
-            Toast.makeText(this, "User not authenticated", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         btnNext.setEnabled(false); // Disabilita per evitare click multipli
 
-        String uid = user.getUid();
-        String name = etName.getText().toString().trim();
-        String surname = etSurname.getText().toString().trim();
-        int age = Integer.parseInt(etAge.getText().toString().trim());
-        double weight = Double.parseDouble(etWeight.getText().toString().trim());
-        int height = Integer.parseInt(etHeight.getText().toString().trim());
-        double goalWeight = Double.parseDouble(etGoalWeight.getText().toString().trim());
+        Result result = userViewModel.getUserLiveData().getValue();
 
-        int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
-        RadioButton rbSelected = findViewById(selectedGenderId);
-        String gender = rbSelected != null ? rbSelected.getText().toString() : "";
+        if(result == null) return;
+        if(result.isUserSuccess()){
+            User user = ((Result.UserSuccess) result).getData();
+            String name = etName.getText().toString().trim();
+            String surname = etSurname.getText().toString().trim();
+            int age = Integer.parseInt(etAge.getText().toString().trim());
+            double weight = Double.parseDouble(etWeight.getText().toString().trim());
+            int height = Integer.parseInt(etHeight.getText().toString().trim());
+            double goalWeight = Double.parseDouble(etGoalWeight.getText().toString().trim());
 
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("name", name);
-        userData.put("surname", surname);
-        userData.put("age", age);
-        userData.put("gender", gender);
-        userData.put("weight", weight);
-        userData.put("height", height);
-        userData.put("goalWeight", goalWeight);
-        userData.put("weightProgress", FieldValue.arrayUnion(weight));
+            int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
+            RadioButton rbSelected = findViewById(selectedGenderId);
+            String gender = rbSelected != null ? rbSelected.getText().toString() : "";
+            List<Double> weightProgress = new ArrayList<>();
+            weightProgress.add(weight);
 
-        db.collection("users").document(uid)
-                .set(userData, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "User data updated successfully");
-                    showProfileCompletedDialog();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error updating user data", e);
-                    btnNext.setEnabled(true);
-                    Toast.makeText(QuestionsActivity.this, "Error saving data: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
+            user.setName(name);
+            user.setSurname(surname);
+            user.setAge(age);
+            user.setGender(gender);
+            user.setWeight(weight);
+            user.setHeight(height);
+            user.setGoalWeight(goalWeight);
+            user.setWeightProgress(weightProgress);
+
+            userViewModel.updateCurrentUser(user);
+            showProfileCompletedDialog();
+        }
     }
 
     private void showProfileCompletedDialog() {

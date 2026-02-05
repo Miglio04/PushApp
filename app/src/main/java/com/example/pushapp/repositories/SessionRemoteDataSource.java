@@ -62,6 +62,6 @@ public class SessionRemoteDataSource {
     }
 
     public void logout() {
-
+        mAuth.signOut();
     }
 }

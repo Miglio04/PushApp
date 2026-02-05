@@ -14,6 +14,9 @@ public class UserRepository implements UserCallback {
     private final UserRemoteDataSource remoteDataSource;
     private final MutableLiveData<Result> currentUser;
 
+    //provvisorio per primo accesso fino a implementazione versioning
+    private boolean firstFetchCompleted = false;
+
     UserRepository(UserLocalDataSource localDataSource, UserRemoteDataSource remoteDataSource, SessionRepository sessionRepository) {
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
@@ -28,8 +31,9 @@ public class UserRepository implements UserCallback {
     }
 
     // provvisorio: prende sempre i dati da Firebase
-    public void fetchUserById(SessionUser user){
-        remoteDataSource.fetchUserById(user.getUserId());
+    public void fetchUserById(String userId){
+        localDataSource.getUserById(userId);
+        remoteDataSource.fetchUserById(userId);
     }
 
     public void insertUser(User user){
@@ -37,7 +41,11 @@ public class UserRepository implements UserCallback {
         Log.d(TAG, "Inserting user in local database");
     }
 
-    public void onSuccessFromLocal(User user){
+    public void updateUser(User user){
+        localDataSource.updateCurrentUser(user);
+    }
+
+    public void onSuccessFromLocalInsert(User user){
         currentUser.postValue(new Result.UserSuccess(user));
         Log.d(TAG, "Local database operation successful");
         remoteDataSource.insertUser(user);
@@ -48,9 +56,32 @@ public class UserRepository implements UserCallback {
     //temporary version of method: not considering versioning and user's local storage
     public void onSuccessFromRemote(User user){
         currentUser.postValue(new Result.UserSuccess(user));
+        //provvisorio: quando verrà implementato il versioning questo verrà delegato al sync manager
+        //if(!firstFetchCompleted) {
+        localDataSource.insertUser(user);
+        //    firstFetchCompleted = true;
+        //}
     }
     //provvisorio: quando verrà implementato il workmanager dovrà ritentare la richiesta
     public void onFailureFromRemote(Exception exception){
         currentUser.postValue(new Result.Error(exception.getMessage()));
     }
+
+    public void onSuccessFromLocalGet(User user){
+        currentUser.postValue(new Result.UserSuccess(user));
+    }
+
+    public void onSuccessFromLocalUpdate(User user){
+        currentUser.postValue(new Result.UserSuccess(user));
+        remoteDataSource.insertUser(user);
+    }
+
+    public void clearLiveData(){
+        currentUser.setValue(null);
+    }
+
+    public void resetLocalDatabase(){
+        localDataSource.resetDatabase();
+    }
+
 }

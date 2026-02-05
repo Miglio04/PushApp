@@ -43,4 +43,8 @@ public interface WorkoutExerciseDao {
     @Transaction
     @Query("SELECT * FROM WorkoutExercise WHERE routineId = :routineId")
     List<WorkoutExerciseWithSeries> getExercisesWithSeriesByRoutineId(String routineId);
+
+    @Query("DELETE FROM workoutExercise")
+    void deteleAllWorkoutExercises();
+
 }

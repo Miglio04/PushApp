@@ -80,6 +80,8 @@ public class LoginFragment extends Fragment {
                 this,
                 new ViewModelFactory(requireContext())).get(UserViewModel.class);
 
+        userViewModel.clearLiveData();
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -125,12 +127,24 @@ public class LoginFragment extends Fragment {
 
     // provvisorio: non distingue se sono sbagliate le credenziali oppure se l'utente non esiste
     private void observeUserViewModel(){
+        if (userViewModel == null) return;
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), userId -> {
+            if(userId == null) return;
             hideLoading();
             if(userId.isSessionSuccess()){
                 showLoginSuccessDialog();
             }else if(userId.isRegistrationError()){
                 Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
+                userViewModel.clearSessionLiveData();
+            }else if(userId.isLoginError()){
+                Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
+                userViewModel.clearSessionLiveData();
+            }else if(userId.isLocalDatabaseError()){
+                Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
+                userViewModel.clearSessionLiveData();
+            }else if(userId.isUserNotFound()){
+                showUserNotFoundDialog();
+                userViewModel.clearSessionLiveData();
             }
         });
     }
