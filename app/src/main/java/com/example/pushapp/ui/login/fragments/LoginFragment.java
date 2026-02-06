@@ -35,9 +35,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginFragment extends Fragment {
     private EditText etEmail, etPassword;
@@ -56,7 +54,7 @@ public class LoginFragment extends Fragment {
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                     try {
                         GoogleSignInAccount account = task.getResult(ApiException.class);
-                        firebaseAuthWithGoogle(account.getIdToken());
+                        userViewModel.signInWithGoogle(account.getIdToken());
                     } catch (ApiException e) {
                         Toast.makeText(requireContext(), "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         hideLoading();
@@ -177,7 +175,7 @@ public class LoginFragment extends Fragment {
         userViewModel.signInWithEmailAndPassword(email, password);
     }
 
-    private void firebaseAuthWithGoogle(String idToken) {
+    /*private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(requireActivity(), task -> {
@@ -190,7 +188,7 @@ public class LoginFragment extends Fragment {
                         Toast.makeText(requireContext(), "Google Authentication failed.", Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
+    }*/
 
     // --- NUOVO METODO CHE MOSTRA IL POPUP DI SUCCESSO DEL LOGIN ---
     private void showLoginSuccessDialog() {
