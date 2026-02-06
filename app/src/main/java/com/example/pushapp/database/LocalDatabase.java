@@ -12,21 +12,35 @@ import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.User;
+import com.example.pushapp.models.history.HistorySerie;
+import com.example.pushapp.models.history.HistorySession;
+import com.example.pushapp.models.history.HistoryWorkoutExercise;
 import com.example.pushapp.utils.converters.TimeConverter;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Database(entities = {Training.class, Routine.class, WorkoutExercise.class, Serie.class, User.class},
-        version = 2)
+@Database(entities = {
+        Training.class,
+        Routine.class,
+        WorkoutExercise.class,
+        Serie.class,
+        User.class,
+        HistorySession.class,
+        HistoryWorkoutExercise.class,
+        HistorySerie.class
+}, version = 3)
 @TypeConverters({TimeConverter.class})
 public abstract class LocalDatabase extends RoomDatabase {
+
     private static volatile LocalDatabase INSTANCE;
+
     public abstract TrainingDao trainingDao();
     public abstract RoutineDao routineDao();
     public abstract WorkoutExerciseDao workoutExerciseDao();
     public abstract SerieDao serieDao();
     public abstract UserDao userDao();
+    public abstract HistoryDao historyDao();
 
     public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -45,5 +59,4 @@ public abstract class LocalDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
-
 }
