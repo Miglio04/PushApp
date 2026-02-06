@@ -4,6 +4,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.SessionUser;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class SessionRepository implements SessionCallback {
     private final SessionLocalDataSource sessionLocalDataSource;
@@ -20,11 +22,12 @@ public class SessionRepository implements SessionCallback {
         return sessionLiveData;
     }
 
-    public void registerWithGoogle(String idToken){
-
+    public void signInWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        sessionRemoteDataSource.signInWithCredentials(credential);
     }
 
-    public void signInWithEmailAndPassword(String email, String password){
+    public void signInWithEmailAndPassword(String email, String password) {
         sessionRemoteDataSource.signInWithEmailAndPassword(email, password);
     }
 
@@ -32,22 +35,21 @@ public class SessionRepository implements SessionCallback {
         sessionRemoteDataSource.registerWithEmailAndPassword(email, password);
     }
 
-    public void signInWithGoogle(String idToken){
-
-    }
-
     public void getCurrentUserId() {
         SessionUser sessionUser = sessionLocalDataSource.getCurrentSessionUser();
         if (sessionUser != null) {
             sessionLiveData.postValue(new Result.SessionSuccess(sessionLocalDataSource.getCurrentSessionUser()));
-        }else{
+        } else {
             sessionLiveData.postValue(new Result.Error("User not found"));
         }
     }
 
-    // to implement
-    public void forgotPassword() {
+    public void sendPasswordResetEmail(String email) {
+        sessionRemoteDataSource.sendPasswordResetEmail(email);
+    }
 
+    public void logout() {
+        sessionRemoteDataSource.logout();
     }
 
     @Override
@@ -57,7 +59,7 @@ public class SessionRepository implements SessionCallback {
 
     @Override
     public void onFailureFromLogin(Exception e) {
-        sessionLiveData.postValue(new Result.Error(e.getMessage()));
+        sessionLiveData.postValue(new Result.Error.LoginError(e.getMessage()));
     }
 
     public void onSuccessFromRegister(SessionUser sessionUser) {
@@ -67,4 +69,21 @@ public class SessionRepository implements SessionCallback {
     public void onFailureFromRegister(Exception e) {
         sessionLiveData.setValue(new Result.Error.RegistrationError(e.getMessage()));
     }
+
+    public void onSuccessFromPasswordReset(String email) {
+        sessionLiveData.setValue(new Result.PasswordResetSuccess(email));
+    }
+
+    public void onFailureFromPasswordReset(Exception e) {
+        sessionLiveData.setValue(new Result.Error.ForgotPasswordError(e.getMessage()));
+    }
+
+    public void onUserNotFoundFromPasswordReset(Exception e) {
+        sessionLiveData.setValue(new Result.Error.UserNotFound(e.getMessage()));
+    }
+
+    public void clearLiveData() {
+        sessionLiveData.setValue(null);
+    }
+
 }

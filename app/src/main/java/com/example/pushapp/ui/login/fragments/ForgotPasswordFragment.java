@@ -17,9 +17,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.Result;
+import com.example.pushapp.viewModels.UserViewModel;
+import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
@@ -29,6 +33,7 @@ public class ForgotPasswordFragment extends Fragment {
     private TextView tvError;
     private LinearLayout loadingOverlay;
     private FirebaseAuth mAuth;
+    private UserViewModel userViewModel;
 
     public ForgotPasswordFragment() {
         // Costruttore vuoto richiesto
@@ -38,6 +43,10 @@ public class ForgotPasswordFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
+        userViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(requireContext())).get(UserViewModel.class);
+        userViewModel.clearLiveData();
     }
 
     @Override
@@ -50,6 +59,8 @@ public class ForgotPasswordFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        observeSessionLiveData();
 
         // Collegamento viste
         etEmail = view.findViewById(R.id.etEmailReset);
@@ -64,6 +75,24 @@ public class ForgotPasswordFragment extends Fragment {
 
         // Click: Invia Mail
         btnReset.setOnClickListener(v -> sendResetEmail());
+    }
+
+    private void observeSessionLiveData() {
+        userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
+            if(result == null) return;
+            if (result.isForgotPasswordError()) {
+                Result.Error.ForgotPasswordError error = (Result.Error.ForgotPasswordError) result;
+                tvError.setText(error.getMessage());
+                tvError.setVisibility(View.VISIBLE);
+                loadingOverlay.setVisibility(View.GONE);
+                userViewModel.clearSessionLiveData();
+            }else if(result.isForgotPasswordSuccess()){
+                showSuccessDialog(((Result.PasswordResetSuccess) result).getEmail());
+            }else if(result.isUserNotFound()){
+                showUserNotFoundDialog();
+                userViewModel.clearSessionLiveData();
+            }
+        });
     }
 
     private void sendResetEmail() {
@@ -85,27 +114,10 @@ public class ForgotPasswordFragment extends Fragment {
 
         if (loadingOverlay != null) loadingOverlay.setVisibility(View.VISIBLE);
 
-        mAuth.sendPasswordResetEmail(email)
-                .addOnCompleteListener(requireActivity(), task -> {
-                    if (loadingOverlay != null) loadingOverlay.setVisibility(View.GONE);
+        userViewModel.sendPasswordResetEmail(email);
 
-                    if (task.isSuccessful()) {
-                        // SUCCESSO: L'utente esiste -> Mostra Popup Verde
-                        showSuccessDialog(email);
-                    } else {
-                        // ERRORE: Controlliamo se l'utente non esiste
-                        if (task.getException() instanceof FirebaseAuthInvalidUserException) {
-                            // Utente non trovato -> Mostra Popup "Registrati"
-                            showUserNotFoundDialog();
-                        } else {
-                            // Altri errori (es. Internet)
-                            String error = task.getException() != null ? task.getException().getMessage() : "Error sending email.";
-                            tvError.setText(error);
-                            tvError.setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
     }
+
 
     // --- POPUP 1: MAIL INVIATA (SUCCESSO) ---
     private void showSuccessDialog(String email) {

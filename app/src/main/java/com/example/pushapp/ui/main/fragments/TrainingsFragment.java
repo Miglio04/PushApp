@@ -78,7 +78,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
 
         // 5. Carica i dati iniziali da Firebase
         trainingViewModel.fetchTrainings();
-        Log.d("TrainingsFragment", "loadTrainings() called");
+        Log.d("TrainingsFragment", "fetchTrainings() called");
     }
 
     private void setupRecyclerView(RecyclerView recyclerView) {

@@ -7,6 +7,7 @@ import com.example.pushapp.models.firebaseModels.FirebaseUser;
 import com.example.pushapp.utils.converters.UserConverter;
 import com.example.pushapp.utils.Constants;
 
+import com.google.firebase.Firebase;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 

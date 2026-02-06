@@ -38,17 +38,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class RegisterFragment extends Fragment {
 
@@ -104,6 +95,8 @@ public class RegisterFragment extends Fragment {
                 this,
                 new ViewModelFactory(requireContext())).get(UserViewModel.class);
 
+        userViewModel.clearLiveData();
+
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -157,11 +150,13 @@ public class RegisterFragment extends Fragment {
 
     public void observeSessionLiveData(){
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
-           if(result.isRegistrationError()){
+           if(result == null) return;
+           if (result.isRegistrationError()) {
                showLoading(false, null);
                Result.Error.RegistrationError error = (Result.Error.RegistrationError) result;
                Toast.makeText(requireContext(), "Registration error: " + error.getMessage(), Toast.LENGTH_LONG).show();
-           }else{
+               userViewModel.clearSessionLiveData();
+           } else if (result.isSessionSuccess()) {
                Log.d(TAG, "Registration successful");
            }
         });
@@ -169,15 +164,17 @@ public class RegisterFragment extends Fragment {
 
     public void observeUserLiveData(){
         userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), result -> {
+            if(result == null) return;
             showLoading(false, null);
-            if(result.isUserSuccess()){
+            if (result.isUserSuccess()) {
                 Log.d(TAG, "Local database success");
                 showSuccessDialog(false);
-            }else if(result.isLocalDatabaseError()){
+            } else if (result.isLocalDatabaseError()) {
                 Log.d(TAG, "Local database error");
                 Result.Error.LocalDatabaseError error = (Result.Error.LocalDatabaseError) result;
                 // fatal exception
                 Toast.makeText(requireContext(), "Local database error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                userViewModel.clearUserLiveData();
             }
         });
     }
@@ -224,26 +221,27 @@ public class RegisterFragment extends Fragment {
     // to be moved into sessionRepository
     private void firebaseAuthWithGoogle(String idToken) {
         if(tvLoadingText != null) tvLoadingText.setText("Authenticating...");
+        userViewModel.registerWithGoogle(idToken);
 
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        /*AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
 
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
-                            //createUserProfile(user.getUid(), user.getEmail(), true);
+                            createUserProfile(user.getUid(), user.getEmail(), true);
                         }
                     } else {
                         showLoading(false, null);
                         Toast.makeText(requireContext(), "Authentication Failed.", Toast.LENGTH_SHORT).show();
                     }
-                });
+                });*/
     }
 
     // to be moved into sessionRepository
     // method only used by Google Sign up
-    /* private void createUserProfile(String uid, String email, boolean isGoogle) {
+    /*private void createUserProfile(String uid, String email, boolean isGoogle) {
         if (tvLoadingText != null) tvLoadingText.setText("Saving profile...");
 
         Map<String, Object> user = new HashMap<>();

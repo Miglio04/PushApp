@@ -40,10 +40,10 @@ public class UserConverter {
     public static User firebaseUserToUser(FirebaseUser firebaseUser) {
         if (firebaseUser == null) return null;
 
-        User user = new User(firebaseUser.getUserId(), firebaseUser.getName());
+        User user = new User(firebaseUser.getUserId(), firebaseUser.getEmail());
 
+        user.setName(firebaseUser.getName());
         user.setSurname(firebaseUser.getSurname());
-        user.setEmail(firebaseUser.getEmail());
         user.setGender(firebaseUser.getGender());
         user.setAge(firebaseUser.getAge());
         user.setHeight(firebaseUser.getHeight());

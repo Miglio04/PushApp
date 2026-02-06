@@ -442,4 +442,8 @@ public class TrainingViewModel extends ViewModel {
         trainingRepository.detachTrainingsListener();
         isListenerAttached = false;
     }
+
+    public void resetLocalDatabase() {
+        trainingRepository.resetLocalDatabase();
+    }
 }

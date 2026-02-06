@@ -15,6 +15,10 @@ public abstract class Result {
 
     public boolean isLocalDatabaseError(){ return this instanceof Error.LocalDatabaseError; }
     public boolean isRegistrationError(){ return this instanceof Error.RegistrationError; }
+    public boolean isUserNotFound(){ return this instanceof Error.UserNotFound; }
+    public boolean isForgotPasswordError(){ return this instanceof Error.ForgotPasswordError; }
+    public boolean isForgotPasswordSuccess() { return this instanceof PasswordResetSuccess; }
+    public boolean isLoginError(){ return this instanceof Error.LoginError; }
 
     public static final class TrainingsSuccess extends Result {
         private final List<Training> trainingList;
@@ -60,6 +64,20 @@ public abstract class Result {
         }
     }
 
+    public static final class PasswordResetSuccess extends Result {
+        private final String email;
+        public PasswordResetSuccess(String email) {
+            this.email = email;
+        }
+        public String getEmail() {
+            return email;
+        }
+    }
+
+    /**
+     * Class that represents an error occurred during the interaction
+     * with a Web Service or a local database.
+     */
     public static class Error extends Result {
         private final String message;
 
@@ -80,6 +98,24 @@ public abstract class Result {
         }
         public static final class RegistrationError extends Error{
             public RegistrationError(String message) { super(message); }
+        }
+
+        public static final class UserNotFound extends Error {
+            public UserNotFound(String message) {
+                super(message);
+            }
+        }
+
+        public static final class ForgotPasswordError extends Error {
+            public ForgotPasswordError(String message) {
+                super(message);
+            }
+        }
+
+        public static final class LoginError extends Error {
+            public LoginError(String message) {
+                super(message);
+            }
         }
     }
 }
