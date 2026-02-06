@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.navigation.runtime)
+    implementation(libs.room.common.jvm)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
