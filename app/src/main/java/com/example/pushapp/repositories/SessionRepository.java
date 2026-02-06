@@ -4,6 +4,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.SessionUser;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class SessionRepository implements SessionCallback {
     private final SessionLocalDataSource sessionLocalDataSource;
@@ -20,8 +22,9 @@ public class SessionRepository implements SessionCallback {
         return sessionLiveData;
     }
 
-    public void registerWithGoogle(String idToken) {
-
+    public void signInWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        sessionRemoteDataSource.signInWithCredentials(credential);
     }
 
     public void signInWithEmailAndPassword(String email, String password) {
@@ -30,10 +33,6 @@ public class SessionRepository implements SessionCallback {
 
     public void registerWithEmailAndPassword(String email, String password) {
         sessionRemoteDataSource.registerWithEmailAndPassword(email, password);
-    }
-
-    public void signInWithGoogle(String idToken) {
-
     }
 
     public void getCurrentUserId() {

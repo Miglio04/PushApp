@@ -58,6 +58,15 @@ public class UserViewModel extends ViewModel {
         isLoading.setValue(false);
     }
 
+    public void registerWithGoogle(String idToken){
+        sessionRepository.signInWithGoogle(idToken);
+        registrationObserveSessionLiveData();
+    }
+
+    public void signInWithGoogle(String idToken){
+        sessionRepository.signInWithGoogle(idToken);
+    }
+
     public void signInWithEmailAndPassword(String email, String password) {
         sessionRepository.signInWithEmailAndPassword(email, password);
     }

@@ -38,17 +38,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthUserCollisionException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class RegisterFragment extends Fragment {
 
@@ -139,6 +130,7 @@ public class RegisterFragment extends Fragment {
             btnGoogle.setOnClickListener(v -> signInWithGoogle());
         }
     }
+
     private void initializeViews(View view) {
         etEmail = view.findViewById(R.id.etEmailRegister);
         etPassword = view.findViewById(R.id.etPasswordRegister);
@@ -229,26 +221,27 @@ public class RegisterFragment extends Fragment {
     // to be moved into sessionRepository
     private void firebaseAuthWithGoogle(String idToken) {
         if(tvLoadingText != null) tvLoadingText.setText("Authenticating...");
+        userViewModel.registerWithGoogle(idToken);
 
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        /*AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
 
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(requireActivity(), task -> {
                     if (task.isSuccessful()) {
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
-                            //createUserProfile(user.getUid(), user.getEmail(), true);
+                            createUserProfile(user.getUid(), user.getEmail(), true);
                         }
                     } else {
                         showLoading(false, null);
                         Toast.makeText(requireContext(), "Authentication Failed.", Toast.LENGTH_SHORT).show();
                     }
-                });
+                });*/
     }
 
     // to be moved into sessionRepository
     // method only used by Google Sign up
-    /* private void createUserProfile(String uid, String email, boolean isGoogle) {
+    /*private void createUserProfile(String uid, String email, boolean isGoogle) {
         if (tvLoadingText != null) tvLoadingText.setText("Saving profile...");
 
         Map<String, Object> user = new HashMap<>();
