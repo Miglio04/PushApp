@@ -14,12 +14,14 @@ public class HistoryLocalDataSource {
 
     private final HistoryDao historyDao;
 
-    public HistoryLocalDataSource(LocalDatabase database) {
-        this.historyDao = database.historyDao();
+    // --- MODIFICA QUI: Il costruttore ora accetta solo il DAO ---
+    public HistoryLocalDataSource(HistoryDao historyDao) {
+        this.historyDao = historyDao;
     }
 
     // --- SALVATAGGIO ---
     public void saveSession(HistorySession session, List<HistoryWorkoutExercise> exercises, List<HistorySerie> series, HistoryCallback callback) {
+        // Nota: databaseWriteExecutor è statico, quindi possiamo chiamarlo anche senza avere l'istanza del database nel costruttore
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 // Eseguiamo tutto in una transazione implicita (insert sequenziali)
@@ -125,7 +127,6 @@ public class HistoryLocalDataSource {
                     historyDao.insertSession(item.session);
 
                     // 2. Inserisci Esercizi e relative Serie
-                    // Nota: item.exercises è una lista di HistoryWorkoutExerciseWithSeries
                     for (var exWithSeries : item.exercises) {
                         historyDao.insertWorkoutExercise(exWithSeries.historyWorkoutExercise);
 

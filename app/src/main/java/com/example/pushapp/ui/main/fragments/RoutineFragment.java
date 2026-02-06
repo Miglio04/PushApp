@@ -20,33 +20,37 @@ import android.widget.Toast;
 import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.models.Routine; // <-- Import corretto
-import com.example.pushapp.repositories.FirebaseCallback;
+import com.example.pushapp.models.Routine;
 import com.example.pushapp.ui.main.graphicComponents.RoutinesCard;
 import com.example.pushapp.adapter.RoutineCardAdapter;
-import com.example.pushapp.viewModels.TrainingViewModel; // <-- USA IL VIEWMODEL CORRETTO
+import com.example.pushapp.viewModels.TrainingViewModel;
+import com.example.pushapp.viewModels.ViewModelFactory; // Assicurati di usare la Factory!
 import com.example.pushapp.viewModels.WorkoutViewModel;
 
-import java.io.Serializable; // <-- Aggiungi import per il passaggio dati
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RoutineFragment extends Fragment {
 
     private String trainingId;
-    private TrainingViewModel trainingViewModel; // <-- USA IL VIEWMODEL CORRETTO
+    private TrainingViewModel trainingViewModel;
     private WorkoutViewModel workoutViewModel;
     private RoutineCardAdapter adapter;
-    private Training currentTraining; // Campo per memorizzare il training corrente
+    private Training currentTraining;
 
     public RoutineFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Inizializza ENTRAMBI i ViewModel
-        trainingViewModel = new ViewModelProvider(requireActivity()).get(TrainingViewModel.class);
-        workoutViewModel = new ViewModelProvider(requireActivity()).get(WorkoutViewModel.class);
+
+        // --- IMPORTANTE: Usiamo la Factory anche qui ---
+        // Se non usi la factory, il WorkoutViewModel non riceverà il SessionManager e crasherà.
+        ViewModelFactory factory = new ViewModelFactory(requireContext());
+
+        trainingViewModel = new ViewModelProvider(requireActivity(), factory).get(TrainingViewModel.class);
+        workoutViewModel = new ViewModelProvider(requireActivity(), factory).get(WorkoutViewModel.class);
 
         if (getArguments() != null) {
             trainingId = getArguments().getString("trainingId");
@@ -70,11 +74,9 @@ public class RoutineFragment extends Fragment {
 
     private void setupRecyclerView(RecyclerView recyclerView) {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        // Crea l'adapter una sola volta con una lista vuota
         adapter = new RoutineCardAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
-        // Imposta i listener sull'adapter
         adapter.setStartWorkoutListener(this::handleStartWorkoutClick);
         adapter.setEditWorkoutListener(this::handleEditDayClick);
     }
@@ -99,15 +101,12 @@ public class RoutineFragment extends Fragment {
         });
     }
 
-    // --- NUOVI METODI HELPER ---
-
     private List<RoutinesCard> generateCardsFromTraining(Training training) {
         List<RoutinesCard> cards = new ArrayList<>();
         if (training == null || training.getRoutinesList() == null) {
             return cards;
         }
 
-        // Crea una card per ogni giorno di allenamento reale
         for (Routine day : training.getRoutinesList()) {
             cards.add(new RoutinesCard(day.getName(), "Exercises: " + day.getWorkoutTotalExercises(), day.getRoutineId()));
         }
@@ -115,10 +114,14 @@ public class RoutineFragment extends Fragment {
     }
 
     private void handleStartWorkoutClick(RoutinesCard card) {
+        // Controlliamo se c'è un workout attivo
         Boolean isWorkoutInProgress = workoutViewModel.isWorkoutInProgress().getValue();
+
         if (Boolean.TRUE.equals(isWorkoutInProgress)) {
+            // Se c'è, chiediamo all'utente cosa fare
             showReplaceWorkoutDialog(card);
         } else {
+            // Se non c'è, partiamo diretti
             startNewWorkout(card);
         }
     }
@@ -127,11 +130,8 @@ public class RoutineFragment extends Fragment {
         if (getView() != null && card.getTrainingDayId() != null) {
             NavController navController = Navigation.findNavController(getView());
             Bundle args = new Bundle();
-
             args.putString("trainingId", trainingId);
-
             args.putString("dayId", card.getTrainingDayId());
-
             navController.navigate(R.id.nav_training_days_to_edit, args);
         } else {
             Toast.makeText(getContext(), "Errore: ID del giorno non disponibile", Toast.LENGTH_SHORT).show();
@@ -142,11 +142,10 @@ public class RoutineFragment extends Fragment {
         if (currentTraining == null) return;
 
         String cardDayId = card.getTrainingDayId();
-        if (cardDayId == null) return; // Aggiungi questo check
+        if (cardDayId == null) return;
 
-        // Trova il TrainingDay completo da passare al WorkoutFragment
         for (Routine day : currentTraining.getRoutinesList()) {
-            if (cardDayId.equals(day.getRoutineId())) { // Inverti il confronto
+            if (cardDayId.equals(day.getRoutineId())) {
                 NavController navController = NavHostFragment.findNavController(this);
                 Bundle args = new Bundle();
                 args.putSerializable("trainingDay", (Serializable) day);
@@ -157,23 +156,19 @@ public class RoutineFragment extends Fragment {
         }
     }
 
+    // --- MODIFICATO: Usa cancelWorkout() ---
     private void showReplaceWorkoutDialog(RoutinesCard card) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Workout in corso")
                 .setMessage("Hai già un workout in corso. Vuoi scartarlo e avviarne uno nuovo?")
                 .setPositiveButton("Scarta e avvia", (dialog, which) -> {
-                    workoutViewModel.stopWorkout(new FirebaseCallback<Void>() {
-                        @Override
-                        public void onSuccess(Void result) {
-                            startNewWorkout(card);
-                        }
 
-                        @Override
-                        public void onError(Exception e) {
-                            // Avvia comunque il nuovo workout anche se il salvataggio fallisce
-                            startNewWorkout(card);
-                        }
-                    });
+                    // 1. Cancelliamo il vecchio workout e puliamo la memoria (Anti-Crash)
+                    workoutViewModel.cancelWorkout();
+
+                    // 2. Avviamo quello nuovo immediatamente (non serve callback)
+                    startNewWorkout(card);
+
                 })
                 .setNegativeButton("Annulla", null)
                 .show();
