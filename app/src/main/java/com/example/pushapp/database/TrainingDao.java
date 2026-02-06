@@ -48,5 +48,9 @@ public interface TrainingDao {
     @Transaction
     @Query("SELECT * FROM training")
     List<TrainingWithRoutines> getAllTrainingsWithRoutines();
+
+    @Query("DELETE FROM training")
+    void deleteAllTraings();
+
 }
 

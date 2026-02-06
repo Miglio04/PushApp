@@ -22,5 +22,4 @@ public class SessionLocalDataSource {
             return null;
         }
     }
-
 }

@@ -1,5 +1,6 @@
 package com.example.pushapp.ui.profile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,14 +18,19 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.User;
+import com.example.pushapp.ui.login.AuthActivity;
+import com.example.pushapp.ui.main.MainActivity;
+import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 
 public class ProfileActivity extends AppCompatActivity {
 
     private static final String TAG = "ProfileActivity";
     private UserViewModel userViewModel;
+    private TrainingViewModel trainingViewModel;
     
     // UI Profile Header
     private TextView profileInitial, profileFullName, profileEmailTop;
@@ -34,6 +40,8 @@ public class ProfileActivity extends AppCompatActivity {
     private LinearLayout expandablePersonalData;
     private ImageView expandArrow;
     private TextView tvDetailEmail, tvDetailGender, tvDetailAge, tvDetailHeight, tvDetailWeight;
+    private MaterialButton btnLogout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +74,20 @@ public class ProfileActivity extends AppCompatActivity {
         if (cardPersonalData != null) {
             cardPersonalData.setOnClickListener(v -> togglePersonalData());
         }
+
+        if(btnLogout != null) {
+            btnLogout.setOnClickListener(v -> {
+                Log.d(TAG, "Logout button clicked");
+                userViewModel.logout();
+                trainingViewModel.resetLocalDatabase();
+                userViewModel.resetLocalDatabase();
+
+                Intent intent = new Intent(this, AuthActivity.class);
+                startActivity(intent);
+                finishAffinity();
+            });
+        }
+
     }
 
     private void initializeViews() {
@@ -82,6 +104,7 @@ public class ProfileActivity extends AppCompatActivity {
         tvDetailAge = findViewById(R.id.tvDetailAge);
         tvDetailHeight = findViewById(R.id.tvDetailHeight);
         tvDetailWeight = findViewById(R.id.tvDetailWeight);
+        btnLogout = findViewById(R.id.btnLogout);
     }
     private void setupViewModel() {
         userViewModel = new ViewModelProvider(
@@ -89,7 +112,12 @@ public class ProfileActivity extends AppCompatActivity {
                 new ViewModelFactory(getApplicationContext())).get(UserViewModel.class);
         userViewModel.fetchUser();
 
+        trainingViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(getApplicationContext())).get(TrainingViewModel.class);
+
         userViewModel.getUserLiveData().observe(this, result-> {
+            if (result == null) return;
             User user = ((Result.UserSuccess) result).getData();
             if (user != null) {
                 String name = user.getName() != null ? user.getName() : "";
@@ -121,7 +149,6 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
     }
-
     private void togglePersonalData() {
         if (expandablePersonalData == null || expandArrow == null) return;
 

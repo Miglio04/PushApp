@@ -8,4 +8,7 @@ public interface SessionCallback {
     void onFailureFromLogin(Exception e);
     void onSuccessFromRegister(SessionUser sessionUser);
     void onFailureFromRegister(Exception e);
+    void onSuccessFromPasswordReset(String email);
+    void onFailureFromPasswordReset(Exception e);
+    void onUserNotFoundFromPasswordReset(Exception e);
 }

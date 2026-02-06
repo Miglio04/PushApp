@@ -33,5 +33,7 @@ public interface SerieDao {
 
     @Query("DELETE FROM serie WHERE workoutExerciseId = :workoutExerciseId")
     void deleteByWorkoutExerciseId(int workoutExerciseId);
+    @Query("DELETE FROM serie")
+    void deteleAllSeries();
 }
 

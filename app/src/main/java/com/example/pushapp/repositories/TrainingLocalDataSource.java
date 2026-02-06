@@ -1,5 +1,7 @@
 package com.example.pushapp.repositories;
 
+import android.util.Log;
+
 import com.example.pushapp.database.WorkoutExerciseDao;
 import com.example.pushapp.database.RoutineDao;
 import com.example.pushapp.database.SerieDao;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TrainingLocalDataSource {
+    private final String TAG = "TrainingLocalDataSource";
     private TrainingCallback trainingCallback;
     private final TrainingDao trainingDao;
     private RoutineDao routineDao;
@@ -114,6 +117,7 @@ public class TrainingLocalDataSource {
                                 // Associa l'esercizio alla routine
                                 workoutExercise.setRoutineId(routine.getRoutineId());
                                 workoutExerciseDao.insert(workoutExercise);
+                                Log.e(TAG, "overwriteTrainings: workout exercise con id " + workoutExercise.getWorkoutExerciseId() + " inserita in workout routine " + routine.getRoutineId());
 
                                 if (workoutExercise.getSeries() != null) {
                                     // 5. Itera sulle serie di ogni esercizio
@@ -121,6 +125,7 @@ public class TrainingLocalDataSource {
                                         // Associa la serie all'esercizio
                                         serie.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
                                         serieDao.insert(serie);
+                                        Log.e(TAG, "overwriteTrainings: serie con id " + serie.getSerieId() + " inserita in workout exercise " + workoutExercise.getWorkoutExerciseId());
                                     }
                                 }
                             }
@@ -133,4 +138,14 @@ public class TrainingLocalDataSource {
             getTrainings();
         });
     }
+
+    public void resetDatabase(){
+        LocalDatabase.databaseWriteExecutor.execute(() -> {
+            serieDao.deteleAllSeries();
+            workoutExerciseDao.deteleAllWorkoutExercises();
+            routineDao.deteleAllRoutines();
+            trainingDao.deleteAllTraings();
+        });
+    }
+
 }

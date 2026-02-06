@@ -93,8 +93,10 @@ public class HomeFragment extends Fragment {
 
     private void observeUserViewModel(){
         userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), result -> {
+            if (result == null) return;
             if (result.isUserSuccess()) {
                 User user = ((Result.UserSuccess) result).getData();
+                if(user == null) return;
                 // Aggiorna Nome e Iniziale Avatar
                 if (user.getName() != null && !user.getName().isEmpty()) {
                     nameTitle.setText(user.getName());

@@ -43,4 +43,7 @@ public interface RoutineDao {
     @Transaction
     @Query("SELECT * FROM Routine WHERE trainingId = :trainingId")
     List<RoutineWithWorkoutExercises> getRoutinesWithExercisesByTrainingId(String trainingId);
+
+    @Query("DELETE FROM routine")
+    void deteleAllRoutines();
 }
