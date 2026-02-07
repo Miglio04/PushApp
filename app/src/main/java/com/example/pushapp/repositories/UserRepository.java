@@ -33,7 +33,6 @@ public class UserRepository implements UserCallback {
     // provvisorio: prende sempre i dati da Firebase
     public void fetchUserById(String userId){
         localDataSource.getUserById(userId);
-        remoteDataSource.fetchUserById(userId);
     }
 
     public void insertUser(User user){
@@ -56,19 +55,19 @@ public class UserRepository implements UserCallback {
     //temporary version of method: not considering versioning and user's local storage
     public void onSuccessFromRemote(User user){
         currentUser.postValue(new Result.UserSuccess(user));
-        //provvisorio: quando verrà implementato il versioning questo verrà delegato al sync manager
-        //if(!firstFetchCompleted) {
         localDataSource.insertUser(user);
-        //    firstFetchCompleted = true;
-        //}
     }
     //provvisorio: quando verrà implementato il workmanager dovrà ritentare la richiesta
     public void onFailureFromRemote(Exception exception){
         currentUser.postValue(new Result.Error(exception.getMessage()));
     }
 
-    public void onSuccessFromLocalGet(User user){
-        currentUser.postValue(new Result.UserSuccess(user));
+    public void onSuccessFromLocalGet(User user, String userId){
+        if(user == null){
+            remoteDataSource.fetchUserById(userId);
+        }else {
+            currentUser.postValue(new Result.UserSuccess(user));
+        }
     }
 
     public void onSuccessFromLocalUpdate(User user){
