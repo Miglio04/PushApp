@@ -78,6 +78,7 @@ public class ProfileActivity extends AppCompatActivity {
         if(btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
                 Log.d(TAG, "Logout button clicked");
+                userViewModel.clearLiveData();
                 userViewModel.logout();
                 trainingViewModel.resetLocalDatabase();
                 userViewModel.resetLocalDatabase();
@@ -94,10 +95,6 @@ public class ProfileActivity extends AppCompatActivity {
         profileInitial = findViewById(R.id.profileInitial);
         profileFullName = findViewById(R.id.profileFullName);
         profileEmailTop = findViewById(R.id.profileEmailTop);
-
-        cardPersonalData = findViewById(R.id.cardPersonalData);
-        expandablePersonalData = findViewById(R.id.expandable_personal_data);
-        expandArrow = findViewById(R.id.expand_arrow);
 
         tvDetailEmail = findViewById(R.id.tvDetailEmail);
         tvDetailGender = findViewById(R.id.tvDetailGender);
