@@ -96,4 +96,9 @@
     <string name="detail_height">Height: %1$d cm</string>
     <string name="detail_weight">Weight: %1$.1f kg</string>
     <string name="title_activity_auth">AuthActivity</string>
+    <string name="accedi">Accedi</string>
+    <string name="registrati">Registrati</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
 </resources>

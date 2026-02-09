@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white">
+    android:background="@color/md_theme_background">
 
     <!-- 1. LOGO E TITOLO (Fissi in alto) -->
     <LinearLayout
@@ -35,7 +35,7 @@
             android:textSize="32sp"
 
             android:textStyle="bold"
-            android:textColor="@color/md_theme_primary"
+            android:textColor="@color/md_theme_onBackground"
             android:layout_marginTop="8dp"/>
 
         <!-- NUOVA SCRITTA GRIGIA DINAMICA -->
@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Welcome back!"
-            android:textColor="#757575"
+            android:textColor="@color/md_theme_onBackground_mediumContrast"
             android:textSize="14sp"
             android:layout_marginTop="4dp"/>
 
@@ -60,15 +60,16 @@
         android:layout_marginHorizontal="24dp"
 
         android:background="@drawable/bg_switch_container"
+        android:backgroundTint="@color/md_theme_background"
 
         app:tabIndicator="@drawable/bg_switch_indicator"
         app:tabIndicatorGravity="stretch"
-        app:tabIndicatorColor="@null"
+        app:tabIndicatorColor="@color/md_theme_primaryContainer"
         app:tabIndicatorAnimationMode="elastic"
         app:tabIndicatorFullWidth="true"
 
-        app:tabSelectedTextColor="@android:color/white"
-        app:tabTextColor="@color/md_theme_primary"
+        app:tabSelectedTextColor="@color/md_theme_onPrimaryContainer"
+        app:tabTextColor="@color/md_theme_onBackground_mediumContrast"
 
         app:tabRippleColor="@null"
         app:tabTextAppearance="@style/MyTabTextStyle"
@@ -80,12 +81,12 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Accedi" />
+            android:text="@string/accedi" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="Registrati" />
+            android:text="@string/registrati" />
 
     </com.google.android.material.tabs.TabLayout>
 
@@ -97,7 +98,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
 
-        android:background="@android:color/white"
+        android:background="@color/md_theme_background"
 
         app:defaultNavHost="true"
         app:navGraph="@navigation/auth_nav_graph"

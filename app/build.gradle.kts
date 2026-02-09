@@ -126,6 +126,10 @@ dependencies {
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.5.3")
 
+    // --- Work Manager ---
+    implementation("androidx.work:work-runtime:2.9.0")
+    implementation("com.google.guava:guava:33.0.0-android")
+
     // --- Debugging ---
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
