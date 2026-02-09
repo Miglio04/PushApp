@@ -29,7 +29,7 @@ public class HomeFragment extends Fragment {
 
     private UserViewModel userViewModel;
     private TextView nameTitle;
-    private TextView tvAvatarInitial;
+    //private TextView tvAvatarInitial;
     private TextView tvWeightVal;
     private TextView tvWeightDiff;
 
@@ -58,10 +58,10 @@ public class HomeFragment extends Fragment {
 
         // Inizializzazione view
         nameTitle = view.findViewById(R.id.nameTitle);
-        tvAvatarInitial = view.findViewById(R.id.tvAvatarInitial);
+        //tvAvatarInitial = view.findViewById(R.id.tvAvatarInitial);
         tvWeightVal = view.findViewById(R.id.tvWeightVal);
         tvWeightDiff = view.findViewById(R.id.tvWeightDiff);
-        MaterialCardView btnUserArea = view.findViewById(R.id.btnUserArea);
+        //MaterialCardView btnUserArea = view.findViewById(R.id.btnUserArea);
 
         // Osserva i dati dell'utente dal ViewModel caricato all'avvio
         observeUserViewModel();
@@ -85,10 +85,10 @@ public class HomeFragment extends Fragment {
                 "Volume",
                 R.color.md_theme_primary);
 
-        btnUserArea.setOnClickListener(v -> {
+        /*btnUserArea.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), ProfileActivity.class);
             startActivity(intent);
-        });
+        });*/
     }
 
     private void observeUserViewModel(){
@@ -100,9 +100,9 @@ public class HomeFragment extends Fragment {
                 // Aggiorna Nome e Iniziale Avatar
                 if (user.getName() != null && !user.getName().isEmpty()) {
                     nameTitle.setText(user.getName());
-                    if (tvAvatarInitial != null) {
+                    /*if (tvAvatarInitial != null) {
                         tvAvatarInitial.setText(user.getName().substring(0, 1).toUpperCase());
-                    }
+                    }*/
                 }
 
                 // Aggiorna il Peso Attuale

@@ -42,7 +42,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/nameTitle" />
 
-            <!-- avatar -->
+            <!-- avatar
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnUserArea"
                 android:layout_width="50dp"
@@ -70,6 +70,7 @@
                     android:textStyle="bold" />
 
             </com.google.android.material.card.MaterialCardView>
+            -->
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
