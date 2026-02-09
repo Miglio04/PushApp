@@ -15,8 +15,8 @@ public class HistorySessionWithExercises {
 
     @Relation(
             entity = HistoryWorkoutExercise.class,
-            parentColumn = "sessionId",            // ID nella tabella sessioni
-            entityColumn = "sessionId"             // ID nella tabella esercizi
+            parentColumn = "sessionId",
+            entityColumn = "sessionId"
     )
     public List<HistoryWorkoutExerciseWithSeries> exercises;
 }

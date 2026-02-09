@@ -1,18 +1,17 @@
 package com.example.pushapp.viewModels;
 
 import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.pushapp.database.SessionManager; // Assicurati di importarlo
 import com.example.pushapp.repositories.ExerciseRepository;
-import com.example.pushapp.repositories.HistoryRepository; // --- NUOVO IMPORT
+import com.example.pushapp.repositories.HistoryRepository;
 import com.example.pushapp.repositories.ServiceLocator;
 import com.example.pushapp.repositories.SessionRepository;
 import com.example.pushapp.repositories.TrainingRepository;
 import com.example.pushapp.repositories.UserRepository;
-import com.example.pushapp.utils.SessionManager; // --- NUOVO IMPORT
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 
@@ -26,35 +25,32 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+        ServiceLocator locator = ServiceLocator.getInstance();
 
         if (modelClass.isAssignableFrom(TrainingViewModel.class)) {
-            TrainingRepository trainingRepository = ServiceLocator.getInstance().getTrainingRepository(context);
-            ExerciseRepository exerciseRepository = ServiceLocator.getInstance().getExerciseRepository(context);
-            return (T) new TrainingViewModel(trainingRepository, exerciseRepository);
+            return (T) new TrainingViewModel(
+                    locator.getTrainingRepository(context),
+                    locator.getExerciseRepository(context)
+            );
 
         } else if (modelClass.isAssignableFrom(WorkoutViewModel.class)) {
-            // 1. Recuperiamo le dipendenze esistenti
-            TrainingRepository trainingRepository = ServiceLocator.getInstance().getTrainingRepository(context);
-            ExerciseRepository exerciseRepository = ServiceLocator.getInstance().getExerciseRepository(context);
-
-            // 2. --- NUOVO --- Recuperiamo le nuove dipendenze per Storico e Anti-Crash
-            HistoryRepository historyRepository = ServiceLocator.getInstance().getHistoryRepository(context);
-            SessionManager sessionManager = ServiceLocator.getInstance().getSessionManager(context);
-
-            // 3. --- NUOVO --- Passiamo tutti e 4 i parametri al costruttore
-            return (T) new WorkoutViewModel(trainingRepository, exerciseRepository, historyRepository, sessionManager);
+            // AGGIORNATO: Ora passiamo 4 parametri al costruttore
+            return (T) new WorkoutViewModel(
+                    locator.getTrainingRepository(context),
+                    locator.getExerciseRepository(context),
+                    locator.getHistoryRepository(context), // Per salvare lo storico
+                    locator.getSessionManager(context)     // Per gestire i crash/ripristino
+            );
 
         } else if (modelClass.isAssignableFrom(UserViewModel.class)) {
-            UserRepository userRepository = ServiceLocator.getInstance().getUserRepository(context);
-            SessionRepository sessionRepository = ServiceLocator.getInstance().getSessionRepository(context);
-            return (T) new UserViewModel(userRepository, sessionRepository);
-        }
+            return (T) new UserViewModel(
+                    locator.getUserRepository(context),
+                    locator.getSessionRepository(context)
+            );
 
-        // --- NUOVO: Aggiungi anche HistoryViewModel qui sotto (ti servirà tra poco per lo storico) ---
-        // else if (modelClass.isAssignableFrom(HistoryViewModel.class)) {
-        //    HistoryRepository historyRepository = ServiceLocator.getInstance().getHistoryRepository(context);
-        //    return (T) new HistoryViewModel(historyRepository);
-        // }
+        } else if (modelClass.isAssignableFrom(HistoryViewModel.class)) {
+            return (T) new HistoryViewModel(locator.getHistoryRepository(context));
+        }
 
         throw new IllegalArgumentException("Unknown ViewModel class: " + modelClass.getName());
     }

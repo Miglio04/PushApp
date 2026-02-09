@@ -1,44 +1,36 @@
 package com.example.pushapp.repositories;
 
 import android.content.Context;
-
 import com.example.pushapp.database.LocalDatabase;
-// --- NUOVI IMPORT ---
-import com.example.pushapp.utils.SessionManager;
-import com.example.pushapp.database.HistoryDao;
+import com.example.pushapp.database.SessionManager; // 1. IMPORTANTE: Controlla che il pacchetto sia corretto
 
 public class ServiceLocator {
 
     private static volatile ServiceLocator instance = null;
 
-    private ServiceLocator() {};
+    private ServiceLocator() {}
 
     private volatile LocalDatabase localDatabase = null;
-
-    // --- REPOSITORIES ESISTENTI ---
     private volatile TrainingRepository trainingRepository = null;
     private volatile ExerciseRepository exerciseRepository = null;
     private volatile SessionRepository sessionRepository = null;
     private volatile UserRepository userRepository = null;
-
-    // --- NUOVI REPOSITORIES E MANAGER ---
     private volatile HistoryRepository historyRepository = null;
+
+    // Riferimento al gestore della sessione temporanea (Punto 9)
     private volatile SessionManager sessionManager = null;
 
-    // --- DATA SOURCES ESISTENTI ---
     private volatile TrainingLocalDataSource trainingLocalDataSource = null;
     private volatile ExerciseLocalDataSource exerciseLocalDataSource = null;
     private volatile UserLocalDataSource userLocalDataSource = null;
     private volatile SessionLocalDataSource sessionLocalDataSource = null;
+    private volatile HistoryLocalDataSource historyLocalDataSource = null;
+
     private volatile TrainingRemoteDataSource trainingRemoteDataSource = null;
     private volatile ExerciseAPIDataSource exerciseAPIDataSource = null;
     private volatile UserRemoteDataSource userRemoteDataSource = null;
     private volatile SessionRemoteDataSource sessionRemoteDataSource = null;
-
-    // --- NUOVI DATA SOURCES ---
-    private volatile HistoryLocalDataSource historyLocalDataSource = null;
     private volatile HistoryRemoteDataSource historyRemoteDataSource = null;
-
 
     public static ServiceLocator getInstance() {
         if (instance == null) {
@@ -51,9 +43,7 @@ public class ServiceLocator {
         return instance;
     }
 
-    // =========================================================================
-    //  REPOSITORIES
-    // =========================================================================
+    // --- REPOSITORY GETTERS ---
 
     public synchronized TrainingRepository getTrainingRepository(Context context) {
         if(trainingRepository == null){
@@ -96,10 +86,9 @@ public class ServiceLocator {
         return userRepository;
     }
 
-    // --- NUOVO: HISTORY REPOSITORY ---
     public synchronized HistoryRepository getHistoryRepository(Context context) {
         if (historyRepository == null) {
-            historyRepository = HistoryRepository.getInstance(
+            historyRepository = new HistoryRepository(
                     getHistoryLocalDataSource(context),
                     getHistoryRemoteDataSource()
             );
@@ -107,58 +96,52 @@ public class ServiceLocator {
         return historyRepository;
     }
 
-    // --- NUOVO: SESSION MANAGER (ANTI-CRASH) ---
+    // NUOVO: Getter per il SessionManager (Punto 9)
     public synchronized SessionManager getSessionManager(Context context) {
         if (sessionManager == null) {
-            sessionManager = new SessionManager(context);
+            sessionManager = new SessionManager(context.getApplicationContext());
         }
         return sessionManager;
     }
 
-
-    // =========================================================================
-    //  LOCAL DATA SOURCES
-    // =========================================================================
+    // --- LOCAL DATA SOURCE GETTERS ---
 
     public synchronized TrainingLocalDataSource getTrainingLocalDataSource(Context context) {
         if(trainingLocalDataSource == null){
-            LocalDatabase localDatabase = getDatabase(context);
-            trainingLocalDataSource = new TrainingLocalDataSource(localDatabase);
+            trainingLocalDataSource = new TrainingLocalDataSource(getDatabase(context));
         }
         return trainingLocalDataSource;
     }
 
     public synchronized ExerciseLocalDataSource getExerciseLocalDataSource(Context context) {
         if(exerciseLocalDataSource == null){
-            LocalDatabase localDatabase = getDatabase(context);
-            exerciseLocalDataSource = new ExerciseLocalDataSource(localDatabase);
+            exerciseLocalDataSource = new ExerciseLocalDataSource(getDatabase(context));
         }
         return exerciseLocalDataSource;
     }
 
     public synchronized UserLocalDataSource getUserLocalDataSource(Context context) {
         if(userLocalDataSource == null){
-            LocalDatabase localDatabase = getDatabase(context);
-            userLocalDataSource = new UserLocalDataSource(localDatabase);
+            userLocalDataSource = new UserLocalDataSource(getDatabase(context));
         }
         return userLocalDataSource;
     }
 
-    // --- NUOVO: HISTORY LOCAL DATA SOURCE ---
     public synchronized HistoryLocalDataSource getHistoryLocalDataSource(Context context) {
         if (historyLocalDataSource == null) {
-            // Otteniamo il database e poi il DAO specifico
-            LocalDatabase db = getDatabase(context);
-            HistoryDao historyDao = db.historyDao();
-            historyLocalDataSource = new HistoryLocalDataSource(historyDao);
+            historyLocalDataSource = new HistoryLocalDataSource(getDatabase(context));
         }
         return historyLocalDataSource;
     }
 
+    public synchronized SessionLocalDataSource getSessionLocalDataSource() {
+        if(sessionLocalDataSource == null){
+            sessionLocalDataSource = new SessionLocalDataSource();
+        }
+        return sessionLocalDataSource;
+    }
 
-    // =========================================================================
-    //  REMOTE DATA SOURCES
-    // =========================================================================
+    // --- REMOTE DATA SOURCE GETTERS ---
 
     public synchronized TrainingRemoteDataSource getTrainingRemoteDataSource() {
         if(trainingRemoteDataSource == null){
@@ -172,13 +155,6 @@ public class ServiceLocator {
             exerciseAPIDataSource = new ExerciseAPIDataSource();
         }
         return exerciseAPIDataSource;
-    }
-
-    public synchronized SessionLocalDataSource getSessionLocalDataSource() {
-        if(sessionLocalDataSource == null){
-            sessionLocalDataSource = new SessionLocalDataSource();
-        }
-        return sessionLocalDataSource;
     }
 
     public synchronized UserRemoteDataSource getUserRemoteDataSource() {
@@ -195,7 +171,6 @@ public class ServiceLocator {
         return sessionRemoteDataSource;
     }
 
-    // --- NUOVO: HISTORY REMOTE DATA SOURCE ---
     public synchronized HistoryRemoteDataSource getHistoryRemoteDataSource() {
         if (historyRemoteDataSource == null) {
             historyRemoteDataSource = new HistoryRemoteDataSource();
@@ -203,10 +178,7 @@ public class ServiceLocator {
         return historyRemoteDataSource;
     }
 
-
-    // =========================================================================
-    //  DATABASE
-    // =========================================================================
+    // --- DATABASE ---
 
     private synchronized LocalDatabase getDatabase(Context context) {
         if (localDatabase == null) {

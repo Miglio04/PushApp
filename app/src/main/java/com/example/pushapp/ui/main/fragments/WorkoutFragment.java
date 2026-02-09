@@ -1,30 +1,31 @@
 package com.example.pushapp.ui.main.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
-import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.pushapp.R;
+import com.example.pushapp.adapter.WorkoutExerciseAdapter;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Training;
-// import com.example.pushapp.repositories.FirebaseCallback; // Non serve più qui
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.viewModels.WorkoutViewModel;
-import com.example.pushapp.adapter.WorkoutExerciseAdapter;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -37,8 +38,10 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     private RecyclerView recyclerView;
     private TextView timerText;
     private ImageButton startPauseButton;
-    private ImageButton stopButton; // Nota: Questo ora funge da pulsante "Finish"
+    private ImageButton stopButton;
     private TextView headerTitle;
+
+    // UI REST TIMER
     private View restTimerContainer;
     private TextView restTimerText;
     private ProgressBar restTimerProgress;
@@ -50,19 +53,20 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 1. Inizializza il ViewModel (Factory aggiornata)
+        // Usiamo requireActivity() così il ViewModel sopravvive alla navigazione e permette il ripristino sessione
         workoutViewModel = new ViewModelProvider(
                 requireActivity(),
                 new ViewModelFactory(requireContext())).get(WorkoutViewModel.class);
 
-        // 2. Avvio Workout (o Ripristino)
+        // LOGICA DI AVVIO: Se entriamo con nuovi argomenti e non c'è un workout attivo, resetta e parti
         if (getArguments() != null) {
-            // Se il ViewModel NON ha già un workout in corso (es. ripristinato dal crash), ne avviamo uno nuovo.
-            if ((workoutViewModel.isWorkoutInProgress().getValue() == null || !workoutViewModel.isWorkoutInProgress().getValue())) {
+            Boolean inProgress = workoutViewModel.isWorkoutInProgress().getValue();
+            if (inProgress == null || !inProgress) {
                 Routine dayToStart = (Routine) getArguments().getSerializable("trainingDay");
                 Training parentTraining = (Training) getArguments().getSerializable("parentTraining");
 
                 if (dayToStart != null) {
+                    // Chiamata al VM che ora include il Deep Reset dei dati precedenti
                     workoutViewModel.startWorkout(dayToStart, parentTraining);
                 }
             }
@@ -70,51 +74,89 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_workout, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        // --- INIZIALIZZAZIONE VISTE (INVARIATA) ---
+        super.onViewCreated(view, savedInstanceState);
+
+        initViews(view);
+        setupRecyclerView();
+        setupObservers();
+        setupClickListeners();
+
+        // Stile One UI: Nasconde la barra di navigazione per dare focus all'allenamento
+        updateGlobalUIVisibility(false);
+    }
+
+    private void initViews(View view) {
         workoutBackButton = view.findViewById(R.id.workout_back_button);
         headerTitle = view.findViewById(R.id.header_title);
         timerText = view.findViewById(R.id.workout_timer_text);
         startPauseButton = view.findViewById(R.id.workout_start_pause_button);
         stopButton = view.findViewById(R.id.workout_stop_button);
         recyclerView = view.findViewById(R.id.recycler_workout);
-        restTimerContainer = view.findViewById(R.id.rest_timer_container);
-        restTimerText = restTimerContainer.findViewById(R.id.rest_timer_text);
-        restTimerProgress = restTimerContainer.findViewById(R.id.rest_timer_progress);
-        restTimerSkip = restTimerContainer.findViewById(R.id.rest_timer_skip);
 
-        // --- OBSERVERS (INVARIATI) ---
+        // Container del timer di riposo (Azzurrino)
+        restTimerContainer = view.findViewById(R.id.rest_timer_container);
+        restTimerText = view.findViewById(R.id.rest_timer_text);
+        restTimerProgress = view.findViewById(R.id.rest_timer_progress);
+        restTimerSkip = view.findViewById(R.id.rest_timer_skip);
+    }
+
+    private void setupRecyclerView() {
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        // Passiamo 'this' come listener per catturare i click sulle serie
+        workoutAdapter = new WorkoutExerciseAdapter(new ArrayList<>(), this);
+        recyclerView.setAdapter(workoutAdapter);
+    }
+
+    private void setupObservers() {
+        // Timer principale del workout
         workoutViewModel.getFormattedTime().observe(getViewLifecycleOwner(), time -> timerText.setText(time));
+
+        // Titolo (es: "Leg Day")
         workoutViewModel.getWorkoutTitle().observe(getViewLifecycleOwner(), title -> headerTitle.setText(title));
+
+        // Icona Play/Pause
         workoutViewModel.isWorkoutTimerRunning().observe(getViewLifecycleOwner(), this::updateStartPauseIcon);
 
+        // Lista esercizi: quando cambia (o viene resettata), l'adapter si aggiorna
+        workoutViewModel.getActiveTrainingDay().observe(getViewLifecycleOwner(), trainingDay -> {
+            if (trainingDay != null) {
+                workoutAdapter.setExercises(trainingDay.getWorkoutExercises());
+            }
+        });
+
+        // VISIBILITÀ REST TIMER
         workoutViewModel.isRestTimerRunning().observe(getViewLifecycleOwner(), isRunning -> {
             restTimerContainer.setVisibility(isRunning ? View.VISIBLE : View.GONE);
         });
 
+        // AGGIORNAMENTO REST TIMER (Sotto-secondi e progress)
         workoutViewModel.getRestSecondsRemaining().observe(getViewLifecycleOwner(), seconds -> {
-            int mins = seconds / 60;
-            int secs = seconds % 60;
-            restTimerText.setText(String.format(Locale.getDefault(), "%02d:%02d", mins, secs));
+            restTimerText.setText(String.format(Locale.getDefault(), "%02d:%02d", seconds / 60, seconds % 60));
+
+            // Colore Rosso se mancano meno di 5 secondi, altrimenti Azzurro Primario
+            if (seconds <= 5 && seconds > 0) {
+                restTimerText.setTextColor(Color.RED);
+            } else {
+                restTimerText.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
+            }
+
             Integer total = workoutViewModel.getRestTotalSeconds().getValue();
             if (total != null && total > 0) {
-                int progress = (int) ((seconds * 100f) / total);
-                restTimerProgress.setProgress(progress);
+                restTimerProgress.setProgress((int) ((seconds * 100f) / total));
             }
         });
+    }
 
-        // --- GESTIONE BOTTONI (AGGIORNATA PER STORICO) ---
-
-        // Tasto Indietro (Header): Chiude solo la vista, ma il workout continua sotto (nel miniplayer)
+    private void setupClickListeners() {
+        // Tasto indietro (Miniplayer apparirà automaticamente se il workout è in corso)
         workoutBackButton.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
-        // Tasto Play/Pause
         startPauseButton.setOnClickListener(v -> {
             if (Boolean.TRUE.equals(workoutViewModel.isWorkoutTimerRunning().getValue())) {
                 workoutViewModel.pauseWorkoutTimer();
@@ -123,59 +165,33 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
             }
         });
 
-        // Tasto STOP/FINISH (AGGIORNATO)
+        // SALVATAGGIO FINALE
         stopButton.setOnClickListener(v -> {
-            // PRIMA: stopWorkout (pausa)
-            // ORA: finishWorkout (Salva e Chiudi)
-            workoutViewModel.finishWorkout();
-
-            // Non navighiamo via subito! Aspettiamo che il salvataggio finisca.
-            // Vedi l'observer qui sotto 'navigateToHome'.
-        });
-
-        // NUOVO: Osserva quando il salvataggio è finito per uscire
-        workoutViewModel.getNavigateToHome().observe(getViewLifecycleOwner(), shouldNavigate -> {
-            if (Boolean.TRUE.equals(shouldNavigate)) {
-                NavController navController = NavHostFragment.findNavController(this);
-                // Torna indietro (alla home o lista schede)
-                navController.popBackStack();
-
-                Toast.makeText(requireContext(), "Allenamento salvato! 💪", Toast.LENGTH_SHORT).show();
-
-                // Reset del flag di navigazione per evitare loop se si rientra
-                // (opzionale, ma buona pratica se usi SingleLiveEvent, qui usiamo MutableLiveData quindi ok)
-            }
+            stopButton.setEnabled(false); // Prevenzione click multipli
+            workoutViewModel.finishWorkout(() -> {
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        Toast.makeText(requireContext(), "Workout Saved! Great job 🔥", Toast.LENGTH_SHORT).show();
+                        NavHostFragment.findNavController(WorkoutFragment.this).popBackStack();
+                    });
+                }
+            });
         });
 
         restTimerSkip.setOnClickListener(v -> workoutViewModel.skipRestTimer());
-
-        // --- SETUP RECYCLERVIEW (INVARIATO) ---
-        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        workoutAdapter = new WorkoutExerciseAdapter(new ArrayList<>(), this);
-        recyclerView.setAdapter(workoutAdapter);
-
-        workoutViewModel.getActiveTrainingDay().observe(getViewLifecycleOwner(), trainingDay -> {
-            if (trainingDay != null) {
-                workoutAdapter.setExercises(trainingDay.getWorkoutExercises());
-            }
-        });
-
-        // --- UI MANAGEMENT (INVARIATO) ---
-        hideBottomNav();
-        View mini = requireActivity().findViewById(R.id.workout_miniplayer);
-        if (mini != null) {
-            mini.setVisibility(View.GONE);
-        }
     }
 
-    // --- INTERFACCIA ADAPTER (INVARIATA) ---
+    // --- CALLBACK DALL'ADAPTER (INTERAZIONI REALI) ---
+
     @Override
     public void onSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds) {
+        // Notifica il ViewModel: questo attiverà il timer e salverà lo stato nel SessionManager
         workoutViewModel.toggleSetCompleted(exercisePosition, setPosition, restTimeSeconds);
     }
 
     @Override
     public void onSetDataChanged(int exercisePosition, int setPosition, double actualWeight, int actualReps) {
+        // Salvataggio istantaneo mentre l'utente digita
         workoutViewModel.updateSetData(exercisePosition, setPosition, actualWeight, actualReps);
     }
 
@@ -189,37 +205,24 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         workoutViewModel.deleteSetFromExercise(exercisePosition, setPosition);
     }
 
-    // --- METODI HELPER (INVARIATI) ---
+    // --- METODI HELPER ---
+
     private void updateStartPauseIcon(boolean isRunning) {
-        if (isRunning) {
-            startPauseButton.setImageResource(android.R.drawable.ic_media_pause);
-        } else {
-            startPauseButton.setImageResource(android.R.drawable.ic_media_play);
-        }
+        startPauseButton.setImageResource(isRunning ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
     }
 
-    private void hideBottomNav() {
+    private void updateGlobalUIVisibility(boolean show) {
         View nav = requireActivity().findViewById(R.id.bottom_navigation);
-        if (nav != null) {
-            nav.setVisibility(View.GONE);
-        }
-    }
+        if (nav != null) nav.setVisibility(show ? View.VISIBLE : View.GONE);
 
-    private void showBottomNav() {
-        View nav = requireActivity().findViewById(R.id.bottom_navigation);
-        if (nav != null) {
-            nav.setVisibility(View.VISIBLE);
-        }
+        View mini = requireActivity().findViewById(R.id.workout_miniplayer);
+        if (mini != null) mini.setVisibility(show && Boolean.TRUE.equals(workoutViewModel.isWorkoutInProgress().getValue()) ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        showBottomNav();
-        View mini = requireActivity().findViewById(R.id.workout_miniplayer);
-        // Mostriamo il miniplayer SOLO se l'allenamento è ancora in corso (non finito/cancellato)
-        if (mini != null && Boolean.TRUE.equals(workoutViewModel.isWorkoutInProgress().getValue())) {
-            mini.setVisibility(View.VISIBLE);
-        }
+        // Quando il fragment viene distrutto (es: torniamo indietro), mostriamo il mini-player e la nav
+        updateGlobalUIVisibility(true);
     }
 }
