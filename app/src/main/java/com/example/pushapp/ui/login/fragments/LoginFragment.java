@@ -35,7 +35,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GoogleAuthProvider;
 
 public class LoginFragment extends Fragment {
     private EditText etEmail, etPassword;
@@ -54,7 +56,7 @@ public class LoginFragment extends Fragment {
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                     try {
                         GoogleSignInAccount account = task.getResult(ApiException.class);
-                        userViewModel.signInWithGoogle(account.getIdToken());
+                        firebaseAuthWithGoogle(account.getIdToken());
                     } catch (ApiException e) {
                         Toast.makeText(requireContext(), "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         hideLoading();
@@ -77,8 +79,6 @@ public class LoginFragment extends Fragment {
         userViewModel = new ViewModelProvider(
                 this,
                 new ViewModelFactory(requireContext())).get(UserViewModel.class);
-
-        userViewModel.clearLiveData();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -125,24 +125,12 @@ public class LoginFragment extends Fragment {
 
     // provvisorio: non distingue se sono sbagliate le credenziali oppure se l'utente non esiste
     private void observeUserViewModel(){
-        if (userViewModel == null) return;
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), userId -> {
-            if(userId == null) return;
             hideLoading();
             if(userId.isSessionSuccess()){
                 showLoginSuccessDialog();
-            }else if(userId.isRegistrationError()){
+            }else{
                 Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
-                userViewModel.clearSessionLiveData();
-            }else if(userId.isLoginError()){
-                Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
-                userViewModel.clearSessionLiveData();
-            }else if(userId.isLocalDatabaseError()){
-                Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
-                userViewModel.clearSessionLiveData();
-            }else if(userId.isUserNotFound()){
-                showUserNotFoundDialog();
-                userViewModel.clearSessionLiveData();
             }
         });
     }
@@ -175,7 +163,7 @@ public class LoginFragment extends Fragment {
         userViewModel.signInWithEmailAndPassword(email, password);
     }
 
-    /*private void firebaseAuthWithGoogle(String idToken) {
+    private void firebaseAuthWithGoogle(String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(requireActivity(), task -> {
@@ -188,7 +176,7 @@ public class LoginFragment extends Fragment {
                         Toast.makeText(requireContext(), "Google Authentication failed.", Toast.LENGTH_SHORT).show();
                     }
                 });
-    }*/
+    }
 
     // --- NUOVO METODO CHE MOSTRA IL POPUP DI SUCCESSO DEL LOGIN ---
     private void showLoginSuccessDialog() {
