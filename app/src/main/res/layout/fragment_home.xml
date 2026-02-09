@@ -12,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Chart -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,6 +22,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="8dp"
+                android:text="@string/trattino"
                 android:textColor="@color/md_theme_onBackground"
                 android:textSize="24sp"
                 android:textStyle="bold"
@@ -42,36 +42,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/nameTitle" />
 
-            <!-- avatar
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnUserArea"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground"
-                app:cardBackgroundColor="@android:color/transparent"
-                app:cardCornerRadius="25dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:strokeColor="@color/md_theme_primary"
-                app:strokeWidth="1dp">
-
-                <TextView
-                    android:id="@+id/tvAvatarInitial"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/btn_gradient"
-                    android:gravity="center"
-                    android:text="M"
-                    android:textColor="@color/md_theme_onSecondary"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-            </com.google.android.material.card.MaterialCardView>
-            -->
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <com.google.android.material.card.MaterialCardView
@@ -83,18 +53,6 @@
             app:cardCornerRadius="30dp"
             app:strokeWidth="1dp"
             app:cardElevation="0dp">
-
-            <!-- Glass Container -->
-            <!--
-            <eightbitlab.com.blurview.BlurView
-                android:id="@+id/blurLayoutWeight"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:blurOverlayColor="@color/glass_bg"
-                android:background="@drawable/glass_gradient_bg"
-                android:outlineProvider="background"
-            >
-            -->
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:padding="20dp"
@@ -113,7 +71,7 @@
 
                     <TextView
                         android:id="@+id/tvWeightVal"
-                        android:text="70.0 kg"
+                        android:text="@string/trattino"
                         android:textColor="@color/md_theme_onBackground"
                         android:textStyle="bold"
                         android:textSize="32sp"
@@ -125,7 +83,7 @@
 
                     <TextView
                         android:id="@+id/tvWeightDiff"
-                        android:text=""
+                        android:text="@string/trattino"
                         android:textColor="@color/md_theme_onSecondaryContainer"
                         android:textSize="14sp"
                         android:layout_marginStart="8dp"
@@ -134,7 +92,6 @@
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"/>
 
-                    <!-- 30 days badge-->
                     <TextView
                         android:text="@string/_30_days"
                         android:textColor="@color/md_theme_onSecondary"
@@ -147,24 +104,20 @@
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"/>
 
-                    <!-- Placeholder per il grafico (In realtà servirebbe MPAndroidChart) -->
                     <ImageView
                         android:layout_width="match_parent"
                         android:layout_height="120dp"
                         android:layout_marginTop="20dp"
-                        android:contentDescription="Progress Chart"
+                        android:contentDescription="@string/progress_chart"
                         android:src="@drawable/ic_launcher_background"
                         app:tint="@color/md_theme_secondary"
                         app:layout_constraintTop_toBottomOf="@id/tvWeightVal"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"/>
-                    <!-- NOTA: Sostituisci l'ImageView sopra con com.github.mikephil.charting.charts.LineChart se usi la libreria -->
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
-            <!-- </eightbitlab.com.blurview.BlurView> -->
-        </com.google.android.material.card.MaterialCardView>
+           </com.google.android.material.card.MaterialCardView>
 
-        <!-- motivational quote -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -172,7 +125,7 @@
             <TextView
                 android:id="@+id/tvPhrase1"
                 android:gravity="center"
-                android:text="Push yourself, because no\none else will"
+                android:text="@string/push_yourself_because_no_none_else_will"
                 android:textColor="@color/md_theme_onBackground"
                 android:shadowColor="@color/md_theme_primary"
                 android:shadowDx="0"
@@ -189,13 +142,12 @@
             android:id="@+id/tvPhrase2"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="Consistency beats talent"
+            android:text="@string/consistency_beats_talent"
             android:textColor="@color/md_theme_onBackground_mediumContrast"
             android:textSize="14sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-            <!-- training button -->
             <Button
                 android:id="@+id/btnAllenati"
                 android:text="@string/train_now"
@@ -214,8 +166,6 @@
                 android:padding="16dp"
                 android:layout_height="wrap_content" />
 
-
-        <!-- stat cards -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -223,7 +173,6 @@
             android:weightSum="3"
             android:baselineAligned="false"
             android:orientation="horizontal">
-                <!-- Card 1: Streak -->
                 <include
                     android:id="@+id/cardStreak"
                     layout="@layout/item_home_stat_card"
@@ -232,7 +181,6 @@
                     android:layout_weight="1"
                     android:layout_marginEnd="4dp"/>
 
-                <!-- Card 2: Workouts -->
                 <include
                     android:id="@+id/cardWorkouts"
                     layout="@layout/item_home_stat_card"
@@ -241,7 +189,6 @@
                     android:layout_weight="1"
                     android:layout_marginHorizontal="4dp"/>
 
-                <!-- Card 3: Volume -->
                 <include
                     android:id="@+id/cardVolume"
                     layout="@layout/item_home_stat_card"

@@ -2,12 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/md_theme_background">
 
-    <!-- 1. LOGO E TITOLO (Fissi in alto) -->
     <LinearLayout
         android:id="@+id/headerContainer"
         android:layout_width="wrap_content"
@@ -25,12 +23,12 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:src="@drawable/logo_pushapp"
-            android:contentDescription="App Logo" />
+            android:contentDescription="@string/app_icon" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="PushApp"
+            android:text="@string/app_name"
 
             android:textSize="32sp"
 
@@ -38,19 +36,17 @@
             android:textColor="@color/md_theme_onBackground"
             android:layout_marginTop="8dp"/>
 
-        <!-- NUOVA SCRITTA GRIGIA DINAMICA -->
         <TextView
             android:id="@+id/tvAuthSubtitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome back!"
+            android:text="@string/welcome_back"
             android:textColor="@color/md_theme_onBackground_mediumContrast"
             android:textSize="14sp"
             android:layout_marginTop="4dp"/>
 
     </LinearLayout>
 
-    <!-- 2. LO SWITCH (TabLayout) -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayoutAuth"
         android:layout_width="match_parent"
@@ -90,7 +86,6 @@
 
     </com.google.android.material.tabs.TabLayout>
 
-    <!-- 3. IL CONTENITORE DEI FRAGMENT -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"

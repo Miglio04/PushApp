@@ -51,7 +51,6 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Profile Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -71,7 +70,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:text="M"
+                        android:text="@string/trattino"
                         android:textColor="@color/md_theme_onPrimary"
                         android:textSize="40sp"
                         android:textStyle="bold" />
@@ -82,7 +81,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="User Name"
+                    android:text="@string/trattino"
                     android:textColor="@color/md_theme_onBackground"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -92,12 +91,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="user@email.com"
+                    android:text="@string/trattino"
                     android:textColor="@color/md_theme_onBackground_mediumContrast"
                     android:textSize="16sp" />
             </LinearLayout>
 
-            <!-- Stats Cards (KEEP) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -125,7 +123,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="127"
+                            android:text="@string/trattino"
                             android:textColor="@color/md_theme_onSecondaryContainer"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -133,7 +131,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Workouts"
+                            android:text="@string/workouts"
                             android:textColor="@color/md_theme_onBackground_mediumContrast" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -157,7 +155,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="18"
+                            android:text="@string/trattino"
                             android:textColor="@color/md_theme_onSecondaryContainer"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -165,7 +163,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Streak"
+                            android:text="@string/streak"
                             android:textColor="@color/md_theme_onBackground_mediumContrast" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -189,7 +187,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="2.5k"
+                            android:text="@string/trattino"
                             android:textColor="@color/md_theme_onSecondaryContainer"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -197,14 +195,13 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Volume"
+                            android:text="@string/volume"
                             android:textColor="@color/md_theme_onBackground_mediumContrast" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
 
-            <!-- Personal Data List (New Styled List) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -229,13 +226,12 @@
                             android:id="@+id/tvDetailEmail"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="-"
+                            android:text="@string/trattino"
                             android:textColor="@color/md_theme_onPrimary"
                             android:textSize="15sp"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Gender Item -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -252,13 +248,12 @@
                             android:id="@+id/tvDetailGender"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="-"
+                            android:text="@string/trattino"
                             android:textColor="@color/md_theme_onPrimary"
                             android:textSize="15sp"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Age Item -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -276,13 +271,12 @@
                             android:id="@+id/tvDetailAge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="-"
+                            android:text="@string/trattino"
                             android:textColor="@color/md_theme_onPrimary"
                             android:textSize="15sp"/>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Height Item -->
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -300,7 +294,7 @@
                             android:id="@+id/tvDetailHeight"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="- cm"
+                            android:text="@string/trattino"
                             android:textColor="@color/md_theme_onPrimary"
                             android:textSize="15sp"/>
                     </LinearLayout>
@@ -324,7 +318,7 @@
                             android:id="@+id/tvDetailWeight"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="- kg"
+                            android:text="@string/trattino"
                             android:textColor="@color/md_theme_onPrimary"
                             android:textSize="15sp"/>
                     </LinearLayout>
@@ -332,7 +326,6 @@
 
             </LinearLayout>
 
-            <!-- Logout Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"
                 style="@style/Widget.Material3.Button"
@@ -342,7 +335,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="32dp"
                 android:layout_gravity="center_horizontal"
-                android:text="Logout"
+                android:text="@string/logout"
                 android:textColor="@color/md_theme_onError"
                 app:backgroundTint="@color/md_theme_error"
                 app:cornerRadius="16dp"
