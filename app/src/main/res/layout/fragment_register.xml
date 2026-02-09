@@ -15,9 +15,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:padding="24dp"> <!-- FONDAMENTALE: 24dp PER ALLINEARSI ALLO SWITCH SOPRA -->
+            android:padding="24dp">
 
-            <!-- CONTENITORE CAMPI INPUT -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -25,111 +24,105 @@
                 android:gravity="start"
                 android:layout_marginTop="8dp">
 
-                <!-- EMAIL LABEL -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/email"
-                    android:textColor="@color/md_theme_onSurfaceVariant"
+                    android:textColor="@color/md_theme_onBackground"
                     android:textStyle="bold"
                     android:textSize="14sp"
                     android:layout_marginStart="12dp"
                     android:layout_marginBottom="6dp"/>
 
-                <!-- EMAIL INPUT -->
                 <EditText
                     android:id="@+id/etEmailRegister"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:background="@drawable/bg_input_outline"
+                    android:backgroundTint="@color/md_theme_background"
                     android:hint="@string/you_email_com"
-                    android:textColorHint="@color/md_theme_outline"
-                    android:textColor="@color/md_theme_onSurface"
+                    android:textColorHint="@color/md_theme_onBackground_mediumContrast"
+                    android:textColor="@color/md_theme_onBackground"
                     android:paddingStart="20dp"
                     android:textSize="16sp"
                     android:inputType="textEmailAddress"/>
 
-                <!-- EMAIL ERROR -->
                 <TextView
                     android:id="@+id/tvEmailError"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/ops_invalid_email_address"
-                    android:textColor="#B00020"
+                    android:textColor="@color/md_theme_error"
                     android:textSize="12sp"
                     android:layout_marginStart="12dp"
                     android:layout_marginTop="4dp"
                     android:visibility="gone"
                     android:layout_marginBottom="10dp"/>
 
-                <!-- PASSWORD LABEL -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/password"
-                    android:textColor="@color/md_theme_onSurfaceVariant"
+                    android:textColor="@color/md_theme_onBackground"
                     android:textStyle="bold"
                     android:textSize="14sp"
                     android:layout_marginStart="12dp"
                     android:layout_marginBottom="6dp"/>
 
-                <!-- PASSWORD INPUT -->
                 <EditText
                     android:id="@+id/etPasswordRegister"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:background="@drawable/bg_input_outline"
+                    android:backgroundTint="@color/md_theme_background"
                     android:hint="@string/psw"
-                    android:textColorHint="@color/md_theme_outline"
-                    android:textColor="@color/md_theme_onSurface"
+                    android:textColorHint="@color/md_theme_onBackground_mediumContrast"
+                    android:textColor="@color/md_theme_onBackground"
                     android:paddingStart="20dp"
                     android:textSize="16sp"
                     android:inputType="textPassword"/>
 
-                <!-- PASSWORD ERROR -->
                 <TextView
                     android:id="@+id/tvPasswordError"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/password_is_too_short"
-                    android:textColor="#B00020"
+                    android:textColor="@color/md_theme_error"
                     android:textSize="12sp"
                     android:layout_marginStart="12dp"
                     android:layout_marginTop="4dp"
                     android:visibility="gone"
                     android:layout_marginBottom="10dp"/>
 
-                <!-- CONFIRM PASSWORD LABEL -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Confirm Password"
-                    android:textColor="@color/md_theme_onSurfaceVariant"
+                    android:text="@string/confirm_password"
+                    android:textColor="@color/md_theme_onBackground"
                     android:textStyle="bold"
                     android:textSize="14sp"
                     android:layout_marginStart="12dp"
                     android:layout_marginBottom="6dp"/>
 
-                <!-- CONFIRM PASSWORD INPUT -->
                 <EditText
                     android:id="@+id/etConfirmPasswordRegister"
                     android:layout_width="match_parent"
                     android:layout_height="55dp"
                     android:background="@drawable/bg_input_outline"
+                    android:backgroundTint="@color/md_theme_background"
                     android:hint="@string/psw"
-                    android:textColorHint="@color/md_theme_outline"
-                    android:textColor="@color/md_theme_onSurface"
+                    android:textColorHint="@color/md_theme_onBackground_mediumContrast"
+                    android:textColor="@color/md_theme_onBackground"
                     android:paddingStart="20dp"
                     android:textSize="16sp"
                     android:inputType="textPassword"/>
 
-                <!-- CONFIRM PASSWORD ERROR -->
                 <TextView
                     android:id="@+id/tvConfirmPasswordError"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Passwords do not match"
-                    android:textColor="#B00020"
+                    android:text="@string/passwords_do_not_match"
+                    android:textColor="@color/md_theme_error"
                     android:textSize="12sp"
                     android:layout_marginStart="12dp"
                     android:layout_marginTop="4dp"
@@ -137,13 +130,12 @@
 
             </LinearLayout>
 
-            <!-- REGISTER BUTTON -->
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnRegister"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
-                android:text="Create Account"
-                android:textColor="@color/md_theme_onPrimary"
+                android:text="@string/create_account"
+                android:textColor="@color/md_theme_onPrimaryContainer"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:background="@drawable/bg_button_blue"
@@ -152,22 +144,20 @@
                 android:layout_marginTop="30dp"
                 android:layout_marginBottom="25dp"/>
 
-            <!-- DIVIDER OR -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/or"
-                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textColor="@color/md_theme_onBackground"
                 android:textSize="14sp"
                 android:layout_marginBottom="25dp"/>
 
-            <!-- GOOGLE BUTTON -->
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnGoogle"
                 android:layout_width="match_parent"
                 android:layout_height="55dp"
                 android:text="@string/continue_with_google"
-                android:textColor="@color/md_theme_onSurface"
+                android:textColor="@android:color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:background="@drawable/bg_input_outline"
@@ -178,13 +168,12 @@
                 android:paddingEnd="30dp"
                 android:textAllCaps="false"/>
 
-            <!-- TERMS TEXT -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/by_continuing_you_agree_to_our_terms_of_service"
-                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textColor="@color/md_theme_onBackground"
                 android:textSize="12sp"
                 android:layout_marginTop="30dp"
                 android:layout_marginBottom="20dp"/>
@@ -192,14 +181,13 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- LOADING OVERLAY -->
     <LinearLayout
         android:id="@+id/loadingOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:gravity="center"
-        android:background="#CCFFFFFF"
+        android:background="@color/md_theme_background"
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone">
