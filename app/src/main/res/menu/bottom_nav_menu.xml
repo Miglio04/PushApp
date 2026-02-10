@@ -17,13 +17,13 @@
         android:title="Stats" />
 
     <item
-        android:id="@+id/nav_history"
-        android:icon="@drawable/ic_timer"
-        android:title="Activity" />
+        android:id="@+id/nav_social"
+        android:icon="@drawable/groups"
+        android:title="Social" />
 
     <item
-        android:id="@+id/nav_profile"
-        android:icon="@drawable/person"
-        android:title="Profile" />
+        android:id="@+id/nav_food"
+        android:icon="@drawable/add"
+        android:title="Food" />
 
 </menu>

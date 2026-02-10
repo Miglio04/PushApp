@@ -1,15 +1,16 @@
 package com.example.pushapp.ui.main.fragments;
 
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -17,54 +18,50 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.gridlayout.widget.GridLayout;
 
 import com.example.pushapp.R;
-import com.example.pushapp.models.Result;
-import com.example.pushapp.models.history.HistorySerie;
-import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
-import com.example.pushapp.viewModels.HistoryViewModel;
-import com.example.pushapp.viewModels.ViewModelFactory;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
-import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 
-import java.time.Instant;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.YearMonth;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 public class StatsFragment extends Fragment {
 
+    // --- ELEMENTI GRAFICI (UI) ---
     private GridLayout calendarGrid;
-    private TextView txtMonthTitle, txtKpiWorkouts, txtKpiVolume, txtKpiTime, txtStreakCount, txtStreakMessage;
-    private ImageButton btnPrev, btnNext, btnExpand;
-    private ImageView imgSpinnerArrow;
-    private LineChart chartLoad, chartReps;
-    private Spinner exerciseSpinner;
+    private TextView txtMonthTitle;
+    private ImageView btnExpand, btnPrev, btnNext;
     private LinearLayout legendLayout;
 
-    private HistoryViewModel historyViewModel;
-    private List<HistorySessionWithExercises> fullHistory = new ArrayList<>();
+    // Grafici e Spinner
+    private LineChart chartLoad; // Grafico Carichi
+    private LineChart chartReps; // Grafico Ripetizioni
+    private Spinner exerciseSpinner; // Menu a tendina
+
+    // KPI (Numeri in alto)
+    private TextView txtKpiWorkouts, txtKpiTime, txtKpiVolume;
+
+    // --- LOGICA E STATO ---
     private LocalDate selectedDate = LocalDate.now();
-    private boolean isMonthView = false; // Default: vista settimanale
-    private final DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+    private boolean isMonthView = false;
+    private DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+    private int calculatedItemWidth = 0;
+
+    public StatsFragment() {}
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_stats, container, false);
     }
 
@@ -72,248 +69,261 @@ public class StatsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        initViews(view);
-        setupChartStyle(chartLoad);
-        setupChartStyle(chartReps);
-
-        historyViewModel = new ViewModelProvider(this, new ViewModelFactory(requireContext())).get(HistoryViewModel.class);
-
-        historyViewModel.getHistoryList().observe(getViewLifecycleOwner(), result -> {
-            if (result instanceof Result.HistorySuccess) {
-                this.fullHistory = ((Result.HistorySuccess) result).getData();
-                setupExerciseSpinner();
-                drawCalendar();
-                updateStats();
-            }
-        });
-
-        setupClickListeners();
-        historyViewModel.fetchHistory();
-    }
-
-    private void initViews(View view) {
+        // 1. COLLEGAMENTO VISTE (FIND VIEW BY ID)
         calendarGrid = view.findViewById(R.id.calendarGrid);
         txtMonthTitle = view.findViewById(R.id.txtMonthTitle);
+        btnExpand = view.findViewById(R.id.btnExpand);
         btnPrev = view.findViewById(R.id.btnPrev);
         btnNext = view.findViewById(R.id.btnNext);
-        btnExpand = view.findViewById(R.id.btnExpand);
-        imgSpinnerArrow = view.findViewById(R.id.imgSpinnerArrow);
+        legendLayout = view.findViewById(R.id.legendLayout);
+
+        // Grafici e Spinner
         chartLoad = view.findViewById(R.id.chartLoad);
         chartReps = view.findViewById(R.id.chartReps);
         exerciseSpinner = view.findViewById(R.id.exerciseSpinner);
-        txtKpiWorkouts = view.findViewById(R.id.txtKpiWorkouts);
-        txtKpiVolume = view.findViewById(R.id.txtKpiVolume);
-        txtKpiTime = view.findViewById(R.id.txtKpiTime);
-        txtStreakCount = view.findViewById(R.id.txtStreakCount);
-        txtStreakMessage = view.findViewById(R.id.txtStreakMessage);
-        legendLayout = view.findViewById(R.id.legendLayout);
-        setupLegend();
-    }
 
-    private void setupClickListeners() {
-        btnPrev.setOnClickListener(v -> {
-            selectedDate = isMonthView ? selectedDate.minusMonths(1) : selectedDate.minusWeeks(1);
+        // KPI
+        txtKpiWorkouts = view.findViewById(R.id.txtKpiWorkouts);
+        txtKpiTime = view.findViewById(R.id.txtKpiTime);
+        txtKpiVolume = view.findViewById(R.id.txtKpiVolume);
+
+        // 2. CONFIGURAZIONE INIZIALE
+        calculateCellWidth();
+        setupLegend();
+
+        // Configura lo stile dei due grafici (vuoti all'inizio)
+        setupChartStyle(chartLoad);
+        setupChartStyle(chartReps);
+
+        // Configura il menu a tendina e i dati dei grafici
+        setupExerciseSpinner();
+
+        // Disegna Calendario e Dati Mensili
+        drawCalendar();
+        updateMonthlyStats();
+
+        // 3. EVENTI CLICK (LISTENERS)
+        btnExpand.setOnClickListener(v -> {
+            isMonthView = !isMonthView;
+            btnExpand.animate().rotation(isMonthView ? 180f : 0f).start();
             drawCalendar();
-            updateStats();
+        });
+
+        btnPrev.setOnClickListener(v -> {
+            if (isMonthView) selectedDate = selectedDate.minusMonths(1).withDayOfMonth(1);
+            else selectedDate = selectedDate.minusWeeks(1);
+            drawCalendar();
+            updateMonthlyStats();
         });
 
         btnNext.setOnClickListener(v -> {
-            selectedDate = isMonthView ? selectedDate.plusMonths(1) : selectedDate.plusWeeks(1);
+            if (isMonthView) selectedDate = selectedDate.plusMonths(1).withDayOfMonth(1);
+            else selectedDate = selectedDate.plusWeeks(1);
             drawCalendar();
-            updateStats();
+            updateMonthlyStats();
         });
+    }
 
-        btnExpand.setOnClickListener(v -> {
-            isMonthView = !isMonthView;
-            btnExpand.animate().rotation(isMonthView ? 90f : 270f).setDuration(300).start();
-            drawCalendar();
+    // --- CONFIGURAZIONE GRAFICI ---
+    private void setupChartStyle(LineChart chart) {
+        chart.getDescription().setEnabled(false);
+        chart.getLegend().setEnabled(false);
+        chart.setDrawGridBackground(false);
+        chart.setTouchEnabled(true);
+        chart.setDragEnabled(true);
+        chart.setScaleEnabled(true);
+
+        // Asse X (Sotto)
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setTextColor(Color.GRAY);
+
+        // Assi Y
+        chart.getAxisLeft().setTextColor(Color.GRAY);
+        chart.getAxisRight().setEnabled(false); // Nasconde asse destro
+    }
+
+    // --- CONFIGURAZIONE SPINNER + DATI ---
+    private void setupExerciseSpinner() {
+        String[] exercises = {"Bench Press", "Squat", "Deadlift", "Overhead Press", "Pull Up"};
+
+        // Usa il layout personalizzato per lo Spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(),
+                R.layout.item_spinner_custom,
+                exercises
+        );
+        adapter.setDropDownViewResource(R.layout.item_spinner_custom);
+        exerciseSpinner.setAdapter(adapter);
+
+        // Quando selezioni un esercizio, aggiorna i grafici
+        exerciseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = exercises[position];
+                updateChartsData(selected);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
+    }
+
+    private void updateChartsData(String exerciseName) {
+        List<Entry> loadEntries = new ArrayList<>();
+        List<Entry> repsEntries = new ArrayList<>();
+
+        // SIMULAZIONE DATI (Mock)
+        if (exerciseName.equals("Bench Press")) {
+            loadEntries.add(new Entry(1, 60f)); loadEntries.add(new Entry(2, 65f)); loadEntries.add(new Entry(3, 70f));
+            repsEntries.add(new Entry(1, 10f)); repsEntries.add(new Entry(2, 10f)); repsEntries.add(new Entry(3, 8f));
+        } else if (exerciseName.equals("Squat")) {
+            loadEntries.add(new Entry(1, 80f)); loadEntries.add(new Entry(2, 90f)); loadEntries.add(new Entry(3, 100f));
+            repsEntries.add(new Entry(1, 5f)); repsEntries.add(new Entry(2, 5f)); repsEntries.add(new Entry(3, 5f));
+        } else {
+            // Dati generici per altri esercizi
+            loadEntries.add(new Entry(1, 40f)); loadEntries.add(new Entry(2, 42f)); loadEntries.add(new Entry(3, 45f));
+            repsEntries.add(new Entry(1, 12f)); repsEntries.add(new Entry(2, 12f)); repsEntries.add(new Entry(3, 15f));
+        }
+
+        // Configura dataset LOAD (Blu)
+        LineDataSet loadSet = new LineDataSet(loadEntries, "Load");
+        loadSet.setColor(Color.parseColor("#005BB1"));
+        loadSet.setCircleColor(Color.parseColor("#005BB1"));
+        loadSet.setLineWidth(3f);
+        loadSet.setCircleRadius(5f);
+        loadSet.setDrawValues(false);
+        loadSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+
+        // Configura dataset REPS (Arancione)
+        LineDataSet repsSet = new LineDataSet(repsEntries, "Reps");
+        repsSet.setColor(Color.parseColor("#E65100"));
+        repsSet.setCircleColor(Color.parseColor("#E65100"));
+        repsSet.setLineWidth(3f);
+        repsSet.setCircleRadius(5f);
+        repsSet.setDrawValues(false);
+        repsSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+
+        // Aggiorna Grafici
+        chartLoad.setData(new LineData(loadSet));
+        chartLoad.animateX(800);
+
+        chartReps.setData(new LineData(repsSet));
+        chartReps.animateX(800);
+    }
+
+    // --- CALENDARIO E KPI ---
+    private void updateMonthlyStats() {
+        Month currentMonth = selectedDate.getMonth();
+        int currentYear = selectedDate.getYear();
+
+        if (currentMonth == Month.DECEMBER && currentYear == 2025) {
+            txtKpiWorkouts.setText("3"); txtKpiTime.setText("04:30h"); txtKpiVolume.setText("14.5k");
+        } else if (currentMonth == Month.NOVEMBER && currentYear == 2025) {
+            txtKpiWorkouts.setText("12"); txtKpiTime.setText("18:00h"); txtKpiVolume.setText("48.2k");
+        } else {
+            txtKpiWorkouts.setText("0"); txtKpiTime.setText("00:00h"); txtKpiVolume.setText("0");
+        }
+    }
+
+    private void calculateCellWidth() {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        int screenWidth = displayMetrics.widthPixels;
+        int totalMarginsPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 32, displayMetrics);
+        calculatedItemWidth = (screenWidth - totalMarginsPx) / 7;
+    }
+
+    private void setupLegend() {
+        String[] days = {"MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"};
+        legendLayout.removeAllViews();
+        legendLayout.setWeightSum(0);
+        for (String day : days) {
+            TextView tv = new TextView(getContext());
+            tv.setText(day);
+            tv.setTextColor(Color.WHITE); // Testo Bianco
+            tv.setTextSize(12);
+            tv.setGravity(Gravity.CENTER);
+            legendLayout.addView(tv, new LinearLayout.LayoutParams(calculatedItemWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
+        }
     }
 
     private void drawCalendar() {
         calendarGrid.removeAllViews();
         txtMonthTitle.setText(selectedDate.format(monthFormatter).toUpperCase());
 
-        List<LocalDate> days = new ArrayList<>();
+        List<LocalDate> daysToShow = new ArrayList<>();
         if (isMonthView) {
-            YearMonth ym = YearMonth.from(selectedDate);
-            int emptyCells = ym.atDay(1).getDayOfWeek().getValue() - 1;
-            for (int i = 0; i < emptyCells; i++) days.add(null);
-            for (int i = 1; i <= ym.lengthOfMonth(); i++) days.add(ym.atDay(i));
+            YearMonth yearMonth = YearMonth.from(selectedDate);
+            int daysInMonth = yearMonth.lengthOfMonth();
+            LocalDate firstOfMonth = yearMonth.atDay(1);
+            int emptyCells = firstOfMonth.getDayOfWeek().getValue() - 1;
+            for(int i=0; i<emptyCells; i++) daysToShow.add(null);
+            for(int i=1; i<=daysInMonth; i++) daysToShow.add(yearMonth.atDay(i));
         } else {
-            LocalDate start = selectedDate.minusDays(selectedDate.getDayOfWeek().getValue() - 1);
-            for (int i = 0; i < 7; i++) days.add(start.plusDays(i));
+            LocalDate startOfWeek = selectedDate.minusDays(selectedDate.getDayOfWeek().getValue() - 1);
+            for(int i=0; i<7; i++) daysToShow.add(startOfWeek.plusDays(i));
         }
 
+        LayoutInflater inflater = LayoutInflater.from(getContext());
         LocalDate today = LocalDate.now();
-        for (LocalDate date : days) {
-            View v = LayoutInflater.from(getContext()).inflate(R.layout.item_day_header, calendarGrid, false);
-            TextView tv = v.findViewById(R.id.txtDayNumber);
-            ImageView dot = v.findViewById(R.id.indicatorDot);
 
-            if (date != null) {
-                tv.setText(String.valueOf(date.getDayOfMonth()));
+        for (LocalDate date : daysToShow) {
+            View view = inflater.inflate(R.layout.item_day_header, calendarGrid, false);
+            TextView txtNum = view.findViewById(R.id.txtDayNumber);
+            TextView txtName = view.findViewById(R.id.txtDayName);
+            ImageView dot = view.findViewById(R.id.indicatorDot);
+
+            if (txtName != null) txtName.setVisibility(View.GONE);
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width = calculatedItemWidth;
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            if (date == null) {
+                view.setVisibility(View.INVISIBLE);
+            } else {
+                txtNum.setText(String.valueOf(date.getDayOfMonth()));
+
+                // COLORI CERCHI
                 if (date.isEqual(today)) {
-                    tv.setBackgroundResource(R.drawable.bg_circle_selection);
-                    tv.setTextColor(Color.WHITE);
+                    txtNum.setBackgroundResource(R.drawable.bg_circle_selection); // Pieno
+                    txtNum.setTextColor(Color.parseColor("#005BB1"));
                 } else if (date.isEqual(selectedDate)) {
-                    tv.setBackgroundResource(R.drawable.bg_circle_outline);
-                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
+                    txtNum.setBackgroundResource(R.drawable.bg_circle_outline); // Vuoto
+                    txtNum.setTextColor(Color.WHITE);
                 } else {
-                    tv.setBackground(null);
-                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_onSurface));
+                    txtNum.setBackground(null);
+                    txtNum.setTextColor(Color.WHITE);
                 }
 
-                dot.setVisibility(isWorkoutDay(date) ? View.VISIBLE : View.INVISIBLE);
-                dot.setColorFilter(ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
+                // PALLINI
+                if (isWorkoutDay(date)) {
+                    dot.setVisibility(View.VISIBLE);
+                    // Contrasto Pallino
+                    if (date.isEqual(today)) dot.setColorFilter(Color.parseColor("#005BB1"));
+                    else dot.setColorFilter(Color.WHITE);
+                } else {
+                    dot.setVisibility(View.INVISIBLE);
+                }
 
-                v.setOnClickListener(v1 -> {
+                view.setOnClickListener(v -> {
                     selectedDate = date;
                     drawCalendar();
-                    updateStats();
+                    updateMonthlyStats();
                 });
-            } else {
-                v.setVisibility(View.INVISIBLE);
             }
-
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams(
-                    GridLayout.spec(GridLayout.UNDEFINED, 1f),
-                    GridLayout.spec(GridLayout.UNDEFINED, 1f));
-            params.width = 0;
-            calendarGrid.addView(v, params);
+            calendarGrid.addView(view, params);
         }
     }
 
-    private void updateStats() {
-        int workoutsMonth = 0;
-        double volumeMonth = 0;
-        long timeMillisMonth = 0;
-        Set<LocalDate> allDates = new HashSet<>();
-
-        int selMonth = selectedDate.getMonthValue();
-        int selYear = selectedDate.getYear();
-
-        for (HistorySessionWithExercises s : fullHistory) {
-            LocalDate d = Instant.ofEpochMilli(s.session.startTime).atZone(ZoneId.systemDefault()).toLocalDate();
-            allDates.add(d);
-
-            if (d.getMonthValue() == selMonth && d.getYear() == selYear) {
-                workoutsMonth++;
-                timeMillisMonth += (s.session.endTime - s.session.startTime);
-                for (var ex : s.exercises) {
-                    for (HistorySerie sr : ex.historySeries) volumeMonth += (sr.weight * sr.reps);
-                }
+    private boolean isWorkoutDay(LocalDate date) {
+        int year = date.getYear();
+        Month month = date.getMonth();
+        int day = date.getDayOfMonth();
+        if (year == 2025) {
+            if (month == Month.DECEMBER) return day == 1 || day == 3 || day == 4;
+            else if (month == Month.NOVEMBER) {
+                DayOfWeek dow = date.getDayOfWeek();
+                return dow == DayOfWeek.MONDAY || dow == DayOfWeek.WEDNESDAY || dow == DayOfWeek.FRIDAY;
             }
-        }
-
-        txtKpiWorkouts.setText(String.valueOf(workoutsMonth));
-        txtKpiVolume.setText(String.format(Locale.ENGLISH, "%.1fK", volumeMonth / 1000));
-        long mins = timeMillisMonth / 60000;
-        txtKpiTime.setText(mins > 60 ? (mins/60)+"h "+(mins%60)+"m" : mins+"m");
-
-        int streak = 0;
-        LocalDate check = LocalDate.now();
-        if (!allDates.contains(check)) check = check.minusDays(1);
-        while (allDates.contains(check)) {
-            streak++;
-            check = check.minusDays(1);
-        }
-        txtStreakCount.setText(streak + (streak == 1 ? " DAY STREAK!" : " DAYS STREAK!"));
-        txtStreakMessage.setText(streak > 0 ? "You're on fire! 🔥" : "Start your streak today!");
-    }
-
-    private void setupExerciseSpinner() {
-        List<String> names = new ArrayList<>();
-        for (var s : fullHistory) {
-            for (var ex : s.exercises) {
-                if (!names.contains(ex.historyWorkoutExercise.exerciseName))
-                    names.add(ex.historyWorkoutExercise.exerciseName);
-            }
-        }
-        Collections.sort(names);
-        if (names.isEmpty()) names.add("No Data");
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, names);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        exerciseSpinner.setAdapter(adapter);
-        exerciseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                imgSpinnerArrow.animate().rotationBy(360f).setDuration(400).start();
-                updateCharts(names.get(pos));
-            }
-            @Override public void onNothingSelected(AdapterView<?> p) {}
-        });
-    }
-
-    private void updateCharts(String exerciseName) {
-        List<Entry> loadEntries = new ArrayList<>();
-        List<Entry> repsEntries = new ArrayList<>();
-        fullHistory.sort((a, b) -> Long.compare(a.session.startTime, b.session.startTime));
-
-        int x = 0;
-        for (var s : fullHistory) {
-            for (var ex : s.exercises) {
-                if (ex.historyWorkoutExercise.exerciseName.equalsIgnoreCase(exerciseName)) {
-                    float maxW = 0; float totalR = 0;
-                    for (var sr : ex.historySeries) {
-                        if (sr.weight > maxW) maxW = (float) sr.weight;
-                        totalR += sr.reps;
-                    }
-                    loadEntries.add(new Entry(x, maxW));
-                    repsEntries.add(new Entry(x, totalR));
-                    x++;
-                }
-            }
-        }
-        renderChart(chartLoad, loadEntries, "Max Load (kg)", ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
-        renderChart(chartReps, repsEntries, "Total Reps", Color.parseColor("#FF9800"));
-    }
-
-    private void renderChart(LineChart chart, List<Entry> entries, String label, int color) {
-        if (entries.isEmpty()) { chart.clear(); return; }
-        LineDataSet set = new LineDataSet(entries, label);
-        set.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-        set.setColor(color);
-        set.setLineWidth(3f);
-        set.setCircleColor(color);
-        set.setDrawFilled(true);
-        set.setFillColor(color);
-        set.setFillAlpha(40);
-        set.setDrawValues(false);
-
-        chart.setData(new LineData(set));
-        chart.animateX(800);
-        chart.invalidate();
-    }
-
-    private void setupChartStyle(LineChart chart) {
-        chart.getDescription().setEnabled(false);
-        chart.getAxisRight().setEnabled(false);
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-        xAxis.setDrawGridLines(false);
-        YAxis leftAxis = chart.getAxisLeft();
-        leftAxis.setGridColor(Color.parseColor("#F0F0F0"));
-        leftAxis.setDrawAxisLine(false);
-    }
-
-    private void setupLegend() {
-        legendLayout.removeAllViews();
-        String[] days = {"M", "T", "W", "T", "F", "S", "S"};
-        for (String d : days) {
-            TextView tv = new TextView(getContext());
-            tv.setText(d); tv.setGravity(Gravity.CENTER);
-            tv.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 1f));
-            tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
-            tv.setTypeface(null, Typeface.BOLD);
-            legendLayout.addView(tv);
-        }
-    }
-
-    private boolean isWorkoutDay(LocalDate d) {
-        for (var s : fullHistory) {
-            if (Instant.ofEpochMilli(s.session.startTime).atZone(ZoneId.systemDefault()).toLocalDate().isEqual(d)) return true;
         }
         return false;
     }

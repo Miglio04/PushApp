@@ -11,6 +11,13 @@
     app:cardCornerRadius="24dp"
     app:cardElevation="0dp">
 
+    <!-- <eightbitlab.com.blurview.BlurView
+        android:id="@+id/blurLayoutCards"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/glass_gradient_bg"
+        android:outlineProvider="background"
+    > -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -44,4 +51,5 @@
                 android:textSize="12sp" />
 
         </LinearLayout>
+    <!-- </eightbitlab.com.blurview.BlurView> -->
 </com.google.android.material.card.MaterialCardView>

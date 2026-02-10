@@ -12,6 +12,7 @@
         android:label="Login"
         tools:layout="@layout/fragment_login">
 
+        <!-- ... le tue action rimangono uguali ... -->
         <action
             android:id="@+id/action_loginFragment_to_registerFragment"
             app:destination="@id/registerFragment"
@@ -22,12 +23,14 @@
             app:destination="@id/forgotPasswordFragment" />
     </fragment>
 
+    <!-- REGISTER -->
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.pushapp.ui.login.fragments.RegisterFragment"
         android:label="Register"
         tools:layout="@layout/fragment_register">
 
+        <!-- ... le tue action rimangono uguali ... -->
         <action
             android:id="@+id/action_registerFragment_to_loginFragment"
             app:destination="@id/loginFragment"
@@ -35,6 +38,7 @@
             app:popUpToInclusive="true"/>
     </fragment>
 
+    <!-- FORGOT PASSWORD -->
     <fragment
         android:id="@+id/forgotPasswordFragment"
         android:name="com.example.pushapp.ui.login.fragments.ForgotPasswordFragment"

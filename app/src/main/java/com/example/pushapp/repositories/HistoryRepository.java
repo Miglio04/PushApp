@@ -1,8 +1,8 @@
 package com.example.pushapp.repositories;
 
-import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import com.example.pushapp.models.GraphPoint;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Routine;
@@ -12,117 +12,207 @@ import com.example.pushapp.models.history.HistorySerie;
 import com.example.pushapp.models.history.HistorySession;
 import com.example.pushapp.models.history.HistoryWorkoutExercise;
 import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class HistoryRepository implements HistoryCallback {
-    private final String TAG = "HistoryRepository";
+
+    private static volatile HistoryRepository INSTANCE;
+
     private final HistoryLocalDataSource localDataSource;
     private final HistoryRemoteDataSource remoteDataSource;
-    private final MutableLiveData<Result> historyList = new MutableLiveData<>();
-    private final MutableLiveData<Result> graphData = new MutableLiveData<>();
 
+    private final MutableLiveData<Result> historyListLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Result> graphDataLiveData = new MutableLiveData<>();
+
+    // Enum per i tipi di statistiche grafiche
     public enum StatMetric {
         MAX_WEIGHT,
         TOTAL_VOLUME,
         ESTIMATED_1RM
     }
 
-    public HistoryRepository(HistoryLocalDataSource localDataSource, HistoryRemoteDataSource remoteDataSource) {
+    // Costruttore privato (Singleton)
+    private HistoryRepository(HistoryLocalDataSource localDataSource, HistoryRemoteDataSource remoteDataSource) {
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
-        this.localDataSource.setHistoryCallback(this);
+
+        // Imposta il repository come ascoltatore degli eventi remoti
         if (this.remoteDataSource != null) {
             this.remoteDataSource.setCallback(this);
         }
     }
 
-    public LiveData<Result> getHistoryList() {
-        localDataSource.getAllHistory();
-        if (remoteDataSource != null) {
-            remoteDataSource.fetchHistoryFromRemote();
+    public static HistoryRepository getInstance(HistoryLocalDataSource localDataSource, HistoryRemoteDataSource remoteDataSource) {
+        if (INSTANCE == null) {
+            synchronized (HistoryRepository.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new HistoryRepository(localDataSource, remoteDataSource);
+                }
+            }
         }
-        return historyList;
+        return INSTANCE;
     }
 
-    public void searchHistory(String query) {
-        if (query == null || query.isEmpty()) {
-            localDataSource.getAllHistory();
-        } else {
-            localDataSource.searchHistory(query);
-        }
-    }
-
+    // =================================================================================
+    //  CASO D'USO 1: SAVE WORKOUT (Salvataggio + Upload)
+    // =================================================================================
     public void saveWorkout(Routine activeRoutine, long startTime, Runnable onComplete) {
+        // 1. Creazione ID univoci e MAPPING (Routine -> History)
         String sessionId = UUID.randomUUID().toString();
         long endTime = System.currentTimeMillis();
+
+        // Creazione Oggetto Sessione
         HistorySession session = new HistorySession(sessionId, activeRoutine.getName(), startTime, endTime);
-        List<HistoryWorkoutExercise> hExercises = new ArrayList<>();
-        List<HistorySerie> hSeries = new ArrayList<>();
-        List<WorkoutExercise> routineExercises = activeRoutine.getWorkoutExercises();
-        for (int i = 0; i < routineExercises.size(); i++) {
-            WorkoutExercise we = routineExercises.get(i);
-            String exerciseId = UUID.randomUUID().toString();
-            hExercises.add(new HistoryWorkoutExercise(exerciseId, sessionId, we.getName(), i));
-            List<Serie> seriesList = we.getSeries();
-            for (int j = 0; j < seriesList.size(); j++) {
-                Serie s = seriesList.get(j);
+
+        List<HistoryWorkoutExercise> historyExercises = new ArrayList<>();
+        List<HistorySerie> historySeries = new ArrayList<>();
+
+        // Iterazione Esercizi
+        for (WorkoutExercise workoutExercise : activeRoutine.getWorkoutExercises()) {
+            String historyExerciseId = UUID.randomUUID().toString();
+
+            HistoryWorkoutExercise hExercise = new HistoryWorkoutExercise(
+                    historyExerciseId,
+                    sessionId,
+                    workoutExercise.getName(),
+                    activeRoutine.getWorkoutExercises().indexOf(workoutExercise) // Ordine
+            );
+            historyExercises.add(hExercise);
+
+            // Iterazione Serie
+            for (Serie s : workoutExercise.getSeries()) {
+                // Salviamo solo le serie completate!
                 if (s.isCompleted()) {
-                    hSeries.add(new HistorySerie(UUID.randomUUID().toString(), exerciseId, j + 1, s.getActualWeight(), s.getActualReps()));
+                    HistorySerie hSerie = new HistorySerie(
+                            UUID.randomUUID().toString(),
+                            historyExerciseId,
+                            workoutExercise.getSeries().indexOf(s) + 1, // Numero serie (1-based)
+                            s.getActualWeight(),
+                            s.getActualReps()
+                    );
+                    historySeries.add(hSerie);
                 }
             }
         }
-        localDataSource.saveSession(session, hExercises, hSeries, new HistoryCallback() {
+
+        // 2. Salvataggio Locale (Passiamo anche il callback per sapere quando ha finito)
+        localDataSource.saveSession(session, historyExercises, historySeries, new HistoryCallback() {
             @Override
             public void onSuccessSaveLocal() {
+                // 3. Se locale OK -> Upload su Firebase (Fire & Forget)
                 if (remoteDataSource != null) {
-                    remoteDataSource.uploadSession(session, hExercises, hSeries);
+                    remoteDataSource.uploadSession(session, historyExercises, historySeries);
                 }
-                localDataSource.getAllHistory();
-                if (onComplete != null) onComplete.run();
+                // Avvisiamo la UI che abbiamo finito
+                if (onComplete != null) {
+                    onComplete.run();
+                }
             }
-            @Override public void onFailureFromLocal(Exception e) {
-                historyList.postValue(new Result.Error(e.getMessage()));
+
+            @Override
+            public void onFailureFromLocal(Exception e) {
+                // Gestione errore salvataggio locale
+                e.printStackTrace();
             }
-            @Override public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> l) {}
-            @Override public void onSuccessGraphDataFromLocal(List<GraphPoint> p) {}
-            @Override public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> l) {}
+
+            // Metodi non usati in questo contesto specifico
+            @Override public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> list) {}
+            @Override public void onSuccessGraphDataFromLocal(List<GraphPoint> points) {}
+            @Override public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> list) {}
             @Override public void onFailureFromRemote(Exception e) {}
         });
     }
 
+    // =================================================================================
+    //  CASO D'USO 2: GET HISTORY LIST (Sync)
+    // =================================================================================
+    public LiveData<Result> getHistoryList() {
+        // 1. Chiede subito i dati locali (Cache Veloce)
+        localDataSource.getAllHistory(this);
+
+        // 2. Lancia il fetch remoto (Sync Lento)
+        if (remoteDataSource != null) {
+            remoteDataSource.fetchHistoryFromRemote();
+        }
+
+        return historyListLiveData;
+    }
+
+    // =================================================================================
+    //  CASO D'USO 3: SEARCH HISTORY (Filtro Locale)
+    // =================================================================================
+    public void searchHistory(String exerciseName) {
+        // Chiede al local di filtrare. Il risultato tornerà nel metodo onSuccessHistoryListFromLocal
+        // che aggiornerà historyListLiveData.
+        localDataSource.searchHistoryByExercise(exerciseName, this);
+    }
+
+    // =================================================================================
+    //  CASO D'USO 4: GET GRAPH DATA (Aggregazione)
+    // =================================================================================
+    public LiveData<Result> getGraphData(String exerciseName, StatMetric metric) {
+        // Chiede i punti al locale.
+        localDataSource.getGraphData(exerciseName, metric, this);
+        return graphDataLiveData;
+    }
+
+    // =================================================================================
+    //  CASO D'USO 5: DELETE SESSION
+    // =================================================================================
     public void deleteSession(String sessionId) {
+        // Cancella dal locale
         localDataSource.deleteSession(sessionId);
+
+        // Cancella dal remoto
         if (remoteDataSource != null) {
             remoteDataSource.deleteSession(sessionId);
         }
-        localDataSource.getAllHistory();
+
+        // Ricarica la lista per aggiornare la UI
+        getHistoryList();
     }
 
-    public LiveData<Result> getGraphData(String exerciseName, StatMetric metric) {
-        localDataSource.getGraphData(exerciseName, metric);
-        return graphData;
-    }
+    // =================================================================================
+    //  CALLBACK IMPLEMENTATION (Risposte dai DataSource)
+    // =================================================================================
 
     @Override
-    public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> list) {
-        historyList.postValue(new Result.HistorySuccess(list));
+    public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> historyList) {
+        // Aggiorna il LiveData con i dati locali (che arrivano sia da getAllHistory sia da searchHistory)
+        historyListLiveData.postValue(new Result.HistorySuccess(historyList));
     }
 
     @Override
     public void onSuccessGraphDataFromLocal(List<GraphPoint> points) {
-        graphData.postValue(new Result.GraphSuccess(points));
+        graphDataLiveData.postValue(new Result.GraphSuccess(points));
     }
 
     @Override
-    public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> remoteData) {
-        if (remoteData != null && !remoteData.isEmpty()) {
-            localDataSource.updateHistoryFromRemote(remoteData);
+    public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> remoteHistory) {
+        // Abbiamo ricevuto dati nuovi da Firebase
+        // Ora dobbiamo salvarli nel DB Locale per aggiornare la "Single Source of Truth".
+        // Il LocalDataSource si occuperà di sovrascrivere/unire.
+        if (remoteHistory != null && !remoteHistory.isEmpty()) {
+            localDataSource.updateHistoryFromRemote(remoteHistory, this);
         }
     }
 
-    @Override public void onFailureFromLocal(Exception e) { historyList.postValue(new Result.Error(e.getMessage())); }
-    @Override public void onFailureFromRemote(Exception e) { Log.w(TAG, e.getMessage()); }
-    @Override public void onSuccessSaveLocal() { }
+    @Override
+    public void onFailureFromLocal(Exception e) {
+        historyListLiveData.postValue(new Result.Error(e));
+    }
+
+    @Override
+    public void onFailureFromRemote(Exception e) {
+        // Loggare l'errore, ma non disturbare l'utente se ha i dati locali
+        System.err.println("Remote Sync Failed: " + e.getMessage());
+    }
+
+    @Override
+    public void onSuccessSaveLocal() {
+        // Usato internamente nel metodo saveWorkout
+    }
 }
