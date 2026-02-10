@@ -24,11 +24,10 @@
     -->
 
     <fragment
-        android:id="@+id/nav_profile"
-        android:name="com.example.pushapp.ui.main.fragments.ProfileFragment"
-        android:label="Profile"
-        tools:layout="@layout/fragment_profile" />
-    <!-- sistemare profileActivity in fragments -->
+        android:id="@+id/nav_food"
+        android:name="com.example.pushapp.ui.main.fragments.FoodFragment"
+        android:label="Food"
+        tools:layout="@layout/fragment_food" />
 
     <fragment
         android:id="@+id/nav_stats"
@@ -37,10 +36,10 @@
         tools:layout="@layout/fragment_stats" />
 
     <fragment
-        android:id="@+id/nav_history"
-        android:name="com.example.pushapp.ui.main.fragments.HistoryFragment"
-        android:label="Activity"
-        tools:layout="@layout/fragment_history" />
+        android:id="@+id/nav_profile"
+        android:name="com.example.pushapp.ui.main.fragments.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" />
 
     <!--
     <fragment

@@ -16,8 +16,10 @@ public class HistorySession {
     public long endTime;
     public long duration;
 
+    // Costruttore vuoto per Room
     public HistorySession() {}
 
+    // Costruttore completo
     public HistorySession(@NonNull String sessionId, String name, long startTime, long endTime) {
         this.sessionId = sessionId;
         this.name = name;
@@ -26,6 +28,7 @@ public class HistorySession {
         this.duration = endTime - startTime;
     }
 
+    // --- Getters e Setters ---
     @NonNull
     public String getSessionId() { return sessionId; }
     public void setSessionId(@NonNull String sessionId) { this.sessionId = sessionId; }

@@ -4,23 +4,30 @@
     android:layout_height="wrap_content"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="4dp">
+    android:padding="2dp">
+
+    <TextView
+        android:id="@+id/txtDayName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="LUN"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/txtDayNumber"
-        android:layout_width="38dp"
-        android:layout_height="38dp"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
         android:gravity="center"
         android:text="01"
-        android:textColor="@color/md_theme_onSurface"
-        android:textSize="15sp"
-        android:fontFamily="sans-serif-medium"/>
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:textStyle="bold"/>
 
     <ImageView
         android:id="@+id/indicatorDot"
-        android:layout_width="8dp"
-        android:layout_height="8dp"
-        android:layout_marginTop="2dp"
-        android:src="@drawable/bg_circle_selection"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/indicator_dot_white"
         android:visibility="invisible"/>
 </LinearLayout>
