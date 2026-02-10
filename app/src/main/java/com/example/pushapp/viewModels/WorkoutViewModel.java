@@ -100,27 +100,29 @@ public class WorkoutViewModel extends ViewModel {
         if (callback != null) callback.onSuccess(null);
     }
 
+    public void toggleSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds) {
+        Routine currentDay = activeTrainingDay.getValue();
+        if (currentDay == null || currentDay.getWorkoutExercises() == null) return;
+        List<WorkoutExercise> workoutExercises = currentDay.getWorkoutExercises();
+        if (exercisePosition >= 0 && exercisePosition < workoutExercises.size()) {
+            WorkoutExercise workoutExercise = workoutExercises.get(exercisePosition);
+            if (workoutExercise.getSeries() != null && setPosition >= 0 && setPosition < workoutExercise.getSeries().size()) {
+                Serie serie = workoutExercise.getSeries().get(setPosition);
+                // RIMOSSO COMPLETED  da serie. Andrà trovato un altro modo per gestirlo
+                /*
+                boolean newState = !serie.isCompleted();
+                serie.setCompleted(newState);
+                if (newState) {
+                    startRestTimer(restTimeSeconds);
+                } else {
+                    stopRestTimer();
+                }
+                */
+                activeTrainingDay.setValue(currentDay);
+            }
+        }
     public void cancelWorkout() {
         stopWorkout(null);
-    }
-
-    public void toggleSetCompleted(int exPos, int setPos, int restSec) {
-        Routine current = activeTrainingDay.getValue();
-        if (current == null) return;
-        try {
-            Serie serie = current.getWorkoutExercises().get(exPos).getSeries().get(setPos);
-            boolean newState = !serie.isCompleted();
-            serie.setCompleted(newState);
-
-            if (newState && restSec > 0) {
-                startRestTimer(restSec);
-            } else {
-                stopRestTimer();
-            }
-
-            activeTrainingDay.setValue(current);
-            sessionManager.saveSessionState(current, workoutStartTimeMillis);
-        } catch (Exception e) { Log.e(TAG, "Error: " + e.getMessage()); }
     }
 
     public void startRestTimer(int seconds) {
@@ -181,6 +183,12 @@ public class WorkoutViewModel extends ViewModel {
         timeWhenPaused = SystemClock.elapsedRealtime() - startTime;
     }
 
+                // Aggiorna i campi 'actual' dell'oggetto Serie
+                // RIMOSSI actualWeight e actualReps da serie. Andrà trovato un altro modo per gestirlo
+                /*
+                serie.setActualWeight(actualWeight);
+                serie.setActualReps(actualReps);
+                 */
     private void deepResetRoutine(Routine routine) {
         if (routine == null || routine.getWorkoutExercises() == null) return;
         for (WorkoutExercise ex : routine.getWorkoutExercises()) {

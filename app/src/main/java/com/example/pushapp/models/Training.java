@@ -11,6 +11,7 @@ import com.google.firebase.firestore.Exclude;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity(tableName = "training")
 public class Training implements Serializable {
@@ -18,42 +19,45 @@ public class Training implements Serializable {
     @NonNull
     @ColumnInfo(name = "trainingId")
     private String trainingId;
+    @ColumnInfo(name = "createdAt")
+    private long createdAt;
+    @ColumnInfo(name = "updatedAt")
+    private long updatedAt;
+    @ColumnInfo(name = "deleted")
+    private boolean deleted;
     @ColumnInfo(name = "userId")
     private String userId;
     @ColumnInfo(name = "name")
     private String name;
     @ColumnInfo(name = "description")
     private String description;
-    @ColumnInfo(name = "isActive")
-    private boolean isActive;
-    @ColumnInfo(name = "createdAt")
-    private long createdAt;
-    @ColumnInfo(name = "updatedAt")
-    private long updatedAt;
     @Ignore
     private List<Routine> routinesList;
 
     // Costruttore vuoto richiesto da Firebase
     public Training() {
+        this.trainingId = UUID.randomUUID().toString();
         this.routinesList = new ArrayList<>();
     }
 
     @Ignore
     public Training(String name, String description) {
+        this.trainingId = UUID.randomUUID().toString();
         this.name = name;
         this.description = description;
         this.routinesList = new ArrayList<>();
-        this.isActive = false;
+        this.deleted = false;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
     }
 
     @Ignore
     public Training(String name, String description, ArrayList<Routine> routinesList) {
+        this.trainingId = UUID.randomUUID().toString();
         this.name = name;
         this.description = description;
         this.routinesList = routinesList != null ? routinesList : new ArrayList<>();
-        this.isActive = false;
+        this.deleted = false;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
     }
@@ -68,8 +72,8 @@ public class Training implements Serializable {
     public void setName(String name) { this.name = name; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { isActive = active; }
+    public boolean isDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
 
     public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }

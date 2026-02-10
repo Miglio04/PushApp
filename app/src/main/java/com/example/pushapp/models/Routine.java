@@ -27,6 +27,14 @@ public class Routine implements Serializable {
     @ColumnInfo(name = "routineId")
     @NonNull
     private String routineId;
+    @ColumnInfo(name = "createdAt")
+    private long createdAt;
+    @ColumnInfo(name = "updatedAt")
+    private long updatedAt;
+    @ColumnInfo(name = "deleted")
+    private boolean deleted;
+    @ColumnInfo(name = "userId")
+    private String userId;
     @ColumnInfo(name = "trainingId")
     private String trainingId;
     @ColumnInfo(name = "name")
@@ -49,6 +57,9 @@ public class Routine implements Serializable {
         this.name = name;
         this.dayOrder = dayOrder;
         this.workoutExercises = new ArrayList<>();
+        this.deleted = false;
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
     // Ha senso questo costruttore?
@@ -58,6 +69,9 @@ public class Routine implements Serializable {
         this.name = name;
         this.dayOrder = dayOrder;
         this.workoutExercises = workoutExercises != null ? workoutExercises : new ArrayList<>();
+        this.deleted = false;
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
     // Getters e Setters
@@ -85,5 +99,37 @@ public class Routine implements Serializable {
     @Ignore
     public int getWorkoutTotalExercises() {
         return workoutExercises.size();
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public long getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(long updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

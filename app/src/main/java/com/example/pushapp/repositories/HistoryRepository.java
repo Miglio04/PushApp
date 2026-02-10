@@ -58,19 +58,38 @@ public class HistoryRepository implements HistoryCallback {
         String sessionId = UUID.randomUUID().toString();
         long endTime = System.currentTimeMillis();
         HistorySession session = new HistorySession(sessionId, activeRoutine.getName(), startTime, endTime);
-        List<HistoryWorkoutExercise> hExercises = new ArrayList<>();
-        List<HistorySerie> hSeries = new ArrayList<>();
-        List<WorkoutExercise> routineExercises = activeRoutine.getWorkoutExercises();
-        for (int i = 0; i < routineExercises.size(); i++) {
-            WorkoutExercise we = routineExercises.get(i);
-            String exerciseId = UUID.randomUUID().toString();
-            hExercises.add(new HistoryWorkoutExercise(exerciseId, sessionId, we.getName(), i));
-            List<Serie> seriesList = we.getSeries();
-            for (int j = 0; j < seriesList.size(); j++) {
-                Serie s = seriesList.get(j);
-                if (s.isCompleted()) {
-                    hSeries.add(new HistorySerie(UUID.randomUUID().toString(), exerciseId, j + 1, s.getActualWeight(), s.getActualReps()));
+
+        List<HistoryWorkoutExercise> historyExercises = new ArrayList<>();
+        List<HistorySerie> historySeries = new ArrayList<>();
+
+        // Iterazione Esercizi
+        for (WorkoutExercise workoutExercise : activeRoutine.getWorkoutExercises()) {
+            String historyExerciseId = UUID.randomUUID().toString();
+
+            HistoryWorkoutExercise hExercise = new HistoryWorkoutExercise(
+                    historyExerciseId,
+                    sessionId,
+                    workoutExercise.getApiExerciseId(),
+                    activeRoutine.getWorkoutExercises().indexOf(workoutExercise) // Ordine
+            );
+            historyExercises.add(hExercise);
+
+            // Iterazione Serie
+            for (Serie s : workoutExercise.getSeries()) {
+                // Salviamo solo le serie completate!
+                // Temporaneo, si basa su architettura vecchia
+                /*if (s.isCompleted()) {
+                    HistorySerie hSerie = new HistorySerie(
+                            UUID.randomUUID().toString(),
+                            historyExerciseId,
+                            workoutExercise.getSeries().indexOf(s) + 1, // Numero serie (1-based)
+                            s.getActualWeight(),
+                            s.getActualReps()
+                    );
+                    historySeries.add(hSerie);
                 }
+
+                 */
             }
         }
         localDataSource.saveSession(session, hExercises, hSeries, new HistoryCallback() {

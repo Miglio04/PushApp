@@ -7,7 +7,10 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import com.google.firebase.firestore.Exclude;
+
 import java.io.Serializable;
+import java.util.UUID;
 
 @Entity(tableName = "serie",
         foreignKeys = @ForeignKey(
@@ -20,37 +23,37 @@ public class Serie implements Serializable {
     @PrimaryKey
     @ColumnInfo(name = "serieId")
     @NonNull
-    private int serieId;
+    private String serieId;
+    @ColumnInfo(name = "userId")
+    private String userId;
     @ColumnInfo(name = "workoutExerciseId")
-    private int workoutExerciseId;
+    private String workoutExerciseId;
     @ColumnInfo(name = "serieNumber")
     private int serieNumber;
     @ColumnInfo(name = "targetReps")
     private int targetReps;
     @ColumnInfo(name = "targetWeight")
     private double targetWeight;
-    @ColumnInfo(name = "actualReps")
-    private int actualReps;
-    @ColumnInfo(name = "actualWeight")
-    private double actualWeight;
-    @ColumnInfo(name = "completed")
-    private boolean completed;
 
-    public Serie() {}
+    public Serie() {
+        this.serieId = UUID.randomUUID().toString();
+    }
 
     public Serie(int serieNumber, int targetReps, double targetWeight) {
+        this.serieId = UUID.randomUUID().toString();
         this.serieNumber = serieNumber;
         this.targetReps = targetReps;
         this.targetWeight = targetWeight;
-        this.completed = false;
     }
 
     // Getters e Setters
-    public int getSerieId() { return serieId; }
+    @Exclude
+    public String getSerieId() { return serieId; }
 
-    public void setSerieId(int serieId) { this.serieId = serieId; }
-    public int getWorkoutExerciseId() { return workoutExerciseId; }
-    public void setWorkoutExerciseId(int workoutExerciseId) { this.workoutExerciseId = workoutExerciseId; }
+    public void setSerieId(String serieId) { this.serieId = serieId; }
+    @Exclude
+    public String getWorkoutExerciseId() { return workoutExerciseId; }
+    public void setWorkoutExerciseId(String workoutExerciseId) { this.workoutExerciseId = workoutExerciseId; }
     public int getSerieNumber() { return serieNumber; }
     public void setSerieNumber(int serieNumber) { this.serieNumber = serieNumber; }
 
@@ -59,14 +62,12 @@ public class Serie implements Serializable {
 
     public double getTargetWeight() { return targetWeight; }
     public void setTargetWeight(double targetWeight) { this.targetWeight = targetWeight; }
+    @Exclude
+    public String getUserId() {
+        return userId;
+    }
 
-    public int getActualReps() { return actualReps; }
-    public void setActualReps(int actualReps) { this.actualReps = actualReps; }
-
-    public double getActualWeight() { return actualWeight; }
-    public void setActualWeight(double actualWeight) { this.actualWeight = actualWeight; }
-
-    public boolean isCompleted() { return completed; }
-    public void setCompleted(boolean completed) { this.completed = completed; }
-
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }

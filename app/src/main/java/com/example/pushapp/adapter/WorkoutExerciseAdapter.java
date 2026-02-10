@@ -53,7 +53,9 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
         WorkoutExercise workoutExercise = workoutExercises.get(position);
 
-        holder.cardTitle.setText(workoutExercise.getName());
+        holder.cardTitle.setText(workoutExercise.getApiExerciseId());
+        holder.cardDescription.setText(workoutExercise.getSeries() != null ?
+                workoutExercise.getSeries().size() + " serie" : "0 serie");
 
         // Gestione corretta del plurale per le serie
         int setCount = workoutExercise.getSeries() != null ? workoutExercise.getSeries().size() : 0;
