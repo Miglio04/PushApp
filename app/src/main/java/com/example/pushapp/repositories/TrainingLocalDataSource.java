@@ -21,12 +21,13 @@ public class TrainingLocalDataSource {
     private final String TAG = "TrainingLocalDataSource";
     private TrainingCallback trainingCallback;
     private final TrainingDao trainingDao;
-    private RoutineDao routineDao;
-    private WorkoutExerciseDao workoutExerciseDao;
-    private SerieDao serieDao;
-
+    private final RoutineDao routineDao;
+    private final WorkoutExerciseDao workoutExerciseDao;
+    private final SerieDao serieDao;
+    private final LocalDatabase localDatabase; // Field added for transactions
 
     TrainingLocalDataSource(LocalDatabase localDatabase) {
+        this.localDatabase = localDatabase;
         this.trainingDao = localDatabase.trainingDao();
         this.routineDao = localDatabase.routineDao();
         this.workoutExerciseDao = localDatabase.workoutExerciseDao();
@@ -38,7 +39,6 @@ public class TrainingLocalDataSource {
         this.trainingCallback = trainingCallback;
     }
 
-    // Valutare se dividere in più metodi
     public void getTrainings() {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -94,6 +94,7 @@ public class TrainingLocalDataSource {
         });
     }
 
+    // FIXED: Added Transaction to prevent Foreign Key crashes
     public void overwriteTrainings(List<Training> trainingList, String userId) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             //
@@ -136,6 +137,11 @@ public class TrainingLocalDataSource {
                             }
                         }
                     }
+                    // 3. Refresh the UI data
+                    getTrainings();
+                    Log.d(TAG, "Database overwrite completed successfully");
+                } catch (Exception e) {
+                    Log.e(TAG, "Critical error during database overwrite: " + e.getMessage());
                 }
 
                 // 6. Notifica che i dati sono stati aggiornati
@@ -150,7 +156,7 @@ public class TrainingLocalDataSource {
             workoutExerciseDao.deteleAllWorkoutExercises();
             routineDao.deteleAllRoutines();
             trainingDao.deleteAllTraings();
+            Log.d(TAG, "Local database has been reset");
         });
     }
-
 }

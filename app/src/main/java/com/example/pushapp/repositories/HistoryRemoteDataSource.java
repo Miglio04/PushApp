@@ -30,11 +30,9 @@ public class HistoryRemoteDataSource {
         this.callback = callback;
     }
 
-    // --- UPLOAD (Backup) ---
     public void uploadSession(HistorySession session, List<HistoryWorkoutExercise> exercises, List<HistorySerie> series) {
         if (auth.getCurrentUser() == null) return;
 
-        // 1. Prepariamo la struttura dati per Firestore (JSON-like)
         Map<String, Object> sessionMap = new HashMap<>();
         sessionMap.put("sessionId", session.sessionId);
         sessionMap.put("name", session.name);
@@ -42,7 +40,6 @@ public class HistoryRemoteDataSource {
         sessionMap.put("endTime", session.endTime);
         sessionMap.put("duration", session.duration);
 
-        // Convertiamo la lista piatta di esercizi e serie in una struttura nidificata
         List<Map<String, Object>> exercisesListMap = new ArrayList<>();
 
         for (HistoryWorkoutExercise ex : exercises) {
@@ -52,7 +49,6 @@ public class HistoryRemoteDataSource {
             exMap.put("exerciseName", ex.exerciseName);
             exMap.put("orderIndex", ex.orderIndex);
 
-            // Troviamo le serie di questo esercizio
             List<Map<String, Object>> seriesListMap = new ArrayList<>();
             for (HistorySerie s : series) {
                 if (s.historyExerciseId.equals(ex.historyExerciseId)) {
@@ -66,27 +62,24 @@ public class HistoryRemoteDataSource {
                     seriesListMap.add(sMap);
                 }
             }
-            exMap.put("series", seriesListMap); // Nidifichiamo le serie dentro l'esercizio
+            exMap.put("series", seriesListMap);
             exercisesListMap.add(exMap);
         }
 
-        sessionMap.put("exercises", exercisesListMap); // Nidifichiamo gli esercizi nella sessione
+        sessionMap.put("exercises", exercisesListMap);
 
-        // 2. Upload su Firestore
         db.collection("users")
                 .document(auth.getCurrentUser().getUid())
                 .collection("history_sessions")
                 .document(session.sessionId)
                 .set(sessionMap)
                 .addOnSuccessListener(aVoid -> {
-                    // Upload riuscito (silenzioso)
                 })
                 .addOnFailureListener(e -> {
                     if (callback != null) callback.onFailureFromRemote(e);
                 });
     }
 
-    // --- FETCH (Sync) ---
     public void fetchHistoryFromRemote() {
         if (auth.getCurrentUser() == null) return;
 
@@ -100,11 +93,10 @@ public class HistoryRemoteDataSource {
 
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         try {
-                            // Ricostruzione manuale dell'oggetto complesso Room-compatibile
                             HistorySessionWithExercises item = parseDocumentToHistoryObject(doc);
                             resultList.add(item);
                         } catch (Exception e) {
-                            e.printStackTrace(); // Salta sessioni corrotte
+                            e.printStackTrace();
                         }
                     }
 
@@ -117,7 +109,6 @@ public class HistoryRemoteDataSource {
                 });
     }
 
-    // --- DELETE ---
     public void deleteSession(String sessionId) {
         if (auth.getCurrentUser() == null) return;
 
@@ -128,9 +119,7 @@ public class HistoryRemoteDataSource {
                 .delete();
     }
 
-    // --- HELPER: Parsing Manuale (Firestore Map -> Room Object) ---
     private HistorySessionWithExercises parseDocumentToHistoryObject(DocumentSnapshot doc) {
-        // 1. Sessione
         HistorySession session = new HistorySession();
         session.sessionId = doc.getString("sessionId");
         session.name = doc.getString("name");
@@ -143,7 +132,6 @@ public class HistoryRemoteDataSource {
 
         List<HistoryWorkoutExerciseWithSeries> exercisesWithSeries = new ArrayList<>();
 
-        // 2. Esercizi (Array di Maps)
         List<Map<String, Object>> exMaps = (List<Map<String, Object>>) doc.get("exercises");
         if (exMaps != null) {
             for (Map<String, Object> exMap : exMaps) {
@@ -154,7 +142,6 @@ public class HistoryRemoteDataSource {
                 Long order = (Long) exMap.get("orderIndex");
                 ex.orderIndex = (order != null) ? order.intValue() : 0;
 
-                // 3. Serie (Array di Maps dentro Esercizio)
                 List<HistorySerie> seriesList = new ArrayList<>();
                 List<Map<String, Object>> sMaps = (List<Map<String, Object>>) exMap.get("series");
                 if (sMaps != null) {
@@ -165,7 +152,7 @@ public class HistoryRemoteDataSource {
                         Long sNum = (Long) sMap.get("setNumber");
                         s.setNumber = (sNum != null) ? sNum.intValue() : 0;
                         Double w = (Double) sMap.get("weight");
-                        s.weight = (w != null) ? w : 0.0;
+                        s.weight = (w != null) ? (Double) w : 0.0;
                         Long r = (Long) sMap.get("reps");
                         s.reps = (r != null) ? r.intValue() : 0;
                         Boolean pr = (Boolean) sMap.get("isPersonalRecord");
@@ -175,7 +162,6 @@ public class HistoryRemoteDataSource {
                     }
                 }
 
-                // Costruisci il wrapper Exercise + Series
                 HistoryWorkoutExerciseWithSeries exWrapper = new HistoryWorkoutExerciseWithSeries();
                 exWrapper.historyWorkoutExercise = ex;
                 exWrapper.historySeries = seriesList;
@@ -184,7 +170,6 @@ public class HistoryRemoteDataSource {
             }
         }
 
-        // Costruisci il wrapper finale
         HistorySessionWithExercises result = new HistorySessionWithExercises();
         result.session = session;
         result.exercises = exercisesWithSeries;
