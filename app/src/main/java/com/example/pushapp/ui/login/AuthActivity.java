@@ -1,6 +1,5 @@
 package com.example.pushapp.ui.login;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,17 +8,11 @@ import android.widget.TextView; // IMPORTANTE
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.splashscreen.SplashScreen;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.NavOptions;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.pushapp.R;
-import com.example.pushapp.models.Result;
-import com.example.pushapp.ui.main.MainActivity;
-import com.example.pushapp.viewModels.UserViewModel;
-import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.material.tabs.TabLayout;
 
 public class AuthActivity extends AppCompatActivity {
@@ -31,32 +24,13 @@ public class AuthActivity extends AppCompatActivity {
     // private UserViewModel userViewModel;
     private TextView tvAuthSubtitle; // Nuova variabile per il sottotitolo
 
-    private UserViewModel userViewModel;
-
-    private LiveData<Result> sessionUserLiveData;
-
-    boolean isLoading = true;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate() called");
-
-        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
-        splashScreen.setKeepOnScreenCondition(() -> isLoading);
+        SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
-
-        userViewModel = new ViewModelProvider(
-                this,
-                new ViewModelFactory(getApplicationContext())).get(UserViewModel.class);
-
-        sessionUserLiveData = userViewModel.getSessionLiveData();
-        userViewModel.fetchSessionUser();
-        tryAutomaticLogin();
-
-    }
-
-    private void setupAuthInterface(){
         setContentView(R.layout.activity_auth);
+
 
         // Collegamento Viste
         headerContainer = findViewById(R.id.headerContainer);
@@ -125,25 +99,6 @@ public class AuthActivity extends AppCompatActivity {
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
-    }
-    private void tryAutomaticLogin() {
-        sessionUserLiveData.observe(this, result -> {
-            if (result != null) {
-                sessionUserLiveData.removeObservers(this);
-                if(result.isSessionSuccess()) {
-                    Log.d("AuthActivity", "Sessione trovata, login automatico");
-                    Intent intent = new Intent(this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                } else {
-                    userViewModel.clearSessionLiveData();
-                    setupAuthInterface();
-                }
-                isLoading = false;
-            }
-        });
-
     }
 
     private NavOptions getNavOptions() {

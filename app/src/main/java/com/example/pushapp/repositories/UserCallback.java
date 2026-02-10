@@ -7,6 +7,6 @@ public interface UserCallback {
     void onFailureFromLocal(Exception exception);
     void onSuccessFromRemote(User user);
     void onFailureFromRemote(Exception exception);
-    void onSuccessFromLocalGet(User user, String userId);
+    void onSuccessFromLocalGet(User user);
     void onSuccessFromLocalUpdate(User user);
 }

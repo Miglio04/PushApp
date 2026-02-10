@@ -51,6 +51,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <!-- Profile Info -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -70,7 +71,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:text="@string/trattino"
+                        android:text="M"
                         android:textColor="@color/md_theme_onPrimary"
                         android:textSize="40sp"
                         android:textStyle="bold" />
@@ -81,7 +82,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="@string/trattino"
+                    android:text="User Name"
                     android:textColor="@color/md_theme_onBackground"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -91,17 +92,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="@string/trattino"
+                    android:text="user@email.com"
                     android:textColor="@color/md_theme_onBackground_mediumContrast"
                     android:textSize="16sp" />
             </LinearLayout>
 
+            <!-- Stats -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:paddingHorizontal="16dp"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="24dp"
                 android:weightSum="3">
 
                 <com.google.android.material.card.MaterialCardView
@@ -123,7 +125,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/trattino"
+                            android:text="127"
                             android:textColor="@color/md_theme_onSecondaryContainer"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -131,7 +133,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/workouts"
+                            android:text="Workouts"
                             android:textColor="@color/md_theme_onBackground_mediumContrast" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -155,7 +157,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/trattino"
+                            android:text="18"
                             android:textColor="@color/md_theme_onSecondaryContainer"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -163,7 +165,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/streak"
+                            android:text="Streak"
                             android:textColor="@color/md_theme_onBackground_mediumContrast" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
@@ -187,7 +189,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/trattino"
+                            android:text="2.5k"
                             android:textColor="@color/md_theme_onSecondaryContainer"
                             android:textSize="24sp"
                             android:textStyle="bold" />
@@ -195,135 +197,261 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/volume"
+                            android:text="Volume"
                             android:textColor="@color/md_theme_onBackground_mediumContrast" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
             </LinearLayout>
 
+            <!-- Settings List -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="24dp"
-                android:gravity="center_horizontal">
-
-                <!-- Email Item -->
+                android:paddingHorizontal="16dp">
+                
+                <!-- Item Dati Personali -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardPersonalData"
+                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    android:layout_marginBottom="8dp">
+                    app:cardCornerRadius="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="12dp"
-                        android:gravity="center">
-                        <TextView
-                            android:id="@+id/tvDetailEmail"
-                            android:layout_width="wrap_content"
+                        android:orientation="vertical">
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/trattino"
-                            android:textColor="@color/md_theme_onPrimary"
-                            android:textSize="15sp"/>
+                            android:padding="16dp">
+                            
+                            <ImageView
+                                android:id="@+id/icon_personal_data"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_centerVertical="true"
+                                android:src="@drawable/person"
+                                app:tint="@color/md_theme_onPrimaryContainer"/>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_toEndOf="@id/icon_personal_data"
+                                android:layout_centerVertical="true"
+                                android:layout_marginStart="16dp"
+                                android:text="@string/personal_data"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:textSize="16sp"
+                                android:textStyle="bold"/>
+
+                            <ImageView
+                                android:id="@+id/expand_arrow"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_centerVertical="true"
+                                android:src="@drawable/ic_expand"
+                                app:tint="@color/md_theme_onPrimaryContainer"/>
+                        </RelativeLayout>
+
+                        <!-- Contenitore Espandibile -->
+                        <LinearLayout
+                            android:id="@+id/expandable_personal_data"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="16dp"
+                            android:paddingBottom="16dp"
+                            android:visibility="gone">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:background="@color/md_theme_onPrimaryContainer"
+                                android:alpha="0.2"
+                                android:layout_marginBottom="12dp"/>
+
+                            <TextView
+                                android:id="@+id/tvDetailEmail"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Email: -"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:layout_marginBottom="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tvDetailGender"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Genere: -"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:layout_marginBottom="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tvDetailAge"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Età: -"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:layout_marginBottom="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tvDetailHeight"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Altezza: - cm"
+                                android:textColor="@color/md_theme_onPrimaryContainer"
+                                android:layout_marginBottom="8dp"/>
+
+                            <TextView
+                                android:id="@+id/tvDetailWeight"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Peso: - kg"
+                                android:textColor="@color/md_theme_onPrimaryContainer"/>
+
+                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
-
+                
+                <!-- Item Obiettivi -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardGoals"
+                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    android:layout_marginBottom="8dp">
-                    <LinearLayout
+                    app:cardCornerRadius="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="12dp"
-                        android:gravity="center">
+                        android:padding="16dp">
+                        
+                        <ImageView
+                            android:id="@+id/icon_goals"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/target"
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
+
                         <TextView
-                            android:id="@+id/tvDetailGender"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/trattino"
-                            android:textColor="@color/md_theme_onPrimary"
-                            android:textSize="15sp"/>
-                    </LinearLayout>
+                            android:layout_toEndOf="@id/icon_goals"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:text="@string/goals"
+                            android:textColor="@color/md_theme_onPrimaryContainer"
+                            android:textSize="16sp"
+                            android:textStyle="bold"/>
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_expand"
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
+                    </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Item Notifiche -->
                 <com.google.android.material.card.MaterialCardView
+                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    android:layout_marginBottom="8dp">
-                    <LinearLayout
+                    app:cardCornerRadius="16dp"
+                    android:layout_marginBottom="12dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="12dp"
-                        android:gravity="center">
+                        android:padding="16dp">
+                        
+                        <ImageView
+                            android:id="@+id/icon_notifications"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/bell"
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
 
                         <TextView
-                            android:id="@+id/tvDetailAge"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/trattino"
-                            android:textColor="@color/md_theme_onPrimary"
-                            android:textSize="15sp"/>
-                    </LinearLayout>
+                            android:layout_toEndOf="@id/icon_notifications"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:text="@string/notifications"
+                            android:textColor="@color/md_theme_onPrimaryContainer"
+                            android:textSize="16sp"
+                            android:textStyle="bold"/>
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_expand"
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
+                    </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
 
+                <!-- Item Tema -->
                 <com.google.android.material.card.MaterialCardView
+                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    android:layout_marginBottom="8dp">
-                    <LinearLayout
+                    app:cardCornerRadius="16dp"
+                    android:clickable="true"
+                    android:focusable="true">
+
+                    <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:padding="12dp"
-                        android:gravity="center">
+                        android:padding="16dp">
+                        
+                        <ImageView
+                            android:id="@+id/icon_theme"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/moon"
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
 
                         <TextView
-                            android:id="@+id/tvDetailHeight"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@string/trattino"
-                            android:textColor="@color/md_theme_onPrimary"
-                            android:textSize="15sp"/>
-                    </LinearLayout>
+                            android:layout_toEndOf="@id/icon_theme"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="16dp"
+                            android:text="@string/theme"
+                            android:textColor="@color/md_theme_onPrimaryContainer"
+                            android:textSize="16sp"
+                            android:textStyle="bold"/>
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_expand"
+                            app:tint="@color/md_theme_onPrimaryContainer"/>
+                    </RelativeLayout>
                 </com.google.android.material.card.MaterialCardView>
-
-                <!-- Weight Item -->
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:cardBackgroundColor="@color/md_theme_primaryContainer"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="0dp"
-                    android:layout_marginBottom="24dp">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:padding="12dp"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tvDetailWeight"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/trattino"
-                            android:textColor="@color/md_theme_onPrimary"
-                            android:textSize="15sp"/>
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
-
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -335,7 +463,7 @@
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="32dp"
                 android:layout_gravity="center_horizontal"
-                android:text="@string/logout"
+                android:text="Logout"
                 android:textColor="@color/md_theme_onError"
                 app:backgroundTint="@color/md_theme_error"
                 app:cornerRadius="16dp"

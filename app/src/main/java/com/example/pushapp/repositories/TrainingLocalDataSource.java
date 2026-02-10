@@ -96,51 +96,46 @@ public class TrainingLocalDataSource {
 
     public void overwriteTrainings(List<Training> trainingList, String userId) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
-            //
-            // TEMPORANEO
-            //
-            LocalDatabase.getDatabase(null).runInTransaction(() -> {
-                // 1. Cancella i vecchi dati dell'utente per evitare conflitti
-                trainingDao.deleteAllByUserId(userId);
+            // 1. Cancella i vecchi dati dell'utente per evitare conflitti
+            trainingDao.deleteAllByUserId(userId);
 
-                // 2. Itera su ogni training ricevuto
-                for (Training training : trainingList) {
-                    // Inserisci il training principale
-                    trainingDao.insert(training);
+            // 2. Itera su ogni training ricevuto
+            for (Training training : trainingList) {
+                // Inserisci il training principale
+                trainingDao.insert(training);
 
-                    if (training.getRoutinesList() != null) {
-                        // 3. Itera sulle routine di ogni training
-                        for (Routine routine : training.getRoutinesList()) {
-                            // Associa la routine al training
-                            routine.setTrainingId(training.getTrainingId());
-                            routineDao.insert(routine);
+                if (training.getRoutinesList() != null) {
+                    // 3. Itera sulle routine di ogni training
+                    for (Routine routine : training.getRoutinesList()) {
+                        // Associa la routine al training
+                        routine.setTrainingId(training.getTrainingId());
+                        routineDao.insert(routine);
 
-                            if (routine.getWorkoutExercises() != null) {
-                                // 4. Itera sugli esercizi di ogni routine
-                                for (WorkoutExercise workoutExercise : routine.getWorkoutExercises()) {
-                                    // Associa l'esercizio alla routine
-                                    workoutExercise.setRoutineId(routine.getRoutineId());
-                                    workoutExerciseDao.insert(workoutExercise);
-                                    Log.e(TAG, "overwriteTrainings: workout exercise con id " + workoutExercise.getWorkoutExerciseId() + " inserita in workout routine " + routine.getRoutineId());
+                        if (routine.getWorkoutExercises() != null) {
+                            // 4. Itera sugli esercizi di ogni routine
+                            for (WorkoutExercise workoutExercise : routine.getWorkoutExercises()) {
+                                // Associa l'esercizio alla routine
+                                workoutExercise.setRoutineId(routine.getRoutineId());
+                                workoutExerciseDao.insert(workoutExercise);
+                                Log.e(TAG, "overwriteTrainings: workout exercise con id " + workoutExercise.getWorkoutExerciseId() + " inserita in workout routine " + routine.getRoutineId());
 
-                                    if (workoutExercise.getSeries() != null) {
-                                        // 5. Itera sulle serie di ogni esercizio
-                                        for (Serie serie : workoutExercise.getSeries()) {
-                                            // Associa la serie all'esercizio
-                                            serie.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
-                                            serieDao.insert(serie);
-                                            Log.e(TAG, "overwriteTrainings: serie con id " + serie.getSerieId() + " inserita in workout exercise " + workoutExercise.getWorkoutExerciseId());
-                                        }
+                                if (workoutExercise.getSeries() != null) {
+                                    // 5. Itera sulle serie di ogni esercizio
+                                    for (Serie serie : workoutExercise.getSeries()) {
+                                        // Associa la serie all'esercizio
+                                        serie.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
+                                        serieDao.insert(serie);
+                                        Log.e(TAG, "overwriteTrainings: serie con id " + serie.getSerieId() + " inserita in workout exercise " + workoutExercise.getWorkoutExerciseId());
                                     }
                                 }
                             }
                         }
                     }
                 }
+            }
 
-                // 6. Notifica che i dati sono stati aggiornati
-                getTrainings();
-            });
+            // 6. Notifica che i dati sono stati aggiornati
+            getTrainings();
         });
     }
 
