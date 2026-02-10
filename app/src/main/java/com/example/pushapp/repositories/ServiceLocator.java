@@ -1,36 +1,28 @@
 package com.example.pushapp.repositories;
 
 import android.content.Context;
-import com.example.pushapp.database.LocalDatabase;
-import com.example.pushapp.utils.SessionManager;
 
+import com.example.pushapp.database.LocalDatabase;
 public class ServiceLocator {
 
     private static volatile ServiceLocator instance = null;
 
-    private ServiceLocator() {}
+    private ServiceLocator() {};
 
     private volatile LocalDatabase localDatabase = null;
     private volatile TrainingRepository trainingRepository = null;
     private volatile ExerciseRepository exerciseRepository = null;
     private volatile SessionRepository sessionRepository = null;
     private volatile UserRepository userRepository = null;
-    private volatile HistoryRepository historyRepository = null;
-
-    // Riferimento al gestore della sessione temporanea (Punto 9)
-    private volatile SessionManager sessionManager = null;
-
     private volatile TrainingLocalDataSource trainingLocalDataSource = null;
     private volatile ExerciseLocalDataSource exerciseLocalDataSource = null;
     private volatile UserLocalDataSource userLocalDataSource = null;
     private volatile SessionLocalDataSource sessionLocalDataSource = null;
-    private volatile HistoryLocalDataSource historyLocalDataSource = null;
-
     private volatile TrainingRemoteDataSource trainingRemoteDataSource = null;
     private volatile ExerciseAPIDataSource exerciseAPIDataSource = null;
     private volatile UserRemoteDataSource userRemoteDataSource = null;
     private volatile SessionRemoteDataSource sessionRemoteDataSource = null;
-    private volatile HistoryRemoteDataSource historyRemoteDataSource = null;
+
 
     public static ServiceLocator getInstance() {
         if (instance == null) {
@@ -43,7 +35,7 @@ public class ServiceLocator {
         return instance;
     }
 
-    // --- REPOSITORY GETTERS ---
+    // Repositories
 
     public synchronized TrainingRepository getTrainingRepository(Context context) {
         if(trainingRepository == null){
@@ -86,62 +78,33 @@ public class ServiceLocator {
         return userRepository;
     }
 
-    public synchronized HistoryRepository getHistoryRepository(Context context) {
-        if (historyRepository == null) {
-            historyRepository = new HistoryRepository(
-                    getHistoryLocalDataSource(context),
-                    getHistoryRemoteDataSource()
-            );
-        }
-        return historyRepository;
-    }
-
-    // NUOVO: Getter per il SessionManager (Punto 9)
-    public synchronized SessionManager getSessionManager(Context context) {
-        if (sessionManager == null) {
-            sessionManager = new SessionManager(context.getApplicationContext());
-        }
-        return sessionManager;
-    }
-
-    // --- LOCAL DATA SOURCE GETTERS ---
+    // Local Data Sources
 
     public synchronized TrainingLocalDataSource getTrainingLocalDataSource(Context context) {
         if(trainingLocalDataSource == null){
-            trainingLocalDataSource = new TrainingLocalDataSource(getDatabase(context));
+            LocalDatabase localDatabase = getDatabase(context);
+            trainingLocalDataSource = new TrainingLocalDataSource(localDatabase);
         }
         return trainingLocalDataSource;
     }
 
     public synchronized ExerciseLocalDataSource getExerciseLocalDataSource(Context context) {
         if(exerciseLocalDataSource == null){
-            exerciseLocalDataSource = new ExerciseLocalDataSource(getDatabase(context));
+            LocalDatabase localDatabase = getDatabase(context);
+            exerciseLocalDataSource = new ExerciseLocalDataSource(localDatabase);
         }
         return exerciseLocalDataSource;
     }
 
     public synchronized UserLocalDataSource getUserLocalDataSource(Context context) {
         if(userLocalDataSource == null){
-            userLocalDataSource = new UserLocalDataSource(getDatabase(context));
+            LocalDatabase localDatabase = getDatabase(context);
+            userLocalDataSource = new UserLocalDataSource(localDatabase);
         }
         return userLocalDataSource;
     }
 
-    public synchronized HistoryLocalDataSource getHistoryLocalDataSource(Context context) {
-        if (historyLocalDataSource == null) {
-            historyLocalDataSource = new HistoryLocalDataSource(getDatabase(context));
-        }
-        return historyLocalDataSource;
-    }
-
-    public synchronized SessionLocalDataSource getSessionLocalDataSource() {
-        if(sessionLocalDataSource == null){
-            sessionLocalDataSource = new SessionLocalDataSource();
-        }
-        return sessionLocalDataSource;
-    }
-
-    // --- REMOTE DATA SOURCE GETTERS ---
+    // Remote Data Sources
 
     public synchronized TrainingRemoteDataSource getTrainingRemoteDataSource() {
         if(trainingRemoteDataSource == null){
@@ -155,6 +118,13 @@ public class ServiceLocator {
             exerciseAPIDataSource = new ExerciseAPIDataSource();
         }
         return exerciseAPIDataSource;
+    }
+
+    public synchronized SessionLocalDataSource getSessionLocalDataSource() {
+        if(sessionLocalDataSource == null){
+            sessionLocalDataSource = new SessionLocalDataSource();
+        }
+        return sessionLocalDataSource;
     }
 
     public synchronized UserRemoteDataSource getUserRemoteDataSource() {
@@ -171,14 +141,7 @@ public class ServiceLocator {
         return sessionRemoteDataSource;
     }
 
-    public synchronized HistoryRemoteDataSource getHistoryRemoteDataSource() {
-        if (historyRemoteDataSource == null) {
-            historyRemoteDataSource = new HistoryRemoteDataSource();
-        }
-        return historyRemoteDataSource;
-    }
-
-    // --- DATABASE ---
+    // Database
 
     private synchronized LocalDatabase getDatabase(Context context) {
         if (localDatabase == null) {
@@ -186,4 +149,5 @@ public class ServiceLocator {
         }
         return localDatabase;
     }
+
 }

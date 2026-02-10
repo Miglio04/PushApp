@@ -80,7 +80,6 @@ dependencies {
     implementation("com.google.android.material:material:1.11.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
-    implementation("androidx.gridlayout:gridlayout:1.0.0")
 
     // --- Compose ---
     implementation(platform("androidx.compose:compose-bom:2024.06.00"))

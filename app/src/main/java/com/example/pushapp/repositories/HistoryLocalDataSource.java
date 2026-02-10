@@ -13,38 +13,16 @@ import java.util.List;
 public class HistoryLocalDataSource {
 
     private final HistoryDao historyDao;
-    private HistoryCallback historyCallback;
 
     public HistoryLocalDataSource(LocalDatabase database) {
         this.historyDao = database.historyDao();
     }
 
-    public void setHistoryCallback(HistoryCallback callback) {
-        this.historyCallback = callback;
-    }
-
-    public void searchHistory(String query) {
-        searchHistory(query, this.historyCallback);
-    }
-
-    public void searchHistory(String query, HistoryCallback callback) {
-        LocalDatabase.databaseWriteExecutor.execute(() -> {
-            try {
-                List<HistorySessionWithExercises> result = historyDao.searchHistory(query);
-                if (callback != null) {
-                    callback.onSuccessHistoryListFromLocal(result);
-                }
-            } catch (Exception e) {
-                if (callback != null) {
-                    callback.onFailureFromLocal(e);
-                }
-            }
-        });
-    }
-
+    // --- SALVATAGGIO ---
     public void saveSession(HistorySession session, List<HistoryWorkoutExercise> exercises, List<HistorySerie> series, HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
+                // Eseguiamo tutto in una transazione implicita (insert sequenziali)
                 historyDao.insertSession(session);
 
                 for (HistoryWorkoutExercise exercise : exercises) {
@@ -66,10 +44,7 @@ public class HistoryLocalDataSource {
         });
     }
 
-    public void getAllHistory() {
-        getAllHistory(this.historyCallback);
-    }
-
+    // --- LETTURA STORICO COMPLETO ---
     public void getAllHistory(HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -85,6 +60,7 @@ public class HistoryLocalDataSource {
         });
     }
 
+    // --- RICERCA (FILTRO) ---
     public void searchHistoryByExercise(String exerciseName, HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -100,10 +76,7 @@ public class HistoryLocalDataSource {
         });
     }
 
-    public void getGraphData(String exerciseName, HistoryRepository.StatMetric metric) {
-        getGraphData(exerciseName, metric, this.historyCallback);
-    }
-
+    // --- GRAFICI ---
     public void getGraphData(String exerciseName, HistoryRepository.StatMetric metric, HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -132,6 +105,7 @@ public class HistoryLocalDataSource {
         });
     }
 
+    // --- ELIMINAZIONE ---
     public void deleteSession(String sessionId) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -142,16 +116,16 @@ public class HistoryLocalDataSource {
         });
     }
 
-    public void updateHistoryFromRemote(List<HistorySessionWithExercises> remoteData) {
-        updateHistoryFromRemote(remoteData, this.historyCallback);
-    }
-
+    // --- AGGIORNAMENTO DA REMOTO (SYNC) ---
     public void updateHistoryFromRemote(List<HistorySessionWithExercises> remoteData, HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 for (HistorySessionWithExercises item : remoteData) {
+                    // 1. Inserisci Sessione
                     historyDao.insertSession(item.session);
 
+                    // 2. Inserisci Esercizi e relative Serie
+                    // Nota: item.exercises è una lista di HistoryWorkoutExerciseWithSeries
                     for (var exWithSeries : item.exercises) {
                         historyDao.insertWorkoutExercise(exWithSeries.historyWorkoutExercise);
 
@@ -160,6 +134,7 @@ public class HistoryLocalDataSource {
                         }
                     }
                 }
+                // Dopo aver salvato tutto, ricarichiamo la lista aggiornata per la UI
                 List<HistorySessionWithExercises> updatedList = historyDao.getAllHistory();
                 if (callback != null) {
                     callback.onSuccessHistoryListFromLocal(updatedList);

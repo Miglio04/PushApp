@@ -1,3 +1,4 @@
+// Sostituisci l'intero contenuto di WorkoutExerciseAdapter.java con questo
 package com.example.pushapp.adapter;
 
 import android.view.LayoutInflater;
@@ -15,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
 import com.example.pushapp.models.WorkoutExercise;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExerciseAdapter.ExerciseViewHolder> {
@@ -23,6 +23,7 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
     private List<WorkoutExercise> workoutExercises;
     private final OnWorkoutInteractionListener listener;
 
+    // 1. Interfaccia corretta
     public interface OnWorkoutInteractionListener {
         void onSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds);
         void onSetDataChanged(int exercisePosition, int setPosition, double actualWeight, int actualReps);
@@ -31,13 +32,12 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
     }
 
     public WorkoutExerciseAdapter(List<WorkoutExercise> workoutExercises, OnWorkoutInteractionListener listener) {
-        this.workoutExercises = workoutExercises != null ? workoutExercises : new ArrayList<>();
+        this.workoutExercises = workoutExercises;
         this.listener = listener;
     }
 
     public void setExercises(List<WorkoutExercise> newWorkoutExercises) {
-        this.workoutExercises = newWorkoutExercises != null ? newWorkoutExercises : new ArrayList<>();
-        // Il notifyDataSetChanged è fondamentale qui per "pulire" visivamente tutto il layout
+        this.workoutExercises = newWorkoutExercises;
         notifyDataSetChanged();
     }
 
@@ -54,23 +54,18 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
         WorkoutExercise workoutExercise = workoutExercises.get(position);
 
         holder.cardTitle.setText(workoutExercise.getName());
+        holder.cardDescription.setText(workoutExercise.getSeries() != null ?
+                workoutExercise.getSeries().size() + " serie" : "0 serie");
 
-        // Gestione corretta del plurale per le serie
-        int setCount = workoutExercise.getSeries() != null ? workoutExercise.getSeries().size() : 0;
-        holder.cardDescription.setText(setCount + (setCount == 1 ? " serie" : " serie"));
-
-        // --- CONFIGURAZIONE SPINNER RIPOSO ---
+        // Configura lo spinner per il tempo di recupero
         String[] restTimes = {"30s", "60s", "90s", "120s", "180s"};
         int[] restValues = {30, 60, 90, 120, 180};
-
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
                 holder.itemView.getContext(),
-                R.layout.item_spinner_custom, // Usa il tuo layout azzurrino se esiste, o android.R.layout.simple_spinner_item
+                android.R.layout.simple_spinner_item,
                 restTimes);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         holder.restSpinner.setAdapter(spinnerAdapter);
-
-        // Imposta la selezione salvata o default (60s)
         holder.restSpinner.setSelection(workoutExercise.getRestTimeIndex());
 
         holder.restSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
@@ -78,51 +73,37 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int pos, long id) {
                 workoutExercise.setRestTimeIndex(pos);
             }
+
             @Override
             public void onNothingSelected(android.widget.AdapterView<?> parent) {}
         });
 
-        // --- INNER ADAPTER (SERIE) ---
-        // Definiamo il listener per le singole serie
+        // Crea un listener per il NUOVO adapter interno (WorkoutSessionSetAdapter)
         WorkoutSessionSetAdapter.OnSessionSetListener innerListener = new WorkoutSessionSetAdapter.OnSessionSetListener() {
             @Override
             public void onSetCompleted(int setPosition) {
-                // Recuperiamo il tempo di riposo attuale dallo spinner
                 int selectedIndex = holder.restSpinner.getSelectedItemPosition();
-                int restSeconds = (selectedIndex >= 0) ? restValues[selectedIndex] : 60;
-
-                // NOTA: Usiamo holder.getBindingAdapterPosition() per evitare errori di indice durante lo scroll
-                int currentPos = holder.getBindingAdapterPosition();
-                if (currentPos != RecyclerView.NO_POSITION) {
-                    listener.onSetCompleted(currentPos, setPosition, restSeconds);
-                }
+                int restSeconds = restValues[selectedIndex];
+                listener.onSetCompleted(holder.getBindingAdapterPosition(), setPosition, restSeconds);
             }
 
             @Override
             public void onSetDataChanged(int setPosition, double actualWeight, int actualReps) {
-                int currentPos = holder.getBindingAdapterPosition();
-                if (currentPos != RecyclerView.NO_POSITION) {
-                    listener.onSetDataChanged(currentPos, setPosition, actualWeight, actualReps);
-                }
+                listener.onSetDataChanged(holder.getBindingAdapterPosition(), setPosition, actualWeight, actualReps);
             }
 
             @Override
             public void onSetDeleted(int setPosition) {
-                int currentPos = holder.getBindingAdapterPosition();
-                if (currentPos != RecyclerView.NO_POSITION) {
-                    listener.onSetDeleted(currentPos, setPosition);
-                }
+                listener.onSetDeleted(holder.getBindingAdapterPosition(), setPosition);
             }
         };
 
+        // Gestisce addSetButton
         holder.addSetButton.setOnClickListener(v -> {
-            int currentPos = holder.getBindingAdapterPosition();
-            if (currentPos != RecyclerView.NO_POSITION) {
-                listener.onAddSet(currentPos);
-            }
+            listener.onAddSet(holder.getBindingAdapterPosition());
         });
 
-        // BUG FIX: Creiamo sempre un nuovo adapter o aggiorniamo i dati per evitare "Ghost Data" nelle EditText
+        // Crea e imposta il NUOVO adapter per le serie
         WorkoutSessionSetAdapter setAdapter = new WorkoutSessionSetAdapter(workoutExercise.getSeries(), innerListener);
         holder.setsRecyclerView.setAdapter(setAdapter);
     }
@@ -150,11 +131,7 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
             restSpinner = itemView.findViewById(R.id.card_rest_spinner);
             setsRecyclerView = itemView.findViewById(R.id.card_sets_recycler);
             addSetButton = itemView.findViewById(R.id.card_add_set);
-
-            // Importante: settiamo il layout manager qui una volta sola
             setsRecyclerView.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
-            // Disabilitiamo il nested scrolling per rendere lo scroll della card fluido
-            setsRecyclerView.setNestedScrollingEnabled(false);
         }
     }
 }

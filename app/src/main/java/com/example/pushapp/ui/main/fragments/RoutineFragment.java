@@ -20,35 +20,33 @@ import android.widget.Toast;
 import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.models.Routine;
+import com.example.pushapp.models.Routine; // <-- Import corretto
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.ui.main.graphicComponents.RoutinesCard;
 import com.example.pushapp.adapter.RoutineCardAdapter;
-import com.example.pushapp.viewModels.TrainingViewModel;
-import com.example.pushapp.viewModels.ViewModelFactory;
+import com.example.pushapp.viewModels.TrainingViewModel; // <-- USA IL VIEWMODEL CORRETTO
 import com.example.pushapp.viewModels.WorkoutViewModel;
 
-import java.io.Serializable;
+import java.io.Serializable; // <-- Aggiungi import per il passaggio dati
 import java.util.ArrayList;
 import java.util.List;
 
 public class RoutineFragment extends Fragment {
 
     private String trainingId;
-    private TrainingViewModel trainingViewModel;
+    private TrainingViewModel trainingViewModel; // <-- USA IL VIEWMODEL CORRETTO
     private WorkoutViewModel workoutViewModel;
     private RoutineCardAdapter adapter;
-    private Training currentTraining;
+    private Training currentTraining; // Campo per memorizzare il training corrente
 
     public RoutineFragment() { }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        ViewModelFactory factory = new ViewModelFactory(requireContext());
-        trainingViewModel = new ViewModelProvider(requireActivity(), factory).get(TrainingViewModel.class);
-        workoutViewModel = new ViewModelProvider(requireActivity(), factory).get(WorkoutViewModel.class);
+        // Inizializza ENTRAMBI i ViewModel
+        trainingViewModel = new ViewModelProvider(requireActivity()).get(TrainingViewModel.class);
+        workoutViewModel = new ViewModelProvider(requireActivity()).get(WorkoutViewModel.class);
 
         if (getArguments() != null) {
             trainingId = getArguments().getString("trainingId");
@@ -56,13 +54,15 @@ public class RoutineFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_routines, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         RecyclerView recyclerView = view.findViewById(R.id.recycler_training_days);
         setupRecyclerView(recyclerView);
         observeViewModel();
@@ -70,36 +70,46 @@ public class RoutineFragment extends Fragment {
 
     private void setupRecyclerView(RecyclerView recyclerView) {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        // Crea l'adapter una sola volta con una lista vuota
         adapter = new RoutineCardAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
+
+        // Imposta i listener sull'adapter
         adapter.setStartWorkoutListener(this::handleStartWorkoutClick);
         adapter.setEditWorkoutListener(this::handleEditDayClick);
     }
 
     private void observeViewModel() {
         trainingViewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
-            if (trainings instanceof Result.TrainingsSuccess) {
+            if (trainings == null) {
+                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
+            }else if(!trainings.isTrainingsSuccess()){
+                Toast.makeText(getContext(), ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
+            }else{
                 List<Training> trainingsList = ((Result.TrainingsSuccess) trainings).getData();
                 for (Training training : trainingsList) {
                     if (trainingId.equals(training.getTrainingId())) {
                         currentTraining = training;
-                        adapter.updateCards(generateCardsFromTraining(currentTraining));
+                        List<RoutinesCard> cards = generateCardsFromTraining(currentTraining);
+                        adapter.updateCards(cards);
                         break;
                     }
                 }
-            } else if (trainings instanceof Result.Error) {
-                Toast.makeText(getContext(), "Error retrieving trainings: " + ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
 
+    // --- NUOVI METODI HELPER ---
+
     private List<RoutinesCard> generateCardsFromTraining(Training training) {
         List<RoutinesCard> cards = new ArrayList<>();
-        if (training != null && training.getRoutinesList() != null) {
-            for (Routine day : training.getRoutinesList()) {
-                // Manteniamo "Exercises" ma i nomi delle routine sono dinamici
-                cards.add(new RoutinesCard(day.getName(), "Exercises: " + day.getWorkoutTotalExercises(), day.getRoutineId()));
-            }
+        if (training == null || training.getRoutinesList() == null) {
+            return cards;
+        }
+
+        // Crea una card per ogni giorno di allenamento reale
+        for (Routine day : training.getRoutinesList()) {
+            cards.add(new RoutinesCard(day.getName(), "Exercises: " + day.getWorkoutTotalExercises(), day.getRoutineId()));
         }
         return cards;
     }
@@ -115,21 +125,33 @@ public class RoutineFragment extends Fragment {
 
     private void handleEditDayClick(RoutinesCard card) {
         if (getView() != null && card.getTrainingDayId() != null) {
+            NavController navController = Navigation.findNavController(getView());
             Bundle args = new Bundle();
+
             args.putString("trainingId", trainingId);
+
             args.putString("dayId", card.getTrainingDayId());
-            Navigation.findNavController(getView()).navigate(R.id.nav_training_days_to_edit, args);
+
+            navController.navigate(R.id.nav_training_days_to_edit, args);
+        } else {
+            Toast.makeText(getContext(), "Errore: ID del giorno non disponibile", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void startNewWorkout(RoutinesCard card) {
-        if (currentTraining == null || card.getTrainingDayId() == null) return;
+        if (currentTraining == null) return;
+
+        String cardDayId = card.getTrainingDayId();
+        if (cardDayId == null) return; // Aggiungi questo check
+
+        // Trova il TrainingDay completo da passare al WorkoutFragment
         for (Routine day : currentTraining.getRoutinesList()) {
-            if (card.getTrainingDayId().equals(day.getRoutineId())) {
+            if (cardDayId.equals(day.getRoutineId())) { // Inverti il confronto
+                NavController navController = NavHostFragment.findNavController(this);
                 Bundle args = new Bundle();
                 args.putSerializable("trainingDay", (Serializable) day);
                 args.putSerializable("parentTraining", (Serializable) currentTraining);
-                NavHostFragment.findNavController(this).navigate(R.id.nav_workouts, args);
+                navController.navigate(R.id.nav_workouts, args);
                 break;
             }
         }
@@ -137,21 +159,23 @@ public class RoutineFragment extends Fragment {
 
     private void showReplaceWorkoutDialog(RoutinesCard card) {
         new AlertDialog.Builder(requireContext())
-                .setTitle("Workout in Progress")
-                .setMessage("You already have an active workout session. Would you like to discard it and start a new one?")
-                .setPositiveButton("Discard and Start", (dialog, which) -> {
+                .setTitle("Workout in corso")
+                .setMessage("Hai già un workout in corso. Vuoi scartarlo e avviarne uno nuovo?")
+                .setPositiveButton("Scarta e avvia", (dialog, which) -> {
                     workoutViewModel.stopWorkout(new FirebaseCallback<Void>() {
                         @Override
                         public void onSuccess(Void result) {
                             startNewWorkout(card);
                         }
+
                         @Override
                         public void onError(Exception e) {
+                            // Avvia comunque il nuovo workout anche se il salvataggio fallisce
                             startNewWorkout(card);
                         }
                     });
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton("Annulla", null)
                 .show();
     }
 }

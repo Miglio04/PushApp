@@ -3,10 +3,8 @@ package com.example.pushapp.models.history;
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
-import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
-import java.util.List;
 
 @Entity(
         tableName = "history_workout_exercises",
@@ -25,13 +23,10 @@ public class HistoryWorkoutExercise {
     public String historyExerciseId;
 
     @NonNull
-    public String sessionId;
+    public String sessionId;         // Chiave esterna verso HistorySession
 
     public String exerciseName;
     public int orderIndex;
-
-    @Ignore
-    public List<HistorySerie> series;
 
     public HistoryWorkoutExercise() {}
 
@@ -42,6 +37,7 @@ public class HistoryWorkoutExercise {
         this.orderIndex = orderIndex;
     }
 
+    // --- Getters e Setters ---
     @NonNull
     public String getHistoryExerciseId() { return historyExerciseId; }
     public void setHistoryExerciseId(@NonNull String historyExerciseId) { this.historyExerciseId = historyExerciseId; }
