@@ -77,7 +77,7 @@ public class HistoryRepository implements HistoryCallback {
             HistoryWorkoutExercise hExercise = new HistoryWorkoutExercise(
                     historyExerciseId,
                     sessionId,
-                    workoutExercise.getName(),
+                    workoutExercise.getApiExerciseId(),
                     activeRoutine.getWorkoutExercises().indexOf(workoutExercise) // Ordine
             );
             historyExercises.add(hExercise);
@@ -85,7 +85,8 @@ public class HistoryRepository implements HistoryCallback {
             // Iterazione Serie
             for (Serie s : workoutExercise.getSeries()) {
                 // Salviamo solo le serie completate!
-                if (s.isCompleted()) {
+                // Temporaneo, si basa su architettura vecchia
+                /*if (s.isCompleted()) {
                     HistorySerie hSerie = new HistorySerie(
                             UUID.randomUUID().toString(),
                             historyExerciseId,
@@ -95,6 +96,8 @@ public class HistoryRepository implements HistoryCallback {
                     );
                     historySeries.add(hSerie);
                 }
+
+                 */
             }
         }
 

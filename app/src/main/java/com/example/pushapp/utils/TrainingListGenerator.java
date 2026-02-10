@@ -24,29 +24,26 @@ public class TrainingListGenerator {
     public static Training generateTrainingList() {
 
         // --- Crea il primo Training: "Push Pull Legs" ---
-        Training sampleTraining = new Training("Push Pull Legs", "Split classico PPL");
-        sampleTraining.setTrainingId(UUID.randomUUID().toString());
-
-        // --- Crea le sue Routine ---
+        Training sampleTraining = new Training();
+        sampleTraining.setName("Push Pull Legs");
+        sampleTraining.setDescription("Split classico PPL");
         ArrayList<Routine> pplRoutines = new ArrayList<>();
 
         // Routine 1: Push Day
         Routine pushDay = new Routine("Push Day", 1);
-        pushDay.setTrainingId(sampleTraining.getTrainingId());
 
         // Crea e aggiungi gli esercizi alla routine "Push Day"
-        pushDay.addWorkoutExercise(createExercise("Bench Press", 1, 4, 8, 80, pushDay.getRoutineId()));
-        pushDay.addWorkoutExercise(createExercise("Overhead Press", 2, 3, 10, 40, pushDay.getRoutineId()));
-        pushDay.addWorkoutExercise(createExercise("Tricep Pushdown", 3, 3, 12, 25, pushDay.getRoutineId()));
+        pushDay.addWorkoutExercise(createExercise( 1, 4, 8, 80));
+        pushDay.addWorkoutExercise(createExercise( 2, 3, 10, 40));
+        pushDay.addWorkoutExercise(createExercise( 3, 3, 12, 25));
         pplRoutines.add(pushDay);
 
         // Routine 2: Pull Day
         Routine pullDay = new Routine("Pull Day", 2);
-        pullDay.setTrainingId(sampleTraining.getTrainingId());
 
         // Crea e aggiungi gli esercizi alla routine "Pull Day"
-        pullDay.addWorkoutExercise(createExercise("Pull Ups", 1, 4, 8, 0, pullDay.getRoutineId()));
-        pullDay.addWorkoutExercise(createExercise("Barbell Row", 2, 3, 10, 60, pullDay.getRoutineId()));
+        pullDay.addWorkoutExercise(createExercise( 1, 4, 8, 0));
+        pullDay.addWorkoutExercise(createExercise( 2, 3, 10, 60));
         pplRoutines.add(pullDay);
 
         // **PASSAGGIO CHIAVE MANCANTE:** Imposta la lista di routine nel training
@@ -55,18 +52,13 @@ public class TrainingListGenerator {
         return sampleTraining;
     }
 
-    private static WorkoutExercise createExercise(String name, int order, int numSeries, int targetReps, double targetWeight, String routineId) {
-        int exerciseId = (int)(Math.random() * 100000);
-        WorkoutExercise workoutExercise = new WorkoutExercise(exerciseId, name, order);
-        workoutExercise.setRoutineId(routineId);
+    private static WorkoutExercise createExercise(int order, int numSeries, int targetReps, double targetWeight) {
+        WorkoutExercise workoutExercise = new WorkoutExercise("PlaceHolderStringaAPIExerciseID", order);
 
         // Crea le sue serie
         List<Serie> series = new ArrayList<>();
         for (int i = 0; i < numSeries; i++) {
-            int serieId = (int)(Math.random() * 100000);
             Serie serie = new Serie(i + 1, targetReps, targetWeight);
-            serie.setSerieId(serieId);
-            serie.setWorkoutExerciseId(exerciseId);
             series.add(serie);
         }
         // **PASSAGGIO CHIAVE MANCANTE:** Imposta la lista di serie nell'esercizio

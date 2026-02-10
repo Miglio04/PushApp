@@ -72,17 +72,23 @@ public class TrainingRepository implements TrainingCallback{
             return;
         }
 
+        String trainingId = training.getTrainingId();
+        if (trainingId == null || trainingId.isEmpty()) {
+            callback.onError(new Exception("Local Training ID (UUID) is missing."));
+            return;
+        }
+
         // 1. Prepara un batch di scrittura atomica
         WriteBatch batch = db.batch();
 
         // 2. Prepara il documento per il Training principale
-        DocumentReference trainingRef = db.collection(COLLECTION_TRAININGS).document();
-        String newTrainingId = trainingRef.getId();
+        DocumentReference trainingRef = db.collection("users").document(userId)
+                .collection(COLLECTION_TRAININGS).document(trainingId);
 
-        training.setTrainingId(newTrainingId);
         training.setUserId(userId);
         training.setCreatedAt(System.currentTimeMillis());
         training.setUpdatedAt(System.currentTimeMillis());
+        training.setDeleted(false);
 
         // Aggiungi l'operazione di scrittura del Training al batch.
         batch.set(trainingRef, training);
@@ -91,43 +97,31 @@ public class TrainingRepository implements TrainingCallback{
         if (training.getRoutinesList() != null) {
             for (Routine routine : training.getRoutinesList()) {
                 DocumentReference routineRef = trainingRef.collection("routines").document(routine.getRoutineId());
-                routine.setTrainingId(newTrainingId);
+                routine.setTrainingId(trainingId);
+                routine.setUserId(userId);
                 batch.set(routineRef, routine);
 
                 // 4. Itera sugli esercizi per salvarli nella loro collezione
                 if (routine.getWorkoutExercises() != null) {
                     for (WorkoutExercise exercise : routine.getWorkoutExercises()) {
-                        // Poiché workoutExerciseId è un 'int', non possiamo usarlo come ID documento (che deve essere String).
-                        // Quindi creiamo un nuovo documento con un ID casuale e salviamo il nostro 'int' ID come campo.
-                        DocumentReference exerciseRef = routineRef.collection("workoutExercises").document();
-
-                        // Collega l'esercizio alla sua routine padre
+                        DocumentReference exerciseRef = routineRef.collection("workoutExercises").document(exercise.getWorkoutExerciseId());
                         exercise.setRoutineId(routine.getRoutineId());
-
-                        // Aggiungi l'operazione di scrittura dell'Esercizio al batch
-                        batch.set(exerciseRef, exercise);
-
-                        // 5. Itera sulle serie per salvarle nella loro collezione
+                        exercise.setUserId(userId);
                         if (exercise.getSeries() != null) {
                             for (Serie serie : exercise.getSeries()) {
-                                // Anche qui, creiamo un ID documento casuale per la serie.
-                                DocumentReference serieRef = exerciseRef.collection("series").document();
-
-                                // Collega la serie al suo esercizio padre usando l'ID 'int'
                                 serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
-
-                                // Aggiungi l'operazione di scrittura della Serie al batch
-                                batch.set(serieRef, serie);
+                                serie.setUserId(userId);
                             }
                         }
+                        batch.set(exerciseRef, exercise);
                     }
                 }
             }
         }
 
-        // 6. Esegui tutte le operazioni nel batch
+        // 5. Esegui tutte le operazioni nel batch
         batch.commit()
-                .addOnSuccessListener(aVoid -> callback.onSuccess(newTrainingId))
+                .addOnSuccessListener(aVoid -> callback.onSuccess(trainingId))
                 .addOnFailureListener(callback::onError);
     }
 

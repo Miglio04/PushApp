@@ -56,8 +56,11 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
 
         // Imposta valori attuali
         // Mostra il valore solo se è maggiore di 0, altrimenti lascia vuoto o mostra hint
+        // DATI ACTUAL non più presenti in serie. Andrà trovato un altro modo per gestirlo
+        /*
         holder.actualWeight.setText(serie.getActualWeight() > 0 ? String.valueOf(serie.getActualWeight()) : "");
         holder.actualReps.setText(serie.getActualReps() > 0 ? String.valueOf(serie.getActualReps()) : "");
+         */
 
         // Logica TextWatcher per salvare i dati mentre scrivi
         holder.weightWatcher = new TextWatcher() {
@@ -89,7 +92,10 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
         });
 
         // Aggiorna grafica (barrato/verde)
+        // DATO COMPLETED: RIMOSSO da serie. Andrà trovato un altro modo per gestirlo
+        /*
         updateCompletedUI(holder, serie.isCompleted());
+         */
     }
 
     private void updateSetData(ViewHolder holder) {

@@ -386,7 +386,7 @@ public class TrainingViewModel extends ViewModel {
 
             List<WorkoutExercise> updatedList = new ArrayList<>(currentDay.getWorkoutExercises());
 
-            WorkoutExercise newWorkoutExercise = new WorkoutExercise(newExerciseInfo.getName().hashCode(), newExerciseInfo.getName(), position + 1);
+            WorkoutExercise newWorkoutExercise = new WorkoutExercise(newExerciseInfo.getName(), position + 1);
             newWorkoutExercise.setSeries(createDefaultSeries());
 
             updatedList.set(position, newWorkoutExercise);

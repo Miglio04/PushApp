@@ -153,6 +153,8 @@ public class WorkoutViewModel extends ViewModel {
             WorkoutExercise workoutExercise = workoutExercises.get(exercisePosition);
             if (workoutExercise.getSeries() != null && setPosition >= 0 && setPosition < workoutExercise.getSeries().size()) {
                 Serie serie = workoutExercise.getSeries().get(setPosition);
+                // RIMOSSO COMPLETED  da serie. Andrà trovato un altro modo per gestirlo
+                /*
                 boolean newState = !serie.isCompleted();
                 serie.setCompleted(newState);
                 if (newState) {
@@ -160,6 +162,7 @@ public class WorkoutViewModel extends ViewModel {
                 } else {
                     stopRestTimer();
                 }
+                */
                 activeTrainingDay.setValue(currentDay);
             }
         }
@@ -262,8 +265,11 @@ public class WorkoutViewModel extends ViewModel {
                 Serie serie = workoutExercise.getSeries().get(setPosition);
 
                 // Aggiorna i campi 'actual' dell'oggetto Serie
+                // RIMOSSI actualWeight e actualReps da serie. Andrà trovato un altro modo per gestirlo
+                /*
                 serie.setActualWeight(actualWeight);
                 serie.setActualReps(actualReps);
+                 */
             }
         }
     }
