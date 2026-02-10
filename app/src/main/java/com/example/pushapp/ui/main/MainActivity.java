@@ -34,8 +34,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ViewModelFactory factory = new ViewModelFactory(this);
-        workoutViewModel = new ViewModelProvider(this, factory).get(WorkoutViewModel.class);
-        userViewModel = new ViewModelProvider(this, factory).get(UserViewModel.class);
+        workoutViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(getApplicationContext())).get(WorkoutViewModel.class);
+
+        userViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(getApplicationContext())).get(UserViewModel.class);
 
         userViewModel.fetchUser();
         workoutViewModel.checkRestoredSession();

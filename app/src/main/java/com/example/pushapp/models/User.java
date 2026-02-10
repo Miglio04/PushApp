@@ -42,9 +42,11 @@ public class User {
     // @ColumnInfo(name = "userUpdatedAt")
     @Ignore
     private Timestamp userUpdatedAt;
-    // @ColumnInfo(name = "trainingsUpdatedAt")
+    // @ColumnInfo(name = "deleted")
     @Ignore
-    private Timestamp trainingsUpdatedAt;
+    private boolean deleted;
+    @Ignore
+    private List<Training> trainingLists;
     @Ignore
     private List<String> trainingPlans;
     @Ignore
@@ -53,7 +55,10 @@ public class User {
     public User(String userId, String email) {
         this.userId = userId;
         this.email = email;
+        this.trainingPlans = new ArrayList<>();
         this.createdAt = Timestamp.now();
+        this.userUpdatedAt = Timestamp.now();
+        this.deleted = false;
     }
 
     // Getters and Setters
@@ -88,8 +93,8 @@ public class User {
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
     public Timestamp getUserUpdatedAt() { return userUpdatedAt; }
     public void setUserUpdatedAt(Timestamp userUpdatedAt) { this.userUpdatedAt = userUpdatedAt; }
-    public Timestamp getTrainingsUpdatedAt() { return trainingsUpdatedAt; }
-    public void setTrainingsUpdatedAt(Timestamp trainingsUpdatedAt) { this.trainingsUpdatedAt = trainingsUpdatedAt; }
+    public boolean getDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
     @Ignore
     public List<String> getTrainingPlans() {
         if (trainingPlans == null) trainingPlans = new ArrayList<>();
@@ -111,5 +116,13 @@ public class User {
 
     public void setCurrentTrainingPlan(String currentTrainingPlan) {
         this.currentTrainingPlan = currentTrainingPlan;
+    }
+
+    public List<Training> getTrainingLists() {
+        return trainingLists;
+    }
+
+    public void setTrainingLists(List<Training> trainingLists) {
+        this.trainingLists = trainingLists;
     }
 }

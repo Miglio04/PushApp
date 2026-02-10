@@ -152,15 +152,7 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             }
             int order = adapter.getItemCount() + 1;
 
-            // --- COPIA DATI E ISTRUZIONI ---
-            WorkoutExercise newWorkoutExercise = new WorkoutExercise(exerciseApiModel.getName().hashCode(), exerciseApiModel.getName(), order);
-
-            if (exerciseApiModel.getInstructions() != null && !exerciseApiModel.getInstructions().isEmpty()) {
-                newWorkoutExercise.setInstructions(exerciseApiModel.getInstructions());
-            } else {
-                newWorkoutExercise.setInstructions("");
-            }
-            // ------------------------------
+            WorkoutExercise newWorkoutExercise = new WorkoutExercise(exerciseApiModel.getName(), order);
 
             trainingViewModel.addExerciseToDay(newWorkoutExercise);
             toggleSearchPanel(false);
@@ -176,18 +168,13 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         if (day == null || day.getWorkoutExercises() == null) return;
 
         WorkoutExercise workoutExercise = day.getWorkoutExercises().get(position);
-        String instructions = workoutExercise.getInstructions();
 
-        String message;
-        if (instructions != null && !instructions.trim().isEmpty()) {
-            message = instructions;
-        } else {
-            message = "Non sono presenti istruzioni per l'esercizio in questione.";
-        }
+        //INSTRUCTION rimosso da workoutExercise. Non so come funziona questo metodo ma in assenza di istruction il messaggio era questo
+        String message= "Non sono presenti istruzioni per l'esercizio in questione.";
 
         // Mostra Dialog
         new AlertDialog.Builder(requireContext())
-                .setTitle(workoutExercise.getName())
+                .setTitle(workoutExercise.getApiExerciseId())
                 .setMessage(message)
                 .setPositiveButton("Chiudi", null)
                 .setIcon(android.R.drawable.ic_dialog_info)
@@ -316,7 +303,7 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     @Override public void onDeleteExercise(int position) {
         Routine day = trainingViewModel.getEditableTrainingDay().getValue();
         if(day == null) return;
-        new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + day.getWorkoutExercises().get(position).getName() + "?")
+        new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + day.getWorkoutExercises().get(position).getApiExerciseId() + "?")
                 .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteExerciseFromDay(position)).setNegativeButton("Annulla", null).show();
     }
 

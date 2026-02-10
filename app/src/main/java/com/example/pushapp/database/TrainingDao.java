@@ -32,7 +32,7 @@ public interface TrainingDao {
     @Query("SELECT * FROM training WHERE userId = :userId")
     List<Training> getByUserId(String userId);
 
-    @Query("SELECT * FROM training WHERE userId = :userId AND isActive = 1")
+    @Query("SELECT * FROM training WHERE userId = :userId AND deleted = 1")
     Training getActiveByUserId(String userId);
 
     @Transaction

@@ -11,6 +11,7 @@ import com.example.pushapp.models.WorkoutExercise;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -58,15 +59,16 @@ public class TrainingRemoteDataSource {
             return;
         }
 
-        // 1. Recupera i documenti Training principali
-        db.collection(COLLECTION_TRAININGS)
-                .whereEqualTo("userId", userId)
+        CollectionReference trainingsCollection = db.collection("users").document(userId).collection("trainings");
+
+        // 1. Recupera i documenti Training principali dalla sottocollezione
+        trainingsCollection
                 .orderBy("createdAt", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(trainingSnapshots -> {
                     if (trainingSnapshots.isEmpty()) {
                         Log.d(TAG, "Nessun training trovato per l'utente, restituisco lista vuota.");
-                        trainingCallback.onSuccessFromRemote(new ArrayList<>()); // Nessun training, operazione riuscita
+                        trainingCallback.onSuccessFromRemote(new ArrayList<>());
                         return;
                     }
 
@@ -76,7 +78,7 @@ public class TrainingRemoteDataSource {
                     for (DocumentSnapshot trainingDoc : trainingSnapshots.getDocuments()) {
                         Training training = trainingDoc.toObject(Training.class);
                         if (training != null) {
-                            training.setTrainingId(trainingDoc.getId()); // Imposta l'ID del documento
+                            training.setTrainingId(trainingDoc.getId());
                             trainings.add(training);
 
                             // 2. Per ogni training, crea un Task per recuperare le sue routine
@@ -89,7 +91,7 @@ public class TrainingRemoteDataSource {
                     Tasks.whenAllComplete(allFetchTasks)
                             .addOnSuccessListener(taskSnapshots -> {
                                 Log.d(TAG, "Tutti i dati annidati sono stati recuperati con successo.");
-                                trainingCallback.onSuccessFromRemote(trainings); // Ora 'trainings' è completamente "idratato"
+                                trainingCallback.onSuccessFromRemote(trainings);
                             })
                             .addOnFailureListener(e -> {
                                 Log.e(TAG, "Errore nel recuperare i dati annidati.", e);
@@ -110,47 +112,38 @@ public class TrainingRemoteDataSource {
             for (DocumentSnapshot routineDoc : routineSnapshots.getDocuments()) {
                 Routine routine = routineDoc.toObject(Routine.class);
                 if (routine != null) {
+                    routine.setRoutineId(routineDoc.getId());
+                    routine.setTrainingId(training.getTrainingId());
                     routines.add(routine);
-                    // 4. Per ogni routine, crea un Task per recuperare i suoi esercizi
                     Task<Void> fetchExercisesTask = fetchExercisesForRoutine(routine, routineDoc.getReference());
                     exerciseTasks.add(fetchExercisesTask);
                 }
             }
             training.setRoutinesList(new ArrayList<>(routines));
-            return Tasks.whenAllComplete(exerciseTasks).continueWith(task -> null); // Continua la catena
+            return Tasks.whenAllComplete(exerciseTasks).continueWith(task -> null);
         });
     }
 
     private Task<Void> fetchExercisesForRoutine(Routine routine, DocumentReference routineRef) {
         return routineRef.collection("workoutExercises").get().onSuccessTask(exerciseSnapshots -> {
             List<WorkoutExercise> exercises = new ArrayList<>();
-            List<Task<Void>> seriesTasks = new ArrayList<>();
 
             for (DocumentSnapshot exerciseDoc : exerciseSnapshots.getDocuments()) {
                 WorkoutExercise exercise = exerciseDoc.toObject(WorkoutExercise.class);
                 if (exercise != null) {
+                    exercise.setWorkoutExerciseId(exerciseDoc.getId());
+                    exercise.setRoutineId(routine.getRoutineId());
+                    if (exercise.getSeries() != null) {
+                        for(Serie serie : exercise.getSeries()) {
+                            serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
+                            serie.setUserId(auth.getUid());
+                        }
+                    }
                     exercises.add(exercise);
-                    // 5. Per ogni esercizio, crea un Task per recuperare le sue serie
-                    Task<Void> fetchSeriesTask = fetchSeriesForExercise(exercise, exerciseDoc.getReference());
-                    seriesTasks.add(fetchSeriesTask);
                 }
             }
             routine.setWorkoutExercises(exercises);
-            return Tasks.whenAllComplete(seriesTasks).continueWith(task -> null);
-        });
-    }
-
-    private Task<Void> fetchSeriesForExercise(WorkoutExercise exercise, DocumentReference exerciseRef) {
-        return exerciseRef.collection("series").get().onSuccessTask(seriesSnapshots -> {
-            List<Serie> series = new ArrayList<>();
-            for (DocumentSnapshot seriesDoc : seriesSnapshots.getDocuments()) {
-                Serie serie = seriesDoc.toObject(Serie.class);
-                if (serie != null) {
-                    series.add(serie);
-                }
-            }
-            exercise.setSeries(series);
-            return Tasks.forResult(null); // Fine della catena per questo ramo
+            return Tasks.forResult(null);
         });
     }
 
@@ -166,8 +159,8 @@ public class TrainingRemoteDataSource {
         } else {
             training.setUpdatedAt(System.currentTimeMillis());
 
-            db.collection(COLLECTION_TRAININGS)
-                    .document(training.getTrainingId())
+            db.collection("users").document(auth.getCurrentUser().getUid())
+                    .collection("trainings").document(training.getTrainingId())
                     .set(training)
                     .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
         }
