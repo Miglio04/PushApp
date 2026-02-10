@@ -24,10 +24,10 @@
     -->
 
     <fragment
-        android:id="@+id/nav_food"
-        android:name="com.example.pushapp.ui.main.fragments.FoodFragment"
-        android:label="Food"
-        tools:layout="@layout/fragment_food" />
+        android:id="@+id/nav_profile"
+        android:name="com.example.pushapp.ui.main.fragments.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" />
 
     <fragment
         android:id="@+id/nav_stats"
@@ -36,10 +36,10 @@
         tools:layout="@layout/fragment_stats" />
 
     <fragment
-        android:id="@+id/nav_social"
-        android:name="com.example.pushapp.ui.main.fragments.SocialFragment"
-        android:label="Social"
-        tools:layout="@layout/fragment_social" />
+        android:id="@+id/nav_history"
+        android:name="com.example.pushapp.ui.main.fragments.HistoryFragment"
+        android:label="Activity"
+        tools:layout="@layout/fragment_history" />
 
     <!--
     <fragment
