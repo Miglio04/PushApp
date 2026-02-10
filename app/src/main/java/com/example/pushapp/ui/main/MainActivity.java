@@ -32,10 +32,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //Inizializza i ViewModel
+        ViewModelFactory factory = new ViewModelFactory(this);
         workoutViewModel = new ViewModelProvider(
                 this,
                 new ViewModelFactory(getApplicationContext())).get(WorkoutViewModel.class);
+
+        userViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(getApplicationContext())).get(UserViewModel.class);
+
+        userViewModel.fetchUser();
+        workoutViewModel.checkRestoredSession();
+
+        setupWindowInsets();
+        setupNavigation();
 
         userViewModel = new ViewModelProvider(
                 this,
