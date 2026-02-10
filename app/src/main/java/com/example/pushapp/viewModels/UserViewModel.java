@@ -44,14 +44,12 @@ public class UserViewModel extends ViewModel {
         return registrationStatus;
     }
 
-    public void fetchSessionUser(){
-        sessionRepository.getSessionUser();
-    }
+
     // loads user data after login
     public void fetchUser() {
         isLoading.setValue(true);
 
-        sessionRepository.getSessionUser();
+        sessionRepository.getCurrentUserId();
         Result result = sessionLiveData.getValue();
         if(result instanceof Result.SessionSuccess){
             userRepository.fetchUserById(((Result.SessionSuccess) result).getData().getUserId());

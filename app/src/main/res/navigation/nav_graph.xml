@@ -36,10 +36,10 @@
         tools:layout="@layout/fragment_stats" />
 
     <fragment
-        android:id="@+id/nav_profile"
-        android:name="com.example.pushapp.ui.main.fragments.ProfileFragment"
-        android:label="Profile"
-        tools:layout="@layout/fragment_profile" />
+        android:id="@+id/nav_social"
+        android:name="com.example.pushapp.ui.main.fragments.SocialFragment"
+        android:label="Social"
+        tools:layout="@layout/fragment_social" />
 
     <!--
     <fragment

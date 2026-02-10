@@ -35,12 +35,12 @@ public class SessionRepository implements SessionCallback {
         sessionRemoteDataSource.registerWithEmailAndPassword(email, password);
     }
 
-    public void getSessionUser() {
+    public void getCurrentUserId() {
         SessionUser sessionUser = sessionLocalDataSource.getCurrentSessionUser();
         if (sessionUser != null) {
-            sessionLiveData.postValue(new Result.SessionSuccess(sessionUser));
+            sessionLiveData.postValue(new Result.SessionSuccess(sessionLocalDataSource.getCurrentSessionUser()));
         } else {
-            sessionLiveData.postValue(new Result.Error.UserNotFound("User not found"));
+            sessionLiveData.postValue(new Result.Error("User not found"));
         }
     }
 

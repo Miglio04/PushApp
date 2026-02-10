@@ -19,7 +19,7 @@ public class UserLocalDataSource {
     public void getUserById(String id){
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             User user = userDao.getByUserId(id);
-            userCallback.onSuccessFromLocalGet(user, id);
+            userCallback.onSuccessFromLocalGet(user);
         });
     }
 
