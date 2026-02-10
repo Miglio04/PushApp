@@ -93,4 +93,11 @@
     <string name="detail_age">Età: %1$d</string>
     <string name="detail_height">Altezza: %1$d cm</string>
     <string name="detail_weight">Peso: %1$.1f kg</string>
+    <string name="accedi">Accedi</string>
+    <string name="registrati">Registrati</string>
+    <string name="confirm_password">Conferma password</string>
+    <string name="create_account">Crea Account</string>
+    <string name="passwords_do_not_match">Le password sono diverse</string>
+    <string name="workouts">Allenamenti</string>
+    <string name="volume">Peso</string>
 </resources>
