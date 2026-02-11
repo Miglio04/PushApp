@@ -92,7 +92,7 @@ public class HistoryRepository implements HistoryCallback {
                  */
             }
         }
-        localDataSource.saveSession(session, hExercises, hSeries, new HistoryCallback() {
+        /*localDataSource.saveSession(session, hExercises, hSeries, new HistoryCallback() {
             @Override
             public void onSuccessSaveLocal() {
                 if (remoteDataSource != null) {
@@ -109,6 +109,7 @@ public class HistoryRepository implements HistoryCallback {
             @Override public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> l) {}
             @Override public void onFailureFromRemote(Exception e) {}
         });
+         */
     }
 
     public void deleteSession(String sessionId) {
