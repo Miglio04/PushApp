@@ -21,12 +21,15 @@ public class TrainingListGenerator {
      * Ogni oggetto ha le sue chiavi primarie e le chiavi esterne già impostate.
      * @return una ArrayList di Training pronti per essere inseriti in Room.
      */
-    public static Training generateTrainingList() {
+    public static Training generateTrainingList(String userId) {
 
         // --- Crea il primo Training: "Push Pull Legs" ---
         Training sampleTraining = new Training();
         sampleTraining.setName("Push Pull Legs");
         sampleTraining.setDescription("Split classico PPL");
+        sampleTraining.setCreatedAt(System.currentTimeMillis());
+        sampleTraining.setUpdatedAt(System.currentTimeMillis());
+        sampleTraining.setUserId(userId);
         ArrayList<Routine> pplRoutines = new ArrayList<>();
 
         // Routine 1: Push Day

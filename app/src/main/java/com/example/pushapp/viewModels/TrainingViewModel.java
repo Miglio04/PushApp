@@ -63,8 +63,8 @@ public class TrainingViewModel extends ViewModel {
     public LiveData<List<String>> getAvailableMuscleGroups() { return availableMuscleGroups; }
     public LiveData<List<String>> getAvailableDifficulties() { return availableDifficulties; }
 
-    public void fetchTrainings(){
-        trainingRepository.getTrainingList();
+    public void fetchTrainings(String userId){
+        trainingRepository.fetchTrainings(userId);
     }
 
     public void loadActiveTraining() {
@@ -82,33 +82,22 @@ public class TrainingViewModel extends ViewModel {
     }
 
     // --- CRUD OPERAZIONI ---
-    public void createSampleTraining(FirebaseCallback<String> callback) {
-        trainingRepository.createSampleTraining(callback);
+    public void createSampleTraining(String userId) {
+        trainingRepository.createSampleTraining(userId);
     }
-    public void createTraining(Training training, FirebaseCallback<String> callback) {
+    public void createTraining(String userId) {
         isLoading.setValue(true);
-        trainingRepository.createTraining(training, new FirebaseCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-                isLoading.setValue(false);
-                callback.onSuccess(result);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                errorMessage.setValue(e.getMessage());
-                isLoading.setValue(false);
-                callback.onError(e);
-            }
-        });
+        Training training = new Training();
+        training.setUserId(userId);
+        trainingRepository.createTraining(userId, training);
     }
 
     public void updateTraining(Training training, FirebaseCallback<Void> callback) {
         trainingRepository.updateTraining(training);
     }
 
-    public void deleteTraining(String trainingId, FirebaseCallback<Void> callback) {
-        trainingRepository.deleteTraining(trainingId, new FirebaseCallback<Void>() {
+    public void deleteTraining(Training training, FirebaseCallback<Void> callback) {
+        trainingRepository.deleteTraining(training, new FirebaseCallback<Void>() {
             @Override
             public void onSuccess(Void result) {
                 callback.onSuccess(result);

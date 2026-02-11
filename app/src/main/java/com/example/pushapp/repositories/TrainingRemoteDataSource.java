@@ -17,6 +17,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,63 @@ public class TrainingRemoteDataSource {
         this.trainingCallback = null;
     }
 
-    public void fetchTrainings() {
-        newFetchTrainings();
+    public void createTraining(String userId, Training training) {
+        if (userId == null) {
+            trainingCallback.onFailureFromRemote(new Exception("Local Training ID (UUID) is missing."));
+            return;
+        }
+
+        String trainingId = training.getTrainingId();
+        if (trainingId == null || trainingId.isEmpty()) {
+            trainingCallback.onFailureFromRemote(new Exception("Local Training ID (UUID) is missing."));
+            return;
+        }
+
+        // 1. Prepara un batch di scrittura atomica
+        WriteBatch batch = db.batch();
+
+        // 2. Prepara il documento per il Training principale
+        DocumentReference trainingRef = db.collection("users").document(userId)
+                .collection(COLLECTION_TRAININGS).document(trainingId);
+
+        training.setUserId(userId);
+        training.setCreatedAt(System.currentTimeMillis());
+        training.setUpdatedAt(System.currentTimeMillis());
+        training.setDeleted(false);
+
+        // Aggiungi l'operazione di scrittura del Training al batch.
+        batch.set(trainingRef, training);
+
+        // 3. Itera sulle routine per salvarle nella loro collezione
+        if (training.getRoutinesList() != null) {
+            for (Routine routine : training.getRoutinesList()) {
+                DocumentReference routineRef = trainingRef.collection("routines").document(routine.getRoutineId());
+                routine.setTrainingId(trainingId);
+                routine.setUserId(userId);
+                batch.set(routineRef, routine);
+
+                // 4. Itera sugli esercizi per salvarli nella loro collezione
+                if (routine.getWorkoutExercises() != null) {
+                    for (WorkoutExercise exercise : routine.getWorkoutExercises()) {
+                        DocumentReference exerciseRef = routineRef.collection("workoutExercises").document(exercise.getWorkoutExerciseId());
+                        exercise.setRoutineId(routine.getRoutineId());
+                        exercise.setUserId(userId);
+                        if (exercise.getSeries() != null) {
+                            for (Serie serie : exercise.getSeries()) {
+                                serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
+                                serie.setUserId(userId);
+                            }
+                        }
+                        batch.set(exerciseRef, exercise);
+                    }
+                }
+            }
+        }
+        batch.commit();
+    }
+
+    public void fetchTrainings(String userId) {
+        newFetchTrainings(userId);
     }
 
     public void oldFetchTrainings() {
@@ -52,8 +108,7 @@ public class TrainingRemoteDataSource {
     }
 
     // Valutare se dividere in più metodi
-    public void newFetchTrainings() {
-        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+    public void newFetchTrainings(String userId) {
         if (userId == null) {
             trainingCallback.onFailureFromRemote(new Exception("User not authenticated for fetch."));
             return;
@@ -164,6 +219,18 @@ public class TrainingRemoteDataSource {
                     .set(training)
                     .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
         }
+    }
+
+    public void deleteTraining(Training training) {
+        if (training == null || training.getTrainingId() == null) {
+            trainingCallback.onFailureFromRemote(new Exception("Training or Training ID is null"));
+            return;
+        }
+
+        db.collection("users").document(training.getUserId())
+                .collection("trainings").document(training.getTrainingId())
+                .delete()
+                .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
     }
 
     // used to parse the QuerySnapshot into a list of Training objects

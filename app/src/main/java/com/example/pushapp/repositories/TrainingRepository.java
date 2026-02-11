@@ -52,20 +52,23 @@ public class TrainingRepository implements TrainingCallback{
         return auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
     }
 
+    public void fetchTrainings(String userId){
+        trainingLocalDataSource.getTrainings(userId);
+    }
+
     public LiveData<Result> getTrainingList(){
-        trainingLocalDataSource.getTrainings();
-        trainingRemoteDataSource.fetchTrainings();
         return trainingList;
     }
 
-    public void createSampleTraining(FirebaseCallback<String> callback){
-        createTraining(TrainingListGenerator.generateTrainingList(), callback);
+    public void createSampleTraining(String userId){
+        createTraining(userId, TrainingListGenerator.generateTrainingList(userId));
+        //createTraining(TrainingListGenerator.generateTrainingList(), callback);
     }
 
     // metodo da modificare (aggiorna direttamente Firestore)
     // viene utilizzato per generare sample trainings e lavora a cascata
     // il create dovrà creare solo il documento training senza routine/esercizi/serie
-    public void createTraining(Training training, FirebaseCallback<String> callback) {
+    /*public void createTraining(Training training, FirebaseCallback<String> callback) {
         String userId = getCurrentUserId();
         if (userId == null) {
             callback.onError(new Exception("User not authenticated"));
@@ -123,10 +126,10 @@ public class TrainingRepository implements TrainingCallback{
         batch.commit()
                 .addOnSuccessListener(aVoid -> callback.onSuccess(trainingId))
                 .addOnFailureListener(callback::onError);
-    }
+    }*/
 
-    public void createTraining(Training training) {
-        trainingLocalDataSource.createTraining(training);
+    public void createTraining(String userId, Training training) {
+        trainingLocalDataSource.createTraining(userId, training);
     }
 
     public void detachTrainingsListener() {
@@ -160,23 +163,6 @@ public class TrainingRepository implements TrainingCallback{
                 .addOnFailureListener(callback::onError);
     }
 
-    // UPDATE
-    // metodo da rimuovere (aggiorna direttamente Firestore)
-    public void updateTraining(Training training, FirebaseCallback<Void> callback) {
-        if (training.getTrainingId() == null) {
-            callback.onError(new Exception("Training ID is null"));
-            return;
-        }
-
-        training.setUpdatedAt(System.currentTimeMillis());
-
-        db.collection(COLLECTION_TRAININGS)
-                .document(training.getTrainingId())
-                .set(training)
-                .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                .addOnFailureListener(callback::onError);
-    }
-
     public void updateTraining(Training training){
         if(training != null){
             trainingLocalDataSource.updateTraining(training);
@@ -185,12 +171,15 @@ public class TrainingRepository implements TrainingCallback{
     }
 
     // DELETE
-    public void deleteTraining(String trainingId, FirebaseCallback<Void> callback) {
-        db.collection(COLLECTION_TRAININGS)
+    public void deleteTraining(Training training, FirebaseCallback<Void> callback) {
+
+        trainingLocalDataSource.deleteTraining(training);
+
+        /*db.collection(COLLECTION_TRAININGS)
                 .document(trainingId)
                 .delete()
                 .addOnSuccessListener(aVoid -> callback.onSuccess(null))
-                .addOnFailureListener(callback::onError);
+                .addOnFailureListener(callback::onError);*/
     }
 
     // SET ACTIVE
@@ -224,7 +213,26 @@ public class TrainingRepository implements TrainingCallback{
         trainingList.postValue(resultError);
     }
 
-    // metodo in versione temporanea: non considera il versioning
+    public void onSuccessFromLocalGet(String userId, List<Training> trainingListSuccess) {
+        if(trainingListSuccess.isEmpty()){
+            trainingRemoteDataSource.fetchTrainings(userId);
+        }else{
+            Result.TrainingsSuccess result = new Result.TrainingsSuccess(new ArrayList<Training>(trainingListSuccess));
+            trainingList.postValue(result);
+        }
+    }
+
+    public void onSuccessFromLocalCreate(String userId, Training training){
+        trainingRemoteDataSource.createTraining(userId, training);
+        fetchTrainings(userId);
+    }
+
+    public void onSuccessFromLocalDelete(Training training){
+        if(training != null) {
+            trainingRemoteDataSource.deleteTraining(training);
+        }
+    }
+
     public void onSuccessFromRemote(List<Training> trainingListSuccess) {
         if(!isFirstFetchCompleted){
             trainingLocalDataSource.overwriteTrainings(trainingListSuccess, getCurrentUserId());
