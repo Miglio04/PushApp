@@ -2,7 +2,6 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/md_theme_background">
@@ -24,8 +23,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/title_history"
-                tools:text="Workout History"
+                android:text="Workout History"
                 android:textColor="@color/md_theme_onBackground"
                 android:textSize="32sp"
                 android:fontFamily="sans-serif-black" />
@@ -33,8 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/desc_history"
-                tools:text="Check your past sessions and progress"
+                android:text="Check your past sessions and progress"
                 android:textColor="@color/md_theme_onBackground"
                 android:textSize="14sp"
                 android:alpha="0.6"
@@ -60,8 +57,7 @@
                     android:id="@+id/search_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@string/hint_search_sessions"
-                    tools:hint="Search sessions..."
+                    android:hint="Search sessions..."
                     android:inputType="text"
                     android:maxLines="1"
                     android:imeOptions="actionSearch" />
@@ -85,8 +81,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:padding="40dp"
-        android:text="@string/history_empty_state"
-        tools:text="No sessions found.\nReady for a new workout?"
+        android:text="No sessions found.\nReady for a new workout?"
         android:textSize="16sp"
         android:textColor="@color/md_theme_onBackground"
         android:alpha="0.6"

@@ -2,15 +2,14 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card"
     android:layout_width="match_parent"
     android:layout_height="100dp"
     android:layout_gravity="center_horizontal"
-    android:layout_marginBottom="8dp"
     android:backgroundTint="@color/md_theme_secondaryContainer"
     app:strokeColor="@color/md_theme_primary"
     app:strokeWidth="1dp"
+    android:layout_marginBottom="8dp"
     android:clickable="true"
     android:focusable="true"
     android:checkable="true">
@@ -18,77 +17,88 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center_horizontal"
+>
 
         <androidx.constraintlayout.widget.ConstraintLayout
+
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/image_view"
             android:id="@+id/linear_layout"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:padding="16dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/image_view">
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/text_view_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:focusable="false"
-                tools:text="Training name"
+                android:text="Training name"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
+                android:background="@android:color/transparent"
                 android:textColor="@color/md_theme_onBackground"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+                app:layout_constraintTop_toTopOf="parent"
+                android:focusable="false"
+                />
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/text_view_description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:text="Training description"
+                android:textSize="14dp"
                 android:background="@android:color/transparent"
-                android:focusable="false"
-                tools:text="Training description"
-                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
                 android:textColor="@color/md_theme_onBackground_mediumContrast"
-                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@+id/text_view_name"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/text_view_name" />
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
+                android:focusable="false"
+                />
 
             <ImageButton
                 android:id="@+id/edit_image_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="10dp"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/edit"
                 android:src="@drawable/edit"
+                android:background="@android:color/transparent"
+                android:layout_marginRight="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@id/text_view_name" />
+                app:layout_constraintTop_toTopOf="@id/text_view_name">
+
+            </ImageButton>
 
             <ImageButton
                 android:id="@+id/delete_image_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:background="@android:color/transparent"
-                android:contentDescription="@string/delete"
                 android:src="@drawable/delete"
+                android:background="@android:color/transparent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/edit_image_button" />
+                app:layout_constraintTop_toBottomOf="@+id/edit_image_button"
+                android:layout_margin="10dp">
+            </ImageButton>
+
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <ImageView
             android:id="@+id/image_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingEnd="10dp"
             android:src="@drawable/outline_arrow_forward_ios_24"
-            android:contentDescription="@string/btn_next"
+            android:paddingEnd="10dp"
+            app:tint="@color/md_theme_onSurface"
+
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tint="@color/md_theme_onSurface" />
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </com.google.android.material.card.MaterialCardView>

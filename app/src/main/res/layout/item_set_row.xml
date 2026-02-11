@@ -2,7 +2,6 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="4dp"
@@ -11,7 +10,6 @@
     app:cardElevation="0dp"
     app:strokeWidth="0dp"
     app:cardBackgroundColor="?attr/colorSurface">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -23,28 +21,25 @@
             android:id="@+id/set_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Set 1"
+            android:text="Set 1"
             android:textStyle="bold"
             android:textSize="16sp"
             android:textColor="?attr/colorPrimary"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="16dp"/>
-
         <View
             android:layout_width="1dp"
             android:layout_height="24dp"
             android:background="?attr/colorOutlineVariant"
             android:layout_marginEnd="16dp"/>
-
         <TextView
             android:id="@+id/set_details"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            tools:text="50kg x 10 reps"
+            android:text="50kg x 10 reps"
             android:textColor="?attr/colorOnSurface"/>
-
         <ImageButton
             android:id="@+id/btn_edit_set"
             android:layout_width="32dp"
@@ -53,10 +48,9 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="6dp"
             android:scaleType="fitCenter"
-            android:contentDescription="@string/edit"
+            android:contentDescription="Modifica set"
             app:tint="?attr/colorOnSurfaceVariant"
             android:layout_marginEnd="8dp"/>
-
         <ImageButton
             android:id="@+id/btn_delete_set"
             android:layout_width="32dp"
@@ -65,7 +59,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="6dp"
             android:scaleType="fitCenter"
-            android:contentDescription="@string/delete"
+            android:contentDescription="Elimina set"
             app:tint="?attr/colorError"/>
     </LinearLayout>
 

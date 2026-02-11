@@ -82,7 +82,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0")
     implementation("androidx.gridlayout:gridlayout:1.0.0")
-    implementation("com.google.android.material:material:1.12.0")
+
     // --- Compose ---
     implementation(platform("androidx.compose:compose-bom:2024.06.00"))
     implementation("androidx.compose.ui:ui")
@@ -125,6 +125,10 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("com.google.zxing:core:3.5.3")
+
+    // --- Work Manager ---
+    implementation("androidx.work:work-runtime:2.9.0")
+    implementation("com.google.guava:guava:33.0.0-android")
 
     // --- Debugging ---
     debugImplementation("androidx.compose.ui:ui-tooling")

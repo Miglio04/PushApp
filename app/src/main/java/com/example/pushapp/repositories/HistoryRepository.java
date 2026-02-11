@@ -55,59 +55,55 @@ public class HistoryRepository implements HistoryCallback {
     }
 
     public void saveWorkout(Routine activeRoutine, long startTime, Runnable onComplete) {
-        final String sessionId = UUID.randomUUID().toString();
+        String sessionId = UUID.randomUUID().toString();
         long endTime = System.currentTimeMillis();
+        HistorySession session = new HistorySession(sessionId, activeRoutine.getName(), startTime, endTime);
 
-        // Calcoliamo il volume totale della sessione per le statistiche veloci
-        double totalVolume = 0;
+        List<HistoryWorkoutExercise> historyExercises = new ArrayList<>();
+        List<HistorySerie> historySeries = new ArrayList<>();
 
-        final HistorySession session = new HistorySession(sessionId, activeRoutine.getName(), startTime, endTime);
-        final List<HistoryWorkoutExercise> hExercises = new ArrayList<>();
-        final List<HistorySerie> hSeries = new ArrayList<>();
-
+        // Iterazione Esercizi
         for (WorkoutExercise workoutExercise : activeRoutine.getWorkoutExercises()) {
             String historyExerciseId = UUID.randomUUID().toString();
 
             HistoryWorkoutExercise hExercise = new HistoryWorkoutExercise(
                     historyExerciseId,
                     sessionId,
-                    workoutExercise.getApiExerciseId(), // Assicurati che questo ID esista nel modello WorkoutExercise
-                    activeRoutine.getWorkoutExercises().indexOf(workoutExercise)
+                    workoutExercise.getApiExerciseId(),
+                    activeRoutine.getWorkoutExercises().indexOf(workoutExercise) // Ordine
             );
-            hExercises.add(hExercise);
+            historyExercises.add(hExercise);
 
+            // Iterazione Serie
             for (Serie s : workoutExercise.getSeries()) {
-                // Salviamo SOLO le serie completate
-                if (s.isCompleted()) {
+                // Salviamo solo le serie completate!
+                // Temporaneo, si basa su architettura vecchia
+                /*if (s.isCompleted()) {
                     HistorySerie hSerie = new HistorySerie(
                             UUID.randomUUID().toString(),
                             historyExerciseId,
-                            workoutExercise.getSeries().indexOf(s) + 1,
+                            workoutExercise.getSeries().indexOf(s) + 1, // Numero serie (1-based)
                             s.getActualWeight(),
                             s.getActualReps()
                     );
-                    hSeries.add(hSerie);
+                    historySeries.add(hSerie);
                 }
+
+                 */
             }
         }
         /*localDataSource.saveSession(session, hExercises, hSeries, new HistoryCallback() {
             @Override
             public void onSuccessSaveLocal() {
-                // Se il locale ha successo, proviamo l'upload remoto se disponibile
                 if (remoteDataSource != null) {
                     remoteDataSource.uploadSession(session, hExercises, hSeries);
                 }
-                // Aggiorniamo la lista LiveData
                 localDataSource.getAllHistory();
                 if (onComplete != null) onComplete.run();
             }
-
-            @Override
-            public void onFailureFromLocal(Exception e) {
+            @Override public void onFailureFromLocal(Exception e) {
                 historyList.postValue(new Result.Error(e.getMessage()));
             }
-
-            // Metodi vuoti obbligatori dall'interfaccia
             @Override public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> l) {}
             @Override public void onSuccessGraphDataFromLocal(List<GraphPoint> p) {}
             @Override public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> l) {}
@@ -146,13 +142,7 @@ public class HistoryRepository implements HistoryCallback {
         }
     }
 
-    @Override public void onFailureFromLocal(Exception e) {
-        historyList.postValue(new Result.Error(e.getMessage()));
-    }
-
-    @Override public void onFailureFromRemote(Exception e) {
-        Log.w(TAG, e.getMessage());
-    }
-
+    @Override public void onFailureFromLocal(Exception e) { historyList.postValue(new Result.Error(e.getMessage())); }
+    @Override public void onFailureFromRemote(Exception e) { Log.w(TAG, e.getMessage()); }
     @Override public void onSuccessSaveLocal() { }
 }

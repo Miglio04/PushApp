@@ -17,9 +17,9 @@ import java.util.ArrayList;
 
 public class TrainingsAdapter extends ArrayAdapter<Training>{
 
-    private final ArrayList<Training> trainings;
+    private ArrayList<Training> trainings;
 
-    private final int resource;
+    private int resource;
 
 
     public TrainingsAdapter(@NonNull Context context, int resource, ArrayList<Training> trainings) {

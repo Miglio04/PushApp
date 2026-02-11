@@ -42,8 +42,6 @@ public class LoginFragment extends Fragment {
     private TextView tvEmailError, tvPasswordError;
     private LinearLayout loadingOverlay;
     private UserViewModel userViewModel;
-
-    private FirebaseAuth mAuth;
     private GoogleSignInClient mGoogleSignInClient;
 
     // --- Launcher per il risultato del login con Google ---
@@ -72,7 +70,6 @@ public class LoginFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAuth = FirebaseAuth.getInstance();
 
         userViewModel = new ViewModelProvider(
                 this,

@@ -133,6 +133,7 @@ public class TrainingViewModel extends ViewModel {
         // Cerca il training corretto nella lista già caricata
         if (trainings.getValue().isTrainingsSuccess()) {
             List<Training> currentTrainings = ((Result.TrainingsSuccess) trainings.getValue()).getData();
+            ;
             if (currentTrainings != null && trainingId != null) {
                 for (Training t : currentTrainings) {
                     if (trainingId.equals(t.getTrainingId()) && t.getRoutinesList() != null) {

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -34,7 +33,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"
                 android:src="@android:drawable/arrow_down_float"
-                android:contentDescription="@string/btn_back" />
+                android:contentDescription="@string/back" />
 
             <TextView
                 android:id="@+id/header_title"
@@ -59,12 +58,13 @@
                 android:id="@+id/workout_timer_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                tools:text="00:00"
+                android:text="00:00"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:padding="4dp"
                 android:textColor="@color/md_theme_onSecondaryContainer" />
 
+            <!-- Start / Pause toggle -->
             <ImageButton
                 android:id="@+id/workout_start_pause_button"
                 android:layout_width="wrap_content"
@@ -75,6 +75,7 @@
                 android:padding="4dp"
                 android:layout_marginStart="8dp" />
 
+            <!-- Stop -->
             <ImageButton
                 android:id="@+id/workout_stop_button"
                 android:layout_width="25dp"
@@ -88,6 +89,8 @@
         </LinearLayout>
 
     </LinearLayout>
+
+    <!-- RecyclerView sotto l'intestazione -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_workout"
@@ -104,5 +107,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"/>
-
 </LinearLayout>

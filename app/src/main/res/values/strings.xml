@@ -2,183 +2,141 @@
 <resources>
     <string name="app_name">PushApp</string>
     <string name="app_icon">App icon</string>
-    <string name="nav_home">Home</string>
-    <string name="nav_activity">Activity</string>
-    <string name="percent" translatable="false">%</string>
-    <string name="or">---------- or ----------</string>
-    <string name="action_save">Save</string>
+    <string name="icon">icon</string>
 
-    <string name="quote_push_yourself">Push yourself, because no\none else will</string>
-    <string name="quote_consistency">Consistency beats talent</string>
-    <string name="placeholder_initial" translatable="false">M</string>
-    <string name="stat_default_zero" translatable="false">0</string>
-    <string name="psw" translatable="false">**************</string>
+    <string name="ready_to_train">Ready to train?</string>
+    <string name="weight_progress">Weight progress</string>
+    <string name="_30_days">30 days</string>
+    <string name="train_now">train now!</string>
+    <string name="your_trainings">Your trainings</string>
+    <string name="goals_amp_progression">Goals &amp; Progression</string>
+    <string name="hello_blank_fragment">This is my home fragment</string>
 
-    <string name="btn_back">Back</string>
-    <string name="btn_next">Next ></string>
-    <string name="btn_logout">Logout</string>
-    <string name="confirm">Confirm</string>
-    <string name="cancel">Cancel</string>
-    <string name="delete">Delete</string>
-    <string name="finish">Finish</string>
-    <string name="start">Start</string>
-    <string name="stop">Stop</string>
-    <string name="edit">Edit</string>
-    <string name="btn_save_changes">Save Changes</string>
-    <string name="btn_try_again">No, try again</string>
-    <string name="btn_try_again_short">Try again</string>
-
-    <string name="title_activity_auth">Authentication</string>
-    <string name="welcome_back">Welcome back!</string>
+    <string name="pushapp">PushApp</string>
     <string name="your_transformation_starts_here">Your transformation starts here</string>
     <string name="create_your_account">Create your account</string>
     <string name="login">Login</string>
-    <string name="sign_up">Sign up</string>
-    <string name="sign_up_with_google">Sign up with Google</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="email">Email</string>
+    <string name="you_email_com">you@email.com</string>
+    <string name="password">Password</string>
+    <string name="psw" translatable="false">**************</string>
+    <string name="forgot_your_password">Forgot your password?</string>
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="or">---------- or ----------</string>
     <string name="continue_with_google">Continue with Google</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service">By continuing you agree to our Terms of Service</string>
     <string name="logging_in">Logging in...</string>
-    <string name="email">Email</string>
-    <string name="email_hint">Email Address</string>
-    <string name="you_email_com">you@email.com</string>
-    <string name="password">Password</string>
-    <string name="forgot_your_password">Forgot your password?</string>
-    <string name="label_confirm_password">Confirm password</string>
-    <string name="btn_create_account">Create account</string>
-    <string name="status_creating_account">Creating account...</string>
+
+    <string name="ops_invalid_email_address">Ops! Invalid email address</string>
+    <string name="password_is_too_short">Password is too short</string>
+    <string name="password_is_too_short_min_8_chars">Password is too short (min 8 chars).</string>
+    <string name="password_must_be_at_least_8_characters">Password must be at least 8 characters.</string>
+    <string name="please_enter_a_valid_email">Please enter a valid email.</string>
+    <string name="first_name_is_required">First name is required</string>
+    <string name="last_name_is_required">Last name is required</string>
+    <string name="age_is_required">Age is required</string>
+    <string name="weight_is_required">Weight is required</string>
+    <string name="height_is_required">Height is required</string>
+    <string name="goal_weight_is_required">Goal weight is required</string>
+    <string name="please_select_a_gender">Please select a gender</string>
+
+    <string name="step_of">Step %1$d of %2$d</string>
+    <string name="percent" translatable="false">%</string>
+    <string name="next">Next ></string>
+    <string name="finish">Finish</string>
+
+    <string name="login_successful">Login successful.</string>
+    <string name="all_set">All Set!</string>
+    <string name="great">Great!</string>
+    <string name="profile_created_successfully">Profile created successfully.</string>
     <string name="account_created_successfully">Account created successfully.</string>
 
     <string name="forgot_password_title">Forgot Password?</string>
     <string name="forgot_password_desc">Enter your email and we will send you instructions to reset your password.</string>
+    <string name="email_hint">Email Address</string>
     <string name="send_reset_link">Send Reset Link</string>
     <string name="back_to_login">Back to Login</string>
+    <string name="email_required">Email is required</string>
     <string name="email_sent_success">Email sent! Check your inbox.</string>
     <string name="check_mail_title">Check your Mail</string>
-
-    <string name="welcome_desc">Let\'s get to know you better. What\'s your name?</string>
-    <string name="label_first_name">First Name</string>
-    <string name="hint_first_name">Your first name</string>
-    <string name="label_last_name">Last Name</string>
-    <string name="hint_last_name">Your last name</string>
-    <string name="label_gender">Gender</string>
-    <string name="desc_gender">Helps us calculate your metabolism</string>
-    <string name="gender_male">Male</string>
-    <string name="gender_female">Female</string>
-    <string name="gender_other">Prefer not to say</string>
-    <string name="label_age_title">How old are you?</string>
-    <string name="desc_age">Crucial for personalizing your workout</string>
-    <string name="hint_age">e.g. 25</string>
-    <string name="label_measurements_title">Body Measurements</string>
-    <string name="desc_measurements">To track your progress over time</string>
-    <string name="label_weight">Current weight (kg)</string>
-    <string name="label_height">Height (cm)</string>
-    <string name="label_goal_title">Your goal</string>
-    <string name="desc_goal">What is your target weight?</string>
-    <string name="hint_goal_weight">Target weight (kg)</string>
-    <string name="label_ready">You\'re ready to go!</string>
-    <string name="step_of">Step %1$d of %2$d</string>
-    <string name="profile_created_successfully">Profile created successfully.</string>
-
-    <string name="ready_to_train">Ready to train?</string>
-    <string name="train_now">train now!</string>
     <string name="your_workout">Your workout</string>
-    <string name="your_trainings">Your trainings</string>
     <string name="select_training">Select training</string>
-    <string name="weight_progress">Weight progress</string>
-    <string name="_30_days">30 days</string>
-    <string name="goals_progression">Goals &amp; Progression</string>
-    <string name="btn_add_sample_data">Add sample data</string>
-    <string name="desc_add_training">Create new training session</string>
-
-    <string name="start_workout">Start workout</string>
-    <string name="add_set">Add set</string>
-    <string name="edit_set_title">Edit set</string>
-    <string name="delete_set_title">Delete set</string>
-    <string name="delete_set_confirm">Are you sure you want to delete this set?</string>
-    <string name="reps">reps</string>
-    <string name="weight_label">weight</string>
+    <string name="coming_soon">Coming soon...</string>
+    <string name="confirm_operation">Confirm delete</string>
+    <string name="are_you_sure_delete">Are you sure to delete this element?</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
     <string name="note">Text note</string>
-    <string name="label_rest">Rest:</string>
-    <string name="label_rest_timer">REST</string>
-    <string name="btn_skip">Skip</string>
-    <string name="label_set_count">Set %1$d</string>
-    <string name="template_set_details">%1$s kg x %2$d reps</string>
-    <string name="template_target_details">Target: %1$s</string>
-    <string name="desc_complete_set">Mark set as complete</string>
+    <string name="add_set">Add set</string>
+    <string name="reps">reps</string>
+    <string name="weight">weight</string>
+    <string name="delete">delete</string>
+    <string name="back">back</string>
+    <string name="start">start</string>
+    <string name="stop">stop</string>
+    <string name="start_workout">Start workout</string>
+    <string name="your_workout_program">Your workout</string>
+    <string name="edit_workout">Edit</string>
+    <string name="delete_set_title">Delete set</string>
+    <string name="delete_set_confirm">Are you sure to delete this set?</string>
+    <string name="edit_set_title">Edit set</string>
+    <string name="invalid_input">Please insert valid values</string>
+    <string name="sign_up_with_google">Sign up with Google</string>
 
-    <string name="status_workout_paused">Workout paused</string>
-    <string name="btn_resume">Resume</string>
-    <string name="btn_discard">Discard</string>
-
-    <string name="title_edit_day">Edit Day</string>
-    <string name="desc_add_exercise">Add Exercise</string>
-    <string name="hint_search_exercise">Search exercise...</string>
-    <string name="label_muscle_group">Muscle Group</string>
-    <string name="label_all">All</string>
-    <string name="label_difficulty">Difficulty</string>
-
-    <string name="title_history">Workout History</string>
-    <string name="desc_history">Check your past sessions and progress</string>
-    <string name="hint_search_sessions">Search sessions...</string>
-    <string name="history_empty_state">No sessions found.\nReady for a new workout?</string>
-    <string name="label_statistics">Statistics</string>
-    <string name="desc_statistics">Track your fitness journey and progress</string>
-    <string name="label_time">Time</string>
-    <string name="desc_streak_motivation">Consistency is key to results!</string>
-    <string name="label_total_reps">Total Repetitions</string>
-    <string name="label_weight_progress_unit">Weight Progress (kg)</string>
-    <string name="desc_stat_icon">Statistic icon</string>
-    <string name="desc_progress_chart">Weight progress chart</string>
-
+    <!-- Profile Activity Strings -->
     <string name="profile">Profile</string>
-    <string name="placeholder_user_name">User Name</string>
     <string name="personal_data">Personal Data</string>
     <string name="goals">Goals</string>
     <string name="notifications">Notifications</string>
     <string name="theme">Theme</string>
-    <string name="label_workouts">Workouts</string>
-    <string name="label_streak">Streak</string>
-    <string name="label_volume">Volume</string>
-
     <string name="detail_email">Email: %1$s</string>
     <string name="detail_gender">Gender: %1$s</string>
     <string name="detail_age">Age: %1$d</string>
     <string name="detail_height">Height: %1$d cm</string>
     <string name="detail_weight">Weight: %1$.1f kg</string>
-    <string name="detail_email_empty">Email: -</string>
-    <string name="detail_gender_empty">Gender: -</string>
-    <string name="detail_age_empty">Age: -</string>
-    <string name="detail_height_empty">Height: - cm</string>
-    <string name="detail_weight_empty">Weight: - kg</string>
-
-    <string name="title_success">Success!</string>
-    <string name="desc_operation_completed">Operation completed.</string>
-    <string name="desc_check_icon">Success icon</string>
-    <string name="desc_error_icon">Error icon</string>
-    <string name="login_successful">Login successful.</string>
-    <string name="all_set">All Set!</string>
-    <string name="great">Great!</string>
-
-    <string name="title_food_not_found">Food Not Found</string>
-    <string name="desc_food_not_found">We couldn\'t find this item. Try searching in English.</string>
-    <string name="title_account_not_found">Account Not Found</string>
-    <string name="desc_email_not_registered">This email is not registered. Do you want to create a new account?</string>
-    <string name="btn_register_now">Register now</string>
-    <string name="title_delete_workout">Delete Workout</string>
-    <string name="desc_confirm_delete_session">Are you sure you want to delete this session? This action cannot be undone.</string>
-    <string name="confirm_operation">Confirm delete</string>
-    <string name="are_you_sure_delete">Are you sure you want to delete this item?</string>
-
-    <string name="error_invalid_email">Oops! Invalid email</string>
-    <string name="error_email_required">Email is required</string>
-    <string name="error_password_short">Password must be at least 8 characters.</string>
-    <string name="error_passwords_mismatch">Passwords do not match</string>
-    <string name="error_first_name_required">First name is required</string>
-    <string name="error_last_name_required">Last name is required</string>
-    <string name="error_age_required">Age is required</string>
-    <string name="error_weight_required">Weight is required</string>
-    <string name="error_height_required">Height is required</string>
-    <string name="error_goal_weight_required">Weight goal is required</string>
-    <string name="error_select_gender">Please select a gender</string>
-    <string name="invalid_input">Invalid values</string>
+    <string name="title_activity_auth">AuthActivity</string>
+    <string name="accedi">Log In</string>
+    <string name="registrati">Register</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="create_account">Create Account</string>
+    <string name="passwords_do_not_match">Passwords do not match</string>
+    <string name="workouts">Workouts</string>
+    <string name="volume">Volume</string>
+    <string name="streak" translatable="false">Streak</string>
+    <string name="trattino" translatable="false">-</string>
+    <string name="progress_chart">Progress Chart</string>
+    <string name="push_yourself_because_no_none_else_will">Push yourself, because no\none else will</string>
+    <string name="consistency_beats_talent">Consistency beats talent</string>
+    <string name="logout">Logout</string>
+    <string name="step_1_of_5">Step 1 of 5</string>
+    <string name="_20">20%</string>
+    <string name="welcome">Welcome!</string>
+    <string name="let_s_get_to_know_you_better_what_s_your_name">Let\'s get to know you better. What\'s your name?</string>
+    <string name="first_name">First Name</string>
+    <string name="your_first_name">Your first name</string>
+    <string name="last_name">Last Name</string>
+    <string name="your_last_name">Your last name</string>
+    <string name="gender">Gender</string>
+    <string name="helps_us_calculate_your_metabolism">Helps us calculate your metabolism</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="prefer_not_to_say">Prefer not to say</string>
+    <string name="how_old_are_you">How old are you?</string>
+    <string name="crucial_for_personalizing_your_workout">Crucial for personalizing your workout</string>
+    <string name="e_g_25">e.g. 25</string>
+    <string name="please_enter_your_age">Please enter your age</string>
+    <string name="body_measurements">Body Measurements</string>
+    <string name="to_track_your_progress_over_time">To track your progress over time</string>
+    <string name="current_weight_kg">Current Weight (kg)</string>
+    <string name="kg">kg</string>
+    <string name="please_enter_your_weight">Please enter your weight</string>
+    <string name="height_cm">Height (cm)</string>
+    <string name="cm">cm</string>
+    <string name="please_enter_your_height">Please enter your height</string>
+    <string name="your_goal">Your Goal</string>
+    <string name="what_is_your_target_weight">What is your target weight?</string>
+    <string name="target_weight_kg">Target weight (kg)</string>
+    <string name="please_enter_your_goal_weight">Please enter your goal weight</string>
+    <string name="you_re_ready_to_go">You\'re ready to go!</string>
 </resources>
