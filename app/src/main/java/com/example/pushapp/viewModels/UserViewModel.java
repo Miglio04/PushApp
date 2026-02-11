@@ -19,7 +19,7 @@ public class UserViewModel extends ViewModel {
     private final SessionRepository sessionRepository;
     private final LiveData<Result> userLiveData;
     private final MutableLiveData<Boolean> registrationStatus = new MutableLiveData<>(false);
-    private LiveData<Result> sessionLiveData;
+    private final LiveData<Result> sessionLiveData;
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final FirebaseAuth mAuth = FirebaseAuth.getInstance();

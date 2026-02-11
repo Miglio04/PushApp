@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
@@ -14,7 +15,7 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textColor="@color/md_theme_onSurface"
-        android:text="1" />
+        tools:text="1" />
 
     <EditText
         android:id="@+id/set_reps"
@@ -31,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:inputType="numberDecimal"
-        android:hint="@string/weight"
+        android:hint="@string/weight_label"
         android:textColor="@color/md_theme_onSurface" />
 
     <ImageButton
@@ -49,6 +50,6 @@
         android:layout_height="48dp"
         android:src="@android:drawable/checkbox_off_background"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Completa set"/>
+        android:contentDescription="@string/desc_complete_set"/>
 
 </LinearLayout>

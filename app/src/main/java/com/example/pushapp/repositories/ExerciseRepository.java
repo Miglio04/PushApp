@@ -9,9 +9,9 @@ import java.util.List;
 
 public class ExerciseRepository {
 
-    private ExerciseLocalDataSource exerciseLocalDataSource;
-    private ExerciseAPIDataSource exerciseAPIDataSource;
-    private MutableLiveData<Result> exercises;
+    private final ExerciseLocalDataSource exerciseLocalDataSource;
+    private final ExerciseAPIDataSource exerciseAPIDataSource;
+    private final MutableLiveData<Result> exercises;
 
     ExerciseRepository(ExerciseLocalDataSource exerciseLocalDataSource, ExerciseAPIDataSource exerciseAPIDataSource) {
         exercises = new MutableLiveData<>();

@@ -152,7 +152,7 @@ public class HistoryRemoteDataSource {
                         Long sNum = (Long) sMap.get("setNumber");
                         s.setNumber = (sNum != null) ? sNum.intValue() : 0;
                         Double w = (Double) sMap.get("weight");
-                        s.weight = (w != null) ? (Double) w : 0.0;
+                        s.weight = (w != null) ? w : 0.0;
                         Long r = (Long) sMap.get("reps");
                         s.reps = (r != null) ? r.intValue() : 0;
                         Boolean pr = (Boolean) sMap.get("isPersonalRecord");

@@ -6,7 +6,6 @@
     android:background="@color/md_theme_background"
     android:padding="0dp">
 
-    <!-- Header con titolo e sottotitolo -->
     <LinearLayout
         android:background="@drawable/rectangle_round_corners"
         android:backgroundTint="@color/md_theme_secondaryContainer"
@@ -37,7 +36,6 @@
             android:textColor="@color/md_theme_onSecondaryContainer" />
     </LinearLayout>
 
-    <!-- RecyclerView sotto l'intestazione -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_training_days"
         android:layout_width="match_parent"
@@ -46,4 +44,5 @@
         android:paddingTop="8dp"
         android:paddingBottom="72dp"
         android:clipToPadding="false" />
+
 </LinearLayout>

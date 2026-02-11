@@ -2,6 +2,7 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
@@ -30,7 +31,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Nome Esercizio"
+                tools:text="Panca Piana"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface"/>
@@ -41,6 +42,7 @@
                 android:layout_height="32dp"
                 android:src="@android:drawable/ic_dialog_info"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/note"
                 android:scaleType="centerInside"
                 android:layout_marginEnd="4dp"
                 android:focusable="false"
@@ -53,6 +55,7 @@
                 android:layout_height="32dp"
                 android:src="@drawable/edit"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/edit"
                 android:scaleType="centerInside"
                 android:layout_marginEnd="4dp"
                 android:focusable="false"
@@ -65,6 +68,7 @@
                 android:layout_height="32dp"
                 android:src="@drawable/delete"
                 android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/delete"
                 android:scaleType="centerInside"
                 android:layout_marginEnd="4dp"
                 android:focusable="false"
@@ -76,6 +80,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/arrow_down"
+                android:contentDescription="@null"
                 app:tint="?attr/colorOnSurfaceVariant" />
         </LinearLayout>
 

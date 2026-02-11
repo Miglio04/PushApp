@@ -1,60 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rest_timer_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="16dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="8dp"
-    app:cardBackgroundColor="#2196F3">
+    app:cardCornerRadius="24dp"
+    app:cardElevation="12dp"
+    app:cardBackgroundColor="?attr/colorPrimary"> <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/rest_timer_label"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center">
+        android:text="@string/label_rest_timer"
+        tools:text="REST"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="14sp"
+        android:letterSpacing="0.1"
+        android:textStyle="bold"/>
 
-        <TextView
-            android:id="@+id/rest_timer_label"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="RECUPERO"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"/>
+    <TextView
+        android:id="@+id/rest_timer_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="01:30"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="56sp"
+        android:fontFamily="sans-serif-black"
+        android:layout_marginVertical="8dp"/>
 
-        <TextView
-            android:id="@+id/rest_timer_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="01:30"
-            android:textColor="@android:color/white"
-            android:textSize="48sp"
-            android:textStyle="bold"
-            android:layout_marginVertical="16dp"/>
+    <ProgressBar
+        android:id="@+id/rest_timer_progress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:max="100"
+        tools:progress="70"
+        android:progressTint="?attr/colorOnPrimary"
+        android:progressBackgroundTint="?attr/colorPrimaryContainer"
+        android:layout_marginBottom="16dp"/>
 
-        <ProgressBar
-            android:id="@+id/rest_timer_progress"
-            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="8dp"
-            android:max="100"
-            android:progress="100"
-            android:progressTint="@android:color/white"
-            android:progressBackgroundTint="#64B5F6"/>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/rest_timer_skip"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_skip"
+        app:cornerRadius="12dp"
+        android:textColor="?attr/colorPrimary"
+        app:backgroundTint="?attr/colorOnPrimary"/>
 
-        <Button
-            android:id="@+id/rest_timer_skip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Salta"
-            android:layout_marginTop="16dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:textColor="@android:color/white"/>
+</LinearLayout>
 
-    </LinearLayout>
-
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

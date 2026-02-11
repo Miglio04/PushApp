@@ -2,11 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/md_theme_background">
 
-    <!-- 1. CONTENUTO SCORREVOLE - COPRE TUTTO LO SCHERMO -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -23,9 +23,6 @@
             android:gravity="center_horizontal"
             android:padding="24dp">
 
-            <!-- QUI DENTRO CI SONO TUTTI I TUOI CAMPI: EMAIL, PASSWORD, BOTTONI... -->
-            <!-- ... Lascia tutto com'era ... -->
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -33,7 +30,6 @@
                 android:gravity="start"
                 android:layout_marginTop="8dp">
 
-                <!-- EMAIL LABEL -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -44,7 +40,6 @@
                     android:layout_marginStart="12dp"
                     android:layout_marginBottom="6dp"/>
 
-                <!-- EMAIL INPUT -->
                 <EditText
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
@@ -57,12 +52,11 @@
                     android:textSize="16sp"
                     android:inputType="textEmailAddress"/>
 
-                <!-- EMAIL ERROR -->
                 <TextView
                     android:id="@+id/tvEmailError"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/ops_invalid_email_address"
+                    android:text="@string/error_invalid_email"
                     android:textColor="#B00020"
                     android:textSize="12sp"
                     android:layout_marginStart="12dp"
@@ -70,7 +64,6 @@
                     android:visibility="gone"
                     android:layout_marginBottom="16dp"/>
 
-                <!-- PASSWORD LABEL -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -81,7 +74,6 @@
                     android:layout_marginStart="12dp"
                     android:layout_marginBottom="6dp"/>
 
-                <!-- PASSWORD INPUT -->
                 <EditText
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
@@ -94,19 +86,17 @@
                     android:textSize="16sp"
                     android:inputType="textPassword"/>
 
-                <!-- PASSWORD ERROR -->
                 <TextView
                     android:id="@+id/tvPasswordError"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/password_is_too_short"
+                    android:text="@string/error_password_short"
                     android:textColor="#B00020"
                     android:textSize="12sp"
                     android:layout_marginStart="12dp"
                     android:layout_marginTop="4dp"
                     android:visibility="gone"/>
 
-                <!-- FORGOT PASSWORD LINK -->
                 <TextView
                     android:id="@+id/tvForgotPassword"
                     android:layout_width="wrap_content"
@@ -123,7 +113,6 @@
 
             </LinearLayout>
 
-            <!-- LOGIN BUTTON -->
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnLogin"
                 android:layout_width="match_parent"
@@ -138,7 +127,6 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="25dp"/>
 
-            <!-- DIVIDER OR -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -147,7 +135,6 @@
                 android:textSize="14sp"
                 android:layout_marginBottom="25dp"/>
 
-            <!-- GOOGLE BUTTON -->
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnGoogle"
                 android:layout_width="match_parent"
@@ -164,7 +151,6 @@
                 android:paddingEnd="30dp"
                 android:textAllCaps="false"/>
 
-            <!-- TERMS TEXT -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -178,7 +164,6 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- 2. OVERLAY DI CARICAMENTO - ORA È UN FRATELLO DELLA SCROLLVIEW E CENTRATO -->
     <LinearLayout
         android:id="@+id/loadingOverlay"
         android:layout_width="0dp"

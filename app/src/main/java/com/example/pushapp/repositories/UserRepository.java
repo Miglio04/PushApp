@@ -15,7 +15,7 @@ public class UserRepository implements UserCallback {
     private final MutableLiveData<Result> currentUser;
 
     //provvisorio per primo accesso fino a implementazione versioning
-    private boolean firstFetchCompleted = false;
+    private final boolean firstFetchCompleted = false;
 
     UserRepository(UserLocalDataSource localDataSource, UserRemoteDataSource remoteDataSource, SessionRepository sessionRepository) {
         this.localDataSource = localDataSource;

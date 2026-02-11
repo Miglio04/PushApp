@@ -121,6 +121,7 @@ public class WorkoutViewModel extends ViewModel {
                 activeTrainingDay.setValue(currentDay);
             }
         }
+    }
     public void cancelWorkout() {
         stopWorkout(null);
     }
