@@ -90,9 +90,7 @@ public class HistoryRepository implements HistoryCallback {
                 }
             }
         }
-
-        // Chiamata al database locale
-        localDataSource.saveSession(session, hExercises, hSeries, new HistoryCallback() {
+        /*localDataSource.saveSession(session, hExercises, hSeries, new HistoryCallback() {
             @Override
             public void onSuccessSaveLocal() {
                 // Se il locale ha successo, proviamo l'upload remoto se disponibile
@@ -115,6 +113,7 @@ public class HistoryRepository implements HistoryCallback {
             @Override public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> l) {}
             @Override public void onFailureFromRemote(Exception e) {}
         });
+         */
     }
 
     public void deleteSession(String sessionId) {

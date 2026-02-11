@@ -19,6 +19,7 @@ import com.example.pushapp.repositories.TrainingRepository;
 // --- FIX 1: Import corretto (utils) ---
 import com.example.pushapp.utils.SessionManager;
 
+import java.util.List;
 import java.util.Locale;
 
 public class WorkoutViewModel extends ViewModel {
@@ -195,9 +196,9 @@ public class WorkoutViewModel extends ViewModel {
         for (WorkoutExercise ex : routine.getWorkoutExercises()) {
             if (ex.getSeries() != null) {
                 for (Serie s : ex.getSeries()) {
-                    s.setCompleted(false);
-                    s.setActualWeight(0);
-                    s.setActualReps(0);
+                    //s.setCompleted(false);
+                    //s.setActualWeight(0);
+                    //s.setActualReps(0);
                 }
             }
         }
@@ -244,7 +245,7 @@ public class WorkoutViewModel extends ViewModel {
         Routine current = activeTrainingDay.getValue();
         if (current == null) return;
         Serie s = current.getWorkoutExercises().get(exPos).getSeries().get(setPos);
-        s.setActualWeight(weight); s.setActualReps(reps);
+        //s.setActualWeight(weight); s.setActualReps(reps);
         activeTrainingDay.setValue(current);
         sessionManager.saveSessionState(current, workoutStartTimeMillis);
     }
