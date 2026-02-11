@@ -125,6 +125,7 @@ public class StatsFragment extends Fragment {
 
         btnExpand.setOnClickListener(v -> {
             isMonthView = !isMonthView;
+            // Ruota la freccia: 90 gradi su (aperto), 270 gradi giù (chiuso)
             btnExpand.animate().rotation(isMonthView ? 90f : 270f).setDuration(300).start();
             drawCalendar();
         });
@@ -211,6 +212,7 @@ public class StatsFragment extends Fragment {
         long mins = timeMillisMonth / 60000;
         txtKpiTime.setText(mins > 60 ? (mins/60)+"h "+(mins%60)+"m" : mins+"m");
 
+        // --- LOGICA STREAK 🔥 ---
         int streak = 0;
         LocalDate check = LocalDate.now();
         if (!allDates.contains(check)) check = check.minusDays(1);
@@ -239,6 +241,7 @@ public class StatsFragment extends Fragment {
         exerciseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
+                // Rotazione estetica della freccia al click
                 imgSpinnerArrow.animate().rotationBy(360f).setDuration(400).start();
                 updateCharts(names.get(pos));
             }

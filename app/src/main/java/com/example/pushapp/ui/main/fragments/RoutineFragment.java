@@ -127,8 +127,8 @@ public class RoutineFragment extends Fragment {
         for (Routine day : currentTraining.getRoutinesList()) {
             if (card.getTrainingDayId().equals(day.getRoutineId())) {
                 Bundle args = new Bundle();
-                args.putSerializable("trainingDay", (Serializable) day);
-                args.putSerializable("parentTraining", (Serializable) currentTraining);
+                args.putSerializable("trainingDay", day);
+                args.putSerializable("parentTraining", currentTraining);
                 NavHostFragment.findNavController(this).navigate(R.id.nav_workouts, args);
                 break;
             }

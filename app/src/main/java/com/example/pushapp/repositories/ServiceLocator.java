@@ -2,7 +2,7 @@ package com.example.pushapp.repositories;
 
 import android.content.Context;
 import com.example.pushapp.database.LocalDatabase;
-import com.example.pushapp.utils.SessionManager;
+import com.example.pushapp.database.SessionManager; // 1. IMPORTANTE: Controlla che il pacchetto sia corretto
 
 public class ServiceLocator {
 

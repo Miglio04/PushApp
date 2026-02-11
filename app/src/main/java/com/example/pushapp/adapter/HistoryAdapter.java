@@ -22,7 +22,7 @@ import java.util.TimeZone;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
     private List<HistorySessionWithExercises> historyList;
-    private OnHistoryInteractionListener listener;
+    private final OnHistoryInteractionListener listener;
 
     public interface OnHistoryInteractionListener {
         void onHistoryClicked(HistorySessionWithExercises session);

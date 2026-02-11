@@ -2,102 +2,182 @@
 <resources>
     <string name="app_name">PushApp</string>
     <string name="app_icon">Icona App</string>
-    <string name="icon">icona</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_activity">Attività</string>
+    <string name="percent" translatable="false">%</string>
+    <string name="or">---------- o ----------</string>
+    <string name="action_save">Salva</string>
 
-    <string name="ready_to_train">Pronto ad allenarti?</string>
-    <string name="weight_progress">Progresso peso</string>
-    <string name="_30_days">30 giorni</string>
-    <string name="train_now">Allenati ora!</string>
-    <string name="your_trainings">Le tue schede</string>
-    <string name="your_workout_program">Il tuo allenamento</string>
-    <string name="your_workout">Il tuo allenamento</string>
-    <string name="select_training">Scegli la scheda</string>
-    <string name="coming_soon">Prossimamente...</string>
-    <string name="confirm_operation">Conferma eliminazione</string>
-    <string name="note">Conferma cancellazione</string>
-    <string name="are_you_sure_delete">Sei sicuro di voler eliminare questa scheda?</string>
+    <string name="quote_push_yourself">Spingi te stesso, perché nessun\naltro lo farà per te</string>
+    <string name="quote_consistency">La costanza batte il talento</string>
+    <string name="placeholder_initial" translatable="false">M</string>
+    <string name="stat_default_zero" translatable="false">0</string>
+    <string name="psw" translatable="false">**************</string>
+
+    <string name="btn_back">Indietro</string>
+    <string name="btn_next">Avanti ></string>
+    <string name="btn_logout">Esci</string>
     <string name="confirm">Conferma</string>
     <string name="cancel">Annulla</string>
-    <string name="goals_amp_progression">Obiettivi e Progresso</string>
+    <string name="delete">Elimina</string>
+    <string name="finish">Fine</string>
+    <string name="start">Inizia</string>
+    <string name="stop">Ferma</string>
+    <string name="edit">Modifica</string>
+    <string name="btn_save_changes">Salva Modifiche</string>
+    <string name="btn_try_again">No, riprova</string>
+    <string name="btn_try_again_short">Riprova</string>
 
-    <string name="hello_blank_fragment">Questo è il mio home fragment</string>
-    <string name="pushapp">PushApp</string>
+    <string name="title_activity_auth">Autenticazione</string>
+    <string name="welcome_back">Bentornato!</string>
     <string name="your_transformation_starts_here">La tua trasformazione inizia qui</string>
     <string name="create_your_account">Crea il tuo account</string>
     <string name="login">Accedi</string>
     <string name="sign_up">Registrati</string>
-    <string name="email">Email</string>
-    <string name="you_email_com">tu@email.com</string>
-    <string name="password">Password</string>
-    <string name="forgot_your_password">Password dimenticata?</string>
-    <string name="welcome_back">Bentornato!</string>
-    <string name="or">---------- o ----------</string>
+    <string name="sign_up_with_google">Registrati con Google</string>
     <string name="continue_with_google">Continua con Google</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service">Continuando accetti i nostri Termini di Servizio</string>
     <string name="logging_in">Accesso in corso...</string>
-
-    <string name="ops_invalid_email_address">Oops! Email non valida</string>
-    <string name="password_is_too_short">Password troppo corta</string>
-    <string name="password_is_too_short_min_8_chars">Password troppo corta (min 8 car).</string>
-    <string name="password_must_be_at_least_8_characters">La password deve essere di almeno 8 caratteri.</string>
-    <string name="please_enter_a_valid_email">Inserisci un\'email valida.</string>
-    <string name="first_name_is_required">Il nome è obbligatorio</string>
-    <string name="last_name_is_required">Il cognome è obbligatorio</string>
-    <string name="age_is_required">L\'età è obbligatoria</string>
-    <string name="weight_is_required">Il peso è obbligatorio</string>
-    <string name="height_is_required">L\'altezza è obbligatoria</string>
-    <string name="goal_weight_is_required">L\'obiettivo di peso è obbligatorio</string>
-    <string name="please_select_a_gender">Seleziona un genere</string>
-
-    <string name="step_of">Passo %1$d di %2$d</string>
-    <string name="next">Avanti ></string>
-    <string name="finish">Fine</string>
-
-    <string name="login_successful">Accesso riuscito.</string>
-    <string name="all_set">Tutto pronto!</string>
-    <string name="great">Fantastico!</string>
-    <string name="profile_created_successfully">Profilo creato con successo.</string>
+    <string name="email">Email</string>
+    <string name="email_hint">Indirizzo Email</string>
+    <string name="you_email_com">tu@email.com</string>
+    <string name="password">Password</string>
+    <string name="label_confirm_password">Conferma password</string>
+    <string name="btn_create_account">Crea account</string>
+    <string name="status_creating_account">Creazione account in corso...</string>
     <string name="account_created_successfully">Account creato con successo.</string>
 
+    <string name="forgot_your_password">Password dimenticata?</string>
     <string name="forgot_password_title">Password Dimenticata?</string>
     <string name="forgot_password_desc">Inserisci la tua email e ti invieremo le istruzioni per reimpostare la password.</string>
-    <string name="email_hint">Indirizzo Email</string>
     <string name="send_reset_link">Invia Link di Reset</string>
     <string name="back_to_login">Torna al Login</string>
-    <string name="email_required">L\'email è obbligatoria</string>
     <string name="email_sent_success">Email inviata! Controlla la tua posta.</string>
-    <string name="check_mail_title">Controlla la tua email !</string>
-    <string name="add_set">Aggiungi set</string>
-    <string name="reps">ripetizioni</string>
-    <string name="weight">peso</string>
-    <string name="delete">cancella</string>
-    <string name="back">indietro</string>
-    <string name="start">inizia</string>
-    <string name="stop">ferna</string>
-    <string name="start_workout">Inizia workout</string>
-    <string name="edit_workout">Modifica</string>
-    <string name="delete_set_title">Cancella serie</string>
-    <string name="delete_set_confirm">Sei sicuro di voler eliminare questa serie?</string>
-    <string name="edit_set_title">Modifica serie</string>
-    <string name="invalid_input">Valori non validi</string>
-    <string name="sign_up_with_google">Registrati con Google</string>
+    <string name="check_mail_title">Controlla la tua email!</string>
 
-    <!-- Profile Activity Strings IT -->
+    <string name="welcome_desc">Conosciamoci meglio. Come ti chiami?</string>
+    <string name="label_first_name">Nome</string>
+    <string name="hint_first_name">Il tuo nome</string>
+    <string name="label_last_name">Cognome</string>
+    <string name="hint_last_name">Il tuo cognome</string>
+    <string name="label_gender">Genere</string>
+    <string name="desc_gender">Ci aiuta a calcolare il tuo metabolismo</string>
+    <string name="gender_male">Uomo</string>
+    <string name="gender_female">Donna</string>
+    <string name="gender_other">Preferisco non dirlo</string>
+    <string name="label_age_title">Quanti anni hai?</string>
+    <string name="desc_age">Fondamentale per personalizzare l\'allenamento</string>
+    <string name="hint_age">es. 25</string>
+    <string name="label_measurements_title">Misure Corporee</string>
+    <string name="desc_measurements">Per monitorare i tuoi progressi nel tempo</string>
+    <string name="label_weight">Peso attuale (kg)</string>
+    <string name="label_height">Altezza (cm)</string>
+    <string name="label_goal_title">Il tuo obiettivo</string>
+    <string name="desc_goal">Qual è il tuo peso target?</string>
+    <string name="hint_goal_weight">Peso target (kg)</string>
+    <string name="label_ready">Sei pronto per iniziare!</string>
+    <string name="step_of">Passo %1$d di %2$d</string>
+    <string name="profile_created_successfully">Profilo creato con successo.</string>
+
     <string name="profile">Profilo</string>
+    <string name="placeholder_user_name">Nome Utente</string>
     <string name="personal_data">Dati Personali</string>
     <string name="goals">Obiettivi</string>
     <string name="notifications">Notifiche</string>
     <string name="theme">Tema</string>
+    <string name="label_workouts">Allenamenti</string>
+    <string name="label_streak">Record</string>
+    <string name="label_volume">Volume</string>
+
     <string name="detail_email">Email: %1$s</string>
     <string name="detail_gender">Genere: %1$s</string>
     <string name="detail_age">Età: %1$d</string>
     <string name="detail_height">Altezza: %1$d cm</string>
     <string name="detail_weight">Peso: %1$.1f kg</string>
-    <string name="accedi">Accedi</string>
-    <string name="registrati">Registrati</string>
-    <string name="confirm_password">Conferma password</string>
-    <string name="create_account">Crea Account</string>
-    <string name="passwords_do_not_match">Le password sono diverse</string>
-    <string name="workouts">Allenamenti</string>
-    <string name="volume">Peso</string>
+    <string name="detail_email_empty">Email: -</string>
+    <string name="detail_gender_empty">Genere: -</string>
+    <string name="detail_age_empty">Età: -</string>
+    <string name="detail_height_empty">Altezza: - cm</string>
+    <string name="detail_weight_empty">Peso: - kg</string>
+
+    <string name="ready_to_train">Pronto ad allenarti?</string>
+    <string name="train_now">Allenati ora!</string>
+    <string name="your_workout">Il tuo allenamento</string>
+    <string name="your_trainings">Le tue schede</string>
+    <string name="select_training">Scegli la scheda</string>
+    <string name="start_workout">Inizia workout</string>
+    <string name="status_workout_paused">Allenamento in pausa</string>
+    <string name="btn_resume">Riprendi</string>
+    <string name="btn_discard">Elimina</string>
+    <string name="add_set">Aggiungi set</string>
+    <string name="edit_set_title">Modifica serie</string>
+    <string name="delete_set_title">Cancella serie</string>
+    <string name="delete_set_confirm">Sei sicuro di voler eliminare questa serie?</string>
+    <string name="reps">ripetizioni</string>
+    <string name="weight_label">peso</string>
+    <string name="note">Nota di testo</string>
+    <string name="label_rest">Recupero:</string>
+    <string name="label_rest_timer">RECUPERO</string>
+    <string name="btn_skip">Salta</string>
+    <string name="label_set_count">Serie %1$d</string>
+    <string name="template_set_details">%1$s kg x %2$d rip</string>
+    <string name="template_target_details">Obiettivo: %1$s</string>
+    <string name="desc_complete_set">Segna serie come completata</string>
+
+    <string name="title_edit_day">Modifica Giorno</string>
+    <string name="desc_add_exercise">Aggiungi Esercizio</string>
+    <string name="hint_search_exercise">Cerca esercizio...</string>
+    <string name="label_muscle_group">Gruppo Muscolare</string>
+    <string name="label_all">Tutti</string>
+    <string name="label_difficulty">Difficoltà</string>
+
+    <string name="title_history">Cronologia Allenamenti</string>
+    <string name="desc_history">Controlla le tue sessioni passate e i tuoi progressi</string>
+    <string name="hint_search_sessions">Cerca sessioni...</string>
+    <string name="history_empty_state">Nessun allenamento trovato.\nPronto per una nuova sessione?</string>
+    <string name="label_statistics">Statistiche</string>
+    <string name="desc_statistics">Monitora il tuo percorso e i tuoi progressi</string>
+    <string name="label_time">Tempo</string>
+    <string name="desc_streak_motivation">La costanza è la chiave per i risultati!</string>
+    <string name="label_total_reps">Ripetizioni Totali</string>
+    <string name="label_weight_progress_unit">Progresso Peso (kg)</string>
+    <string name="weight_progress">Progresso peso</string>
+    <string name="_30_days">30 giorni</string>
+    <string name="goals_progression">Obiettivi e Progresso</string>
+    <string name="desc_stat_icon">Icona statistica</string>
+    <string name="desc_progress_chart">Grafico progresso peso</string>
+    <string name="btn_add_sample_data">Aggiungi dati di prova</string>
+    <string name="desc_add_training">Crea nuova sessione di allenamento</string>
+
+    <string name="title_success">Successo!</string>
+    <string name="desc_operation_completed">Operazione completata.</string>
+    <string name="desc_check_icon">Icona di successo</string>
+    <string name="desc_error_icon">Icona errore</string>
+    <string name="login_successful">Accesso riuscito.</string>
+    <string name="all_set">Tutto pronto!</string>
+    <string name="great">Fantastico!</string>
+
+    <string name="title_food_not_found">Alimento non trovato</string>
+    <string name="desc_food_not_found">Non abbiamo trovato questo elemento. Prova a cercare in inglese.</string>
+    <string name="title_account_not_found">Account non trovato</string>
+    <string name="desc_email_not_registered">Questa email non è registrata. Vuoi creare un nuovo account?</string>
+    <string name="btn_register_now">Registrati ora</string>
+
+    <string name="title_delete_workout">Elimina allenamento</string>
+    <string name="desc_confirm_delete_session">Sei sicuro di voler eliminare questa sessione? L\'azione non può essere annullata.</string>
+    <string name="confirm_operation">Conferma eliminazione</string>
+    <string name="are_you_sure_delete">Sei sicuro di voler eliminare questo elemento?</string>
+
+    <string name="error_invalid_email">Oops! Email non valida</string>
+    <string name="error_email_required">L\'email è obbligatoria</string>
+    <string name="error_passwords_mismatch">Le password non corrispondono</string>
+    <string name="error_password_short">La password deve essere di almeno 8 caratteri.</string>
+    <string name="error_first_name_required">Il nome è obbligatorio</string>
+    <string name="error_last_name_required">Il cognome è obbligatorio</string>
+    <string name="error_age_required">L\'età è obbligatoria</string>
+    <string name="error_weight_required">Il peso è obbligatorio</string>
+    <string name="error_height_required">L\'altezza è obbligatoria</string>
+    <string name="error_goal_weight_required">L\'obiettivo di peso è obbligatorio</string>
+    <string name="error_select_gender">Seleziona un genere</string>
+    <string name="invalid_input">Valori non validi</string>
 </resources>

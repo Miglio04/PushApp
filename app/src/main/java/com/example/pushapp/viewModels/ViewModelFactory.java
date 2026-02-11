@@ -5,7 +5,13 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.pushapp.database.SessionManager; // Assicurati di importarlo
+import com.example.pushapp.repositories.ExerciseRepository;
+import com.example.pushapp.repositories.HistoryRepository;
 import com.example.pushapp.repositories.ServiceLocator;
+import com.example.pushapp.repositories.SessionRepository;
+import com.example.pushapp.repositories.TrainingRepository;
+import com.example.pushapp.repositories.UserRepository;
 
 public class ViewModelFactory implements ViewModelProvider.Factory {
 

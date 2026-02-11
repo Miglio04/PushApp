@@ -17,7 +17,7 @@ import java.util.List;
 
 public class TrainingsRecyclerViewAdapter extends RecyclerView.Adapter<TrainingsRecyclerViewAdapter.ViewHolder> {
 
-    private List<Training> trainings;
+    private final List<Training> trainings;
     private final OnTrainingInteractionListener listener;
 
     // 1. Interfaccia per comunicare con il Fragment

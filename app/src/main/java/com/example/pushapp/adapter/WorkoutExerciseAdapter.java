@@ -59,7 +59,7 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
 
         // Gestione corretta del plurale per le serie
         int setCount = workoutExercise.getSeries() != null ? workoutExercise.getSeries().size() : 0;
-        holder.cardDescription.setText(setCount + (setCount == 1 ? " serie" : " serie"));
+        holder.cardDescription.setText(setCount + (" serie"));
 
         // --- CONFIGURAZIONE SPINNER RIPOSO ---
         String[] restTimes = {"30s", "60s", "90s", "120s", "180s"};

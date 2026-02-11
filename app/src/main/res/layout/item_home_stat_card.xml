@@ -2,6 +2,7 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -11,37 +12,37 @@
     app:cardCornerRadius="24dp"
     app:cardElevation="0dp">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/iconStat"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/desc_stat_icon"
+            android:src="@drawable/outline_local_fire_department_24"
+            app:tint="@color/md_theme_onSecondaryContainer" />
+
+        <TextView
+            android:id="@+id/tvValue"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            tools:text="12"
+            android:textColor="@color/md_theme_onSecondaryContainer"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-            <ImageView
-                android:id="@+id/iconStat"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginBottom="8dp"
-                android:contentDescription="Stat Icon"
-                android:src="@drawable/outline_local_fire_department_24"
-                app:tint="@color/md_theme_onSecondaryContainer" />
+        <TextView
+            android:id="@+id/tvLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="Workouts"
+            android:textColor="@color/md_theme_onSecondaryContainer"
+            android:textSize="12sp" />
 
-            <TextView
-                android:id="@+id/tvValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textColor="@color/md_theme_onSecondaryContainer"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvLabel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Label"
-                android:textColor="@color/md_theme_onSecondaryContainer"
-                android:textSize="12sp" />
-
-        </LinearLayout>
+    </LinearLayout>
 </com.google.android.material.card.MaterialCardView>
