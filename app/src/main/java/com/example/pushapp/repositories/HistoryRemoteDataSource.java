@@ -34,7 +34,7 @@ public class HistoryRemoteDataSource {
         if (auth.getCurrentUser() == null) return;
 
         Map<String, Object> sessionMap = new HashMap<>();
-        sessionMap.put("sessionId", session.sessionId);
+        sessionMap.put("historySessionId", session.historySessionId);
         sessionMap.put("name", session.name);
         sessionMap.put("startTime", session.startTime);
         sessionMap.put("endTime", session.endTime);
@@ -45,7 +45,7 @@ public class HistoryRemoteDataSource {
         for (HistoryWorkoutExercise ex : exercises) {
             Map<String, Object> exMap = new HashMap<>();
             exMap.put("historyExerciseId", ex.historyExerciseId);
-            exMap.put("sessionId", ex.sessionId);
+            exMap.put("historySessionId", ex.historySessionId);
             exMap.put("exerciseName", ex.exerciseName);
             exMap.put("orderIndex", ex.orderIndex);
 
@@ -53,7 +53,7 @@ public class HistoryRemoteDataSource {
             for (HistorySerie s : series) {
                 if (s.historyExerciseId.equals(ex.historyExerciseId)) {
                     Map<String, Object> sMap = new HashMap<>();
-                    sMap.put("historySetId", s.historySetId);
+                    sMap.put("historySerieId", s.historySerieId);
                     sMap.put("historyExerciseId", s.historyExerciseId);
                     sMap.put("setNumber", s.setNumber);
                     sMap.put("weight", s.weight);
@@ -70,8 +70,8 @@ public class HistoryRemoteDataSource {
 
         db.collection("users")
                 .document(auth.getCurrentUser().getUid())
-                .collection("history_sessions")
-                .document(session.sessionId)
+                .collection("historySessions")
+                .document(session.historySessionId)
                 .set(sessionMap)
                 .addOnSuccessListener(aVoid -> {
                 })
@@ -85,7 +85,7 @@ public class HistoryRemoteDataSource {
 
         db.collection("users")
                 .document(auth.getCurrentUser().getUid())
-                .collection("history_sessions")
+                .collection("historySessions")
                 .orderBy("startTime", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -114,14 +114,14 @@ public class HistoryRemoteDataSource {
 
         db.collection("users")
                 .document(auth.getCurrentUser().getUid())
-                .collection("history_sessions")
+                .collection("historySessions")
                 .document(sessionId)
                 .delete();
     }
 
     private HistorySessionWithExercises parseDocumentToHistoryObject(DocumentSnapshot doc) {
         HistorySession session = new HistorySession();
-        session.sessionId = doc.getString("sessionId");
+        session.historySessionId = doc.getString("historySessionId");
         session.name = doc.getString("name");
         Long start = doc.getLong("startTime");
         session.startTime = (start != null) ? start : 0;
@@ -137,7 +137,7 @@ public class HistoryRemoteDataSource {
             for (Map<String, Object> exMap : exMaps) {
                 HistoryWorkoutExercise ex = new HistoryWorkoutExercise();
                 ex.historyExerciseId = (String) exMap.get("historyExerciseId");
-                ex.sessionId = (String) exMap.get("sessionId");
+                ex.historySessionId = (String) exMap.get("historySessionId");
                 ex.exerciseName = (String) exMap.get("exerciseName");
                 Long order = (Long) exMap.get("orderIndex");
                 ex.orderIndex = (order != null) ? order.intValue() : 0;
@@ -147,7 +147,7 @@ public class HistoryRemoteDataSource {
                 if (sMaps != null) {
                     for (Map<String, Object> sMap : sMaps) {
                         HistorySerie s = new HistorySerie();
-                        s.historySetId = (String) sMap.get("historySetId");
+                        s.historySerieId = (String) sMap.get("historySerieId");
                         s.historyExerciseId = (String) sMap.get("historyExerciseId");
                         Long sNum = (Long) sMap.get("setNumber");
                         s.setNumber = (sNum != null) ? sNum.intValue() : 0;

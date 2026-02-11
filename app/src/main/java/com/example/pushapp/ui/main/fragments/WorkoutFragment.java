@@ -24,10 +24,12 @@ import com.example.pushapp.R;
 import com.example.pushapp.adapter.WorkoutExerciseAdapter;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Training;
+import com.example.pushapp.models.WorkoutExercise;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.viewModels.WorkoutViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.OnWorkoutInteractionListener {
@@ -108,8 +110,7 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
 
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
-        // Passiamo 'this' come listener per catturare i click sulle serie
-        workoutAdapter = new WorkoutExerciseAdapter(new ArrayList<>(), this);
+        workoutAdapter = new WorkoutExerciseAdapter(new ArrayList<>(), new ArrayList<>(), this);
         recyclerView.setAdapter(workoutAdapter);
     }
 
@@ -124,9 +125,13 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         workoutViewModel.isWorkoutTimerRunning().observe(getViewLifecycleOwner(), this::updateStartPauseIcon);
 
         // Lista esercizi: quando cambia (o viene resettata), l'adapter si aggiorna
-        workoutViewModel.getActiveTrainingDay().observe(getViewLifecycleOwner(), trainingDay -> {
-            if (trainingDay != null) {
-                workoutAdapter.setExercises(trainingDay.getWorkoutExercises());
+        workoutViewModel.getActiveWorkoutSession().observe(getViewLifecycleOwner(), currentSession -> {
+            if (currentSession != null && currentSession.exercises != null) {
+                Routine originalRoutine = workoutViewModel.getOriginalRoutineTemplate();
+                List<WorkoutExercise> templateExercises = (originalRoutine != null) ? originalRoutine.getWorkoutExercises() : new ArrayList<>();
+                workoutAdapter.setExercises(currentSession.exercises, templateExercises);
+            } else {
+                workoutAdapter.setExercises(new ArrayList<>(), new ArrayList<>());
             }
         });
 

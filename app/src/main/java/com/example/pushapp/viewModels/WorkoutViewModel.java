@@ -3,7 +3,7 @@ package com.example.pushapp.viewModels;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -12,6 +12,9 @@ import com.example.pushapp.models.WorkoutExercise;
 import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.Routine;
+import com.example.pushapp.models.history.HistorySerie;
+import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
+import com.example.pushapp.models.roomModels.helpers.HistoryWorkoutExerciseWithSeries;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.repositories.HistoryRepository;
@@ -19,7 +22,7 @@ import com.example.pushapp.repositories.TrainingRepository;
 // --- FIX 1: Import corretto (utils) ---
 import com.example.pushapp.utils.SessionManager;
 
-import java.util.List;
+import java.util.ArrayList;
 import java.util.Locale;
 
 public class WorkoutViewModel extends ViewModel {
@@ -31,6 +34,7 @@ public class WorkoutViewModel extends ViewModel {
     private final SessionManager sessionManager;
 
     private Training parentTraining;
+    private Routine originalRoutineTemplate;
     private long workoutStartTimeMillis = 0L;
     private long startTime = 0L;
     private long timeWhenPaused = 0L;
@@ -39,7 +43,7 @@ public class WorkoutViewModel extends ViewModel {
 
     private final MutableLiveData<String> workoutTitle = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isWorkoutInProgress = new MutableLiveData<>(false);
-    private final MutableLiveData<Routine> activeTrainingDay = new MutableLiveData<>();
+    private final MutableLiveData<HistorySessionWithExercises> activeWorkoutSession = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isWorkoutTimerRunning = new MutableLiveData<>(false);
     private final MutableLiveData<String> formattedTime = new MutableLiveData<>("00:00");
     private final MutableLiveData<Long> elapsedMillis = new MutableLiveData<>(0L);
@@ -61,15 +65,14 @@ public class WorkoutViewModel extends ViewModel {
 
     public void checkRestoredSession() {
         if (sessionManager.isSessionActive()) {
-            Routine restored = sessionManager.getSavedRoutine();
-            if (restored != null) {
+            HistorySessionWithExercises restoredSession = sessionManager.getSavedSession();
+            if (restoredSession != null) {
                 this.workoutStartTimeMillis = sessionManager.getSavedStartTime();
 
-                workoutTitle.setValue(restored.getName());
-                activeTrainingDay.setValue(restored);
+                workoutTitle.setValue(restoredSession.session.getName());
+                activeWorkoutSession.setValue(restoredSession);
                 isWorkoutInProgress.setValue(true);
 
-                // Calcolo il tempo trascorso reale per riallineare il timer
                 long elapsedSoFar = System.currentTimeMillis() - workoutStartTimeMillis;
                 this.timeWhenPaused = elapsedSoFar;
 
@@ -80,18 +83,22 @@ public class WorkoutViewModel extends ViewModel {
 
     public void startWorkout(Routine day, Training parentTraining) {
         if (day == null) return;
-        deepResetRoutine(day);
+        //deepResetRoutine(day); credo non serva più
         this.parentTraining = parentTraining;
-        this.workoutStartTimeMillis = System.currentTimeMillis();
-        workoutTitle.setValue(day.getName());
-        activeTrainingDay.setValue(day);
+        this.originalRoutineTemplate = day;
+
+        HistorySessionWithExercises newSession = historyRepository.createNewWorkoutSession(day);
+        if (newSession == null) return; // Gestione dell'errore
+
+        this.workoutStartTimeMillis = newSession.session.getStartTime();
+        workoutTitle.setValue(newSession.session.getName());
         isWorkoutInProgress.setValue(true);
+        activeWorkoutSession.setValue(newSession);
 
         navigateToHome.setValue(false); // Reset navigazione
         resetWorkoutTimer();
         startWorkoutTimer();
-
-        sessionManager.saveSessionState(day, workoutStartTimeMillis);
+        sessionManager.saveSessionState(newSession, workoutStartTimeMillis);
     }
 
     public void stopWorkout(FirebaseCallback<Void> callback) {
@@ -102,15 +109,12 @@ public class WorkoutViewModel extends ViewModel {
     }
 
     public void toggleSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds) {
-        Routine currentDay = activeTrainingDay.getValue();
-        if (currentDay == null || currentDay.getWorkoutExercises() == null) return;
-        List<WorkoutExercise> workoutExercises = currentDay.getWorkoutExercises();
-        if (exercisePosition >= 0 && exercisePosition < workoutExercises.size()) {
-            WorkoutExercise workoutExercise = workoutExercises.get(exercisePosition);
-            if (workoutExercise.getSeries() != null && setPosition >= 0 && setPosition < workoutExercise.getSeries().size()) {
-                Serie serie = workoutExercise.getSeries().get(setPosition);
-                // RIMOSSO COMPLETED  da serie. Andrà trovato un altro modo per gestirlo
-                /*
+        HistorySessionWithExercises currentSession = activeWorkoutSession.getValue();
+        if (currentSession == null || currentSession.exercises == null) return;
+        if (exercisePosition >= 0 && exercisePosition < currentSession.exercises.size()) {
+            HistoryWorkoutExerciseWithSeries exercise = currentSession.exercises.get(exercisePosition);
+            if (exercise.historySeries != null && setPosition >= 0 && setPosition < exercise.historySeries.size()) {
+                HistorySerie serie = exercise.historySeries.get(setPosition);
                 boolean newState = !serie.isCompleted();
                 serie.setCompleted(newState);
                 if (newState) {
@@ -118,8 +122,8 @@ public class WorkoutViewModel extends ViewModel {
                 } else {
                     stopRestTimer();
                 }
-                */
-                activeTrainingDay.setValue(currentDay);
+                activeWorkoutSession.postValue(currentSession);
+                sessionManager.saveSessionState(currentSession, workoutStartTimeMillis);
             }
         }
     }
@@ -185,12 +189,7 @@ public class WorkoutViewModel extends ViewModel {
         timeWhenPaused = SystemClock.elapsedRealtime() - startTime;
     }
 
-                // Aggiorna i campi 'actual' dell'oggetto Serie
-                // RIMOSSI actualWeight e actualReps da serie. Andrà trovato un altro modo per gestirlo
-                /*
-                serie.setActualWeight(actualWeight);
-                serie.setActualReps(actualReps);
-                 */
+    // Credo non ci serva più
     private void deepResetRoutine(Routine routine) {
         if (routine == null || routine.getWorkoutExercises() == null) return;
         for (WorkoutExercise ex : routine.getWorkoutExercises()) {
@@ -207,7 +206,7 @@ public class WorkoutViewModel extends ViewModel {
     private void resetWorkoutState() {
         parentTraining = null;
         workoutTitle.postValue(null);
-        activeTrainingDay.postValue(null);
+        activeWorkoutSession.postValue(null);
         isWorkoutInProgress.postValue(false);
         pauseWorkoutTimer();
         resetWorkoutTimer();
@@ -229,10 +228,23 @@ public class WorkoutViewModel extends ViewModel {
     }
 
     public void finishWorkout() {
-        Routine currentRoutine = activeTrainingDay.getValue();
-        if (currentRoutine == null) return;
+        HistorySessionWithExercises sessionToSave = activeWorkoutSession.getValue();
+        if (sessionToSave == null) return;
 
-        historyRepository.saveWorkout(currentRoutine, workoutStartTimeMillis, () -> {
+        long endTime = System.currentTimeMillis();
+        sessionToSave.session.setEndTime(endTime);
+        sessionToSave.session.setDuration(endTime - sessionToSave.session.getStartTime());
+
+        if (sessionToSave.exercises != null) {
+            for (HistoryWorkoutExerciseWithSeries ex : sessionToSave.exercises) {
+                if (ex.historySeries != null) {
+                    ex.historySeries.removeIf(serie -> serie.getReps() == 0);
+                }
+            }
+            sessionToSave.exercises.removeIf(ex -> ex.historySeries == null || ex.historySeries.isEmpty());
+        }
+        historyRepository.saveWorkoutSession(sessionToSave, () -> {
+            // Questo codice viene eseguito quando il salvataggio è completato
             timerHandler.post(() -> {
                 sessionManager.clearSession();
                 resetWorkoutState();
@@ -242,18 +254,20 @@ public class WorkoutViewModel extends ViewModel {
     }
 
     public void updateSetData(int exPos, int setPos, double weight, int reps) {
-        Routine current = activeTrainingDay.getValue();
-        if (current == null) return;
-        Serie s = current.getWorkoutExercises().get(exPos).getSeries().get(setPos);
-        //s.setActualWeight(weight); s.setActualReps(reps);
-        activeTrainingDay.setValue(current);
-        sessionManager.saveSessionState(current, workoutStartTimeMillis);
+        HistorySessionWithExercises currentSession = activeWorkoutSession.getValue();
+        if (currentSession == null) return;
+        HistorySerie s = currentSession.exercises.get(exPos).historySeries.get(setPos);
+        s.setWeight(weight);
+        s.setReps(reps);
+        activeWorkoutSession.setValue(currentSession);
+        sessionManager.saveSessionState(currentSession, workoutStartTimeMillis);
     }
 
     // --- GETTERS ---
+    public Routine getOriginalRoutineTemplate() {return originalRoutineTemplate; }
     public LiveData<String> getWorkoutTitle() { return workoutTitle; }
     public LiveData<Boolean> isWorkoutInProgress() { return isWorkoutInProgress; }
-    public LiveData<Routine> getActiveTrainingDay() { return activeTrainingDay; }
+    public LiveData<HistorySessionWithExercises> getActiveWorkoutSession() { return activeWorkoutSession; }
     public LiveData<String> getFormattedTime() { return formattedTime; }
     public LiveData<Boolean> isWorkoutTimerRunning() { return isWorkoutTimerRunning; }
     public LiveData<Boolean> isRestTimerRunning() { return isRestTimerRunning; }
@@ -262,17 +276,40 @@ public class WorkoutViewModel extends ViewModel {
     public LiveData<Boolean> getNavigateToHome() { return navigateToHome; }
 
     // CRUD METODI
-    public void addSetToExercise(int pos) {
-        Routine c = activeTrainingDay.getValue(); if(c == null) return;
-        Serie n = new Serie(); n.setSerieNumber(c.getWorkoutExercises().get(pos).getSeries().size()+1);
-        c.getWorkoutExercises().get(pos).getSeries().add(n);
-        activeTrainingDay.setValue(c);
-        sessionManager.saveSessionState(c, workoutStartTimeMillis);
+    public void addSetToExercise(int exercisePosition) {
+        HistorySessionWithExercises currentSession = activeWorkoutSession.getValue();
+        if (currentSession == null || currentSession.exercises == null || exercisePosition >= currentSession.exercises.size()) {
+            return;
+        }
+        HistoryWorkoutExerciseWithSeries exercise = currentSession.exercises.get(exercisePosition);
+        if (exercise.historySeries == null) {
+            exercise.historySeries = new ArrayList<>();
+        }
+        HistorySerie newSerie = new HistorySerie(
+                exercise.historyWorkoutExercise.getHistoryExerciseId(),
+                exercise.historySeries.size() + 1,
+                0,
+                0
+        );
+        newSerie.setCompleted(false);
+        exercise.historySeries.add(newSerie);
+        activeWorkoutSession.postValue(currentSession);
+        sessionManager.saveSessionState(currentSession, workoutStartTimeMillis);
     }
-    public void deleteSetFromExercise(int exP, int setP) {
-        Routine c = activeTrainingDay.getValue(); if(c == null) return;
-        c.getWorkoutExercises().get(exP).getSeries().remove(setP);
-        activeTrainingDay.setValue(c);
-        sessionManager.saveSessionState(c, workoutStartTimeMillis);
+    public void deleteSetFromExercise(int exercisePosition, int setPosition) {
+        HistorySessionWithExercises currentSession = activeWorkoutSession.getValue();
+        if (currentSession == null || currentSession.exercises == null || exercisePosition >= currentSession.exercises.size()) {
+            return;
+        }
+        HistoryWorkoutExerciseWithSeries exercise = currentSession.exercises.get(exercisePosition);
+        if (exercise.historySeries == null || setPosition >= exercise.historySeries.size()) {
+            return;
+        }
+        exercise.historySeries.remove(setPosition);
+        for (int i = 0; i < exercise.historySeries.size(); i++) {
+            exercise.historySeries.get(i).setSetNumber(i + 1);
+        }
+        activeWorkoutSession.postValue(currentSession);
+        sessionManager.saveSessionState(currentSession, workoutStartTimeMillis);
     }
 }

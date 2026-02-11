@@ -1,25 +1,37 @@
 package com.example.pushapp.models.history;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "history_sessions")
+import java.util.UUID;
+
+@Entity(tableName = "historySessions")
 public class HistorySession {
 
     @PrimaryKey
+    @ColumnInfo(name = "historySessionId")
     @NonNull
-    public String sessionId;
-
+    public String historySessionId;
+    @ColumnInfo(name = "name")
     public String name;
+    @ColumnInfo(name = "startTime")
+
     public long startTime;
+    @ColumnInfo(name = "endTime")
+
     public long endTime;
+    @ColumnInfo(name = "duration")
+
     public long duration;
 
-    public HistorySession() {}
+    public HistorySession() {
+        this.historySessionId = UUID.randomUUID().toString();
+    }
 
-    public HistorySession(@NonNull String sessionId, String name, long startTime, long endTime) {
-        this.sessionId = sessionId;
+    public HistorySession(String name, long startTime, long endTime) {
+        this.historySessionId = UUID.randomUUID().toString();
         this.name = name;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -27,8 +39,8 @@ public class HistorySession {
     }
 
     @NonNull
-    public String getSessionId() { return sessionId; }
-    public void setSessionId(@NonNull String sessionId) { this.sessionId = sessionId; }
+    public String getHistorySessionId() { return historySessionId; }
+    public void setHistorySessionId(@NonNull String historySessionId) { this.historySessionId = historySessionId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

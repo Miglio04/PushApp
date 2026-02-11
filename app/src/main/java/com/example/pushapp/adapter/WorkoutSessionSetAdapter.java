@@ -12,11 +12,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
 import com.example.pushapp.models.Serie;
+import com.example.pushapp.models.history.HistorySerie;
+
 import java.util.List;
 
 public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessionSetAdapter.ViewHolder> {
 
-    private final List<Serie> series;
+    private final List<HistorySerie> series;
+    private final List<Serie> templateSeries;
     private final OnSessionSetListener listener;
 
     public interface OnSessionSetListener {
@@ -25,8 +28,9 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
         void onSetDeleted(int position);
     }
 
-    public WorkoutSessionSetAdapter(List<Serie> series, OnSessionSetListener listener) {
+    public WorkoutSessionSetAdapter(List<HistorySerie> series, List<Serie> templateSeries, OnSessionSetListener listener) {
         this.series = series;
+        this.templateSeries = templateSeries;
         this.listener = listener;
     }
 
@@ -41,28 +45,27 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Serie serie = series.get(position);
+        HistorySerie serie = series.get(position);
+        Serie templateSerie = null;
+        if (templateSeries != null && position < templateSeries.size()) {
+            templateSerie = templateSeries.get(position);
+        }
 
-        // Numero Serie
-        holder.setNumber.setText(String.valueOf(position + 1)); // Usa la posizione, non getSerieNumber() che potrebbe essere null
+        holder.setNumber.setText(String.valueOf(serie.getSetNumber()));
+        if (templateSerie != null) {
+            String target = templateSerie.getTargetWeight() + " kg x " + templateSerie.getTargetReps() + " reps";
+            holder.targetDetails.setText(target);
+            holder.targetDetails.setVisibility(View.VISIBLE);
+        } else {
+            holder.targetDetails.setVisibility(View.GONE);
+        }
 
-        // Dettagli Target (es. "Target: 50kg x 10")
-        String targetText = String.format("Target: %.1fkg x %d", serie.getTargetWeight(), serie.getTargetReps());
-        holder.targetDetails.setText(targetText);
-
-        // Rimuovi vecchi listener
         if (holder.weightWatcher != null) holder.actualWeight.removeTextChangedListener(holder.weightWatcher);
         if (holder.repsWatcher != null) holder.actualReps.removeTextChangedListener(holder.repsWatcher);
 
-        // Imposta valori attuali
-        // Mostra il valore solo se è maggiore di 0, altrimenti lascia vuoto o mostra hint
-        // DATI ACTUAL non più presenti in serie. Andrà trovato un altro modo per gestirlo
-        /*
-        holder.actualWeight.setText(serie.getActualWeight() > 0 ? String.valueOf(serie.getActualWeight()) : "");
-        holder.actualReps.setText(serie.getActualReps() > 0 ? String.valueOf(serie.getActualReps()) : "");
-         */
+        holder.actualWeight.setText(serie.getWeight() > 0 ? String.valueOf(serie.getWeight()) : "");
+        holder.actualReps.setText(serie.getReps() > 0 ? String.valueOf(serie.getReps()) : "");
 
-        // Logica TextWatcher per salvare i dati mentre scrivi
         holder.weightWatcher = new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -81,9 +84,12 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
         holder.actualWeight.addTextChangedListener(holder.weightWatcher);
         holder.actualReps.addTextChangedListener(holder.repsWatcher);
 
-        // Click Listener
-        holder.completeButton.setOnClickListener(v -> listener.onSetCompleted(holder.getBindingAdapterPosition()));
-
+        holder.completeButton.setOnClickListener(v -> {
+            int currentPos = holder.getBindingAdapterPosition();
+            if (currentPos != RecyclerView.NO_POSITION) {
+                listener.onSetCompleted(currentPos);
+            }
+        });
         holder.deleteButton.setOnClickListener(v -> {
             int pos = holder.getBindingAdapterPosition();
             if (pos != RecyclerView.NO_POSITION) {
@@ -91,11 +97,7 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
             }
         });
 
-        // Aggiorna grafica (barrato/verde)
-        // DATO COMPLETED: RIMOSSO da serie. Andrà trovato un altro modo per gestirlo
-        /*
         updateCompletedUI(holder, serie.isCompleted());
-         */
     }
 
     private void updateSetData(ViewHolder holder) {
@@ -113,14 +115,11 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
     private void updateCompletedUI(ViewHolder holder, boolean completed) {
         if (completed) {
             holder.completeButton.setImageResource(android.R.drawable.checkbox_on_background);
-            // Opzionale: disabilitare input o barrare testo
-            // holder.actualWeight.setEnabled(false);
-            // holder.actualReps.setEnabled(false);
         } else {
             holder.completeButton.setImageResource(android.R.drawable.checkbox_off_background);
-            // holder.actualWeight.setEnabled(true);
-            // holder.actualReps.setEnabled(true);
         }
+        holder.actualWeight.setEnabled(!completed);
+        holder.actualReps.setEnabled(!completed);
     }
 
     @Override

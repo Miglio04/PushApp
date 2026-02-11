@@ -13,6 +13,6 @@ public class HistoryViewModel extends ViewModel {
     public void fetchHistory() { repository.getHistoryList(); }
     public void searchHistory(String query) { repository.searchHistory(query); }
     public void deleteSession(HistorySessionWithExercises wrapper) {
-        if (wrapper != null && wrapper.session != null) repository.deleteSession(wrapper.session.sessionId);
+        if (wrapper != null && wrapper.session != null) repository.deleteSession(wrapper.session.historySessionId);
     }
 }
