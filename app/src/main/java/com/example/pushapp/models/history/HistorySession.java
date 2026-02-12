@@ -13,18 +13,17 @@ public class HistorySession {
     @PrimaryKey
     @ColumnInfo(name = "historySessionId")
     @NonNull
-    public String historySessionId;
+    private String historySessionId;
+    @ColumnInfo(name = "userId")
+    private String userId;
     @ColumnInfo(name = "name")
-    public String name;
+    private String name;
     @ColumnInfo(name = "startTime")
-
-    public long startTime;
+    private long startTime;
     @ColumnInfo(name = "endTime")
-
-    public long endTime;
+    private long endTime;
     @ColumnInfo(name = "duration")
-
-    public long duration;
+    private long duration;
 
     public HistorySession() {
         this.historySessionId = UUID.randomUUID().toString();
@@ -53,4 +52,12 @@ public class HistorySession {
 
     public long getDuration() { return duration; }
     public void setDuration(long duration) { this.duration = duration; }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }

@@ -74,7 +74,6 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
 
         holder.cardTitle.setText(historyExercise.getExerciseName());
         int setCount = historySeries != null ? historySeries.size() : 0;
-        holder.cardDescription.setText(setCount + (setCount == 1 ? " serie" : " serie"));
 
         String[] restTimes = {"30s", "60s", "90s", "120s", "180s"};
         int[] restValues = {30, 60, 90, 120, 180};
@@ -85,7 +84,7 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         holder.restSpinner.setAdapter(spinnerAdapter);
 
-        int initialIndex = historyExercise.currentRestTimeIndex;
+        int initialIndex = historyExercise.getCurrentRestTimeIndex();
         if (initialIndex >= 0 && initialIndex < restTimes.length) {
             holder.restSpinner.setSelection(initialIndex);
         } else {
@@ -95,7 +94,7 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
         holder.restSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(android.widget.AdapterView<?> parent, View view, int pos, long id) {
-                historyExercise.currentRestTimeIndex = pos;
+                historyExercise.setCurrentRestTimeIndex(pos);
             }
             @Override
             public void onNothingSelected(android.widget.AdapterView<?> parent) {}
@@ -152,8 +151,6 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
     public static class ExerciseViewHolder extends RecyclerView.ViewHolder {
         final ImageView cardImage;
         final TextView cardTitle;
-        final TextView cardDescription;
-        final EditText cardNote;
         final Spinner restSpinner;
         final RecyclerView setsRecyclerView;
         final Button addSetButton;
@@ -162,8 +159,6 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
             super(itemView);
             cardImage = itemView.findViewById(R.id.card_image);
             cardTitle = itemView.findViewById(R.id.card_title);
-            cardDescription = itemView.findViewById(R.id.card_description);
-            cardNote = itemView.findViewById(R.id.card_note);
             restSpinner = itemView.findViewById(R.id.card_rest_spinner);
             setsRecyclerView = itemView.findViewById(R.id.card_sets_recycler);
             addSetButton = itemView.findViewById(R.id.card_add_set);

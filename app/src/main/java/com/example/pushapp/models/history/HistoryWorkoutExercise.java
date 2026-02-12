@@ -25,22 +25,20 @@ public class HistoryWorkoutExercise {
     @PrimaryKey
     @ColumnInfo(name = "historyExerciseId")
     @NonNull
-    public String historyExerciseId;
-
+    private String historyExerciseId;
+    @ColumnInfo(name = "userId")
+    private String userId;
     @NonNull
     @ColumnInfo(name = "historySessionId")
-    public String historySessionId;
-
+    private String historySessionId;
     @ColumnInfo(name = "exerciseName")
-
-    public String exerciseName;
+    private String exerciseName;
     @ColumnInfo(name = "orderIndex")
-
-    public int orderIndex;
+    private int orderIndex;
     @Ignore
-    public int currentRestTimeIndex = -1;
+    private int currentRestTimeIndex = -1;
     @Ignore
-    public List<HistorySerie> historySerieList;
+    private List<HistorySerie> historySerieList;
 
     public HistoryWorkoutExercise() {
         this.historyExerciseId = UUID.randomUUID().toString();
@@ -66,4 +64,14 @@ public class HistoryWorkoutExercise {
 
     public int getOrderIndex() { return orderIndex; }
     public void setOrderIndex(int orderIndex) { this.orderIndex = orderIndex; }
+    public int getCurrentRestTimeIndex() { return currentRestTimeIndex; }
+    public void setCurrentRestTimeIndex(int currentRestTimeIndex) { this.currentRestTimeIndex = currentRestTimeIndex; }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }

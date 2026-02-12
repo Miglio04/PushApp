@@ -16,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.pushapp.R;
+import com.example.pushapp.viewModels.HistoryViewModel;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.viewModels.WorkoutViewModel;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     private WorkoutViewModel workoutViewModel;
     private UserViewModel userViewModel;
+    private HistoryViewModel historyViewModel;
     private View miniPlayerView;
     private NavController navController;
 
@@ -42,7 +44,12 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 new ViewModelFactory(getApplicationContext())).get(UserViewModel.class);
 
+        historyViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(getApplicationContext())).get(HistoryViewModel.class);
+
         userViewModel.fetchUser();
+        historyViewModel.fetchHistory();
         workoutViewModel.checkRestoredSession();
 
         setupWindowInsets();

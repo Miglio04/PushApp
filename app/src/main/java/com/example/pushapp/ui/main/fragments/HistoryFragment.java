@@ -49,7 +49,6 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
         historyViewModel = new ViewModelProvider(this, factory).get(HistoryViewModel.class);
         observeData();
         initSearch();
-        historyViewModel.fetchHistory();
         return root;
     }
 

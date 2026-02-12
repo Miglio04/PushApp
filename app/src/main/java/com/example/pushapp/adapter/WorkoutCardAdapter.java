@@ -62,20 +62,6 @@ public class WorkoutCardAdapter extends RecyclerView.Adapter<WorkoutCardAdapter.
         holder.description.setText(card.getDescription());
         holder.image.setImageResource(card.getImageResId());
 
-        // Setup note EditText with TextWatcher
-        if (holder.noteWatcher != null) {
-            holder.note.removeTextChangedListener(holder.noteWatcher);
-        }
-        holder.note.setText(card.getNote());
-        holder.noteWatcher = new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-            @Override public void afterTextChanged(Editable s) {
-                listener.onNoteChanged(holder.getBindingAdapterPosition(), s.toString());
-            }
-        };
-        holder.note.addTextChangedListener(holder.noteWatcher);
-
         // Setup rest time spinner
         setupRestTimeSpinner(holder, card);
 
@@ -142,7 +128,6 @@ public class WorkoutCardAdapter extends RecyclerView.Adapter<WorkoutCardAdapter.
         final TextView title;
         final TextView description;
         final ImageView image;
-        final EditText note;
         final RecyclerView setsRecycler;
         final Button addSetButton;
         final Spinner restTimeSpinner;
@@ -155,7 +140,6 @@ public class WorkoutCardAdapter extends RecyclerView.Adapter<WorkoutCardAdapter.
             title = itemView.findViewById(R.id.card_title);
             description = itemView.findViewById(R.id.card_description);
             image = itemView.findViewById(R.id.card_image);
-            note = itemView.findViewById(R.id.card_note);
             setsRecycler = itemView.findViewById(R.id.card_sets_recycler);
             addSetButton = itemView.findViewById(R.id.card_add_set);
             restTimeSpinner = itemView.findViewById(R.id.card_rest_spinner);

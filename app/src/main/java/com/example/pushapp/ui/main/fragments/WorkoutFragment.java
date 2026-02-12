@@ -65,11 +65,8 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
             Boolean inProgress = workoutViewModel.isWorkoutInProgress().getValue();
             if (inProgress == null || !inProgress) {
                 Routine dayToStart = (Routine) getArguments().getSerializable("trainingDay");
-                Training parentTraining = (Training) getArguments().getSerializable("parentTraining");
-
                 if (dayToStart != null) {
-                    // Chiamata al VM che ora include il Deep Reset dei dati precedenti
-                    workoutViewModel.startWorkout(dayToStart, parentTraining);
+                    workoutViewModel.startWorkout(dayToStart);
                 }
             }
         }
@@ -183,7 +180,7 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
             });
         });
 
-        restTimerSkip.setOnClickListener(v -> workoutViewModel.skipRestTimer());
+        restTimerSkip.setOnClickListener(v -> workoutViewModel.stopRestTimer());
     }
 
     // --- CALLBACK DALL'ADAPTER (INTERAZIONI REALI) ---

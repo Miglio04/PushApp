@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
@@ -24,21 +25,20 @@ public class HistorySerie {
     @PrimaryKey
     @ColumnInfo(name = "historySerieId")
     @NonNull
-    public String historySerieId;
-
+    private String historySerieId;
+    @ColumnInfo(name = "userId")
+    private String userId;
     @NonNull
     @ColumnInfo(name = "historyExerciseId")
-    public String historyExerciseId;
+    private String historyExerciseId;
     @ColumnInfo(name = "setNumber")
-    public int setNumber;
+    private int setNumber;
     @ColumnInfo(name = "weight")
-    public double weight;
+    private double weight;
     @ColumnInfo(name = "reps")
-    public int reps;
-    @ColumnInfo(name = "isCompleted")
-    public boolean isCompleted;
-    @ColumnInfo(name = "isPersonalRecord")
-    public boolean isPersonalRecord;
+    private int reps;
+    @Ignore
+    private boolean isCompleted;
 
     public HistorySerie() {
         this.historySerieId = UUID.randomUUID().toString();
@@ -50,7 +50,6 @@ public class HistorySerie {
         this.setNumber = setNumber;
         this.weight = weight;
         this.reps = reps;
-        this.isPersonalRecord = false;
     }
 
     @NonNull
@@ -69,9 +68,14 @@ public class HistorySerie {
 
     public int getReps() { return reps; }
     public void setReps(int reps) { this.reps = reps; }
-    public boolean isCompleted() { return isCompleted; }
-    public void setCompleted(boolean isCompleted) { this.isCompleted = isCompleted; }
+    public boolean getIsCompleted() { return isCompleted; }
+    public void setIsCompleted(boolean isCompleted) { this.isCompleted = isCompleted; }
 
-    public boolean isPersonalRecord() { return isPersonalRecord; }
-    public void setPersonalRecord(boolean personalRecord) { isPersonalRecord = personalRecord; }
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }

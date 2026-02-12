@@ -28,12 +28,10 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             );
 
         } else if (modelClass.isAssignableFrom(WorkoutViewModel.class)) {
-            // AGGIORNATO: Ora passiamo 4 parametri al costruttore
             return (T) new WorkoutViewModel(
-                    locator.getTrainingRepository(context),
                     locator.getExerciseRepository(context),
-                    locator.getHistoryRepository(context), // Per salvare lo storico
-                    locator.getSessionManager(context)     // Per gestire i crash/ripristino
+                    locator.getHistoryRepository(context),
+                    locator.getSessionManager(context)
             );
 
         } else if (modelClass.isAssignableFrom(UserViewModel.class)) {

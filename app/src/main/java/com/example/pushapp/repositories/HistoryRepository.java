@@ -35,17 +35,21 @@ public class HistoryRepository implements HistoryCallback {
         this.remoteDataSource = remoteDataSource;
         this.localDataSource.setHistoryCallback(this);
         if (this.remoteDataSource != null) {
-            this.remoteDataSource.setCallback(this);
+            this.remoteDataSource.setHistoryCallback(this);
         }
     }
 
     public LiveData<Result> getHistoryList() {
+        return historyList;
+    }
+
+    public void fetchHistoryData() {
         localDataSource.getAllHistory();
         if (remoteDataSource != null) {
             remoteDataSource.fetchHistoryFromRemote();
         }
-        return historyList;
     }
+
 
     public void searchHistory(String query) {
         if (query == null || query.isEmpty()) {
@@ -57,9 +61,17 @@ public class HistoryRepository implements HistoryCallback {
 
     public HistorySessionWithExercises createNewWorkoutSession(Routine day) {
         if (day == null) return null;
+
+        String currentUserId = day.getUserId();
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e(TAG, "Cannot create workout session: Routine template does not have a userId.");
+            return null;
+        }
+
         long workoutStartTimeMillis = System.currentTimeMillis();
 
         HistorySession newSession = new HistorySession(day.getName(), workoutStartTimeMillis, 0);
+        newSession.setUserId(currentUserId);
 
         List<HistoryWorkoutExerciseWithSeries> historyExercises = new ArrayList<>();
         for (WorkoutExercise woEx : day.getWorkoutExercises()) {
@@ -69,6 +81,7 @@ public class HistoryRepository implements HistoryCallback {
                     woEx.getApiExerciseId(),
                     day.getWorkoutExercises().indexOf(woEx)
             );
+            hExercise.setUserId(currentUserId);
 
             List<HistorySerie> historySeries = new ArrayList<>();
             for (Serie templateSerie : woEx.getSeries()) {
@@ -78,10 +91,11 @@ public class HistoryRepository implements HistoryCallback {
                         0,
                         0
                 );
+                hSerie.setUserId(currentUserId);
                 historySeries.add(hSerie);
             }
 
-            hExercise.currentRestTimeIndex = woEx.getRestTimeIndex();
+            hExercise.setCurrentRestTimeIndex(woEx.getRestTimeIndex());
             HistoryWorkoutExerciseWithSeries exerciseWithSeries = new HistoryWorkoutExerciseWithSeries();
             exerciseWithSeries.historyWorkoutExercise = hExercise;
             exerciseWithSeries.historySeries = historySeries;
@@ -97,9 +111,18 @@ public class HistoryRepository implements HistoryCallback {
 
     public void saveWorkoutSession(HistorySessionWithExercises sessionToSave, Runnable onComplete) {
         if (sessionToSave == null) {
-            // Se non c'è niente da salvare, esci
             if (onComplete != null) onComplete.run();
             return;
+        }
+
+        if (sessionToSave.exercises != null) {
+            for (HistoryWorkoutExerciseWithSeries ex : sessionToSave.exercises) {
+                if (ex.historySeries != null) {
+                    // Rimuove tutte le serie che hanno 0 ripetizioni
+                    ex.historySeries.removeIf(serie -> serie.getReps() == 0);
+                }
+            }
+            sessionToSave.exercises.removeIf(ex -> ex.historySeries == null || ex.historySeries.isEmpty());
         }
 
         HistorySession session = sessionToSave.session;
@@ -119,7 +142,7 @@ public class HistoryRepository implements HistoryCallback {
             @Override
             public void onSuccessSaveLocal() {
                 if (remoteDataSource != null) {
-                    //remoteDataSource.uploadWorkoutSession(sessionToSave);
+                    remoteDataSource.uploadWorkoutSession(sessionToSave, HistoryRepository.this);
                 }
                 localDataSource.getAllHistory();
                 if (onComplete != null) {
@@ -145,9 +168,17 @@ public class HistoryRepository implements HistoryCallback {
         localDataSource.getAllHistory();
     }
 
-    public LiveData<Result> getGraphData(String exerciseName, StatMetric metric) {
+    /*public LiveData<Result> getGraphData(String exerciseName, StatMetric metric) {
         localDataSource.getGraphData(exerciseName, metric);
         return graphData;
+    }*/
+
+    public LiveData<Result> getGraphData() {
+        return graphData;
+    }
+
+    public void fetchGraphData(String exerciseName, StatMetric metric) {
+        localDataSource.getGraphData(exerciseName, metric);
     }
 
     @Override
@@ -168,6 +199,6 @@ public class HistoryRepository implements HistoryCallback {
     }
 
     @Override public void onFailureFromLocal(Exception e) { historyList.postValue(new Result.Error(e.getMessage())); }
-    @Override public void onFailureFromRemote(Exception e) { Log.w(TAG, e.getMessage()); }
+    @Override public void onFailureFromRemote(Exception e) { Log.w(TAG, "Firebase upload failed: " + e.getMessage()); }
     @Override public void onSuccessSaveLocal() { }
 }

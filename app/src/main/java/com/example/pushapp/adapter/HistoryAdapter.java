@@ -44,19 +44,19 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HistorySessionWithExercises item = historyList.get(position);
-        holder.tvName.setText(item.session.name);
+        holder.tvName.setText(item.session.getName());
 
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy - HH:mm", Locale.ITALY);
         sdf.setTimeZone(TimeZone.getTimeZone("Europe/Rome"));
-        holder.tvDate.setText(sdf.format(new Date(item.session.startTime)));
+        holder.tvDate.setText(sdf.format(new Date(item.session.getStartTime())));
 
         StringBuilder sb = new StringBuilder();
         if (item.exercises != null) {
             for (HistoryWorkoutExerciseWithSeries ex : item.exercises) {
-                sb.append("• ").append(ex.historyWorkoutExercise.exerciseName).append("\n");
+                sb.append("• ").append(ex.historyWorkoutExercise.getExerciseName()).append("\n");
                 if (ex.historySeries != null) {
                     for (HistorySerie s : ex.historySeries) {
-                        sb.append("  Set ").append(s.setNumber).append(": ").append(s.weight).append("kg x ").append(s.reps).append("\n");
+                        sb.append("  Set ").append(s.getSetNumber()).append(": ").append(s.getWeight()).append("kg x ").append(s.getReps()).append("\n");
                     }
                 }
                 sb.append("\n");

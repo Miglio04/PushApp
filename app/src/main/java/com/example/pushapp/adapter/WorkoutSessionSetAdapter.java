@@ -37,7 +37,6 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Assicurati che il layout sia quello giusto: item_workout_session_set
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_workout_session_set, parent, false);
         return new ViewHolder(view);
@@ -97,7 +96,7 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
             }
         });
 
-        updateCompletedUI(holder, serie.isCompleted());
+        updateCompletedUI(holder, serie.getIsCompleted());
     }
 
     private void updateSetData(ViewHolder holder) {

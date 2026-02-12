@@ -6,7 +6,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -140,7 +139,7 @@ public class RoutineFragment extends Fragment {
                 .setTitle("Workout in Progress")
                 .setMessage("You already have an active workout session. Would you like to discard it and start a new one?")
                 .setPositiveButton("Discard and Start", (dialog, which) -> {
-                    workoutViewModel.stopWorkout(new FirebaseCallback<Void>() {
+                    workoutViewModel.stopAndDiscardWorkout(new FirebaseCallback<Void>() {
                         @Override
                         public void onSuccess(Void result) {
                             startNewWorkout(card);
