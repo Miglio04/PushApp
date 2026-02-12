@@ -9,7 +9,8 @@ public interface TrainingCallback {
     void onFailureFromLocal(Exception exception);
     void onSuccessFromRemote(List<Training> trainingsList);
     void onFailureFromRemote(Exception exception);
-    void onSuccessFromLocalGet(String userId, List<Training> finalTrainingList);
+    void onSuccessFromLocalFetch(String userId, List<Training> finalTrainingList);
+    void onSuccessFromLocalGet(List<Training> finalTrainingList);
     void onSuccessFromLocalCreate(String userId, Training training);
     void onSuccessFromLocalDelete(Training training);
 }

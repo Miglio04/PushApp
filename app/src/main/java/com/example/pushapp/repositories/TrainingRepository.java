@@ -8,18 +8,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
-import com.example.pushapp.models.Routine;
-import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.models.WorkoutExercise;
 import com.example.pushapp.utils.TrainingListGenerator;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.ListenerRegistration;
-import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +26,6 @@ public class TrainingRepository implements TrainingCallback{
 
     private final TrainingRemoteDataSource trainingRemoteDataSource;
     private final MutableLiveData<Result> trainingList;
-
-    // attributo temporaneo; da rimuovere quando si implementa versioning.
-    private boolean isFirstFetchCompleted = false;
-
     TrainingRepository(TrainingLocalDataSource trainingLocalDataSource, TrainingRemoteDataSource trainingRemoteDataSource) {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
@@ -53,7 +42,7 @@ public class TrainingRepository implements TrainingCallback{
     }
 
     public void fetchTrainings(String userId){
-        trainingLocalDataSource.getTrainings(userId);
+        trainingLocalDataSource.fetchTrainings(userId);
     }
 
     public LiveData<Result> getTrainingList(){
@@ -64,69 +53,6 @@ public class TrainingRepository implements TrainingCallback{
         createTraining(userId, TrainingListGenerator.generateTrainingList(userId));
         //createTraining(TrainingListGenerator.generateTrainingList(), callback);
     }
-
-    // metodo da modificare (aggiorna direttamente Firestore)
-    // viene utilizzato per generare sample trainings e lavora a cascata
-    // il create dovrà creare solo il documento training senza routine/esercizi/serie
-    /*public void createTraining(Training training, FirebaseCallback<String> callback) {
-        String userId = getCurrentUserId();
-        if (userId == null) {
-            callback.onError(new Exception("User not authenticated"));
-            return;
-        }
-
-        String trainingId = training.getTrainingId();
-        if (trainingId == null || trainingId.isEmpty()) {
-            callback.onError(new Exception("Local Training ID (UUID) is missing."));
-            return;
-        }
-
-        // 1. Prepara un batch di scrittura atomica
-        WriteBatch batch = db.batch();
-
-        // 2. Prepara il documento per il Training principale
-        DocumentReference trainingRef = db.collection("users").document(userId)
-                .collection(COLLECTION_TRAININGS).document(trainingId);
-
-        training.setUserId(userId);
-        training.setCreatedAt(System.currentTimeMillis());
-        training.setUpdatedAt(System.currentTimeMillis());
-        training.setDeleted(false);
-
-        // Aggiungi l'operazione di scrittura del Training al batch.
-        batch.set(trainingRef, training);
-
-        // 3. Itera sulle routine per salvarle nella loro collezione
-        if (training.getRoutinesList() != null) {
-            for (Routine routine : training.getRoutinesList()) {
-                DocumentReference routineRef = trainingRef.collection("routines").document(routine.getRoutineId());
-                routine.setTrainingId(trainingId);
-                routine.setUserId(userId);
-                batch.set(routineRef, routine);
-
-                // 4. Itera sugli esercizi per salvarli nella loro collezione
-                if (routine.getWorkoutExercises() != null) {
-                    for (WorkoutExercise exercise : routine.getWorkoutExercises()) {
-                        DocumentReference exerciseRef = routineRef.collection("workoutExercises").document(exercise.getWorkoutExerciseId());
-                        exercise.setRoutineId(routine.getRoutineId());
-                        exercise.setUserId(userId);
-                        if (exercise.getSeries() != null) {
-                            for (Serie serie : exercise.getSeries()) {
-                                serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
-                                serie.setUserId(userId);
-                            }
-                        }
-                        batch.set(exerciseRef, exercise);
-                    }
-                }
-            }
-        }
-
-        // 5. Esegui tutte le operazioni nel batch
-        batch.commit()
-                .addOnSuccessListener(aVoid -> callback.onSuccess(trainingId))
-                .addOnFailureListener(callback::onError);
-    }*/
 
     public void createTraining(String userId, Training training) {
         trainingLocalDataSource.createTraining(userId, training);
@@ -213,32 +139,36 @@ public class TrainingRepository implements TrainingCallback{
         trainingList.postValue(resultError);
     }
 
-    public void onSuccessFromLocalGet(String userId, List<Training> trainingListSuccess) {
+    public void onSuccessFromLocalFetch(String userId, List<Training> trainingListSuccess) {
+        // Always update the UI with what we have locally
+        Result.TrainingsSuccess result = new Result.TrainingsSuccess(new ArrayList<Training>(trainingListSuccess));
+        trainingList.postValue(result);
+
+        // Then check if we need to fetch from remote (e.g. empty list might mean not synced yet)
         if(trainingListSuccess.isEmpty()){
             trainingRemoteDataSource.fetchTrainings(userId);
-        }else{
-            Result.TrainingsSuccess result = new Result.TrainingsSuccess(new ArrayList<Training>(trainingListSuccess));
-            trainingList.postValue(result);
         }
+    }
+
+    public void onSuccessFromLocalGet(List<Training> trainingListSuccess){
+        Result.TrainingsSuccess result = new Result.TrainingsSuccess(new ArrayList<Training>(trainingListSuccess));
+        trainingList.postValue(result);
     }
 
     public void onSuccessFromLocalCreate(String userId, Training training){
         trainingRemoteDataSource.createTraining(userId, training);
-        fetchTrainings(userId);
+        trainingLocalDataSource.getTrainings();
     }
 
     public void onSuccessFromLocalDelete(Training training){
         if(training != null) {
             trainingRemoteDataSource.deleteTraining(training);
+            trainingLocalDataSource.getTrainings();
         }
     }
 
     public void onSuccessFromRemote(List<Training> trainingListSuccess) {
-        if(!isFirstFetchCompleted){
-            trainingLocalDataSource.overwriteTrainings(trainingListSuccess, getCurrentUserId());
-            // Finché dati sample salvati direttamente in firestore lasciare commentato
-            // isFirstFetchCompleted = true;
-        }
+        trainingLocalDataSource.overwriteTrainings(trainingListSuccess, getCurrentUserId());
     }
     public void onFailureFromRemote(Exception exception){
         // to implement: ritentare aggiornamento con workManager

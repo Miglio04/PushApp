@@ -89,26 +89,8 @@ public class TrainingRemoteDataSource {
         batch.commit();
     }
 
-    public void fetchTrainings(String userId) {
-        newFetchTrainings(userId);
-    }
-
-    public void oldFetchTrainings() {
-        // get trainings from Firestore
-        Task<QuerySnapshot> query = db.collection(COLLECTION_TRAININGS)
-                .whereEqualTo("userId", auth.getCurrentUser().getUid())
-                .orderBy("createdAt", Query.Direction.DESCENDING)
-                .get();
-
-        // set listeners
-        query.addOnSuccessListener(querySnapshot ->
-            trainingCallback.onSuccessFromRemote(getTrainingsFromSnapshot(querySnapshot)));
-        query.addOnFailureListener(e ->
-                trainingCallback.onFailureFromRemote(e));
-    }
-
     // Valutare se dividere in più metodi
-    public void newFetchTrainings(String userId) {
+    public void fetchTrainings(String userId) {
         if (userId == null) {
             trainingCallback.onFailureFromRemote(new Exception("User not authenticated for fetch."));
             return;
@@ -227,10 +209,45 @@ public class TrainingRemoteDataSource {
             return;
         }
 
-        db.collection("users").document(training.getUserId())
-                .collection("trainings").document(training.getTrainingId())
-                .delete()
-                .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
+        String userId = training.getUserId();
+        if (userId == null) {
+            return;
+        }
+
+        DocumentReference trainingRef = db.collection("users").document(userId)
+                .collection("trainings").document(training.getTrainingId());
+
+        trainingRef.collection("routines").get().addOnSuccessListener(routineSnapshots -> {
+            WriteBatch batch = db.batch();
+
+            batch.delete(trainingRef);
+
+            List<Task<QuerySnapshot>> exerciseTasks = new ArrayList<>();
+
+            for (DocumentSnapshot routineDoc : routineSnapshots) {
+                batch.delete(routineDoc.getReference());
+
+                exerciseTasks.add(routineDoc.getReference().collection("workoutExercises").get());
+            }
+
+            if (exerciseTasks.isEmpty()) {
+                batch.commit().addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
+            } else {
+                Tasks.whenAllSuccess(exerciseTasks).addOnSuccessListener(objects -> {
+                    for (Object obj : objects) {
+                        QuerySnapshot exerciseSnapshot = (QuerySnapshot) obj;
+                        for (DocumentSnapshot exerciseDoc : exerciseSnapshot.getDocuments()) {
+                            batch.delete(exerciseDoc.getReference());
+                        }
+                    }
+
+                    batch.commit()
+                            .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
+
+                }).addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
+            }
+
+        }).addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
     }
 
     // used to parse the QuerySnapshot into a list of Training objects

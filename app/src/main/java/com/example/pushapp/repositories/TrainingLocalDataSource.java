@@ -39,7 +39,7 @@ public class TrainingLocalDataSource {
         this.trainingCallback = trainingCallback;
     }
 
-    public void getTrainings(String userId) {
+    public void getTrainings(){
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 List<TrainingWithRoutines> trainingsWithRoutines = trainingDao.getAllTrainingsWithRoutines();
@@ -72,7 +72,48 @@ public class TrainingLocalDataSource {
                     finalTrainingList.add(training);
                 }
 
-                trainingCallback.onSuccessFromLocalGet(userId, finalTrainingList);
+                trainingCallback.onSuccessFromLocalGet(finalTrainingList);
+
+            } catch (Exception e) {
+                trainingCallback.onFailureFromLocal(e);
+            }
+        });
+    }
+
+    public void fetchTrainings(String userId) {
+        LocalDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                List<TrainingWithRoutines> trainingsWithRoutines = trainingDao.getAllTrainingsWithRoutines();
+                List<Training> finalTrainingList = new ArrayList<>();
+
+                if (trainingsWithRoutines == null) {
+                    trainingCallback.onFailureFromLocal(new Exception("Query result is null"));
+                    return;
+                }
+
+                for (TrainingWithRoutines twr : trainingsWithRoutines) {
+                    Training training = twr.training;
+                    List<Routine> routines = twr.routines != null ? twr.routines : new ArrayList<>();
+                    if (!routines.isEmpty()) {
+                        for (Routine routine : routines) {
+                            List<WorkoutExerciseWithSeries> exercisesWithSeries =
+                                    workoutExerciseDao.getExercisesWithSeriesByRoutineId(routine.getRoutineId());
+                            if (exercisesWithSeries != null && !exercisesWithSeries.isEmpty()) {
+                                List<WorkoutExercise> finalExerciseList = new ArrayList<>();
+                                for (WorkoutExerciseWithSeries ews : exercisesWithSeries) {
+                                    WorkoutExercise exercise = ews.workoutExercise;
+                                    exercise.setSeries(ews.series != null ? ews.series : new ArrayList<>());
+                                    finalExerciseList.add(exercise);
+                                }
+                                routine.setWorkoutExercises(finalExerciseList);
+                            }
+                        }
+                    }
+                    training.setRoutinesList(new ArrayList<>(routines));
+                    finalTrainingList.add(training);
+                }
+
+                trainingCallback.onSuccessFromLocalFetch(userId, finalTrainingList);
 
             } catch (Exception e) {
                 trainingCallback.onFailureFromLocal(e);
@@ -164,7 +205,10 @@ public class TrainingLocalDataSource {
                         }
                     }
                     // 3. Refresh the UI data
-                    getTrainings(userId);
+                    if(!trainingList.isEmpty()) {
+                        Log.d(TAG, "Database overwrite completed, refreshing trainings for user " + userId);
+                        getTrainings();
+                    }
                     Log.d(TAG, "Database overwrite completed successfully");
                 } catch (Exception e) {
                     Log.e(TAG, "Critical error during database overwrite: " + e.getMessage());
@@ -176,7 +220,7 @@ public class TrainingLocalDataSource {
     public void deleteTraining(Training training) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             trainingDao.delete(training);
-            getTrainings(training.getUserId());
+
             trainingCallback.onSuccessFromLocalDelete(training);
         });
     }
