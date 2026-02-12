@@ -85,6 +85,7 @@ public class Routine implements Serializable {
     public void setDayOrder(int dayOrder) { this.dayOrder = dayOrder; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
     @Exclude
     @Ignore
     public List<WorkoutExercise> getWorkoutExercises() {

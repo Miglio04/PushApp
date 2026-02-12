@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
+import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.utils.TrainingListGenerator;
 import com.google.firebase.auth.FirebaseAuth;
@@ -96,7 +97,13 @@ public class TrainingRepository implements TrainingCallback{
         }
     }
 
-    // DELETE
+    public void updateRoutine(Routine routine){
+        if(routine != null){
+            trainingLocalDataSource.updateRoutine(routine);
+
+        }
+    }
+
     public void deleteTraining(Training training, FirebaseCallback<Void> callback) {
 
         trainingLocalDataSource.deleteTraining(training);
@@ -108,7 +115,6 @@ public class TrainingRepository implements TrainingCallback{
                 .addOnFailureListener(callback::onError);*/
     }
 
-    // SET ACTIVE
     public void setActiveTraining(String trainingId, FirebaseCallback<Void> callback) {
         String userId = getCurrentUserId();
         if (userId == null) {
@@ -129,51 +135,45 @@ public class TrainingRepository implements TrainingCallback{
                 .addOnFailureListener(callback::onError);
     }
 
-    public void onSuccessFromLocal(List<Training> trainingListSuccess) {
-        Result.TrainingsSuccess result = new Result.TrainingsSuccess(new ArrayList<Training>(trainingListSuccess));
-        trainingList.postValue(result);
-    }
-
-    public void onFailureFromLocal(Exception exception) {
-        Result.Error resultError = new Result.Error(exception.getMessage());
-        trainingList.postValue(resultError);
-    }
-
     public void onSuccessFromLocalFetch(String userId, List<Training> trainingListSuccess) {
-        // Always update the UI with what we have locally
         Result.TrainingsSuccess result = new Result.TrainingsSuccess(new ArrayList<Training>(trainingListSuccess));
         trainingList.postValue(result);
 
-        // Then check if we need to fetch from remote (e.g. empty list might mean not synced yet)
         if(trainingListSuccess.isEmpty()){
             trainingRemoteDataSource.fetchTrainings(userId);
         }
     }
-
     public void onSuccessFromLocalGet(List<Training> trainingListSuccess){
         Result.TrainingsSuccess result = new Result.TrainingsSuccess(new ArrayList<Training>(trainingListSuccess));
         trainingList.postValue(result);
     }
-
     public void onSuccessFromLocalCreate(String userId, Training training){
         trainingRemoteDataSource.createTraining(userId, training);
         trainingLocalDataSource.getTrainings();
     }
-
     public void onSuccessFromLocalDelete(Training training){
         if(training != null) {
             trainingRemoteDataSource.deleteTraining(training);
             trainingLocalDataSource.getTrainings();
         }
     }
-
+    public void onSuccessFromLocalRoutineUpdate(Routine routine){
+        if(routine != null) {
+            trainingRemoteDataSource.updateRoutine(routine);
+            trainingLocalDataSource.getTrainings();
+        }
+    }
     public void onSuccessFromRemote(List<Training> trainingListSuccess) {
         trainingLocalDataSource.overwriteTrainings(trainingListSuccess, getCurrentUserId());
+    }
+
+    public void onFailureFromLocal(Exception exception) {
+        Result.Error resultError = new Result.Error(exception.getMessage());
+        trainingList.postValue(resultError);
     }
     public void onFailureFromRemote(Exception exception){
         // to implement: ritentare aggiornamento con workManager
     }
-
     public void resetLocalDatabase(){
         try{
             trainingLocalDataSource.resetDatabase();

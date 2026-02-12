@@ -96,6 +96,10 @@ public class TrainingViewModel extends ViewModel {
         trainingRepository.updateTraining(training);
     }
 
+    public void updateRoutine(Routine routine){
+        trainingRepository.updateRoutine(routine);
+    }
+
     public void deleteTraining(Training training, FirebaseCallback<Void> callback) {
         trainingRepository.deleteTraining(training, new FirebaseCallback<Void>() {
             @Override

@@ -161,27 +161,6 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         filterRecycler.setAdapter(availableExercisesAdapter);
     }
 
-    // --- IMPLEMENTAZIONE METODO MANCANTE: MOSTRA ISTRUZIONI ---
-    @Override
-    public void onShowInstructions(int position) {
-        Routine day = trainingViewModel.getEditableTrainingDay().getValue();
-        if (day == null || day.getWorkoutExercises() == null) return;
-
-        WorkoutExercise workoutExercise = day.getWorkoutExercises().get(position);
-
-        //INSTRUCTION rimosso da workoutExercise. Non so come funziona questo metodo ma in assenza di istruction il messaggio era questo
-        String message= "Non sono presenti istruzioni per l'esercizio in questione.";
-
-        // Mostra Dialog
-        new AlertDialog.Builder(requireContext())
-                .setTitle(workoutExercise.getApiExerciseId())
-                .setMessage(message)
-                .setPositiveButton("Chiudi", null)
-                .setIcon(android.R.drawable.ic_dialog_info)
-                .show();
-    }
-    // ---------------------------------------------------------
-
     private void setupFilterListeners() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(String query) { return false; }
@@ -292,10 +271,9 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     }
 
     private void saveChanges() {
-        trainingViewModel.saveTrainingDayChanges(trainingId, new FirebaseCallback<Void>() {
-            @Override public void onSuccess(Void result) { Toast.makeText(getContext(), "Modifiche salvate!", Toast.LENGTH_SHORT).show(); NavHostFragment.findNavController(EditRoutineFragment.this).popBackStack(); }
-            @Override public void onError(Exception e) { Toast.makeText(getContext(), "Errore: " + e.getMessage(), Toast.LENGTH_LONG).show(); }
-        });
+        Routine routine = trainingViewModel.getEditableTrainingDay().getValue();
+        trainingViewModel.updateRoutine(routine);
+        Toast.makeText(getContext(), "Salvato", Toast.LENGTH_SHORT).show();
     }
 
     @Override public void onEditExercise(int position) { showAddOrReplaceExerciseDialog(position); }

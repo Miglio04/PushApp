@@ -29,8 +29,7 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
         void onDeleteExercise(int position);
         void onSetUpdated(int exercisePosition, int setPosition, double newWeight, int newReps);
         void onSetDeleted(int exercisePosition, int setPosition);
-        // --- NUOVO METODO PER MOSTRARE LE ISTRUZIONI ---
-        void onShowInstructions(int position);
+
     }
 
     public EditRoutineAdapter(List<WorkoutExercise> workoutExercises, OnExerciseInteractionListener listener) {
@@ -87,14 +86,6 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
             int currentPos = holder.getBindingAdapterPosition();
             if (listener != null && currentPos != RecyclerView.NO_POSITION) {
                 listener.onEditExercise(currentPos);
-            }
-        });
-
-        // --- CLICK SUL TASTO INFO ---
-        holder.btnInfoExercise.setOnClickListener(v -> {
-            int currentPos = holder.getBindingAdapterPosition();
-            if (listener != null && currentPos != RecyclerView.NO_POSITION) {
-                listener.onShowInstructions(currentPos);
             }
         });
 

@@ -135,16 +135,10 @@ public class TrainingLocalDataSource {
                                 workoutExercise.setRoutineId(routine.getRoutineId());
                                 workoutExerciseDao.insert(workoutExercise);
 
-                                // English Log - "serie" kept
-                                Log.d(TAG, "overwriteTrainings: workout exercise with ID " + workoutExercise.getWorkoutExerciseId() + " inserted into routine " + routine.getRoutineId());
-
                                 if (workoutExercise.getSeries() != null) {
                                     for (Serie serie : workoutExercise.getSeries()) {
                                         serie.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
                                         serieDao.insert(serie);
-
-                                        // English Log - "serie" kept
-                                        Log.d(TAG, "overwriteTrainings: serie with ID " + serie.getSerieId() + " inserted into exercise " + workoutExercise.getWorkoutExerciseId());
                                     }
                                 }
                             }
@@ -165,7 +159,34 @@ public class TrainingLocalDataSource {
         });
     }
 
-    // FIXED: Added Transaction to prevent Foreign Key crashes
+    public void updateRoutine(Routine routine){
+        LocalDatabase.databaseWriteExecutor.execute(() -> {
+            localDatabase.runInTransaction(() -> {
+                try {
+                    routineDao.delete(routine);
+
+                    routineDao.insert(routine);
+
+                    if (routine.getWorkoutExercises() != null) {
+                        for (WorkoutExercise workoutExercise : routine.getWorkoutExercises()) {
+                            workoutExercise.setRoutineId(routine.getRoutineId());
+                            workoutExerciseDao.insert(workoutExercise);
+
+                            if (workoutExercise.getSeries() != null) {
+                                for (Serie serie : workoutExercise.getSeries()) {
+                                    serie.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
+                                    serieDao.insert(serie);
+                                }
+                            }
+                        }
+                    }
+                    trainingCallback.onSuccessFromLocalRoutineUpdate(routine);
+                } catch (Exception e) {
+                    trainingCallback.onFailureFromLocal(e);
+                }
+            });
+        });
+    }
     public void overwriteTrainings(List<Training> trainingList, String userId) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             localDatabase.runInTransaction(() -> {
@@ -187,16 +208,10 @@ public class TrainingLocalDataSource {
                                         workoutExercise.setRoutineId(routine.getRoutineId());
                                         workoutExerciseDao.insert(workoutExercise);
 
-                                        // English Log - "serie" kept
-                                        Log.d(TAG, "overwriteTrainings: workout exercise with ID " + workoutExercise.getWorkoutExerciseId() + " inserted into routine " + routine.getRoutineId());
-
                                         if (workoutExercise.getSeries() != null) {
                                             for (Serie serie : workoutExercise.getSeries()) {
                                                 serie.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
                                                 serieDao.insert(serie);
-
-                                                // English Log - "serie" kept
-                                                Log.d(TAG, "overwriteTrainings: serie with ID " + serie.getSerieId() + " inserted into exercise " + workoutExercise.getWorkoutExerciseId());
                                             }
                                         }
                                     }
@@ -204,12 +219,7 @@ public class TrainingLocalDataSource {
                             }
                         }
                     }
-                    // 3. Refresh the UI data
-                    if(!trainingList.isEmpty()) {
-                        Log.d(TAG, "Database overwrite completed, refreshing trainings for user " + userId);
-                        getTrainings();
-                    }
-                    Log.d(TAG, "Database overwrite completed successfully");
+                    getTrainings();
                 } catch (Exception e) {
                     Log.e(TAG, "Critical error during database overwrite: " + e.getMessage());
                 }
@@ -220,7 +230,6 @@ public class TrainingLocalDataSource {
     public void deleteTraining(Training training) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             trainingDao.delete(training);
-
             trainingCallback.onSuccessFromLocalDelete(training);
         });
     }

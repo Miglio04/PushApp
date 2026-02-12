@@ -36,6 +36,7 @@ public class TrainingListGenerator {
         Routine pushDay = new Routine("Push Day", 1);
 
         // Crea e aggiungi gli esercizi alla routine "Push Day"
+        pushDay.setUserId(userId);
         pushDay.addWorkoutExercise(createExercise( 1, 4, 8, 80));
         pushDay.addWorkoutExercise(createExercise( 2, 3, 10, 40));
         pushDay.addWorkoutExercise(createExercise( 3, 3, 12, 25));
@@ -45,6 +46,7 @@ public class TrainingListGenerator {
         Routine pullDay = new Routine("Pull Day", 2);
 
         // Crea e aggiungi gli esercizi alla routine "Pull Day"
+        pullDay.setUserId(userId);
         pullDay.addWorkoutExercise(createExercise( 1, 4, 8, 0));
         pullDay.addWorkoutExercise(createExercise( 2, 3, 10, 60));
         pplRoutines.add(pullDay);
