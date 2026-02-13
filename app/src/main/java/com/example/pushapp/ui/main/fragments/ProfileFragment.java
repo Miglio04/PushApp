@@ -4,9 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -20,20 +17,23 @@ import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.User;
 import com.example.pushapp.ui.login.AuthActivity;
+import com.example.pushapp.viewModels.HistoryViewModel;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.material.button.MaterialButton;
 
 public class ProfileFragment extends Fragment {
-
     private static final String TAG = "ProfileFragment";
+
     private UserViewModel userViewModel;
     private TrainingViewModel trainingViewModel;
+    private HistoryViewModel historyViewModel;
 
-    // UI Profile Header
     private TextView profileInitial, profileFullName, profileEmailTop;
     private TextView tvDetailEmail, tvDetailGender, tvDetailAge, tvDetailHeight, tvDetailWeight;
+
+    private TextView txtKpiWorkouts, txtKpiStreak, txtKpiVolume;
     private MaterialButton btnLogout;
 
     public ProfileFragment() {
@@ -41,14 +41,8 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
@@ -58,20 +52,7 @@ public class ProfileFragment extends Fragment {
 
         initializeViews(view);
         setupViewModel();
-
-        if(btnLogout != null) {
-            btnLogout.setOnClickListener(v -> {
-                Log.d(TAG, "Logout button clicked");
-                userViewModel.clearLiveData();
-                userViewModel.logout();
-                trainingViewModel.resetLocalDatabase();
-                userViewModel.resetLocalDatabase();
-
-                Intent intent = new Intent(getActivity(), AuthActivity.class);
-                startActivity(intent);
-                getActivity().finishAffinity();
-            });
-        }
+        setupLogout();
     }
 
     private void initializeViews(View view) {
@@ -84,50 +65,94 @@ public class ProfileFragment extends Fragment {
         tvDetailAge = view.findViewById(R.id.tvDetailAge);
         tvDetailHeight = view.findViewById(R.id.tvDetailHeight);
         tvDetailWeight = view.findViewById(R.id.tvDetailWeight);
+
+        txtKpiWorkouts = view.findViewById(R.id.txtKpiWorkouts);
+        txtKpiStreak = view.findViewById(R.id.txtKpiStreak);
+        txtKpiVolume = view.findViewById(R.id.txtKpiVolume);
+
         btnLogout = view.findViewById(R.id.btnLogout);
     }
+
     private void setupViewModel() {
-        userViewModel = new ViewModelProvider(
-                this,
-                new ViewModelFactory(requireContext())).get(UserViewModel.class);
+        ViewModelFactory factory = new ViewModelFactory(requireContext());
 
-        trainingViewModel = new ViewModelProvider(
-                this,
-                new ViewModelFactory(requireContext())).get(TrainingViewModel.class);
+        userViewModel = new ViewModelProvider(this, factory).get(UserViewModel.class);
+        trainingViewModel = new ViewModelProvider(this, factory).get(TrainingViewModel.class);
+        historyViewModel = new ViewModelProvider(this, factory).get(HistoryViewModel.class);
 
-        Result result = userViewModel.getUserLiveData().getValue();
+        // 1. Dati Utente
+        userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), result -> {
+            if (result instanceof Result.UserSuccess) {
+                User user = ((Result.UserSuccess) result).getData();
+                updateUserUi(user);
+            }
+        });
 
-        if(result != null && result.isUserSuccess()){
-            User user = ((Result.UserSuccess) result).getData();
-            if (user != null) {
-                String name = user.getName() != null ? user.getName() : "";
-                String surname = user.getSurname() != null ? user.getSurname() : "";
+        historyViewModel.getHistoryList().observe(getViewLifecycleOwner(), result -> {
+            if (result instanceof Result.HistorySuccess) {
+                var data = ((Result.HistorySuccess) result).getData();
+                historyViewModel.onHistoryDataChanged(data);
+            }
+        });
 
-                if (profileFullName != null) profileFullName.setText(name + " " + surname);
-                if (profileEmailTop != null) profileEmailTop.setText(user.getEmail());
-
-                if (!name.isEmpty() && profileInitial != null) {
-                    profileInitial.setText(name.substring(0, 1).toUpperCase());
+        historyViewModel.getKpiStats().observe(getViewLifecycleOwner(), stats -> {
+            if (stats != null) {
+                if (txtKpiWorkouts != null) {
+                    txtKpiWorkouts.setText(String.valueOf(stats.getWorkoutsMonth()));
                 }
-
-                // Dettagli nel dropdown utilizzando le stringhe localizzate
-                if (tvDetailEmail != null) {
-                    tvDetailEmail.setText(getString(R.string.detail_email, user.getEmail()));
+                if (txtKpiStreak != null) {
+                    txtKpiStreak.setText(String.valueOf(stats.getCurrentStreak()));
                 }
-                if (tvDetailGender != null) {
-                    String gender = (user.getGender() != null && !user.getGender().isEmpty()) ? user.getGender() : "-";
-                    tvDetailGender.setText(getString(R.string.detail_gender, gender));
-                }
-                if (tvDetailAge != null) {
-                    tvDetailAge.setText(getString(R.string.detail_age, user.getAge()));
-                }
-                if (tvDetailHeight != null) {
-                    tvDetailHeight.setText(getString(R.string.detail_height, user.getHeight()));
-                }
-                if (tvDetailWeight != null) {
-                    tvDetailWeight.setText(getString(R.string.detail_weight, user.getWeight()));
+                if (txtKpiVolume != null) {
+                    txtKpiVolume.setText(formatVolume(stats.getVolumeMonth()));
                 }
             }
+        });
+
+        historyViewModel.fetchHistory();
+    }
+
+    private void updateUserUi(User user) {
+        if (user == null) return;
+
+        String name = user.getName() != null ? user.getName() : "";
+        String surname = user.getSurname() != null ? user.getSurname() : "";
+
+        if (profileFullName != null) profileFullName.setText(name + " " + surname);
+        if (profileEmailTop != null) profileEmailTop.setText(user.getEmail());
+
+        if (!name.isEmpty() && profileInitial != null) {
+            profileInitial.setText(name.substring(0, 1).toUpperCase());
         }
+
+        if (tvDetailEmail != null) tvDetailEmail.setText(user.getEmail());
+        if (tvDetailGender != null) tvDetailGender.setText(user.getGender() != null ? user.getGender() : "-");
+        if (tvDetailAge != null) tvDetailAge.setText(user.getAge() + " years");
+        if (tvDetailHeight != null) tvDetailHeight.setText(user.getHeight() + " cm");
+        if (tvDetailWeight != null) tvDetailWeight.setText(user.getWeight() + " kg");
+    }
+
+    private void setupLogout() {
+        if (btnLogout != null) {
+            btnLogout.setOnClickListener(v -> {
+                Log.d(TAG, "Logout button clicked");
+                userViewModel.logout();
+                trainingViewModel.resetLocalDatabase();
+                userViewModel.resetLocalDatabase();
+
+                Intent intent = new Intent(getActivity(), AuthActivity.class);
+                startActivity(intent);
+                if (getActivity() != null) {
+                    getActivity().finishAffinity();
+                }
+            });
+        }
+    }
+
+    private String formatVolume(Double volume) {
+        if (volume == null || volume == 0) return "0";
+        if (volume >= 1000000) return String.format(java.util.Locale.US, "%.1fM", volume / 1000000.0);
+        if (volume >= 1000) return String.format(java.util.Locale.US, "%.1fk", volume / 1000.0);
+        return String.valueOf(volume.intValue());
     }
 }
