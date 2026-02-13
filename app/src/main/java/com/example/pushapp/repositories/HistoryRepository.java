@@ -13,6 +13,7 @@ import com.example.pushapp.models.history.HistorySession;
 import com.example.pushapp.models.history.HistoryWorkoutExercise;
 import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
 import com.example.pushapp.models.roomModels.helpers.HistoryWorkoutExerciseWithSeries;
+import com.example.pushapp.utils.WorkoutState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +61,7 @@ public class HistoryRepository implements HistoryCallback {
         }
     }
 
-    public HistorySessionWithExercises createNewWorkoutSession(Routine day) {
+    public HistorySessionWithExercises createNewWorkoutSessionWithouthTemplate(Routine day) {
         if (day == null) return null;
 
         String currentUserId = day.getUserId();
@@ -110,6 +111,12 @@ public class HistoryRepository implements HistoryCallback {
         return sessionWithExercises;
     }
 
+    public WorkoutState createNewWorkoutSessionWithTemplate(Routine day) {
+        HistorySessionWithExercises session = createNewWorkoutSessionWithouthTemplate(day);
+        if (session == null) return null;
+        return new WorkoutState(session, day);
+    }
+
     public void saveWorkoutSession(HistorySessionWithExercises sessionToSave, Runnable onComplete) {
         if (sessionToSave == null) {
             if (onComplete != null) onComplete.run();
@@ -119,11 +126,18 @@ public class HistoryRepository implements HistoryCallback {
         if (sessionToSave.exercises != null) {
             for (HistoryWorkoutExerciseWithSeries ex : sessionToSave.exercises) {
                 if (ex.historySeries != null) {
-                    // Rimuove tutte le serie che hanno 0 ripetizioni
                     ex.historySeries.removeIf(serie -> serie.getReps() == 0);
                 }
             }
             sessionToSave.exercises.removeIf(ex -> ex.historySeries == null || ex.historySeries.isEmpty());
+        }
+
+        if (sessionToSave.exercises == null || sessionToSave.exercises.isEmpty()) {
+            Log.i(TAG, "Workout session is empty after cleanup. Aborting save.");
+            if (onComplete != null) {
+                onComplete.run();
+            }
+            return;
         }
 
         HistorySession session = sessionToSave.session;

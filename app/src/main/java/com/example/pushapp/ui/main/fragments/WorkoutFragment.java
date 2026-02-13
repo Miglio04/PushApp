@@ -31,6 +31,7 @@ import com.example.pushapp.viewModels.WorkoutViewModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.OnWorkoutInteractionListener {
 
@@ -113,11 +114,11 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
 
         workoutViewModel.isWorkoutTimerRunning().observe(getViewLifecycleOwner(), this::updateStartPauseIcon);
 
-        workoutViewModel.getActiveWorkoutSession().observe(getViewLifecycleOwner(), currentSession -> {
-            if (currentSession != null && currentSession.exercises != null) {
-                Routine originalRoutine = workoutViewModel.getOriginalRoutineTemplate();
+        workoutViewModel.getActiveWorkoutState().observe(getViewLifecycleOwner(), currentState -> {
+            if (currentState != null && currentState.getCurrentSession() != null && currentState.getOriginalTemplate() != null && currentState.getCurrentSession().exercises != null) {
+                Routine originalRoutine = Objects.requireNonNull(workoutViewModel.getActiveWorkoutState().getValue()).getOriginalTemplate();
                 List<WorkoutExercise> templateExercises = (originalRoutine != null) ? originalRoutine.getWorkoutExercises() : new ArrayList<>();
-                workoutAdapter.setExercises(currentSession.exercises, templateExercises);
+                workoutAdapter.setExercises(currentState.getCurrentSession().exercises, templateExercises);
             } else {
                 workoutAdapter.setExercises(new ArrayList<>(), new ArrayList<>());
             }

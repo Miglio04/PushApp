@@ -2,8 +2,7 @@ package com.example.pushapp.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import com.example.pushapp.models.Routine;
-import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
+
 import com.google.gson.Gson;
 
 public class SessionManager {
@@ -20,24 +19,21 @@ public class SessionManager {
         this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         this.gson = new Gson();
     }
-
-    // --- SALVATAGGIO STATO ---
-    public void saveSessionState(HistorySessionWithExercises session, long startTime) {
+    public void saveSessionState(WorkoutState state, long startTime) {
         SharedPreferences.Editor editor = prefs.edit();
-        String routineJson = gson.toJson(session);
-        editor.putString(KEY_SESSION_STATE, routineJson);
+        String stateJson = gson.toJson(state);
+        editor.putString(KEY_SESSION_STATE, stateJson);
         editor.putLong(KEY_START_TIME, startTime);
         editor.putBoolean(KEY_IS_ACTIVE, true);
         editor.apply();
     }
 
-    // --- RECUPERO DATI ---
-    public HistorySessionWithExercises getSavedSession() {
+    public WorkoutState getSavedSession() {
         String json = prefs.getString(KEY_SESSION_STATE, null);
         if (json == null) return null;
 
         try {
-            return gson.fromJson(json, HistorySessionWithExercises.class);
+            return gson.fromJson(json, WorkoutState.class);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
