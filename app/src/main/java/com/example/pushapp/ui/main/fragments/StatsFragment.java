@@ -77,9 +77,10 @@ public class StatsFragment extends Fragment {
         initViews(view);
         setupChartStyle(chartLoad);
         setupChartStyle(chartReps);
-        historyViewModel = new ViewModelProvider(requireActivity(), new ViewModelFactory(requireContext())).get(HistoryViewModel.class);
-        setupObservers();
+        historyViewModel = new ViewModelProvider(requireActivity(), new ViewModelFactory(requireContext())).get(HistoryViewModel.class);        setupObservers();
         setupClickListeners();
+
+        historyViewModel.fetchHistory();
     }
 
     private void initViews(View view) {
@@ -138,16 +139,20 @@ public class StatsFragment extends Fragment {
             }
         });
 
-        historyViewModel.getGraphData().observe(getViewLifecycleOwner(), result -> {
+        historyViewModel.getGraphVolumeData().observe(getViewLifecycleOwner(), result -> {
             if (result instanceof Result.GraphSuccess) {
                 List<GraphPoint> points = ((Result.GraphSuccess) result).getData();
+                if (points.isEmpty()) {
+                    chartLoad.clear();
+                    return;
+                }
                 List<Entry> chartEntries = new ArrayList<>();
                 for (int i = 0; i < points.size(); i++) {
                     chartEntries.add(new Entry(i, (float) points.get(i).getValue()));
                 }
-                renderChart(chartLoad, chartEntries, "Max Load (kg)", ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
+                renderChart(chartReps, chartEntries, "Total Volume", ContextCompat.getColor(requireContext(), R.color.md_theme_secondary));
             } else {
-                chartLoad.clear();
+                chartReps.clear();
             }
         });
     }
@@ -243,6 +248,7 @@ public class StatsFragment extends Fragment {
 
                 imgSpinnerArrow.animate().rotationBy(360f).setDuration(400).start();
                 historyViewModel.fetchGraphDataForExercise(selectedExercise, HistoryViewModel.ChartMetric.MAX_WEIGHT);
+                historyViewModel.fetchGraphDataForExercise(selectedExercise, HistoryViewModel.ChartMetric.TOTAL_VOLUME);
             }
 
             @Override

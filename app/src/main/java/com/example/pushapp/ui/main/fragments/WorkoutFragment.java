@@ -43,7 +43,6 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     private ImageButton stopButton;
     private TextView headerTitle;
 
-    // UI REST TIMER
     private View restTimerContainer;
     private TextView restTimerText;
     private ProgressBar restTimerProgress;
@@ -55,12 +54,10 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Usiamo requireActivity() così il ViewModel sopravvive alla navigazione e permette il ripristino sessione
         workoutViewModel = new ViewModelProvider(
                 requireActivity(),
                 new ViewModelFactory(requireContext())).get(WorkoutViewModel.class);
 
-        // LOGICA DI AVVIO: Se entriamo con nuovi argomenti e non c'è un workout attivo, resetta e parti
         if (getArguments() != null) {
             Boolean inProgress = workoutViewModel.isWorkoutInProgress().getValue();
             if (inProgress == null || !inProgress) {
@@ -86,7 +83,6 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         setupObservers();
         setupClickListeners();
 
-        // Stile One UI: Nasconde la barra di navigazione per dare focus all'allenamento
         updateGlobalUIVisibility(false);
     }
 
@@ -98,7 +94,6 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         stopButton = view.findViewById(R.id.workout_stop_button);
         recyclerView = view.findViewById(R.id.recycler_workout);
 
-        // Container del timer di riposo (Azzurrino)
         restTimerContainer = view.findViewById(R.id.rest_timer_container);
         restTimerText = view.findViewById(R.id.rest_timer_text);
         restTimerProgress = view.findViewById(R.id.rest_timer_progress);
@@ -112,16 +107,12 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     }
 
     private void setupObservers() {
-        // Timer principale del workout
         workoutViewModel.getFormattedTime().observe(getViewLifecycleOwner(), time -> timerText.setText(time));
 
-        // Titolo (es: "Leg Day")
         workoutViewModel.getWorkoutTitle().observe(getViewLifecycleOwner(), title -> headerTitle.setText(title));
 
-        // Icona Play/Pause
         workoutViewModel.isWorkoutTimerRunning().observe(getViewLifecycleOwner(), this::updateStartPauseIcon);
 
-        // Lista esercizi: quando cambia (o viene resettata), l'adapter si aggiorna
         workoutViewModel.getActiveWorkoutSession().observe(getViewLifecycleOwner(), currentSession -> {
             if (currentSession != null && currentSession.exercises != null) {
                 Routine originalRoutine = workoutViewModel.getOriginalRoutineTemplate();
@@ -132,16 +123,13 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
             }
         });
 
-        // VISIBILITÀ REST TIMER
         workoutViewModel.isRestTimerRunning().observe(getViewLifecycleOwner(), isRunning -> {
             restTimerContainer.setVisibility(isRunning ? View.VISIBLE : View.GONE);
         });
 
-        // AGGIORNAMENTO REST TIMER (Sotto-secondi e progress)
         workoutViewModel.getRestSecondsRemaining().observe(getViewLifecycleOwner(), seconds -> {
             restTimerText.setText(String.format(Locale.getDefault(), "%02d:%02d", seconds / 60, seconds % 60));
 
-            // Colore Rosso se mancano meno di 5 secondi, altrimenti Azzurro Primario
             if (seconds <= 5 && seconds > 0) {
                 restTimerText.setTextColor(Color.RED);
             } else {
@@ -156,7 +144,6 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     }
 
     private void setupClickListeners() {
-        // Tasto indietro (Miniplayer apparirà automaticamente se il workout è in corso)
         workoutBackButton.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
         startPauseButton.setOnClickListener(v -> {
@@ -167,13 +154,12 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
             }
         });
 
-        // SALVATAGGIO FINALE
         stopButton.setOnClickListener(v -> {
-            stopButton.setEnabled(false); // Prevenzione click multipli
+            stopButton.setEnabled(false);
             workoutViewModel.finishWorkout(() -> {
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Workout Saved! Great job 🔥", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), "Workout Saved! Great job 🔥", Toast.LENGTH_SHORT);
                         NavHostFragment.findNavController(WorkoutFragment.this).popBackStack();
                     });
                 }
@@ -183,17 +169,14 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         restTimerSkip.setOnClickListener(v -> workoutViewModel.stopRestTimer());
     }
 
-    // --- CALLBACK DALL'ADAPTER (INTERAZIONI REALI) ---
 
     @Override
     public void onSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds) {
-        // Notifica il ViewModel: questo attiverà il timer e salverà lo stato nel SessionManager
         workoutViewModel.toggleSetCompleted(exercisePosition, setPosition, restTimeSeconds);
     }
 
     @Override
     public void onSetDataChanged(int exercisePosition, int setPosition, double actualWeight, int actualReps) {
-        // Salvataggio istantaneo mentre l'utente digita
         workoutViewModel.updateSetData(exercisePosition, setPosition, actualWeight, actualReps);
     }
 
@@ -206,8 +189,6 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     public void onSetDeleted(int exercisePosition, int setPosition) {
         workoutViewModel.deleteSetFromExercise(exercisePosition, setPosition);
     }
-
-    // --- METODI HELPER ---
 
     private void updateStartPauseIcon(boolean isRunning) {
         startPauseButton.setImageResource(isRunning ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
@@ -224,7 +205,6 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Quando il fragment viene distrutto (es: torniamo indietro), mostriamo il mini-player e la nav
         updateGlobalUIVisibility(true);
     }
 }

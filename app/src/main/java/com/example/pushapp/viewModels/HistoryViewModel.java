@@ -30,6 +30,11 @@ public class HistoryViewModel extends ViewModel {
         TOTAL_VOLUME,
         ESTIMATED_1RM
     }
+    private final MutableLiveData<Result> graphVolumeData = new MutableLiveData<>();
+
+    public LiveData<Result> getGraphVolumeData() {
+        return graphVolumeData;
+    }
     public HistoryViewModel(HistoryRepository repository) { this.repository = repository; }
     public LiveData<KpiStats> getKpiStats() {
         return kpiStatsLiveData;
@@ -46,12 +51,13 @@ public class HistoryViewModel extends ViewModel {
 
     public void onHistoryDataChanged(List<HistorySessionWithExercises> history) {
         this.fullHistoryList = history;
+        extractExerciseNames(history);
         recalculateKpisAndCalendar();
     }
 
     private void recalculateKpisAndCalendar() {
         LocalDate currentDate = selectedDateLiveData.getValue();
-        if (currentDate == null || fullHistoryList.isEmpty()) return;
+        if (currentDate == null) return;
         calculateKpis(fullHistoryList, currentDate);
     }
 
@@ -105,7 +111,11 @@ public class HistoryViewModel extends ViewModel {
     }
 
     public void calculateKpis(List<HistorySessionWithExercises> history, LocalDate selectedDate) {
-        if (history == null) return;
+        if (history == null || history.isEmpty()) {
+            KpiStats emptyStats = new KpiStats(0, 0, 0, 0);
+            kpiStatsLiveData.postValue(emptyStats);
+            return;
+        }
         int workoutsMonth = 0;
         double volumeMonth = 0;
         long timeMillisMonth = 0;

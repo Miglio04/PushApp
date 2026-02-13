@@ -23,6 +23,7 @@ public class HistoryRepository implements HistoryCallback {
     private final HistoryRemoteDataSource remoteDataSource;
     private final MutableLiveData<Result> historyList = new MutableLiveData<>();
     private final MutableLiveData<Result> graphData = new MutableLiveData<>();
+    private final MutableLiveData<Result> graphVolumeData = new MutableLiveData<>();
 
     public enum StatMetric {
         MAX_WEIGHT,
@@ -161,11 +162,13 @@ public class HistoryRepository implements HistoryCallback {
     }
 
     public void deleteSession(String sessionId) {
-        localDataSource.deleteSession(sessionId);
+        localDataSource.deleteSession(sessionId, () -> {
+            localDataSource.getAllHistory();
+        });
+
         if (remoteDataSource != null) {
             remoteDataSource.deleteSession(sessionId);
         }
-        localDataSource.getAllHistory();
     }
 
     /*public LiveData<Result> getGraphData(String exerciseName, StatMetric metric) {
@@ -178,7 +181,21 @@ public class HistoryRepository implements HistoryCallback {
     }
 
     public void fetchGraphData(String exerciseName, StatMetric metric) {
-        localDataSource.getGraphData(exerciseName, metric);
+        localDataSource.getGraphData(exerciseName, metric, new HistoryCallback() {
+            @Override
+            public void onSuccessGraphDataFromLocal(List<GraphPoint> points) {
+                if (metric == StatMetric.TOTAL_VOLUME) {
+                    graphVolumeData.postValue(new Result.GraphSuccess(points));
+                } else {
+                    graphData.postValue(new Result.GraphSuccess(points));
+                }
+            }
+            @Override public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> list) {}
+            @Override public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> remoteData) {}
+            @Override public void onSuccessSaveLocal() {}
+            @Override public void onFailureFromLocal(Exception e) {}
+            @Override public void onFailureFromRemote(Exception e) {}
+        });
     }
 
     @Override
