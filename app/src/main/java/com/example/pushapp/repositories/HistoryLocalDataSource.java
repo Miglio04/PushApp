@@ -16,7 +16,7 @@ public class HistoryLocalDataSource {
     private final HistoryDao historyDao;
     private HistoryCallback historyCallback;
 
-    public HistoryLocalDataSource(LocalDatabase database) {
+    HistoryLocalDataSource(LocalDatabase database) {
         this.historyDao = database.historyDao();
     }
 

@@ -32,7 +32,7 @@ public class HistoryRepository implements HistoryCallback {
         ESTIMATED_1RM
     }
 
-    public HistoryRepository(HistoryLocalDataSource localDataSource, HistoryRemoteDataSource remoteDataSource) {
+    HistoryRepository(HistoryLocalDataSource localDataSource, HistoryRemoteDataSource remoteDataSource) {
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
         this.localDataSource.setHistoryCallback(this);

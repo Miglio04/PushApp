@@ -13,7 +13,7 @@ public class ExerciseRepository {
     private ExerciseAPIDataSource exerciseAPIDataSource;
     private MutableLiveData<Result> exercises;
 
-    public ExerciseRepository(ExerciseLocalDataSource exerciseLocalDataSource, ExerciseAPIDataSource exerciseAPIDataSource) {
+    ExerciseRepository(ExerciseLocalDataSource exerciseLocalDataSource, ExerciseAPIDataSource exerciseAPIDataSource) {
         exercises = new MutableLiveData<>();
         this.exerciseLocalDataSource = exerciseLocalDataSource;
         this.exerciseAPIDataSource = exerciseAPIDataSource;

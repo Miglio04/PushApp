@@ -20,23 +20,27 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     @Override
     @SuppressWarnings("unchecked")
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-        ServiceLocator sl = serviceLocator;
+        ServiceLocator locator = serviceLocator;
 
         if (modelClass.isAssignableFrom(UserViewModel.class)) {
-            // UserViewModel requires (UserRepository, SessionRepository)
-            return (T) new UserViewModel(sl.getUserRepository(context), sl.getSessionRepository(context));
+            return (T) new UserViewModel(
+                    locator.getUserRepository(context),
+                    locator.getSessionRepository(context));
+
         } else if (modelClass.isAssignableFrom(TrainingViewModel.class)) {
-            // TrainingViewModel requires (TrainingRepository, ExerciseRepository)
-            return (T) new TrainingViewModel(sl.getTrainingRepository(context), sl.getExerciseRepository(context));
+            return (T) new TrainingViewModel(
+                    locator.getTrainingRepository(context),
+                    locator.getExerciseRepository(context));
+
         } else if (modelClass.isAssignableFrom(HistoryViewModel.class)) {
-            // HistoryViewModel requires (HistoryRepository)
-            return (T) new HistoryViewModel(sl.getHistoryRepository(context));
+            return (T) new HistoryViewModel(
+                    locator.getHistoryRepository(context));
+
         } else if (modelClass.isAssignableFrom(WorkoutViewModel.class)) {
-            // WorkoutViewModel requires (ExerciseRepository, HistoryRepository, SessionManager)
             return (T) new WorkoutViewModel(
-                    sl.getExerciseRepository(context),
-                    sl.getHistoryRepository(context),
-                    sl.getSessionManager(context)
+                    locator.getExerciseRepository(context),
+                    locator.getHistoryRepository(context),
+                    locator.getSessionManager(context)
             );
         }
 

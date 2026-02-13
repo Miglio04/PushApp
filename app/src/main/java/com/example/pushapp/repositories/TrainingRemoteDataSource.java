@@ -27,7 +27,7 @@ public class TrainingRemoteDataSource {
     private TrainingCallback trainingCallback;
     private static final String TAG = "TrainingRemoteDS";
 
-    public TrainingRemoteDataSource() {
+    TrainingRemoteDataSource() {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
         this.trainingCallback = null;

@@ -26,7 +26,7 @@ public class TrainingLocalDataSource {
     private final SerieDao serieDao;
     private final LocalDatabase localDatabase; // Field added for transactions
 
-    public TrainingLocalDataSource(LocalDatabase localDatabase) {
+    TrainingLocalDataSource(LocalDatabase localDatabase) {
         this.localDatabase = localDatabase;
         this.trainingDao = localDatabase.trainingDao();
         this.routineDao = localDatabase.routineDao();

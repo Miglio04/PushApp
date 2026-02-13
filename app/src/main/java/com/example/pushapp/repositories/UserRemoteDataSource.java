@@ -17,7 +17,7 @@ public class UserRemoteDataSource {
     private final FirebaseAuth auth;
     private UserCallback userCallback = null;
 
-    public UserRemoteDataSource() {
+    UserRemoteDataSource() {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
     }

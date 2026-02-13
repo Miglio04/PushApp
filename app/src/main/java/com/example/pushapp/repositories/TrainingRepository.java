@@ -37,7 +37,7 @@ public class TrainingRepository implements TrainingCallback{
     // attributo temporaneo; da rimuovere quando si implementa versioning.
     private boolean isFirstFetchCompleted = false;
 
-    public TrainingRepository(TrainingLocalDataSource trainingLocalDataSource, TrainingRemoteDataSource trainingRemoteDataSource) {
+    TrainingRepository(TrainingLocalDataSource trainingLocalDataSource, TrainingRemoteDataSource trainingRemoteDataSource) {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
         trainingList = new MutableLiveData<>();

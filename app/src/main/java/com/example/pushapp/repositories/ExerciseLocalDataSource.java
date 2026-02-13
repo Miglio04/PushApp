@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ExerciseLocalDataSource  {
 
-    public ExerciseLocalDataSource(LocalDatabase localDatabase) {
+    ExerciseLocalDataSource(LocalDatabase localDatabase) {
         // TO BE IMPLEMENTED
     }
 

@@ -28,7 +28,7 @@ public class ExerciseAPIDataSource {
             "lower_back", "middle_back", "neck", "quadriceps", "traps", "triceps"
     );
 
-    public ExerciseAPIDataSource() {
+    ExerciseAPIDataSource() {
         // TO BE IMPLEMENTED
     }
 
