@@ -23,7 +23,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
 import com.example.pushapp.adapter.WorkoutExerciseAdapter;
 import com.example.pushapp.models.Routine;
-import com.example.pushapp.models.Training;
 import com.example.pushapp.models.WorkoutExercise;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.viewModels.WorkoutViewModel;
@@ -43,9 +42,9 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     private ImageButton startPauseButton;
     private ImageButton stopButton;
     private TextView headerTitle;
-
     private View restTimerContainer;
     private TextView restTimerText;
+    private int totalRestSeconds = 0;
     private ProgressBar restTimerProgress;
     private Button restTimerSkip;
 
@@ -59,15 +58,8 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
                 requireActivity(),
                 new ViewModelFactory(requireContext())).get(WorkoutViewModel.class);
 
-        if (getArguments() != null) {
-            Boolean inProgress = workoutViewModel.isWorkoutInProgress().getValue();
-            if (inProgress == null || !inProgress) {
-                Routine dayToStart = (Routine) getArguments().getSerializable("trainingDay");
-                if (dayToStart != null) {
-                    workoutViewModel.startWorkout(dayToStart);
-                }
-            }
-        }
+        Routine dayToStart = (getArguments() != null) ? (Routine) getArguments().getSerializable("trainingDay") : null;
+        workoutViewModel.startOrRestoreWorkout(dayToStart);
     }
 
     @Override
@@ -83,8 +75,6 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         setupRecyclerView();
         setupObservers();
         setupClickListeners();
-
-        updateGlobalUIVisibility(false);
     }
 
     private void initViews(View view) {
@@ -115,9 +105,10 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         workoutViewModel.isWorkoutTimerRunning().observe(getViewLifecycleOwner(), this::updateStartPauseIcon);
 
         workoutViewModel.getActiveWorkoutState().observe(getViewLifecycleOwner(), currentState -> {
-            if (currentState != null && currentState.getCurrentSession() != null && currentState.getOriginalTemplate() != null && currentState.getCurrentSession().exercises != null) {
-                Routine originalRoutine = Objects.requireNonNull(workoutViewModel.getActiveWorkoutState().getValue()).getOriginalTemplate();
-                List<WorkoutExercise> templateExercises = (originalRoutine != null) ? originalRoutine.getWorkoutExercises() : new ArrayList<>();
+            if (currentState != null && currentState.getCurrentSession() != null) {
+                List<WorkoutExercise> templateExercises = (currentState.getOriginalTemplate() != null)
+                        ? currentState.getOriginalTemplate().getWorkoutExercises()
+                        : new ArrayList<>();
                 workoutAdapter.setExercises(currentState.getCurrentSession().exercises, templateExercises);
             } else {
                 workoutAdapter.setExercises(new ArrayList<>(), new ArrayList<>());
@@ -126,6 +117,10 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
 
         workoutViewModel.isRestTimerRunning().observe(getViewLifecycleOwner(), isRunning -> {
             restTimerContainer.setVisibility(isRunning ? View.VISIBLE : View.GONE);
+        });
+
+        workoutViewModel.getRestTotalSeconds().observe(getViewLifecycleOwner(), total -> {
+            this.totalRestSeconds = (total != null) ? total : 0;
         });
 
         workoutViewModel.getRestSecondsRemaining().observe(getViewLifecycleOwner(), seconds -> {
@@ -137,9 +132,10 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
                 restTimerText.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
             }
 
-            Integer total = workoutViewModel.getRestTotalSeconds().getValue();
-            if (total != null && total > 0) {
-                restTimerProgress.setProgress((int) ((seconds * 100f) / total));
+            if (totalRestSeconds > 0) {
+                restTimerProgress.setProgress((int) ((seconds * 100f) / totalRestSeconds));
+            } else {
+                restTimerProgress.setProgress(0);
             }
         });
     }
@@ -191,6 +187,11 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         workoutViewModel.deleteSetFromExercise(exercisePosition, setPosition);
     }
 
+    @Override
+    public void onRestTimeChanged(int exercisePosition, int newRestTime) {
+        workoutViewModel.updateExerciseRestTime(exercisePosition, newRestTime);
+    }
+
     private void updateStartPauseIcon(boolean isRunning) {
         startPauseButton.setImageResource(isRunning ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
     }
@@ -204,8 +205,14 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
+    public void onStart() {
+        super.onStart();
+        updateGlobalUIVisibility(false);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
         updateGlobalUIVisibility(true);
     }
 }
