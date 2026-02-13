@@ -4,28 +4,32 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
-import com.example.pushapp.ui.main.graphicComponents.RoutinesCard;
+import com.example.pushapp.models.Routine;
 
 import java.util.List;
 
 public class RoutineCardAdapter extends RecyclerView.Adapter<RoutineCardAdapter.ViewHolder> {
 
-    private final List<RoutinesCard> items;
-    public RoutineCardAdapter(List<RoutinesCard> items) { this.items = items; }
+    private final List<Routine> items;
+    public RoutineCardAdapter(List<Routine> items) { this.items = items; }
 
-    public interface OnItemClickListener { void onItemClick(RoutinesCard item); }
+    public interface OnItemClickListener { void onItemClick(Routine item); }
     private OnItemClickListener startWorkoutListener;
+    private OnItemClickListener editRoutineListener;
+    private OnItemClickListener deleteRoutineListener;
 
-    private OnItemClickListener editWorkoutListener;
-    public void setEditWorkoutListener(OnItemClickListener listener) { this.editWorkoutListener = listener; }
+    public void setEditRoutineListener(OnItemClickListener listener) { this.editRoutineListener = listener; }
 
     public void setStartWorkoutListener(OnItemClickListener listener) { this.startWorkoutListener = listener; }
+
+    public void setDeleteRoutineListener(OnItemClickListener listener) { this.deleteRoutineListener = listener; }
 
     @NonNull
     @Override
@@ -38,17 +42,21 @@ public class RoutineCardAdapter extends RecyclerView.Adapter<RoutineCardAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull RoutineCardAdapter.ViewHolder holder, int position) {
-        RoutinesCard card = items.get(position);
-        holder.title.setText(card.getTitle());
-        holder.description.setText(card.getDescription());
+        Routine card = items.get(position);
+        holder.title.setText(card.getName());
         holder.startWorkoutButton.setOnClickListener(v -> {
             if (startWorkoutListener != null) {
                 startWorkoutListener.onItemClick(card);
             }
         });
-        holder.editWorkoutButton.setOnClickListener(v -> {
-            if (editWorkoutListener != null) {
-                editWorkoutListener.onItemClick(card);
+        holder.editRoutineButton.setOnClickListener(v -> {
+            if (editRoutineListener != null) {
+                editRoutineListener.onItemClick(card);
+            }
+        });
+        holder.deleteRoutineButton.setOnClickListener(v -> {
+            if (deleteRoutineListener != null) {
+                deleteRoutineListener.onItemClick(card);
             }
         });
     }
@@ -62,18 +70,20 @@ public class RoutineCardAdapter extends RecyclerView.Adapter<RoutineCardAdapter.
         final TextView title;
         final TextView description;
         final Button startWorkoutButton;
-        final Button editWorkoutButton;
+        final Button editRoutineButton;
+        final ImageButton deleteRoutineButton;
 
         ViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.card_title);
             description = itemView.findViewById(R.id.card_description);
             startWorkoutButton = itemView.findViewById(R.id.card_start_workout_button);
-            editWorkoutButton = itemView.findViewById(R.id.card_edit_workout_button);
+            editRoutineButton = itemView.findViewById(R.id.card_edit_workout_button);
+            deleteRoutineButton = itemView.findViewById(R.id.delete_routine_button);
         }
     }
 
-    public void updateCards(List<RoutinesCard> newCards) {
+    public void updateCards(List<Routine> newCards) {
         this.items.clear();
         this.items.addAll(newCards);
         notifyDataSetChanged();

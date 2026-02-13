@@ -130,14 +130,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
                 .setTitle("Conferma Eliminazione")
                 .setMessage("Sei sicuro di voler eliminare la scheda '" + training.getName() + "'?")
                 .setPositiveButton("Elimina", (dialog, which) -> {
-                    trainingViewModel.deleteTraining(training, new FirebaseCallback<Void>() {
-                        @Override public void onSuccess(Void result) {
-                            Toast.makeText(getContext(), "Scheda eliminata", Toast.LENGTH_SHORT).show();
-                        }
-                        @Override public void onError(Exception e) {
-                            Toast.makeText(getContext(), "Errore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    trainingViewModel.deleteTraining(training);
                 })
                 .setNegativeButton("Annulla", null)
                 .show();
@@ -147,18 +140,9 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     public void onTrainingEditFinished(Training training, String newName, String newDescription) {
         training.setName(newName);
         training.setDescription(newDescription);
-        trainingViewModel.updateTraining(training, new FirebaseCallback<Void>() {
-            @Override public void onSuccess(Void result) {
-                Toast.makeText(getContext(), "Scheda aggiornata", Toast.LENGTH_SHORT).show();
-            }
-            @Override public void onError(Exception e) {
-                Toast.makeText(getContext(), "Errore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        trainingViewModel.updateTraining(training);
     }
 
-    // Metodo da modificare: ora crea un training direttamente su firebase dalla repository
-    // In futuro non si dovrà più passare la callback al ViewModel
     private void createSampleTraining() {
         Result result = userViewModel.getSessionLiveData().getValue();
 
@@ -170,12 +154,4 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         }
 
     }
-
-    // Metodo per mostrare il dialog di creazione, puoi personalizzarlo
-    private void showCreateTrainingDialog() {
-        // Qui puoi inserire la logica per un dialog che chiede nome e descrizione
-        // e poi chiama viewModel.createTraining(...)
-        Toast.makeText(getContext(), "TODO: Implement create dialog", Toast.LENGTH_SHORT).show();
-    }
-
 }

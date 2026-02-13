@@ -100,4 +100,6 @@
     <string name="passwords_do_not_match">Le password sono diverse</string>
     <string name="workouts">Allenamenti</string>
     <string name="volume">Peso</string>
+    <string name="new_training">Nuovo Allenamento</string>
+    <string name="description">Descrizione</string>
 </resources>

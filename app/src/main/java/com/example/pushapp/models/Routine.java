@@ -50,6 +50,9 @@ public class Routine implements Serializable {
     public Routine() {
         this.routineId = UUID.randomUUID().toString();
         this.workoutExercises = new ArrayList<>();
+        this.deleted = false;
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
     public Routine(String name, int dayOrder) {

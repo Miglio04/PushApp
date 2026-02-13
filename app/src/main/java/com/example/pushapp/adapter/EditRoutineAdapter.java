@@ -105,7 +105,6 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
         public final LinearLayout expandableLayout;
         public final ImageButton btnEditExercise;
         public final ImageButton btnDeleteExercise;
-        public final ImageButton btnInfoExercise; // Bottone Info
         final RecyclerView recyclerSeries;
         private SetsAdapter setsAdapter;
 
@@ -117,9 +116,6 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
             expandableLayout = view.findViewById(R.id.expandable_layout);
             btnEditExercise = view.findViewById(R.id.btn_edit_exercise);
             btnDeleteExercise = view.findViewById(R.id.btn_delete_exercise);
-
-            // Assicurati che nel file XML item_exercise_expandable.xml esista questo ID
-            btnInfoExercise = view.findViewById(R.id.btn_info_exercise);
 
             recyclerSeries = view.findViewById(R.id.sets_recycler_view);
         }

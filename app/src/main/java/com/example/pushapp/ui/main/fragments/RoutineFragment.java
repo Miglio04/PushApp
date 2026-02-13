@@ -6,7 +6,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -22,11 +21,11 @@ import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.repositories.FirebaseCallback;
-import com.example.pushapp.ui.main.graphicComponents.RoutinesCard;
 import com.example.pushapp.adapter.RoutineCardAdapter;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.viewModels.WorkoutViewModel;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -39,8 +38,11 @@ public class RoutineFragment extends Fragment {
     private WorkoutViewModel workoutViewModel;
     private RoutineCardAdapter adapter;
     private Training currentTraining;
+    private FloatingActionButton addRoutineButton;
 
-    public RoutineFragment() { }
+    public RoutineFragment() {
+
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,11 @@ public class RoutineFragment extends Fragment {
         RecyclerView recyclerView = view.findViewById(R.id.recycler_training_days);
         setupRecyclerView(recyclerView);
         observeViewModel();
+
+        addRoutineButton = view.findViewById(R.id.fab_add_routine);
+        if(addRoutineButton != null) {
+            addRoutineButton.setOnClickListener(v -> trainingViewModel.createRoutine(currentTraining));
+        }
     }
 
     private void setupRecyclerView(RecyclerView recyclerView) {
@@ -73,7 +80,8 @@ public class RoutineFragment extends Fragment {
         adapter = new RoutineCardAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
         adapter.setStartWorkoutListener(this::handleStartWorkoutClick);
-        adapter.setEditWorkoutListener(this::handleEditDayClick);
+        adapter.setEditRoutineListener(this::handleEditRoutineClick);
+        adapter.setDeleteRoutineListener(this::handleDeleteRoutine);
     }
 
     private void observeViewModel() {
@@ -83,7 +91,7 @@ public class RoutineFragment extends Fragment {
                 for (Training training : trainingsList) {
                     if (trainingId.equals(training.getTrainingId())) {
                         currentTraining = training;
-                        adapter.updateCards(generateCardsFromTraining(currentTraining));
+                        adapter.updateCards(training.getRoutinesList());
                         break;
                     }
                 }
@@ -92,40 +100,41 @@ public class RoutineFragment extends Fragment {
             }
         });
     }
-
-    private List<RoutinesCard> generateCardsFromTraining(Training training) {
-        List<RoutinesCard> cards = new ArrayList<>();
-        if (training != null && training.getRoutinesList() != null) {
-            for (Routine day : training.getRoutinesList()) {
-                // Manteniamo "Exercises" ma i nomi delle routine sono dinamici
-                cards.add(new RoutinesCard(day.getName(), "Exercises: " + day.getWorkoutTotalExercises(), day.getRoutineId()));
-            }
-        }
-        return cards;
-    }
-
-    private void handleStartWorkoutClick(RoutinesCard card) {
+    private void handleStartWorkoutClick(Routine routine) {
         Boolean isWorkoutInProgress = workoutViewModel.isWorkoutInProgress().getValue();
         if (Boolean.TRUE.equals(isWorkoutInProgress)) {
-            showReplaceWorkoutDialog(card);
+            showReplaceWorkoutDialog(routine);
         } else {
-            startNewWorkout(card);
+            startNewWorkout(routine);
         }
     }
 
-    private void handleEditDayClick(RoutinesCard card) {
-        if (getView() != null && card.getTrainingDayId() != null) {
+    private void handleEditRoutineClick(Routine routine) {
+        if (getView() != null && routine.getRoutineId() != null) {
             Bundle args = new Bundle();
             args.putString("trainingId", trainingId);
-            args.putString("dayId", card.getTrainingDayId());
+            args.putString("dayId", routine.getRoutineId());
             Navigation.findNavController(getView()).navigate(R.id.nav_training_days_to_edit, args);
         }
     }
 
-    private void startNewWorkout(RoutinesCard card) {
-        if (currentTraining == null || card.getTrainingDayId() == null) return;
+    private void handleDeleteRoutine(Routine routine){
+        if (getView() != null && routine.getRoutineId() != null) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle("Delete Routine")
+                    .setMessage("Are you sure you want to delete this routine?")
+                    .setPositiveButton("Delete", (dialog, which) -> {
+                        trainingViewModel.deleteRoutine(routine);
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        }
+    }
+
+    private void startNewWorkout(Routine routine) {
+        if (currentTraining == null || routine.getRoutineId() == null) return;
         for (Routine day : currentTraining.getRoutinesList()) {
-            if (card.getTrainingDayId().equals(day.getRoutineId())) {
+            if (routine.getRoutineId().equals(day.getRoutineId())) {
                 Bundle args = new Bundle();
                 args.putSerializable("trainingDay", (Serializable) day);
                 args.putSerializable("parentTraining", (Serializable) currentTraining);
@@ -135,7 +144,7 @@ public class RoutineFragment extends Fragment {
         }
     }
 
-    private void showReplaceWorkoutDialog(RoutinesCard card) {
+    private void showReplaceWorkoutDialog(Routine routine) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Workout in Progress")
                 .setMessage("You already have an active workout session. Would you like to discard it and start a new one?")
@@ -143,11 +152,11 @@ public class RoutineFragment extends Fragment {
                     workoutViewModel.stopWorkout(new FirebaseCallback<Void>() {
                         @Override
                         public void onSuccess(Void result) {
-                            startNewWorkout(card);
+                            startNewWorkout(routine);
                         }
                         @Override
                         public void onError(Exception e) {
-                            startNewWorkout(card);
+                            startNewWorkout(routine);
                         }
                     });
                 })

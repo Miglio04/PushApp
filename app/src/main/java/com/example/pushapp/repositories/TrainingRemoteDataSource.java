@@ -140,7 +140,7 @@ public class TrainingRemoteDataSource {
         } else {
             training.setUpdatedAt(System.currentTimeMillis());
 
-            db.collection(COLLECTION_USERS).document(auth.getCurrentUser().getUid())
+            db.collection(COLLECTION_USERS).document(training.getUserId())
                     .collection(COLLECTION_TRAININGS).document(training.getTrainingId())
                     .set(training)
                     .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
@@ -193,8 +193,46 @@ public class TrainingRemoteDataSource {
         }).addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
     }
 
-    public void createRoutine(Routine routine){
+    public void createRoutine(Routine routine) {
+        String userId = routine.getUserId();
+        if (userId == null) {
+            trainingCallback.onFailureFromRemote(new Exception("User ID is missing."));
+            return;
+        }
 
+        String trainingId = routine.getTrainingId();
+        if (trainingId == null || trainingId.isEmpty()) {
+            trainingCallback.onFailureFromRemote(new Exception("Training ID is missing."));
+            return;
+        }
+
+        WriteBatch batch = db.batch();
+
+        DocumentReference routineRef = db.collection(COLLECTION_USERS).document(userId)
+                .collection(COLLECTION_TRAININGS).document(trainingId)
+                .collection(COLLECTION_ROUTINES).document(routine.getRoutineId());
+
+        batch.set(routineRef, routine);
+
+        if (routine.getWorkoutExercises() != null) {
+            for (WorkoutExercise exercise : routine.getWorkoutExercises()) {
+                DocumentReference exerciseRef = routineRef.collection(COLLECTION_WORKOUT_EXERCISES)
+                        .document(exercise.getWorkoutExerciseId());
+
+                exercise.setRoutineId(routine.getRoutineId());
+                exercise.setUserId(userId);
+
+                if (exercise.getSeries() != null) {
+                    for (Serie serie : exercise.getSeries()) {
+                        serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
+                        serie.setUserId(userId);
+                    }
+                }
+                batch.set(exerciseRef, exercise);
+            }
+        }
+
+        batch.commit().addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
     }
     public void updateRoutine(Routine routine){
         String userId = routine.getUserId();
@@ -209,32 +247,76 @@ public class TrainingRemoteDataSource {
             return;
         }
 
-        WriteBatch batch = db.batch();
-
         DocumentReference routineRef = db.collection(COLLECTION_USERS).document(userId)
-                .collection(COLLECTION_TRAININGS).document(trainingId).collection(COLLECTION_ROUTINES).document(routine.getRoutineId());;
+                .collection(COLLECTION_TRAININGS).document(trainingId).collection(COLLECTION_ROUTINES).document(routine.getRoutineId());
 
-        batch.set(routineRef, routine);
+        routineRef.collection(COLLECTION_WORKOUT_EXERCISES).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    WriteBatch batch = db.batch();
 
-        if (routine.getWorkoutExercises() != null) {
-            for (WorkoutExercise exercise : routine.getWorkoutExercises()) {
-                DocumentReference exerciseRef = routineRef.collection(COLLECTION_WORKOUT_EXERCISES).document(exercise.getWorkoutExerciseId());
-                exercise.setRoutineId(routine.getRoutineId());
-                exercise.setUserId(userId);
-                if (exercise.getSeries() != null) {
-                    for (Serie serie : exercise.getSeries()) {
-                        serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
-                        serie.setUserId(userId);
+                    batch.set(routineRef, routine);
+
+                    List<String> newExerciseIds = new ArrayList<>();
+                    if (routine.getWorkoutExercises() != null) {
+                        for (WorkoutExercise exercise : routine.getWorkoutExercises()) {
+                            newExerciseIds.add(exercise.getWorkoutExerciseId());
+                        }
                     }
-                }
-                batch.set(exerciseRef, exercise);
-            }
-        }
 
-        batch.commit();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        if (!newExerciseIds.contains(doc.getId())) {
+                            batch.delete(doc.getReference());
+                        }
+                    }
+
+                    if (routine.getWorkoutExercises() != null) {
+                        for (WorkoutExercise exercise : routine.getWorkoutExercises()) {
+                            DocumentReference exerciseRef = routineRef.collection(COLLECTION_WORKOUT_EXERCISES).document(exercise.getWorkoutExerciseId());
+                            exercise.setRoutineId(routine.getRoutineId());
+                            exercise.setUserId(userId);
+                            if (exercise.getSeries() != null) {
+                                for (Serie serie : exercise.getSeries()) {
+                                    serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
+                                    serie.setUserId(userId);
+                                }
+                            }
+                            batch.set(exerciseRef, exercise);
+                        }
+                    }
+
+                    batch.commit()
+                            .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
+
+                })
+                .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
     }
     public void deleteRoutine(Routine routine){
+        String userId = routine.getUserId();
+        String trainingId = routine.getTrainingId();
+        String routineId = routine.getRoutineId();
 
+        if (userId == null) {
+            trainingCallback.onFailureFromRemote(new Exception("User not authenticated."));
+            return;
+        }
+
+        DocumentReference routineRef = db.collection(COLLECTION_USERS).document(userId)
+                .collection(COLLECTION_TRAININGS).document(trainingId)
+                .collection(COLLECTION_ROUTINES).document(routineId);
+
+        routineRef.collection(COLLECTION_WORKOUT_EXERCISES).get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    WriteBatch batch = db.batch();
+
+                    batch.delete(routineRef);
+
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        batch.delete(doc.getReference());
+                    }
+
+                    batch.commit().addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
+                })
+                .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
     }
 
     private Task<Void> fetchRoutinesForTraining(Training training, DocumentReference trainingRef) {

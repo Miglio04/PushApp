@@ -24,7 +24,7 @@ public class TrainingLocalDataSource {
     private final RoutineDao routineDao;
     private final WorkoutExerciseDao workoutExerciseDao;
     private final SerieDao serieDao;
-    private final LocalDatabase localDatabase; // Field added for transactions
+    private final LocalDatabase localDatabase;
 
     TrainingLocalDataSource(LocalDatabase localDatabase) {
         this.localDatabase = localDatabase;
@@ -34,7 +34,6 @@ public class TrainingLocalDataSource {
         this.serieDao = localDatabase.serieDao();
         this.trainingCallback = null;
     }
-
     public void setTrainingCallback(TrainingCallback trainingCallback){
         this.trainingCallback = trainingCallback;
     }
@@ -72,14 +71,13 @@ public class TrainingLocalDataSource {
                     finalTrainingList.add(training);
                 }
 
-                trainingCallback.onSuccessFromLocalGet(finalTrainingList);
+                trainingCallback.onSuccessFromLocalTrainingGet(finalTrainingList);
 
             } catch (Exception e) {
                 trainingCallback.onFailureFromLocal(e);
             }
         });
     }
-
     public void fetchTrainings(String userId) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -113,14 +111,13 @@ public class TrainingLocalDataSource {
                     finalTrainingList.add(training);
                 }
 
-                trainingCallback.onSuccessFromLocalFetch(userId, finalTrainingList);
+                trainingCallback.onSuccessFromLocalTrainingFetch(userId, finalTrainingList);
 
             } catch (Exception e) {
                 trainingCallback.onFailureFromLocal(e);
             }
         });
     }
-
     public void createTraining(String userId, Training training) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -145,20 +142,80 @@ public class TrainingLocalDataSource {
                         }
                     }
                 }
-                trainingCallback.onSuccessFromLocalCreate(userId, training);
+                trainingCallback.onSuccessFromLocalTrainingCreate(userId, training);
             } catch (Exception e) {
                 trainingCallback.onFailureFromLocal(e);
             }
         });
     }
-
     public void updateTraining(Training training) {
+        try {
+            LocalDatabase.databaseWriteExecutor.execute(() -> {
+                trainingDao.update(training);
+                trainingCallback.onSuccessFromLocalTrainingUpdate(training);
+            });
+        }catch (Exception e){
+            trainingCallback.onFailureFromLocal(e);
+        }
+    }
+    public void overwriteTrainings(List<Training> trainingList, String userId) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
-            trainingDao.update(training);
-            //getTrainings();
+            localDatabase.runInTransaction(() -> {
+                try {
+                    trainingDao.deleteAllByUserId(userId);
+
+                    for (Training training : trainingList) {
+                        trainingDao.insert(training);
+
+                        if (training.getRoutinesList() != null) {
+                            for (Routine routine : training.getRoutinesList()) {
+                                routine.setTrainingId(training.getTrainingId());
+                                routineDao.insert(routine);
+
+                                if (routine.getWorkoutExercises() != null) {
+                                    for (WorkoutExercise workoutExercise : routine.getWorkoutExercises()) {
+                                        workoutExercise.setRoutineId(routine.getRoutineId());
+                                        workoutExerciseDao.insert(workoutExercise);
+
+                                        if (workoutExercise.getSeries() != null) {
+                                            for (Serie serie : workoutExercise.getSeries()) {
+                                                serie.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
+                                                serieDao.insert(serie);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    trainingCallback.onFailureFromLocal(e);
+                }
+            });
+            getTrainings();
         });
     }
+    public void deleteTraining(Training training) {
+        try {
+            LocalDatabase.databaseWriteExecutor.execute(() -> {
+                trainingDao.delete(training);
+                trainingCallback.onSuccessFromLocalTrainingDelete(training);
+            });
+        }catch (Exception e){
+            trainingCallback.onFailureFromLocal(e);
+        }
+    }
 
+    public void createRoutine(Routine routine){
+        LocalDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                routineDao.insert(routine);
+                trainingCallback.onSuccessFromLocalRoutineCreate(routine);
+            } catch (Exception e) {
+                trainingCallback.onFailureFromLocal(e);
+            }
+        });
+    }
     public void updateRoutine(Routine routine){
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             localDatabase.runInTransaction(() -> {
@@ -187,50 +244,14 @@ public class TrainingLocalDataSource {
             });
         });
     }
-    public void overwriteTrainings(List<Training> trainingList, String userId) {
+    public void deleteRoutine(Routine routine){
         LocalDatabase.databaseWriteExecutor.execute(() -> {
-            localDatabase.runInTransaction(() -> {
-                try {
-                    // 1. Delete old user data to prevent conflicts
-                    trainingDao.deleteAllByUserId(userId);
-
-                    // 2. Iterate through each training
-                    for (Training training : trainingList) {
-                        trainingDao.insert(training);
-
-                        if (training.getRoutinesList() != null) {
-                            for (Routine routine : training.getRoutinesList()) {
-                                routine.setTrainingId(training.getTrainingId());
-                                routineDao.insert(routine);
-
-                                if (routine.getWorkoutExercises() != null) {
-                                    for (WorkoutExercise workoutExercise : routine.getWorkoutExercises()) {
-                                        workoutExercise.setRoutineId(routine.getRoutineId());
-                                        workoutExerciseDao.insert(workoutExercise);
-
-                                        if (workoutExercise.getSeries() != null) {
-                                            for (Serie serie : workoutExercise.getSeries()) {
-                                                serie.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
-                                                serieDao.insert(serie);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    getTrainings();
-                } catch (Exception e) {
-                    Log.e(TAG, "Critical error during database overwrite: " + e.getMessage());
-                }
-            });
-        });
-    }
-
-    public void deleteTraining(Training training) {
-        LocalDatabase.databaseWriteExecutor.execute(() -> {
-            trainingDao.delete(training);
-            trainingCallback.onSuccessFromLocalDelete(training);
+            try {
+                routineDao.delete(routine);
+                trainingCallback.onSuccessFromLocalRoutineDelete(routine);
+            } catch (Exception e) {
+                trainingCallback.onFailureFromLocal(e);
+            }
         });
     }
 
