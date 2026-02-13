@@ -6,6 +6,12 @@ import java.util.List;
 public abstract class Result {
     private Result() {}
 
+    public enum ChartMetric {
+        MAX_WEIGHT,
+        TOTAL_VOLUME,
+        ESTIMATED_1RM
+    }
+
     public boolean isTrainingsSuccess() { return this instanceof TrainingsSuccess; }
     public boolean isUserSuccess(){ return this instanceof UserSuccess; }
     public boolean isSessionSuccess(){ return this instanceof SessionSuccess; }
@@ -38,7 +44,6 @@ public abstract class Result {
         public SessionUser getData() { return sessionUser; }
     }
 
-    // Successo per la lista storico (Get History / Search)
     public static final class HistorySuccess extends Result {
         private final List<HistorySessionWithExercises> historyList;
 
@@ -51,9 +56,9 @@ public abstract class Result {
         }
     }
 
-    // Successo per i grafici (Get Graph Data)
     public static final class GraphSuccess extends Result {
         private final List<GraphPoint> points;
+        private ChartMetric metric;
 
         public GraphSuccess(List<GraphPoint> points) {
             this.points = points;
@@ -61,6 +66,14 @@ public abstract class Result {
 
         public List<GraphPoint> getData() {
             return points;
+        }
+
+        public ChartMetric getMetric() {
+            return metric;
+        }
+
+        public void setMetric(ChartMetric metric) {
+            this.metric = metric;
         }
     }
 
@@ -74,10 +87,6 @@ public abstract class Result {
         }
     }
 
-    /**
-     * Class that represents an error occurred during the interaction
-     * with a Web Service or a local database.
-     */
     public static class Error extends Result {
         private final String message;
 
@@ -85,8 +94,6 @@ public abstract class Result {
             this.message = message;
         }
 
-        // AGGIUNTA: Costruttore che accetta Exception
-        // (Così nel repository si può scrivere new Result.Error(e))
         public Error(Exception e) {
             this.message = e.getMessage() != null ? e.getMessage() : "Errore sconosciuto";
         }

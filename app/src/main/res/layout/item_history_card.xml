@@ -55,7 +55,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:alpha="0.7"
-            android:text="Workout Stats"
+            android:text="Workout info"
             android:textColor="@color/md_theme_onSecondaryContainer"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="@id/tv_workout_name"

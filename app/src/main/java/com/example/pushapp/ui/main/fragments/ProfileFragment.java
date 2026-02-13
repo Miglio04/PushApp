@@ -88,13 +88,6 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        historyViewModel.getHistoryList().observe(getViewLifecycleOwner(), result -> {
-            if (result instanceof Result.HistorySuccess) {
-                var data = ((Result.HistorySuccess) result).getData();
-                historyViewModel.onHistoryDataChanged(data);
-            }
-        });
-
         historyViewModel.getKpiStats().observe(getViewLifecycleOwner(), stats -> {
             if (stats != null) {
                 if (txtKpiWorkouts != null) {

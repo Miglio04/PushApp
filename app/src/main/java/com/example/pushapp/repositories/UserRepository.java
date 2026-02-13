@@ -17,7 +17,7 @@ public class UserRepository implements UserCallback {
     //provvisorio per primo accesso fino a implementazione versioning
     private boolean firstFetchCompleted = false;
 
-    UserRepository(UserLocalDataSource localDataSource, UserRemoteDataSource remoteDataSource, SessionRepository sessionRepository) {
+    public UserRepository(UserLocalDataSource localDataSource, UserRemoteDataSource remoteDataSource, SessionRepository sessionRepository) {
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
         this.localDataSource.setUserCallback(this);

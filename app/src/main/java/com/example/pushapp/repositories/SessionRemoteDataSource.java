@@ -14,7 +14,7 @@ public class SessionRemoteDataSource {
     private SessionCallback callback = null;
     private final FirebaseAuth mAuth;
 
-    SessionRemoteDataSource(){
+    public SessionRemoteDataSource(){
         mAuth = FirebaseAuth.getInstance();
     }
 

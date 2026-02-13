@@ -7,7 +7,7 @@ public class SessionLocalDataSource {
     private final FirebaseAuth auth;
     private UserCallback userCallback = null;
 
-    SessionLocalDataSource() {
+    public SessionLocalDataSource() {
         this.auth = FirebaseAuth.getInstance();
     }
 

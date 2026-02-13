@@ -185,13 +185,12 @@ public class HistoryRepository implements HistoryCallback {
         }
     }
 
-    /*public LiveData<Result> getGraphData(String exerciseName, StatMetric metric) {
-        localDataSource.getGraphData(exerciseName, metric);
-        return graphData;
-    }*/
-
     public LiveData<Result> getGraphData() {
         return graphData;
+    }
+
+    public LiveData<Result> getGraphVolumeData() {
+        return graphVolumeData;
     }
 
     public void fetchGraphData(String exerciseName, StatMetric metric) {
