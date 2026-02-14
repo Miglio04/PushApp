@@ -24,6 +24,7 @@ import com.example.pushapp.models.Training;
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.adapter.TrainingsRecyclerViewAdapter;
+import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -32,6 +33,8 @@ import java.util.List;
 
 public class TrainingsFragment extends Fragment implements TrainingsRecyclerViewAdapter.OnTrainingInteractionListener {
 
+    private static final String TAG = "TrainingsFragment";
+    private UserViewModel userViewModel;
     private TrainingViewModel trainingViewModel;
     private TrainingsRecyclerViewAdapter adapter;
     private NavController navController;
@@ -55,17 +58,28 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
 
         navController = Navigation.findNavController(view);
 
-        // 1. Inizializza il ViewModel
+        userViewModel = new ViewModelProvider(
+                requireActivity(),
+                new ViewModelFactory(requireContext())).get(UserViewModel.class);
+
         trainingViewModel = new ViewModelProvider(
                 requireActivity(),
                 new ViewModelFactory(requireContext())).get(TrainingViewModel.class);
-        // 2. Setup della RecyclerView
+
         RecyclerView recyclerView = view.findViewById(R.id.training_list);
         setupRecyclerView(recyclerView);
 
-        // 3. Setup dei bottoni
         FloatingActionButton fab = view.findViewById(R.id.fab_add_training);
-        fab.setOnClickListener(v -> showCreateTrainingDialog());
+        fab.setOnClickListener(v -> {
+            Result result = userViewModel.getSessionLiveData().getValue();
+
+            if (result != null && result.isSessionSuccess()) {
+                String userId = ((Result.SessionSuccess) result).getData().getUserId();
+                trainingViewModel.createTraining(userId);
+            } else{
+                Log.d(TAG, "Errore nella fetch dell'utente");
+            }
+        });
 
         Button btnAddSampleData = view.findViewById(R.id.btn_add_sample_data);
         btnAddSampleData.setOnClickListener(v -> {
@@ -73,12 +87,10 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
             Toast.makeText(getContext(), "Adding sample data to Firebase...", Toast.LENGTH_SHORT).show();
         });
 
-        // 4. Osserva i dati dal ViewModel
+
+
         observeViewModel();
 
-        // 5. Carica i dati iniziali da Firebase
-        trainingViewModel.fetchTrainings();
-        Log.d("TrainingsFragment", "fetchTrainings() called");
     }
 
     private void setupRecyclerView(RecyclerView recyclerView) {
@@ -89,6 +101,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
 
     private void observeViewModel() {
         trainingViewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
+            Log.d("TrainingsFragment", "observeViewModel called");
             if (trainings == null ) {
                 Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
             } else if (trainings.isTrainingsSuccess()){
@@ -117,14 +130,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
                 .setTitle("Conferma Eliminazione")
                 .setMessage("Sei sicuro di voler eliminare la scheda '" + training.getName() + "'?")
                 .setPositiveButton("Elimina", (dialog, which) -> {
-                    trainingViewModel.deleteTraining(training.getTrainingId(), new FirebaseCallback<Void>() {
-                        @Override public void onSuccess(Void result) {
-                            Toast.makeText(getContext(), "Scheda eliminata", Toast.LENGTH_SHORT).show();
-                        }
-                        @Override public void onError(Exception e) {
-                            Toast.makeText(getContext(), "Errore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    trainingViewModel.deleteTraining(training);
                 })
                 .setNegativeButton("Annulla", null)
                 .show();
@@ -134,39 +140,18 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     public void onTrainingEditFinished(Training training, String newName, String newDescription) {
         training.setName(newName);
         training.setDescription(newDescription);
-        trainingViewModel.updateTraining(training, new FirebaseCallback<Void>() {
-            @Override public void onSuccess(Void result) {
-                Toast.makeText(getContext(), "Scheda aggiornata", Toast.LENGTH_SHORT).show();
-            }
-            @Override public void onError(Exception e) {
-                Toast.makeText(getContext(), "Errore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        trainingViewModel.updateTraining(training);
     }
 
-    // Metodo da modificare: ora crea un training direttamente su firebase dalla repository
-    // In futuro non si dovrà più passare la callback al ViewModel
     private void createSampleTraining() {
-        FirebaseCallback<String> callback = new FirebaseCallback<String>() {
-            @Override
-            public void onSuccess(String newTrainingId) {
-                Log.d("TrainingsFragment", "Sample training created with ID: " + newTrainingId);
-            }
+        Result result = userViewModel.getSessionLiveData().getValue();
 
-            @Override
-            public void onError(Exception e) {
-                Log.e("TrainingsFragment", "Failed to create sample training", e);
-                Toast.makeText(getContext(), "Error creating sample data", Toast.LENGTH_SHORT).show();
-            }
-        };
-        trainingViewModel.createSampleTraining(callback);
+        if (result != null && result.isSessionSuccess()) {
+            String userId = ((Result.SessionSuccess) result).getData().getUserId();
+            trainingViewModel.createSampleTraining(userId);
+        } else{
+            Log.d(TAG, "Errore nella fetch dell'utente");
+        }
+
     }
-
-    // Metodo per mostrare il dialog di creazione, puoi personalizzarlo
-    private void showCreateTrainingDialog() {
-        // Qui puoi inserire la logica per un dialog che chiede nome e descrizione
-        // e poi chiama viewModel.createTraining(...)
-        Toast.makeText(getContext(), "TODO: Implement create dialog", Toast.LENGTH_SHORT).show();
-    }
-
 }

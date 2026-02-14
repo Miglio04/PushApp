@@ -31,9 +31,29 @@
             app:navigationIcon="@drawable/baseline_arrow_back_24"
             app:navigationIconTint="?attr/colorOnSecondaryContainer"
             app:title="Modifica Giorno"
-            app:titleTextColor="?attr/colorOnSecondaryContainer" />
+            app:titleTextColor="?attr/colorOnSecondaryContainer"/>
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_routine_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:hint="Nome Giorno"
+        app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_routine_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textCapSentences" />
+
+    </com.google.android.material.textfield.TextInputLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_exercises"
@@ -42,7 +62,7 @@
         android:layout_marginTop="15dp"
         android:paddingHorizontal="8dp"
         android:clipToPadding="false"
-        app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
+        app:layout_constraintTop_toBottomOf="@id/til_routine_name"
         app:layout_constraintBottom_toTopOf="@+id/buttons_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

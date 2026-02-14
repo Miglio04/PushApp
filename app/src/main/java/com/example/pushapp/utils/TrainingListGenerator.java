@@ -21,18 +21,22 @@ public class TrainingListGenerator {
      * Ogni oggetto ha le sue chiavi primarie e le chiavi esterne già impostate.
      * @return una ArrayList di Training pronti per essere inseriti in Room.
      */
-    public static Training generateTrainingList() {
+    public static Training generateTrainingList(String userId) {
 
         // --- Crea il primo Training: "Push Pull Legs" ---
         Training sampleTraining = new Training();
         sampleTraining.setName("Push Pull Legs");
         sampleTraining.setDescription("Split classico PPL");
+        sampleTraining.setCreatedAt(System.currentTimeMillis());
+        sampleTraining.setUpdatedAt(System.currentTimeMillis());
+        sampleTraining.setUserId(userId);
         ArrayList<Routine> pplRoutines = new ArrayList<>();
 
         // Routine 1: Push Day
         Routine pushDay = new Routine("Push Day", 1);
 
         // Crea e aggiungi gli esercizi alla routine "Push Day"
+        pushDay.setUserId(userId);
         pushDay.addWorkoutExercise(createExercise( 1, 4, 8, 80));
         pushDay.addWorkoutExercise(createExercise( 2, 3, 10, 40));
         pushDay.addWorkoutExercise(createExercise( 3, 3, 12, 25));
@@ -42,6 +46,7 @@ public class TrainingListGenerator {
         Routine pullDay = new Routine("Pull Day", 2);
 
         // Crea e aggiungi gli esercizi alla routine "Pull Day"
+        pullDay.setUserId(userId);
         pullDay.addWorkoutExercise(createExercise( 1, 4, 8, 0));
         pullDay.addWorkoutExercise(createExercise( 2, 3, 10, 60));
         pplRoutines.add(pullDay);

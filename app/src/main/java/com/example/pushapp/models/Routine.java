@@ -50,6 +50,9 @@ public class Routine implements Serializable {
     public Routine() {
         this.routineId = UUID.randomUUID().toString();
         this.workoutExercises = new ArrayList<>();
+        this.deleted = false;
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
     }
 
     public Routine(String name, int dayOrder) {
@@ -64,14 +67,21 @@ public class Routine implements Serializable {
 
     // Ha senso questo costruttore?
     @Ignore
-    public Routine(String name, int dayOrder, ArrayList<WorkoutExercise> workoutExercises) {
-        this.routineId = UUID.randomUUID().toString();
-        this.name = name;
-        this.dayOrder = dayOrder;
-        this.workoutExercises = workoutExercises != null ? workoutExercises : new ArrayList<>();
-        this.deleted = false;
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+    public Routine(Routine routine) {
+        this.trainingId = routine.getTrainingId();
+        this.userId = routine.getUserId();
+        this.routineId = routine.getRoutineId();
+        this.name = routine.getName();
+        this.dayOrder = routine.getDayOrder();
+        if (routine.getWorkoutExercises() != null) {
+            this.workoutExercises = new ArrayList<>(routine.getWorkoutExercises());
+        } else {
+            this.workoutExercises = new ArrayList<>();
+        }
+        this.deleted = routine.isDeleted();
+        this.createdAt = routine.getCreatedAt();
+        this.updatedAt = routine.getUpdatedAt();
+        this.notes = routine.getNotes();
     }
 
     // Getters e Setters
@@ -85,6 +95,7 @@ public class Routine implements Serializable {
     public void setDayOrder(int dayOrder) { this.dayOrder = dayOrder; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
+
     @Exclude
     @Ignore
     public List<WorkoutExercise> getWorkoutExercises() {

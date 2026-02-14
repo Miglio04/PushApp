@@ -27,10 +27,10 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
     public interface OnExerciseInteractionListener {
         void onEditExercise(int position);
         void onDeleteExercise(int position);
+        void onSetCreated(int exercisePosition);
         void onSetUpdated(int exercisePosition, int setPosition, double newWeight, int newReps);
         void onSetDeleted(int exercisePosition, int setPosition);
-        // --- NUOVO METODO PER MOSTRARE LE ISTRUZIONI ---
-        void onShowInstructions(int position);
+
     }
 
     public EditRoutineAdapter(List<WorkoutExercise> workoutExercises, OnExerciseInteractionListener listener) {
@@ -90,11 +90,10 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
             }
         });
 
-        // --- CLICK SUL TASTO INFO ---
-        holder.btnInfoExercise.setOnClickListener(v -> {
+        holder.btnAddSet.setOnClickListener(v -> {
             int currentPos = holder.getBindingAdapterPosition();
             if (listener != null && currentPos != RecyclerView.NO_POSITION) {
-                listener.onShowInstructions(currentPos);
+                listener.onSetCreated(currentPos);
             }
         });
 
@@ -114,7 +113,7 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
         public final LinearLayout expandableLayout;
         public final ImageButton btnEditExercise;
         public final ImageButton btnDeleteExercise;
-        public final ImageButton btnInfoExercise; // Bottone Info
+        public final ImageButton btnAddSet;
         final RecyclerView recyclerSeries;
         private SetsAdapter setsAdapter;
 
@@ -126,9 +125,7 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
             expandableLayout = view.findViewById(R.id.expandable_layout);
             btnEditExercise = view.findViewById(R.id.btn_edit_exercise);
             btnDeleteExercise = view.findViewById(R.id.btn_delete_exercise);
-
-            // Assicurati che nel file XML item_exercise_expandable.xml esista questo ID
-            btnInfoExercise = view.findViewById(R.id.btn_info_exercise);
+            btnAddSet = view.findViewById(R.id.btn_add_set);
 
             recyclerSeries = view.findViewById(R.id.sets_recycler_view);
         }
