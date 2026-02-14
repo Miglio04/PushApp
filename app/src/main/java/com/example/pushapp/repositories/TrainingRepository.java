@@ -48,12 +48,6 @@ public class TrainingRepository implements TrainingCallback{
     public LiveData<Result> getTrainingList(){
         return trainingList;
     }
-
-    public void createSampleTraining(String userId){
-        createTraining(userId, TrainingListGenerator.generateTrainingList(userId));
-    }
-
-
     public void detachTrainingsListener() {
         if (trainingsListener != null) {
             trainingsListener.remove();
@@ -61,6 +55,9 @@ public class TrainingRepository implements TrainingCallback{
         }
     }
 
+    public void createSampleTraining(String userId){
+        createTraining(userId, TrainingListGenerator.generateTrainingList(userId));
+    }
     public void getActiveTraining(FirebaseCallback<Training> callback) {
         String userId = getCurrentUserId();
         if (userId == null) {
