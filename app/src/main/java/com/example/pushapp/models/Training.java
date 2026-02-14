@@ -37,6 +37,11 @@ public class Training implements Serializable {
     // Costruttore vuoto richiesto da Firebase
     public Training() {
         this.trainingId = UUID.randomUUID().toString();
+        this.createdAt = System.currentTimeMillis();
+        this.updatedAt = System.currentTimeMillis();
+        this.description = "";
+        this.name = "";
+        this.deleted = false;
         this.routinesList = new ArrayList<>();
     }
 

@@ -28,7 +28,6 @@ import com.example.pushapp.R;
 import com.example.pushapp.models.WorkoutExercise;
 import com.example.pushapp.models.api.ExerciseApiModel;
 import com.example.pushapp.models.Routine;
-import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.adapter.AvailableExercisesAdapter;
 import com.example.pushapp.adapter.EditRoutineAdapter;
 import com.example.pushapp.viewModels.TrainingViewModel;
@@ -39,19 +38,24 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+
+import android.text.Editable;
+import android.text.TextWatcher;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.OnExerciseInteractionListener {
 
-    private String trainingDayId;
+    private String routineId;
     private String trainingId;
     private TrainingViewModel trainingViewModel;
     private WorkoutViewModel workoutViewModel;
     private EditRoutineAdapter adapter;
     private AvailableExercisesAdapter availableExercisesAdapter;
     private MaterialToolbar toolbar;
+    private TextInputEditText etRoutineName;
     private ConstraintLayout searchPanel;
     private RecyclerView mainRecyclerView;
     private FloatingActionButton fabAddExercise;
@@ -73,14 +77,14 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         trainingViewModel = new ViewModelProvider(requireActivity()).get(TrainingViewModel.class);
         workoutViewModel = new ViewModelProvider(requireActivity()).get(WorkoutViewModel.class);
         if (getArguments() != null) {
-            trainingDayId = getArguments().getString("dayId");
+            routineId = getArguments().getString("dayId");
             trainingId = getArguments().getString("trainingId");
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_edit_training_day, container, false);
+        return inflater.inflate(R.layout.fragment_edit_routine, container, false);
     }
 
     @Override
@@ -88,6 +92,7 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         super.onViewCreated(view, savedInstanceState);
 
         toolbar = view.findViewById(R.id.toolbar_edit_day);
+        etRoutineName = view.findViewById(R.id.et_routine_name);
         mainRecyclerView = view.findViewById(R.id.recycler_exercises);
         fabAddExercise = view.findViewById(R.id.fab_add_exercise);
         searchPanel = view.findViewById(R.id.search_panel_container);
@@ -99,15 +104,15 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
 
         trainingViewModel.loadAvailableExercises();
         setupToolbar();
+        setupRoutineNameInput();
         setupMainRecyclerView();
         setupBackButtonHandler();
         observeViewModel();
 
         fabAddExercise.setOnClickListener(v -> initializeAndShowSearchPanel());
         btnSave.setOnClickListener(v -> saveChanges());
-        btnCancel.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
+        btnCancel.setOnClickListener(v -> cancelChanges());
     }
-
     private void setupMainRecyclerView() {
         if (mainRecyclerView != null) {
             mainRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -115,7 +120,37 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             mainRecyclerView.setAdapter(adapter);
         }
     }
+    private void setupRoutineNameInput() {
+        etRoutineName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
 
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                Routine routine = trainingViewModel.getEditableRoutine().getValue();
+                if (routine != null) {
+                    routine.setName(s.toString());
+                }
+            }
+        });
+    }
+
+    private void setupToolbar() {
+        toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
+    }
+    private void setupBackButtonHandler() {
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
+            @Override public void handleOnBackPressed() {
+                if (searchPanel != null && searchPanel.getVisibility() == View.VISIBLE) toggleSearchPanel(false);
+                else { setEnabled(false); if (isAdded()) NavHostFragment.findNavController(EditRoutineFragment.this).popBackStack(); }
+            }
+        });
+    }
+
+    // --- Pagina Esercizi Disponibili ---
     private void initializeAndShowSearchPanel() {
         if (getView() == null || searchPanel == null) return;
         if (!areFilterComponentsInitialized) {
@@ -139,14 +174,13 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         }
         toggleSearchPanel(true);
     }
-
     private void setupAvailableExercisesRecycler(View view) {
         RecyclerView filterRecycler = view.findViewById(R.id.recycler_available_exercises);
         if (filterRecycler == null) return;
         filterRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
         availableExercisesAdapter = new AvailableExercisesAdapter(new ArrayList<>(), exerciseApiModel -> {
-            if (trainingViewModel.getEditableTrainingDay().getValue() == null) {
+            if (trainingViewModel.getEditableRoutine().getValue() == null) {
                 Toast.makeText(getContext(), "Errore: Giorno non caricato.", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -154,34 +188,12 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
 
             WorkoutExercise newWorkoutExercise = new WorkoutExercise(exerciseApiModel.getName(), order);
 
-            trainingViewModel.addExerciseToDay(newWorkoutExercise);
+            trainingViewModel.addExerciseToRoutine(newWorkoutExercise);
             toggleSearchPanel(false);
             Snackbar.make(requireView(), "Aggiunto: " + exerciseApiModel.getName(), Snackbar.LENGTH_SHORT).show();
         });
         filterRecycler.setAdapter(availableExercisesAdapter);
     }
-
-    // --- IMPLEMENTAZIONE METODO MANCANTE: MOSTRA ISTRUZIONI ---
-    @Override
-    public void onShowInstructions(int position) {
-        Routine day = trainingViewModel.getEditableTrainingDay().getValue();
-        if (day == null || day.getWorkoutExercises() == null) return;
-
-        WorkoutExercise workoutExercise = day.getWorkoutExercises().get(position);
-
-        //INSTRUCTION rimosso da workoutExercise. Non so come funziona questo metodo ma in assenza di istruction il messaggio era questo
-        String message= "Non sono presenti istruzioni per l'esercizio in questione.";
-
-        // Mostra Dialog
-        new AlertDialog.Builder(requireContext())
-                .setTitle(workoutExercise.getApiExerciseId())
-                .setMessage(message)
-                .setPositiveButton("Chiudi", null)
-                .setIcon(android.R.drawable.ic_dialog_info)
-                .show();
-    }
-    // ---------------------------------------------------------
-
     private void setupFilterListeners() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(String query) { return false; }
@@ -214,8 +226,6 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
         });
     }
-
-    // --- LOGICA COLORI CHIP ---
     private void populateFilterChips(ChipGroup group, List<String> categories) {
         int childCount = group.getChildCount();
         if (childCount > 1) group.removeViews(1, childCount - 1);
@@ -231,7 +241,6 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             group.addView(chip);
         }
     }
-
     private void applyDynamicColorsToStaticChips(View view) {
         Chip chipAllMuscles = view.findViewById(R.id.chip_all_muscles);
         Chip chipAllDifficulty = view.findViewById(R.id.chip_all_difficulty);
@@ -239,7 +248,6 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         if (chipAllMuscles != null) chipAllMuscles.setTextColor(textColors);
         if (chipAllDifficulty != null) chipAllDifficulty.setTextColor(textColors);
     }
-
     private ColorStateList createDynamicColorStateList() {
         TypedValue typedValue = new TypedValue();
         requireContext().getTheme().resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true);
@@ -257,63 +265,6 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         };
         return new ColorStateList(states, colors);
     }
-
-    private void toggleSearchPanel(boolean showSearch) {
-        searchPanel.setVisibility(showSearch ? View.VISIBLE : View.GONE);
-        if (mainRecyclerView != null) mainRecyclerView.setVisibility(showSearch ? View.GONE : View.VISIBLE);
-        if (fabAddExercise != null) fabAddExercise.setVisibility(showSearch ? View.GONE : View.VISIBLE);
-        View buttonsContainer = getView().findViewById(R.id.buttons_container);
-        if (buttonsContainer != null) buttonsContainer.setVisibility(showSearch ? View.GONE : View.VISIBLE);
-        if (showSearch && searchView != null) { searchView.setIconified(false); searchView.requestFocus(); }
-    }
-
-    private void observeViewModel() {
-        trainingViewModel.getEditableTrainingDay().observe(getViewLifecycleOwner(), trainingDay -> {
-            if (trainingDay != null) {
-                toolbar.setTitle(trainingDay.getName());
-                adapter.setExercises(trainingDay.getWorkoutExercises() != null ? trainingDay.getWorkoutExercises() : new ArrayList<>());
-            }
-        });
-        trainingViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null && !error.isEmpty()) Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
-        });
-        if (trainingId != null && trainingDayId != null) trainingViewModel.loadTrainingDayForEdit(trainingId, trainingDayId);
-    }
-
-    private void setupToolbar() { toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack()); }
-
-    private void setupBackButtonHandler() {
-        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
-            @Override public void handleOnBackPressed() {
-                if (searchPanel != null && searchPanel.getVisibility() == View.VISIBLE) toggleSearchPanel(false);
-                else { setEnabled(false); if (isAdded()) NavHostFragment.findNavController(EditRoutineFragment.this).popBackStack(); }
-            }
-        });
-    }
-
-    private void saveChanges() {
-        trainingViewModel.saveTrainingDayChanges(trainingId, new FirebaseCallback<Void>() {
-            @Override public void onSuccess(Void result) { Toast.makeText(getContext(), "Modifiche salvate!", Toast.LENGTH_SHORT).show(); NavHostFragment.findNavController(EditRoutineFragment.this).popBackStack(); }
-            @Override public void onError(Exception e) { Toast.makeText(getContext(), "Errore: " + e.getMessage(), Toast.LENGTH_LONG).show(); }
-        });
-    }
-
-    @Override public void onEditExercise(int position) { showAddOrReplaceExerciseDialog(position); }
-
-    @Override public void onDeleteExercise(int position) {
-        Routine day = trainingViewModel.getEditableTrainingDay().getValue();
-        if(day == null) return;
-        new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + day.getWorkoutExercises().get(position).getApiExerciseId() + "?")
-                .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteExerciseFromDay(position)).setNegativeButton("Annulla", null).show();
-    }
-
-    @Override public void onSetUpdated(int exPos, int setPos, double w, int r) { trainingViewModel.updateSetInExercise(exPos, setPos, w, r); }
-
-    @Override public void onSetDeleted(int exPos, int setPos) {
-        new AlertDialog.Builder(requireContext()).setTitle("Elimina Serie").setMessage("Eliminare questa serie?")
-                .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteSetFromExercise(exPos, setPos)).setNegativeButton("Annulla", null).show();
-    }
-
     private void showAddOrReplaceExerciseDialog(final int positionToReplace) {
         List<ExerciseApiModel> available = trainingViewModel.getAvailableExercises().getValue();
         if (available != null && !available.isEmpty()) openSelectionDialog(available, positionToReplace);
@@ -334,11 +285,69 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             new Handler().postDelayed(() -> { if (progressDialog.isShowing()) progressDialog.dismiss(); }, 5000);
         }
     }
-
     private void openSelectionDialog(List<ExerciseApiModel> exercises, int positionToReplace) {
         String[] names = new String[exercises.size()];
         for (int i = 0; i < exercises.size(); i++) names[i] = exercises.get(i).getName();
         new AlertDialog.Builder(requireContext()).setTitle("Sostituisci").setItems(names, (dialog, which) ->
-                trainingViewModel.replaceExerciseInDay(positionToReplace, exercises.get(which))).setNegativeButton("Annulla", null).show();
+                trainingViewModel.replaceExerciseRoutine(positionToReplace, exercises.get(which))).setNegativeButton("Annulla", null).show();
     }
+    private void toggleSearchPanel(boolean showSearch) {
+        searchPanel.setVisibility(showSearch ? View.VISIBLE : View.GONE);
+        if (mainRecyclerView != null) mainRecyclerView.setVisibility(showSearch ? View.GONE : View.VISIBLE);
+        if (fabAddExercise != null) fabAddExercise.setVisibility(showSearch ? View.GONE : View.VISIBLE);
+        View buttonsContainer = getView().findViewById(R.id.buttons_container);
+        if (buttonsContainer != null) buttonsContainer.setVisibility(showSearch ? View.GONE : View.VISIBLE);
+        if (showSearch && searchView != null) { searchView.setIconified(false); searchView.requestFocus(); }
+    }
+    // -------------------------------------
+
+    private void observeViewModel() {
+        trainingViewModel.getEditableRoutine().observe(getViewLifecycleOwner(), routine -> {
+            if (routine != null) {
+                if (!etRoutineName.getText().toString().equals(routine.getName())) {
+                    etRoutineName.setText(routine.getName());
+                }
+                adapter.setExercises(routine.getWorkoutExercises() != null ? routine.getWorkoutExercises() : new ArrayList<>());
+            }
+        });
+        trainingViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
+            if (error != null && !error.isEmpty()) Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
+        });
+        if (trainingId != null && routineId != null) trainingViewModel.loadRoutineForEdit(trainingId, routineId);
+    }
+    private void saveChanges() {
+        Routine routine = trainingViewModel.getEditableRoutine().getValue();
+        trainingViewModel.updateRoutine(routine);
+        Toast.makeText(getContext(), "Salvato", Toast.LENGTH_SHORT).show();
+    }
+
+    private void cancelChanges() {
+        trainingViewModel.clearEditableRoutine();
+        NavHostFragment.findNavController(this).popBackStack();
+    }
+
+    @Override public void onEditExercise(int position) {
+        showAddOrReplaceExerciseDialog(position);
+    }
+    @Override public void onDeleteExercise(int position) {
+        Routine routine = trainingViewModel.getEditableRoutine().getValue();
+        if(routine == null) return;
+        new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + routine.getWorkoutExercises().get(position).getApiExerciseId() + "?")
+                .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteExerciseFromRoutine(position)).setNegativeButton("Annulla", null).show();
+    }
+
+    @Override
+    public void onSetCreated(int exercisePosition) {
+        trainingViewModel.addSetInExercise(exercisePosition);
+    }
+
+    @Override public void onSetUpdated(int exPos, int setPos, double w, int r) {
+        trainingViewModel.updateSetInExercise(exPos, setPos, w, r);
+    }
+    @Override public void onSetDeleted(int exPos, int setPos) {
+        new AlertDialog.Builder(requireContext()).setTitle("Elimina Serie").setMessage("Eliminare questa serie?")
+                .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteSetFromExercise(exPos, setPos)).setNegativeButton("Annulla", null).show();
+    }
+
+
 }

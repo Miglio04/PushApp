@@ -139,4 +139,7 @@
     <string name="target_weight_kg">Target weight (kg)</string>
     <string name="please_enter_your_goal_weight">Please enter your goal weight</string>
     <string name="you_re_ready_to_go">You\'re ready to go!</string>
+    <string name="new_training">New Training</string>
+    <string name="description">Description</string>
+
 </resources>

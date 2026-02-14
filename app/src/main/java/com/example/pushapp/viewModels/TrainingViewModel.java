@@ -31,7 +31,7 @@ public class TrainingViewModel extends ViewModel {
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
     // LiveData per la modifica
-    private final MutableLiveData<Routine> editableTrainingDay = new MutableLiveData<>();
+    private final MutableLiveData<Routine> editableRoutine = new MutableLiveData<>();
 
     // LiveData per esercizi e filtri
     private final MutableLiveData<List<ExerciseApiModel>> availableExercises = new MutableLiveData<>();
@@ -54,7 +54,7 @@ public class TrainingViewModel extends ViewModel {
 
     public LiveData<Result> getTrainings() { return trainings; }
     public LiveData<Training> getActiveTraining() { return activeTraining; }
-    public LiveData<Routine> getEditableTrainingDay() { return editableTrainingDay; }
+    public LiveData<Routine> getEditableRoutine() { return editableRoutine; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
     public LiveData<List<ExerciseApiModel>> getAvailableExercises() { return availableExercises; }
@@ -63,8 +63,8 @@ public class TrainingViewModel extends ViewModel {
     public LiveData<List<String>> getAvailableMuscleGroups() { return availableMuscleGroups; }
     public LiveData<List<String>> getAvailableDifficulties() { return availableDifficulties; }
 
-    public void fetchTrainings(){
-        trainingRepository.getTrainingList();
+    public void fetchTrainings(String userId){
+        trainingRepository.fetchTrainings(userId);
     }
 
     public void loadActiveTraining() {
@@ -82,46 +82,42 @@ public class TrainingViewModel extends ViewModel {
     }
 
     // --- CRUD OPERAZIONI ---
-    public void createSampleTraining(FirebaseCallback<String> callback) {
-        trainingRepository.createSampleTraining(callback);
+    public void createSampleTraining(String userId) {
+        trainingRepository.createSampleTraining(userId);
     }
-    public void createTraining(Training training, FirebaseCallback<String> callback) {
+    public void createTraining(String userId) {
         isLoading.setValue(true);
-        trainingRepository.createTraining(training, new FirebaseCallback<String>() {
-            @Override
-            public void onSuccess(String result) {
-                isLoading.setValue(false);
-                callback.onSuccess(result);
-            }
-
-            @Override
-            public void onError(Exception e) {
-                errorMessage.setValue(e.getMessage());
-                isLoading.setValue(false);
-                callback.onError(e);
-            }
-        });
+        Training training = new Training();
+        training.setUserId(userId);
+        training.setName("New Training");
+        training.setDescription("Description");
+        trainingRepository.createTraining(userId, training);
     }
-
-    public void updateTraining(Training training, FirebaseCallback<Void> callback) {
+    public void updateTraining(Training training) {
         trainingRepository.updateTraining(training);
     }
-
-    public void deleteTraining(String trainingId, FirebaseCallback<Void> callback) {
-        trainingRepository.deleteTraining(trainingId, new FirebaseCallback<Void>() {
-            @Override
-            public void onSuccess(Void result) {
-                callback.onSuccess(result);
-            }
-            @Override
-            public void onError(Exception e) {
-                callback.onError(e);
-            }
-        });
+    public void deleteTraining(Training training) {
+        trainingRepository.deleteTraining(training);
     }
 
+    public void createRoutine(Training currentTraining) {
+        Routine routine = new Routine();
+        routine.setName("New Routine");
+        routine.setTrainingId(currentTraining.getTrainingId());
+        routine.setUserId(currentTraining.getUserId());
+        routine.setDayOrder(currentTraining.getRoutinesList().size() + 1);
+        trainingRepository.createRoutine(routine);
+    }
+    public void updateRoutine(Routine routine){
+        trainingRepository.updateRoutine(routine);
+    }
+    public void deleteRoutine(Routine routine) {
+        trainingRepository.deleteRoutine(routine);
+    }
+
+
     // --- EDIT MODE LOGIC ---
-    public void loadTrainingDayForEdit(String trainingId, String trainingDayId) {
+    public void loadRoutineForEdit(String trainingId, String trainingDayId) {
         isLoading.setValue(true);
 
         if (trainingId == null || trainingDayId == null) {
@@ -138,9 +134,10 @@ public class TrainingViewModel extends ViewModel {
                 for (Training t : currentTrainings) {
                     if (trainingId.equals(t.getTrainingId()) && t.getRoutinesList() != null) {
                         // Trovato il training, ora cerca il giorno
-                        for (Routine day : t.getRoutinesList()) {
-                            if (trainingDayId.equals(day.getRoutineId())) {
-                                editableTrainingDay.setValue(day); // Pubblica il giorno reale
+                        for (Routine routine : t.getRoutinesList()) {
+                            if (trainingDayId.equals(routine.getRoutineId())) {
+                                Routine routineTemp = new Routine(routine);
+                                editableRoutine.setValue(routineTemp); // Pubblica il giorno reale
                                 isLoading.setValue(false);
                                 return;
                             }
@@ -182,7 +179,7 @@ public class TrainingViewModel extends ViewModel {
                 if (t.getRoutinesList() != null) {
                     for (Routine day : t.getRoutinesList()) {
                         if (day.getTrainingId() != null && day.getTrainingId().trim().equals(trainingDayId.trim())) {
-                            editableTrainingDay.setValue(day);
+                            editableRoutine.setValue(day);
                             isLoading.setValue(false);
                             return true;
                         }
@@ -191,33 +188,6 @@ public class TrainingViewModel extends ViewModel {
             }
         }
         return false;
-    }
-
-    public void saveTrainingDayChanges(String trainingId, FirebaseCallback<Void> callback) {
-        Routine editedDay = editableTrainingDay.getValue();
-        if (trainings.getValue().isTrainingsSuccess()) {
-            List<Training> currentTrainings = ((Result.TrainingsSuccess) trainings.getValue()).getData();
-
-            if (editedDay == null || currentTrainings == null || trainingId == null) {
-                callback.onError(new Exception("Dati mancanti per il salvataggio"));
-            }
-
-            for (Training training : currentTrainings) {
-                if (trainingId.equals(training.getTrainingId())) {
-                    List<Routine> days = training.getRoutinesList();
-                    if (days != null) {
-                        for (int i = 0; i < days.size(); i++) {
-                            if (editedDay.getTrainingId().equals(days.get(i).getTrainingId())) {
-                                days.set(i, editedDay);
-                                break;
-                            }
-                        }
-                        // Salva il training aggiornato su Firebase
-                        trainingRepository.updateTraining(training);
-                    }
-                }
-            }
-        }
     }
 
     // ===================================================================================
@@ -360,8 +330,8 @@ public class TrainingViewModel extends ViewModel {
         return series;
     }
 
-    public void addExerciseToDay(WorkoutExercise workoutExercise) {
-        Routine currentDay = editableTrainingDay.getValue();
+    public void addExerciseToRoutine(WorkoutExercise workoutExercise) {
+        Routine currentDay = editableRoutine.getValue();
         if (currentDay != null) {
             List<WorkoutExercise> currentList = currentDay.getWorkoutExercises();
             if (currentList == null) currentList = new ArrayList<>();
@@ -374,14 +344,14 @@ public class TrainingViewModel extends ViewModel {
 
             updatedList.add(workoutExercise);
             currentDay.setWorkoutExercises(updatedList);
-            editableTrainingDay.setValue(currentDay);
+            editableRoutine.setValue(currentDay);
         } else {
             errorMessage.setValue("Errore: Giorno non caricato.");
         }
     }
 
-    public void replaceExerciseInDay(int position, ExerciseApiModel newExerciseInfo) {
-        Routine currentDay = editableTrainingDay.getValue();
+    public void replaceExerciseRoutine(int position, ExerciseApiModel newExerciseInfo) {
+        Routine currentDay = editableRoutine.getValue();
         if (currentDay != null && currentDay.getWorkoutExercises() != null && position < currentDay.getWorkoutExercises().size()) {
 
             List<WorkoutExercise> updatedList = new ArrayList<>(currentDay.getWorkoutExercises());
@@ -392,45 +362,71 @@ public class TrainingViewModel extends ViewModel {
             updatedList.set(position, newWorkoutExercise);
             currentDay.setWorkoutExercises(updatedList);
 
-            editableTrainingDay.setValue(currentDay);
+            editableRoutine.setValue(currentDay);
         }
     }
 
-    public void deleteExerciseFromDay(int position) {
-        Routine currentDay = editableTrainingDay.getValue();
-        if (currentDay != null && currentDay.getWorkoutExercises() != null) {
-            List<WorkoutExercise> updatedList = new ArrayList<>(currentDay.getWorkoutExercises());
+    public void deleteExerciseFromRoutine(int position) {
+        Routine routine = editableRoutine.getValue();
+        if (routine != null && routine.getWorkoutExercises() != null) {
+            List<WorkoutExercise> updatedList = new ArrayList<>(routine.getWorkoutExercises());
             if (position >= 0 && position < updatedList.size()) {
                 updatedList.remove(position);
-                currentDay.setWorkoutExercises(updatedList);
-                editableTrainingDay.setValue(currentDay);
+                routine.setWorkoutExercises(updatedList);
+                editableRoutine.setValue(routine);
             }
         }
     }
 
+    public void addSetInExercise(int exercisePosition) {
+        Routine routine = editableRoutine.getValue();
+        if (routine != null && routine.getWorkoutExercises() != null) {
+            if (exercisePosition < routine.getWorkoutExercises().size()) {
+
+                WorkoutExercise workoutExercise = routine.getWorkoutExercises().get(exercisePosition);
+
+                List<Serie> currentSeries = workoutExercise.getSeries();
+                if (currentSeries == null) {
+                    currentSeries = new ArrayList<>();
+                }
+
+                List<Serie> updatedSeries = new ArrayList<>(currentSeries);
+
+                Serie newSet = new Serie();
+
+                newSet.setUserId(routine.getUserId());
+                newSet.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
+                newSet.setSerieNumber(updatedSeries.size() + 1);
+
+                updatedSeries.add(newSet);
+                workoutExercise.setSeries(updatedSeries);
+
+                editableRoutine.setValue(routine);
+            }
+        }
+    }
     public void updateSetInExercise(int exercisePosition, int setPosition, double newWeight, int newReps) {
-        Routine currentDay = editableTrainingDay.getValue();
-        if (currentDay != null && currentDay.getWorkoutExercises() != null) {
-            if (exercisePosition < currentDay.getWorkoutExercises().size()) {
-                WorkoutExercise workoutExercise = currentDay.getWorkoutExercises().get(exercisePosition);
+        Routine routine = editableRoutine.getValue();
+        if (routine != null && routine.getWorkoutExercises() != null) {
+            if (exercisePosition < routine.getWorkoutExercises().size()) {
+                WorkoutExercise workoutExercise = routine.getWorkoutExercises().get(exercisePosition);
                 if (workoutExercise.getSeries() != null && setPosition < workoutExercise.getSeries().size()) {
                     Serie serie = workoutExercise.getSeries().get(setPosition);
                     serie.setTargetWeight(newWeight);
                     serie.setTargetReps(newReps);
-                    editableTrainingDay.setValue(currentDay);
+                    editableRoutine.setValue(routine);
                 }
             }
         }
     }
-
     public void deleteSetFromExercise(int exercisePosition, int setPosition) {
-        Routine currentDay = editableTrainingDay.getValue();
-        if (currentDay != null && currentDay.getWorkoutExercises() != null) {
-            if (exercisePosition < currentDay.getWorkoutExercises().size()) {
-                WorkoutExercise workoutExercise = currentDay.getWorkoutExercises().get(exercisePosition);
+        Routine routine = editableRoutine.getValue();
+        if (routine != null && routine.getWorkoutExercises() != null) {
+            if (exercisePosition < routine.getWorkoutExercises().size()) {
+                WorkoutExercise workoutExercise = routine.getWorkoutExercises().get(exercisePosition);
                 if (workoutExercise.getSeries() != null && setPosition < workoutExercise.getSeries().size()) {
                     workoutExercise.getSeries().remove(setPosition);
-                    editableTrainingDay.setValue(currentDay);
+                    editableRoutine.setValue(routine);
                 }
             }
         }
@@ -445,5 +441,8 @@ public class TrainingViewModel extends ViewModel {
 
     public void resetLocalDatabase() {
         trainingRepository.resetLocalDatabase();
+    }
+    public void clearEditableRoutine() {
+        editableRoutine.setValue(null);
     }
 }

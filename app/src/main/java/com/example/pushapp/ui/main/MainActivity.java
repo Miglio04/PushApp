@@ -17,6 +17,8 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.pushapp.R;
 import com.example.pushapp.viewModels.HistoryViewModel;
+import com.example.pushapp.models.Result;
+import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.viewModels.WorkoutViewModel;
@@ -24,9 +26,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
     private WorkoutViewModel workoutViewModel;
     private UserViewModel userViewModel;
     private HistoryViewModel historyViewModel;
+    private TrainingViewModel trainingViewModel;
     private View miniPlayerView;
     private NavController navController;
 
@@ -35,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ViewModelFactory factory = new ViewModelFactory(this);
         workoutViewModel = new ViewModelProvider(
                 this,
                 new ViewModelFactory(getApplicationContext())).get(WorkoutViewModel.class);
@@ -47,10 +50,23 @@ public class MainActivity extends AppCompatActivity {
         historyViewModel = new ViewModelProvider(
                 this,
                 new ViewModelFactory(getApplicationContext())).get(HistoryViewModel.class);
+        trainingViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(getApplicationContext())).get(TrainingViewModel.class);
+
 
         userViewModel.fetchUser();
         historyViewModel.fetchHistory();
         workoutViewModel.checkRestoredSession();
+        Result result = userViewModel.getSessionLiveData().getValue();
+
+        if (result != null && result.isSessionSuccess()) {
+            String userId = ((Result.SessionSuccess) result).getData().getUserId();
+            trainingViewModel.fetchTrainings(userId);
+        } else{
+            Log.d(TAG, "Errore nella fetch dell'utente");
+        }
+
 
         setupWindowInsets();
         setupNavigation();
