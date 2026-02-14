@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
 import com.example.pushapp.adapter.HistoryAdapter;
-import com.example.pushapp.models.Result;
 import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
 import com.example.pushapp.viewModels.HistoryViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
@@ -82,12 +81,9 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
     }
 
     private void observeData() {
-        historyViewModel.getHistoryList().observe(getViewLifecycleOwner(), result -> {
-            if (result instanceof Result.HistorySuccess) {
-                List<HistorySessionWithExercises> data = ((Result.HistorySuccess) result).getData();
-                historyAdapter.updateHistory(data);
-                emptyStateText.setVisibility(data.isEmpty() ? View.VISIBLE : View.GONE);
-            }
+        historyViewModel.getHistorySessions().observe(getViewLifecycleOwner(), sessions -> {
+            historyAdapter.updateHistory(sessions);
+            emptyStateText.setVisibility(sessions.isEmpty() ? View.VISIBLE : View.GONE);
         });
     }
 

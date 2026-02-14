@@ -1,5 +1,6 @@
 package com.example.pushapp.repositories;
 
+import android.util.Log;
 import com.example.pushapp.database.HistoryDao;
 import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.models.GraphPoint;
@@ -15,7 +16,7 @@ public class HistoryLocalDataSource {
     private final HistoryDao historyDao;
     private HistoryCallback historyCallback;
 
-    public HistoryLocalDataSource(LocalDatabase database) {
+    HistoryLocalDataSource(LocalDatabase database) {
         this.historyDao = database.historyDao();
     }
 
@@ -85,25 +86,6 @@ public class HistoryLocalDataSource {
         });
     }
 
-    public void searchHistoryByExercise(String exerciseName, HistoryCallback callback) {
-        LocalDatabase.databaseWriteExecutor.execute(() -> {
-            try {
-                List<HistorySessionWithExercises> result = historyDao.getHistoryByExercise(exerciseName);
-                if (callback != null) {
-                    callback.onSuccessHistoryListFromLocal(result);
-                }
-            } catch (Exception e) {
-                if (callback != null) {
-                    callback.onFailureFromLocal(e);
-                }
-            }
-        });
-    }
-
-    public void getGraphData(String exerciseName, HistoryRepository.StatMetric metric) {
-        getGraphData(exerciseName, metric, this.historyCallback);
-    }
-
     public void getGraphData(String exerciseName, HistoryRepository.StatMetric metric, HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -140,7 +122,7 @@ public class HistoryLocalDataSource {
                     onSuccess.run();
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Log.e("HistoryLocalDataSrc", "Failed to delete session: " + e.getMessage(), e);
             }
         });
     }

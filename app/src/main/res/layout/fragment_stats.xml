@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/cardview_light_background">
+                app:cardBackgroundColor="@color/md_theme_surfaceContainer">
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
@@ -118,20 +118,41 @@
                 android:layout_marginTop="20dp"
                 app:cardCornerRadius="28dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/cardview_light_background">
-                <RelativeLayout android:layout_width="match_parent" android:layout_height="match_parent">
-                    <Spinner android:id="@+id/exerciseSpinner" android:layout_width="match_parent" android:layout_height="match_parent" android:paddingHorizontal="20dp" android:background="@android:color/transparent"/>
-                    <ImageView android:id="@+id/imgSpinnerArrow" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:layout_marginEnd="20dp" android:src="@drawable/outline_arrow_back_ios_24" android:rotation="270" app:tint="@color/md_theme_primary"/>
-                </RelativeLayout>
+                app:cardBackgroundColor="@color/md_theme_surfaceContainer">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    app:boxCornerRadiusTopStart="28dp"
+                    app:boxCornerRadiusTopEnd="28dp"
+                    app:boxCornerRadiusBottomStart="28dp"
+                    app:boxCornerRadiusBottomEnd="28dp"
+                    android:padding="0dp">
+
+                    <AutoCompleteTextView
+                        android:id="@+id/exerciseSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:paddingHorizontal="20dp"
+                        android:background="@android:color/transparent"
+                        android:dropDownHeight="wrap_content"
+                        android:hint="Select exercise"
+                        android:inputType="none"
+                        android:ellipsize="end"
+                        android:singleLine="true"
+                        android:textColor="@color/md_theme_onSurface"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Weight Progress (kg)" android:layout_marginTop="24dp" android:fontFamily="sans-serif-medium" android:textColor="@color/md_theme_primary" android:paddingStart="4dp"/>
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="250dp" android:layout_marginTop="8dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeWidth="1dp" app:strokeColor="#1A000000">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Weight Progress (kg)" android:layout_marginTop="24dp" android:fontFamily="sans-serif-medium" android:textColor="@color/md_theme_primary" android:paddingStart="4dp" android:paddingEnd="4dp"/>
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="250dp" android:layout_marginTop="8dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeWidth="1dp" app:strokeColor="#1A000000" app:cardBackgroundColor="@color/md_theme_surfaceContainer">
                 <com.github.mikephil.charting.charts.LineChart android:id="@+id/chartLoad" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp"/>
             </com.google.android.material.card.MaterialCardView>
 
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Repetitions" android:layout_marginTop="24dp" android:fontFamily="sans-serif-medium" android:textColor="@color/md_theme_primary" android:paddingStart="4dp"/>
-            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="250dp" android:layout_marginTop="8dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeWidth="1dp" app:strokeColor="#1A000000">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Total Repetitions" android:layout_marginTop="24dp" android:fontFamily="sans-serif-medium" android:textColor="@color/md_theme_primary" android:paddingStart="4dp" android:paddingEnd="4dp"/>
+            <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="250dp" android:layout_marginTop="8dp" app:cardCornerRadius="20dp" app:cardElevation="0dp" app:strokeWidth="1dp" app:strokeColor="#1A000000" app:cardBackgroundColor="@color/md_theme_surfaceContainer">
                 <com.github.mikephil.charting.charts.LineChart android:id="@+id/chartReps" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="12dp"/>
             </com.google.android.material.card.MaterialCardView>
 

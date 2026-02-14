@@ -44,7 +44,7 @@ public interface HistoryDao {
             "FROM historySessions s " +
             "JOIN historyWorkoutExercises ex ON s.historySessionId = ex.historySessionId " +
             "JOIN historySeries ser ON ex.historyExerciseId = ser.historyExerciseId " +
-            "WHERE ex.exerciseName = :exerciseName " +
+            "WHERE LOWER(ex.exerciseName) = LOWER(:exerciseName) " +
             "GROUP BY s.historySessionId " +
             "ORDER BY s.startTime ASC")
     List<GraphPoint> getMaxWeightStats(String exerciseName);
@@ -53,7 +53,7 @@ public interface HistoryDao {
             "FROM historySessions s " +
             "JOIN historyWorkoutExercises ex ON s.historySessionId = ex.historySessionId " +
             "JOIN historySeries ser ON ex.historyExerciseId = ser.historyExerciseId " +
-            "WHERE ex.exerciseName = :exerciseName " +
+            "WHERE LOWER(ex.exerciseName) = LOWER(:exerciseName) " +
             "GROUP BY s.historySessionId " +
             "ORDER BY s.startTime ASC")
     List<GraphPoint> getTotalVolumeStats(String exerciseName);
@@ -62,7 +62,7 @@ public interface HistoryDao {
             "FROM historySessions s " +
             "JOIN historyWorkoutExercises ex ON s.historySessionId = ex.historySessionId " +
             "JOIN historySeries ser ON ex.historyExerciseId = ser.historyExerciseId " +
-            "WHERE ex.exerciseName = :exerciseName " +
+            "WHERE LOWER(ex.exerciseName) = LOWER(:exerciseName) " +
             "GROUP BY s.historySessionId " +
             "ORDER BY s.startTime ASC")
     List<GraphPoint> getOneRepMaxStats(String exerciseName);
