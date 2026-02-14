@@ -38,6 +38,10 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputEditText;
+
+import android.text.Editable;
+import android.text.TextWatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +55,7 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     private EditRoutineAdapter adapter;
     private AvailableExercisesAdapter availableExercisesAdapter;
     private MaterialToolbar toolbar;
+    private TextInputEditText etRoutineName;
     private ConstraintLayout searchPanel;
     private RecyclerView mainRecyclerView;
     private FloatingActionButton fabAddExercise;
@@ -87,6 +92,7 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         super.onViewCreated(view, savedInstanceState);
 
         toolbar = view.findViewById(R.id.toolbar_edit_day);
+        etRoutineName = view.findViewById(R.id.et_routine_name);
         mainRecyclerView = view.findViewById(R.id.recycler_exercises);
         fabAddExercise = view.findViewById(R.id.fab_add_exercise);
         searchPanel = view.findViewById(R.id.search_panel_container);
@@ -98,13 +104,14 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
 
         trainingViewModel.loadAvailableExercises();
         setupToolbar();
+        setupRoutineNameInput();
         setupMainRecyclerView();
         setupBackButtonHandler();
         observeViewModel();
 
         fabAddExercise.setOnClickListener(v -> initializeAndShowSearchPanel());
         btnSave.setOnClickListener(v -> saveChanges());
-        btnCancel.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
+        btnCancel.setOnClickListener(v -> cancelChanges());
     }
     private void setupMainRecyclerView() {
         if (mainRecyclerView != null) {
@@ -113,6 +120,24 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             mainRecyclerView.setAdapter(adapter);
         }
     }
+    private void setupRoutineNameInput() {
+        etRoutineName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                Routine routine = trainingViewModel.getEditableRoutine().getValue();
+                if (routine != null) {
+                    routine.setName(s.toString());
+                }
+            }
+        });
+    }
+
     private void setupToolbar() {
         toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
     }
@@ -163,7 +188,7 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
 
             WorkoutExercise newWorkoutExercise = new WorkoutExercise(exerciseApiModel.getName(), order);
 
-            trainingViewModel.addExerciseToDay(newWorkoutExercise);
+            trainingViewModel.addExerciseToRoutine(newWorkoutExercise);
             toggleSearchPanel(false);
             Snackbar.make(requireView(), "Aggiunto: " + exerciseApiModel.getName(), Snackbar.LENGTH_SHORT).show();
         });
@@ -264,7 +289,7 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         String[] names = new String[exercises.size()];
         for (int i = 0; i < exercises.size(); i++) names[i] = exercises.get(i).getName();
         new AlertDialog.Builder(requireContext()).setTitle("Sostituisci").setItems(names, (dialog, which) ->
-                trainingViewModel.replaceExerciseInDay(positionToReplace, exercises.get(which))).setNegativeButton("Annulla", null).show();
+                trainingViewModel.replaceExerciseRoutine(positionToReplace, exercises.get(which))).setNegativeButton("Annulla", null).show();
     }
     private void toggleSearchPanel(boolean showSearch) {
         searchPanel.setVisibility(showSearch ? View.VISIBLE : View.GONE);
@@ -279,20 +304,28 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     private void observeViewModel() {
         trainingViewModel.getEditableRoutine().observe(getViewLifecycleOwner(), routine -> {
             if (routine != null) {
-                toolbar.setTitle(routine.getName());
+                if (!etRoutineName.getText().toString().equals(routine.getName())) {
+                    etRoutineName.setText(routine.getName());
+                }
                 adapter.setExercises(routine.getWorkoutExercises() != null ? routine.getWorkoutExercises() : new ArrayList<>());
             }
         });
         trainingViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
             if (error != null && !error.isEmpty()) Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
         });
-        if (trainingId != null && routineId != null) trainingViewModel.loadTrainingDayForEdit(trainingId, routineId);
+        if (trainingId != null && routineId != null) trainingViewModel.loadRoutineForEdit(trainingId, routineId);
     }
     private void saveChanges() {
         Routine routine = trainingViewModel.getEditableRoutine().getValue();
         trainingViewModel.updateRoutine(routine);
         Toast.makeText(getContext(), "Salvato", Toast.LENGTH_SHORT).show();
     }
+
+    private void cancelChanges() {
+        trainingViewModel.clearEditableRoutine();
+        NavHostFragment.findNavController(this).popBackStack();
+    }
+
     @Override public void onEditExercise(int position) {
         showAddOrReplaceExerciseDialog(position);
     }
@@ -302,6 +335,12 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + routine.getWorkoutExercises().get(position).getApiExerciseId() + "?")
                 .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteExerciseFromRoutine(position)).setNegativeButton("Annulla", null).show();
     }
+
+    @Override
+    public void onSetCreated(int exercisePosition) {
+        trainingViewModel.addSetInExercise(exercisePosition);
+    }
+
     @Override public void onSetUpdated(int exPos, int setPos, double w, int r) {
         trainingViewModel.updateSetInExercise(exPos, setPos, w, r);
     }

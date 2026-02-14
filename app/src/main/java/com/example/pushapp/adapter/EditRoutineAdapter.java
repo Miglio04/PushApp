@@ -27,6 +27,7 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
     public interface OnExerciseInteractionListener {
         void onEditExercise(int position);
         void onDeleteExercise(int position);
+        void onSetCreated(int exercisePosition);
         void onSetUpdated(int exercisePosition, int setPosition, double newWeight, int newReps);
         void onSetDeleted(int exercisePosition, int setPosition);
 
@@ -89,6 +90,13 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
             }
         });
 
+        holder.btnAddSet.setOnClickListener(v -> {
+            int currentPos = holder.getBindingAdapterPosition();
+            if (listener != null && currentPos != RecyclerView.NO_POSITION) {
+                listener.onSetCreated(currentPos);
+            }
+        });
+
         // Configura il RecyclerView interno (le Serie)
         holder.setupInnerRecyclerView(workoutExercise.getSeries(), listener);
     }
@@ -105,6 +113,7 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
         public final LinearLayout expandableLayout;
         public final ImageButton btnEditExercise;
         public final ImageButton btnDeleteExercise;
+        public final ImageButton btnAddSet;
         final RecyclerView recyclerSeries;
         private SetsAdapter setsAdapter;
 
@@ -116,6 +125,7 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
             expandableLayout = view.findViewById(R.id.expandable_layout);
             btnEditExercise = view.findViewById(R.id.btn_edit_exercise);
             btnDeleteExercise = view.findViewById(R.id.btn_delete_exercise);
+            btnAddSet = view.findViewById(R.id.btn_add_set);
 
             recyclerSeries = view.findViewById(R.id.sets_recycler_view);
         }

@@ -37,6 +37,9 @@ public class Serie implements Serializable {
 
     public Serie() {
         this.serieId = UUID.randomUUID().toString();
+        this.serieNumber = 0;
+        this.targetReps = 0;
+        this.targetWeight = 0.0;
     }
 
     public Serie(int serieNumber, int targetReps, double targetWeight) {

@@ -83,6 +83,17 @@
                 android:nestedScrollingEnabled="false"
                 android:overScrollMode="never" />
 
+            <ImageButton
+                android:id="@+id/btn_add_set"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:layout_marginTop="4dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/add"
+                app:tint="?attr/colorOnSurface"
+                android:contentDescription="Aggiungi serie" />
+
         </LinearLayout>
 
     </LinearLayout>

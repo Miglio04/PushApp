@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Training;
@@ -118,7 +117,7 @@ public class TrainingViewModel extends ViewModel {
 
 
     // --- EDIT MODE LOGIC ---
-    public void loadTrainingDayForEdit(String trainingId, String trainingDayId) {
+    public void loadRoutineForEdit(String trainingId, String trainingDayId) {
         isLoading.setValue(true);
 
         if (trainingId == null || trainingDayId == null) {
@@ -135,9 +134,10 @@ public class TrainingViewModel extends ViewModel {
                 for (Training t : currentTrainings) {
                     if (trainingId.equals(t.getTrainingId()) && t.getRoutinesList() != null) {
                         // Trovato il training, ora cerca il giorno
-                        for (Routine day : t.getRoutinesList()) {
-                            if (trainingDayId.equals(day.getRoutineId())) {
-                                editableRoutine.setValue(day); // Pubblica il giorno reale
+                        for (Routine routine : t.getRoutinesList()) {
+                            if (trainingDayId.equals(routine.getRoutineId())) {
+                                Routine routineTemp = new Routine(routine);
+                                editableRoutine.setValue(routineTemp); // Pubblica il giorno reale
                                 isLoading.setValue(false);
                                 return;
                             }
@@ -330,7 +330,7 @@ public class TrainingViewModel extends ViewModel {
         return series;
     }
 
-    public void addExerciseToDay(WorkoutExercise workoutExercise) {
+    public void addExerciseToRoutine(WorkoutExercise workoutExercise) {
         Routine currentDay = editableRoutine.getValue();
         if (currentDay != null) {
             List<WorkoutExercise> currentList = currentDay.getWorkoutExercises();
@@ -350,7 +350,7 @@ public class TrainingViewModel extends ViewModel {
         }
     }
 
-    public void replaceExerciseInDay(int position, ExerciseApiModel newExerciseInfo) {
+    public void replaceExerciseRoutine(int position, ExerciseApiModel newExerciseInfo) {
         Routine currentDay = editableRoutine.getValue();
         if (currentDay != null && currentDay.getWorkoutExercises() != null && position < currentDay.getWorkoutExercises().size()) {
 
@@ -373,6 +373,34 @@ public class TrainingViewModel extends ViewModel {
             if (position >= 0 && position < updatedList.size()) {
                 updatedList.remove(position);
                 routine.setWorkoutExercises(updatedList);
+                editableRoutine.setValue(routine);
+            }
+        }
+    }
+
+    public void addSetInExercise(int exercisePosition) {
+        Routine routine = editableRoutine.getValue();
+        if (routine != null && routine.getWorkoutExercises() != null) {
+            if (exercisePosition < routine.getWorkoutExercises().size()) {
+
+                WorkoutExercise workoutExercise = routine.getWorkoutExercises().get(exercisePosition);
+
+                List<Serie> currentSeries = workoutExercise.getSeries();
+                if (currentSeries == null) {
+                    currentSeries = new ArrayList<>();
+                }
+
+                List<Serie> updatedSeries = new ArrayList<>(currentSeries);
+
+                Serie newSet = new Serie();
+
+                newSet.setUserId(routine.getUserId());
+                newSet.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
+                newSet.setSerieNumber(updatedSeries.size() + 1);
+
+                updatedSeries.add(newSet);
+                workoutExercise.setSeries(updatedSeries);
+
                 editableRoutine.setValue(routine);
             }
         }
@@ -413,5 +441,8 @@ public class TrainingViewModel extends ViewModel {
 
     public void resetLocalDatabase() {
         trainingRepository.resetLocalDatabase();
+    }
+    public void clearEditableRoutine() {
+        editableRoutine.setValue(null);
     }
 }
