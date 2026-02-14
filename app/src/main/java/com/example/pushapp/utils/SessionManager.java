@@ -2,13 +2,13 @@ package com.example.pushapp.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import com.example.pushapp.models.Routine;
+
 import com.google.gson.Gson;
 
 public class SessionManager {
 
     private static final String PREF_NAME = "workout_session_prefs";
-    private static final String KEY_ROUTINE = "routine_json";
+    private static final String KEY_SESSION_STATE = "routine_json";
     private static final String KEY_START_TIME = "start_time";
     private static final String KEY_IS_ACTIVE = "is_active";
 
@@ -19,24 +19,21 @@ public class SessionManager {
         this.prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         this.gson = new Gson();
     }
-
-    // --- SALVATAGGIO STATO ---
-    public void saveSessionState(Routine routine, long startTime) {
+    public void saveSessionState(WorkoutState state, long startTime) {
         SharedPreferences.Editor editor = prefs.edit();
-        String routineJson = gson.toJson(routine);
-        editor.putString(KEY_ROUTINE, routineJson);
+        String stateJson = gson.toJson(state);
+        editor.putString(KEY_SESSION_STATE, stateJson);
         editor.putLong(KEY_START_TIME, startTime);
         editor.putBoolean(KEY_IS_ACTIVE, true);
         editor.apply();
     }
 
-    // --- RECUPERO DATI ---
-    public Routine getSavedRoutine() {
-        String json = prefs.getString(KEY_ROUTINE, null);
+    public WorkoutState getSavedSession() {
+        String json = prefs.getString(KEY_SESSION_STATE, null);
         if (json == null) return null;
 
         try {
-            return gson.fromJson(json, Routine.class);
+            return gson.fromJson(json, WorkoutState.class);
         } catch (Exception e) {
             e.printStackTrace();
             return null;

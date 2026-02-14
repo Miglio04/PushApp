@@ -12,9 +12,11 @@ import com.example.pushapp.models.history.HistorySerie;
 import com.example.pushapp.models.history.HistorySession;
 import com.example.pushapp.models.history.HistoryWorkoutExercise;
 import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
+import com.example.pushapp.models.roomModels.helpers.HistoryWorkoutExerciseWithSeries;
+import com.example.pushapp.utils.WorkoutState;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class HistoryRepository implements HistoryCallback {
     private final String TAG = "HistoryRepository";
@@ -22,6 +24,7 @@ public class HistoryRepository implements HistoryCallback {
     private final HistoryRemoteDataSource remoteDataSource;
     private final MutableLiveData<Result> historyList = new MutableLiveData<>();
     private final MutableLiveData<Result> graphData = new MutableLiveData<>();
+    private final MutableLiveData<Result> graphVolumeData = new MutableLiveData<>();
 
     public enum StatMetric {
         MAX_WEIGHT,
@@ -34,17 +37,21 @@ public class HistoryRepository implements HistoryCallback {
         this.remoteDataSource = remoteDataSource;
         this.localDataSource.setHistoryCallback(this);
         if (this.remoteDataSource != null) {
-            this.remoteDataSource.setCallback(this);
+            this.remoteDataSource.setHistoryCallback(this);
         }
     }
 
     public LiveData<Result> getHistoryList() {
+        return historyList;
+    }
+
+    public void fetchHistoryData() {
         localDataSource.getAllHistory();
         if (remoteDataSource != null) {
             remoteDataSource.fetchHistoryFromRemote();
         }
-        return historyList;
     }
+
 
     public void searchHistory(String query) {
         if (query == null || query.isEmpty()) {
@@ -54,54 +61,111 @@ public class HistoryRepository implements HistoryCallback {
         }
     }
 
-    public void saveWorkout(Routine activeRoutine, long startTime, Runnable onComplete) {
-        String sessionId = UUID.randomUUID().toString();
-        long endTime = System.currentTimeMillis();
-        HistorySession session = new HistorySession(sessionId, activeRoutine.getName(), startTime, endTime);
+    public HistorySessionWithExercises createNewWorkoutSessionWithouthTemplate(Routine day) {
+        if (day == null) return null;
 
+        String currentUserId = day.getUserId();
+        if (currentUserId == null || currentUserId.isEmpty()) {
+            Log.e(TAG, "Cannot create workout session: Routine template does not have a userId.");
+            return null;
+        }
+
+        long workoutStartTimeMillis = System.currentTimeMillis();
+
+        HistorySession newSession = new HistorySession(day.getName(), workoutStartTimeMillis, 0);
+        newSession.setUserId(currentUserId);
+
+        List<HistoryWorkoutExerciseWithSeries> historyExercises = new ArrayList<>();
+        for (WorkoutExercise woEx : day.getWorkoutExercises()) {
+
+            HistoryWorkoutExercise hExercise = new HistoryWorkoutExercise(
+                    newSession.getHistorySessionId(),
+                    woEx.getApiExerciseId(),
+                    day.getWorkoutExercises().indexOf(woEx)
+            );
+            hExercise.setUserId(currentUserId);
+
+            List<HistorySerie> historySeries = new ArrayList<>();
+            for (Serie templateSerie : woEx.getSeries()) {
+                HistorySerie hSerie = new HistorySerie(
+                        hExercise.getHistoryExerciseId(),
+                        templateSerie.getSerieNumber(),
+                        0,
+                        0
+                );
+                hSerie.setUserId(currentUserId);
+                historySeries.add(hSerie);
+            }
+
+            hExercise.setCurrentRestTimeIndex(woEx.getRestTimeIndex());
+            HistoryWorkoutExerciseWithSeries exerciseWithSeries = new HistoryWorkoutExerciseWithSeries();
+            exerciseWithSeries.historyWorkoutExercise = hExercise;
+            exerciseWithSeries.historySeries = historySeries;
+            historyExercises.add(exerciseWithSeries);
+        }
+
+        HistorySessionWithExercises sessionWithExercises = new HistorySessionWithExercises();
+        sessionWithExercises.session = newSession;
+        sessionWithExercises.exercises = historyExercises;
+
+        return sessionWithExercises;
+    }
+
+    public WorkoutState createNewWorkoutSessionWithTemplate(Routine day) {
+        HistorySessionWithExercises session = createNewWorkoutSessionWithouthTemplate(day);
+        if (session == null) return null;
+        return new WorkoutState(session, day);
+    }
+
+    public void saveWorkoutSession(HistorySessionWithExercises sessionToSave, Runnable onComplete) {
+        if (sessionToSave == null) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+
+        if (sessionToSave.exercises != null) {
+            for (HistoryWorkoutExerciseWithSeries ex : sessionToSave.exercises) {
+                if (ex.historySeries != null) {
+                    ex.historySeries.removeIf(serie -> serie.getReps() == 0);
+                }
+            }
+            sessionToSave.exercises.removeIf(ex -> ex.historySeries == null || ex.historySeries.isEmpty());
+        }
+
+        if (sessionToSave.exercises == null || sessionToSave.exercises.isEmpty()) {
+            Log.i(TAG, "Workout session is empty after cleanup. Aborting save.");
+            if (onComplete != null) {
+                onComplete.run();
+            }
+            return;
+        }
+
+        HistorySession session = sessionToSave.session;
         List<HistoryWorkoutExercise> historyExercises = new ArrayList<>();
         List<HistorySerie> historySeries = new ArrayList<>();
 
-        // Iterazione Esercizi
-        for (WorkoutExercise workoutExercise : activeRoutine.getWorkoutExercises()) {
-            String historyExerciseId = UUID.randomUUID().toString();
-
-            HistoryWorkoutExercise hExercise = new HistoryWorkoutExercise(
-                    historyExerciseId,
-                    sessionId,
-                    workoutExercise.getApiExerciseId(),
-                    activeRoutine.getWorkoutExercises().indexOf(workoutExercise) // Ordine
-            );
-            historyExercises.add(hExercise);
-
-            // Iterazione Serie
-            for (Serie s : workoutExercise.getSeries()) {
-                // Salviamo solo le serie completate!
-                // Temporaneo, si basa su architettura vecchia
-                /*if (s.isCompleted()) {
-                    HistorySerie hSerie = new HistorySerie(
-                            UUID.randomUUID().toString(),
-                            historyExerciseId,
-                            workoutExercise.getSeries().indexOf(s) + 1, // Numero serie (1-based)
-                            s.getActualWeight(),
-                            s.getActualReps()
-                    );
-                    historySeries.add(hSerie);
+        if (sessionToSave.exercises != null) {
+            for (HistoryWorkoutExerciseWithSeries exerciseWithSeries : sessionToSave.exercises) {
+                historyExercises.add(exerciseWithSeries.historyWorkoutExercise);
+                if (exerciseWithSeries.historySeries != null) {
+                    historySeries.addAll(exerciseWithSeries.historySeries);
                 }
-
-                 */
             }
         }
-        /*localDataSource.saveSession(session, hExercises, hSeries, new HistoryCallback() {
+
+        localDataSource.saveSession(session, historyExercises, historySeries, new HistoryCallback() {
             @Override
             public void onSuccessSaveLocal() {
                 if (remoteDataSource != null) {
-                    remoteDataSource.uploadSession(session, hExercises, hSeries);
+                    remoteDataSource.uploadWorkoutSession(sessionToSave, HistoryRepository.this);
                 }
                 localDataSource.getAllHistory();
-                if (onComplete != null) onComplete.run();
+                if (onComplete != null) {
+                    onComplete.run();
+                }
             }
-            @Override public void onFailureFromLocal(Exception e) {
+            @Override
+            public void onFailureFromLocal(Exception e) {
                 historyList.postValue(new Result.Error(e.getMessage()));
             }
             @Override public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> l) {}
@@ -109,20 +173,43 @@ public class HistoryRepository implements HistoryCallback {
             @Override public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> l) {}
             @Override public void onFailureFromRemote(Exception e) {}
         });
-         */
     }
 
     public void deleteSession(String sessionId) {
-        localDataSource.deleteSession(sessionId);
+        localDataSource.deleteSession(sessionId, () -> {
+            localDataSource.getAllHistory();
+        });
+
         if (remoteDataSource != null) {
             remoteDataSource.deleteSession(sessionId);
         }
-        localDataSource.getAllHistory();
     }
 
-    public LiveData<Result> getGraphData(String exerciseName, StatMetric metric) {
+    /*public LiveData<Result> getGraphData(String exerciseName, StatMetric metric) {
         localDataSource.getGraphData(exerciseName, metric);
         return graphData;
+    }*/
+
+    public LiveData<Result> getGraphData() {
+        return graphData;
+    }
+
+    public void fetchGraphData(String exerciseName, StatMetric metric) {
+        localDataSource.getGraphData(exerciseName, metric, new HistoryCallback() {
+            @Override
+            public void onSuccessGraphDataFromLocal(List<GraphPoint> points) {
+                if (metric == StatMetric.TOTAL_VOLUME) {
+                    graphVolumeData.postValue(new Result.GraphSuccess(points));
+                } else {
+                    graphData.postValue(new Result.GraphSuccess(points));
+                }
+            }
+            @Override public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> list) {}
+            @Override public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> remoteData) {}
+            @Override public void onSuccessSaveLocal() {}
+            @Override public void onFailureFromLocal(Exception e) {}
+            @Override public void onFailureFromRemote(Exception e) {}
+        });
     }
 
     @Override
@@ -143,6 +230,6 @@ public class HistoryRepository implements HistoryCallback {
     }
 
     @Override public void onFailureFromLocal(Exception e) { historyList.postValue(new Result.Error(e.getMessage())); }
-    @Override public void onFailureFromRemote(Exception e) { Log.w(TAG, e.getMessage()); }
+    @Override public void onFailureFromRemote(Exception e) { Log.w(TAG, "Firebase upload failed: " + e.getMessage()); }
     @Override public void onSuccessSaveLocal() { }
 }

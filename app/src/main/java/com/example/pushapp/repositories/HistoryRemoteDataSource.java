@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class HistoryRemoteDataSource {
 
@@ -26,57 +27,68 @@ public class HistoryRemoteDataSource {
         this.auth = FirebaseAuth.getInstance();
     }
 
-    public void setCallback(HistoryCallback callback) {
+    public void setHistoryCallback(HistoryCallback callback) {
         this.callback = callback;
     }
 
-    public void uploadSession(HistorySession session, List<HistoryWorkoutExercise> exercises, List<HistorySerie> series) {
-        if (auth.getCurrentUser() == null) return;
+    public void uploadWorkoutSession(HistorySessionWithExercises sessionToSave, HistoryCallback remoteCallback) {
+        if (auth.getCurrentUser() == null) {
+            if (remoteCallback != null) remoteCallback.onFailureFromRemote(new Exception("User not authenticated"));
+            return;
+        }
+        if (sessionToSave == null || sessionToSave.session == null) {
+            if (callback != null) callback.onFailureFromRemote(new Exception("Session to save is null"));
+            return;
+        }
 
         Map<String, Object> sessionMap = new HashMap<>();
-        sessionMap.put("sessionId", session.sessionId);
-        sessionMap.put("name", session.name);
-        sessionMap.put("startTime", session.startTime);
-        sessionMap.put("endTime", session.endTime);
-        sessionMap.put("duration", session.duration);
+        HistorySession session = sessionToSave.session;
+        sessionMap.put("historySessionId", session.getHistorySessionId());
+        sessionMap.put("userId", session.getUserId());
+        sessionMap.put("name", session.getName());
+        sessionMap.put("startTime", session.getStartTime());
+        sessionMap.put("endTime", session.getEndTime());
+        sessionMap.put("duration", session.getDuration());
 
         List<Map<String, Object>> exercisesListMap = new ArrayList<>();
-
-        for (HistoryWorkoutExercise ex : exercises) {
-            Map<String, Object> exMap = new HashMap<>();
-            exMap.put("historyExerciseId", ex.historyExerciseId);
-            exMap.put("sessionId", ex.sessionId);
-            exMap.put("exerciseName", ex.exerciseName);
-            exMap.put("orderIndex", ex.orderIndex);
-
-            List<Map<String, Object>> seriesListMap = new ArrayList<>();
-            for (HistorySerie s : series) {
-                if (s.historyExerciseId.equals(ex.historyExerciseId)) {
-                    Map<String, Object> sMap = new HashMap<>();
-                    sMap.put("historySetId", s.historySetId);
-                    sMap.put("historyExerciseId", s.historyExerciseId);
-                    sMap.put("setNumber", s.setNumber);
-                    sMap.put("weight", s.weight);
-                    sMap.put("reps", s.reps);
-                    sMap.put("isPersonalRecord", s.isPersonalRecord);
-                    seriesListMap.add(sMap);
+        if (sessionToSave.exercises != null) {
+            for (HistoryWorkoutExerciseWithSeries exWithSeries : sessionToSave.exercises) {
+                Map<String, Object> exMap = new HashMap<>();
+                HistoryWorkoutExercise exercise = exWithSeries.historyWorkoutExercise;
+                exMap.put("historyExerciseId", exercise.getHistoryExerciseId());
+                exMap.put("userId", exercise.getUserId());
+                exMap.put("historySessionId", exercise.getHistorySessionId());
+                exMap.put("exerciseName", exercise.getExerciseName());
+                exMap.put("orderIndex", exercise.getOrderIndex());
+                List<Map<String, Object>> seriesListMap = new ArrayList<>();
+                if (exWithSeries.historySeries != null) {
+                    for (HistorySerie serie : exWithSeries.historySeries) {
+                        Map<String, Object> serieMap = new HashMap<>();
+                        serieMap.put("historySerieId", serie.getHistorySerieId());
+                        serieMap.put("userId", serie.getUserId());
+                        serieMap.put("historyExerciseId", serie.getHistoryExerciseId());
+                        serieMap.put("setNumber", serie.getSetNumber());
+                        serieMap.put("weight", serie.getWeight());
+                        serieMap.put("reps", serie.getReps());
+                        seriesListMap.add(serieMap);
+                    }
                 }
+                exMap.put("series", seriesListMap);
+                exercisesListMap.add(exMap);
             }
-            exMap.put("series", seriesListMap);
-            exercisesListMap.add(exMap);
         }
 
         sessionMap.put("exercises", exercisesListMap);
 
         db.collection("users")
                 .document(auth.getCurrentUser().getUid())
-                .collection("history_sessions")
-                .document(session.sessionId)
+                .collection("historySessions")
+                .document(session.getHistorySessionId())
                 .set(sessionMap)
                 .addOnSuccessListener(aVoid -> {
                 })
                 .addOnFailureListener(e -> {
-                    if (callback != null) callback.onFailureFromRemote(e);
+                    if (remoteCallback != null) remoteCallback.onFailureFromRemote(e);
                 });
     }
 
@@ -85,7 +97,7 @@ public class HistoryRemoteDataSource {
 
         db.collection("users")
                 .document(auth.getCurrentUser().getUid())
-                .collection("history_sessions")
+                .collection("historySessions")
                 .orderBy("startTime", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -114,21 +126,22 @@ public class HistoryRemoteDataSource {
 
         db.collection("users")
                 .document(auth.getCurrentUser().getUid())
-                .collection("history_sessions")
+                .collection("historySessions")
                 .document(sessionId)
                 .delete();
     }
 
     private HistorySessionWithExercises parseDocumentToHistoryObject(DocumentSnapshot doc) {
         HistorySession session = new HistorySession();
-        session.sessionId = doc.getString("sessionId");
-        session.name = doc.getString("name");
+        session.setHistorySessionId(Objects.requireNonNull(doc.getString("historySessionId")));
+        session.setUserId(Objects.requireNonNull(doc.getString("userId")));
+        session.setName(doc.getString("name"));
         Long start = doc.getLong("startTime");
-        session.startTime = (start != null) ? start : 0;
+        session.setStartTime((start != null) ? start : 0);
         Long end = doc.getLong("endTime");
-        session.endTime = (end != null) ? end : 0;
+        session.setEndTime((end != null) ? end : 0);
         Long dur = doc.getLong("duration");
-        session.duration = (dur != null) ? dur : 0;
+        session.setDuration((dur != null) ? dur : 0);
 
         List<HistoryWorkoutExerciseWithSeries> exercisesWithSeries = new ArrayList<>();
 
@@ -136,28 +149,27 @@ public class HistoryRemoteDataSource {
         if (exMaps != null) {
             for (Map<String, Object> exMap : exMaps) {
                 HistoryWorkoutExercise ex = new HistoryWorkoutExercise();
-                ex.historyExerciseId = (String) exMap.get("historyExerciseId");
-                ex.sessionId = (String) exMap.get("sessionId");
-                ex.exerciseName = (String) exMap.get("exerciseName");
+                ex.setHistoryExerciseId((String) Objects.requireNonNull(exMap.get("historyExerciseId")));
+                ex.setUserId((String) Objects.requireNonNull(exMap.get("userId")));
+                ex.setHistorySessionId ((String) Objects.requireNonNull(exMap.get("historySessionId")));
+                ex.setExerciseName((String) exMap.get("exerciseName"));
                 Long order = (Long) exMap.get("orderIndex");
-                ex.orderIndex = (order != null) ? order.intValue() : 0;
+                ex.setOrderIndex((order != null) ? order.intValue() : 0);
 
                 List<HistorySerie> seriesList = new ArrayList<>();
                 List<Map<String, Object>> sMaps = (List<Map<String, Object>>) exMap.get("series");
                 if (sMaps != null) {
                     for (Map<String, Object> sMap : sMaps) {
                         HistorySerie s = new HistorySerie();
-                        s.historySetId = (String) sMap.get("historySetId");
-                        s.historyExerciseId = (String) sMap.get("historyExerciseId");
+                        s.setHistorySerieId((String) Objects.requireNonNull(sMap.get("historySerieId")));
+                        s.setUserId((String) Objects.requireNonNull(sMap.get("userId")));
+                        s.setHistoryExerciseId((String) Objects.requireNonNull(sMap.get("historyExerciseId")));
                         Long sNum = (Long) sMap.get("setNumber");
-                        s.setNumber = (sNum != null) ? sNum.intValue() : 0;
+                        s.setSetNumber((sNum != null) ? sNum.intValue() : 0);
                         Double w = (Double) sMap.get("weight");
-                        s.weight = (w != null) ? (Double) w : 0.0;
+                        s.setWeight((w != null) ? (Double) w : 0.0);
                         Long r = (Long) sMap.get("reps");
-                        s.reps = (r != null) ? r.intValue() : 0;
-                        Boolean pr = (Boolean) sMap.get("isPersonalRecord");
-                        s.isPersonalRecord = (pr != null) ? pr : false;
-
+                        s.setReps((r != null) ? r.intValue() : 0);
                         seriesList.add(s);
                     }
                 }

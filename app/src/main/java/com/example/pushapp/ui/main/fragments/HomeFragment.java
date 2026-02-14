@@ -1,6 +1,5 @@
 package com.example.pushapp.ui.main.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +14,8 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.User;
-import com.example.pushapp.ui.profile.ProfileActivity;
-import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
-import com.example.pushapp.viewModels.WorkoutViewModel;
 import com.google.android.material.card.MaterialCardView;
 
 import java.util.List;
@@ -74,7 +70,7 @@ public class HomeFragment extends Fragment {
                 R.color.md_theme_primary);
 
         setupStatCard(view, R.id.cardWorkouts,
-                R.drawable.outline_accessibility_new_24,
+                R.drawable.ic_weight,
                 "127",
                 "Workouts",
                 R.color.md_theme_primary);

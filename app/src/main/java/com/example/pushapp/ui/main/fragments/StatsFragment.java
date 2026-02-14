@@ -23,9 +23,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.gridlayout.widget.GridLayout;
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.GraphPoint;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.history.HistorySerie;
 import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
+import com.example.pushapp.models.roomModels.helpers.HistoryWorkoutExerciseWithSeries;
+import com.example.pushapp.repositories.HistoryRepository;
 import com.example.pushapp.viewModels.HistoryViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.github.mikephil.charting.charts.LineChart;
@@ -58,7 +61,6 @@ public class StatsFragment extends Fragment {
     private LinearLayout legendLayout;
 
     private HistoryViewModel historyViewModel;
-    private List<HistorySessionWithExercises> fullHistory = new ArrayList<>();
     private LocalDate selectedDate = LocalDate.now();
     private boolean isMonthView = false; // Default: vista settimanale
     private final DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
@@ -75,19 +77,9 @@ public class StatsFragment extends Fragment {
         initViews(view);
         setupChartStyle(chartLoad);
         setupChartStyle(chartReps);
-
-        historyViewModel = new ViewModelProvider(this, new ViewModelFactory(requireContext())).get(HistoryViewModel.class);
-
-        historyViewModel.getHistoryList().observe(getViewLifecycleOwner(), result -> {
-            if (result instanceof Result.HistorySuccess) {
-                this.fullHistory = ((Result.HistorySuccess) result).getData();
-                setupExerciseSpinner();
-                drawCalendar();
-                updateStats();
-            }
-        });
-
+        historyViewModel = new ViewModelProvider(requireActivity(), new ViewModelFactory(requireContext())).get(HistoryViewModel.class);        setupObservers();
         setupClickListeners();
+
         historyViewModel.fetchHistory();
     }
 
@@ -110,27 +102,77 @@ public class StatsFragment extends Fragment {
         setupLegend();
     }
 
-    private void setupClickListeners() {
-        btnPrev.setOnClickListener(v -> {
-            selectedDate = isMonthView ? selectedDate.minusMonths(1) : selectedDate.minusWeeks(1);
-            drawCalendar();
-            updateStats();
+    private void setupObservers() {
+        historyViewModel.getHistoryList().observe(getViewLifecycleOwner(), result -> {
+            if (result instanceof Result.HistorySuccess) {
+                List<HistorySessionWithExercises> history = ((Result.HistorySuccess) result).getData();
+                historyViewModel.onHistoryDataChanged(history);
+                drawCalendar(history);
+            }
         });
 
-        btnNext.setOnClickListener(v -> {
-            selectedDate = isMonthView ? selectedDate.plusMonths(1) : selectedDate.plusWeeks(1);
-            drawCalendar();
-            updateStats();
+        historyViewModel.getSelectedDate().observe(getViewLifecycleOwner(), date -> {
+            selectedDate = date;
+            Result result = historyViewModel.getHistoryList().getValue();
+            if (result instanceof Result.HistorySuccess) {
+                drawCalendar(((Result.HistorySuccess) result).getData());
+            }
         });
+
+        historyViewModel.getExerciseNames().observe(getViewLifecycleOwner(), names -> {
+            if (names != null) {
+                setupExerciseSpinner(names);
+            }
+        });
+
+        historyViewModel.getKpiStats().observe(getViewLifecycleOwner(), stats -> {
+            if (stats != null) {
+                txtKpiWorkouts.setText(String.valueOf(stats.workoutsMonth));
+                txtKpiVolume.setText(String.format(Locale.ENGLISH, "%.1fK", stats.volumeMonth / 1000));
+
+                long mins = stats.timeMillisMonth / 60000;
+                txtKpiTime.setText(mins > 60 ? (mins / 60) + "h " + (mins % 60) + "m" : mins + "m");
+
+                int streak = stats.currentStreak;
+                txtStreakCount.setText(streak + (streak == 1 ? " DAY STREAK!" : " DAYS STREAK!"));
+                txtStreakMessage.setText(streak > 0 ? "You're on fire! 🔥" : "Start your streak today!");
+            }
+        });
+
+        historyViewModel.getGraphVolumeData().observe(getViewLifecycleOwner(), result -> {
+            if (result instanceof Result.GraphSuccess) {
+                List<GraphPoint> points = ((Result.GraphSuccess) result).getData();
+                if (points.isEmpty()) {
+                    chartLoad.clear();
+                    return;
+                }
+                List<Entry> chartEntries = new ArrayList<>();
+                for (int i = 0; i < points.size(); i++) {
+                    chartEntries.add(new Entry(i, (float) points.get(i).getValue()));
+                }
+                renderChart(chartReps, chartEntries, "Total Volume", ContextCompat.getColor(requireContext(), R.color.md_theme_secondary));
+            } else {
+                chartReps.clear();
+            }
+        });
+    }
+
+
+    private void setupClickListeners() {
+        btnPrev.setOnClickListener(v -> historyViewModel.previous(isMonthView));
+        btnNext.setOnClickListener(v -> historyViewModel.next(isMonthView));
 
         btnExpand.setOnClickListener(v -> {
             isMonthView = !isMonthView;
             btnExpand.animate().rotation(isMonthView ? 90f : 270f).setDuration(300).start();
-            drawCalendar();
+            Result result = historyViewModel.getHistoryList().getValue();
+            if (result instanceof Result.HistorySuccess) {
+                drawCalendar(((Result.HistorySuccess) result).getData());
+            }
         });
     }
 
-    private void drawCalendar() {
+    private void drawCalendar(List<HistorySessionWithExercises> history) {
         calendarGrid.removeAllViews();
         txtMonthTitle.setText(selectedDate.format(monthFormatter).toUpperCase());
 
@@ -164,13 +206,11 @@ public class StatsFragment extends Fragment {
                     tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_onSurface));
                 }
 
-                dot.setVisibility(isWorkoutDay(date) ? View.VISIBLE : View.INVISIBLE);
+                dot.setVisibility(isWorkoutDay(date, history) ? View.VISIBLE : View.INVISIBLE);
                 dot.setColorFilter(ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
 
                 v.setOnClickListener(v1 -> {
-                    selectedDate = date;
-                    drawCalendar();
-                    updateStats();
+                    historyViewModel.changeSelectedDate(date);
                 });
             } else {
                 v.setVisibility(View.INVISIBLE);
@@ -184,90 +224,39 @@ public class StatsFragment extends Fragment {
         }
     }
 
-    private void updateStats() {
-        int workoutsMonth = 0;
-        double volumeMonth = 0;
-        long timeMillisMonth = 0;
-        Set<LocalDate> allDates = new HashSet<>();
+    private void setupExerciseSpinner(List<String> names) {
+        if (getContext() == null) return;
 
-        int selMonth = selectedDate.getMonthValue();
-        int selYear = selectedDate.getYear();
-
-        for (HistorySessionWithExercises s : fullHistory) {
-            LocalDate d = Instant.ofEpochMilli(s.session.startTime).atZone(ZoneId.systemDefault()).toLocalDate();
-            allDates.add(d);
-
-            if (d.getMonthValue() == selMonth && d.getYear() == selYear) {
-                workoutsMonth++;
-                timeMillisMonth += (s.session.endTime - s.session.startTime);
-                for (var ex : s.exercises) {
-                    for (HistorySerie sr : ex.historySeries) volumeMonth += (sr.weight * sr.reps);
-                }
-            }
+        List<String> spinnerNames = new ArrayList<>(names);
+        if (spinnerNames.isEmpty()) {
+            spinnerNames.add("No Data");
         }
 
-        txtKpiWorkouts.setText(String.valueOf(workoutsMonth));
-        txtKpiVolume.setText(String.format(Locale.ENGLISH, "%.1fK", volumeMonth / 1000));
-        long mins = timeMillisMonth / 60000;
-        txtKpiTime.setText(mins > 60 ? (mins/60)+"h "+(mins%60)+"m" : mins+"m");
-
-        int streak = 0;
-        LocalDate check = LocalDate.now();
-        if (!allDates.contains(check)) check = check.minusDays(1);
-        while (allDates.contains(check)) {
-            streak++;
-            check = check.minusDays(1);
-        }
-        txtStreakCount.setText(streak + (streak == 1 ? " DAY STREAK!" : " DAYS STREAK!"));
-        txtStreakMessage.setText(streak > 0 ? "You're on fire! 🔥" : "Start your streak today!");
-    }
-
-    private void setupExerciseSpinner() {
-        List<String> names = new ArrayList<>();
-        for (var s : fullHistory) {
-            for (var ex : s.exercises) {
-                if (!names.contains(ex.historyWorkoutExercise.exerciseName))
-                    names.add(ex.historyWorkoutExercise.exerciseName);
-            }
-        }
-        Collections.sort(names);
-        if (names.isEmpty()) names.add("No Data");
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, names);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_spinner_item, spinnerNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         exerciseSpinner.setAdapter(adapter);
         exerciseSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> p, View v, int pos, long id) {
-                imgSpinnerArrow.animate().rotationBy(360f).setDuration(400).start();
-                updateCharts(names.get(pos));
-            }
-            @Override public void onNothingSelected(AdapterView<?> p) {}
-        });
-    }
+                String selectedExercise = spinnerNames.get(pos);
 
-    private void updateCharts(String exerciseName) {
-        List<Entry> loadEntries = new ArrayList<>();
-        List<Entry> repsEntries = new ArrayList<>();
-        fullHistory.sort((a, b) -> Long.compare(a.session.startTime, b.session.startTime));
-
-        int x = 0;
-        for (var s : fullHistory) {
-            for (var ex : s.exercises) {
-                if (ex.historyWorkoutExercise.exerciseName.equalsIgnoreCase(exerciseName)) {
-                    float maxW = 0; float totalR = 0;
-                    for (var sr : ex.historySeries) {
-                        if (sr.weight > maxW) maxW = (float) sr.weight;
-                        totalR += sr.reps;
-                    }
-                    loadEntries.add(new Entry(x, maxW));
-                    repsEntries.add(new Entry(x, totalR));
-                    x++;
+                if (selectedExercise.equals("No Data")) {
+                    chartLoad.clear();
+                    chartReps.clear();
+                    return;
                 }
+
+                imgSpinnerArrow.animate().rotationBy(360f).setDuration(400).start();
+                historyViewModel.fetchGraphDataForExercise(selectedExercise, HistoryViewModel.ChartMetric.MAX_WEIGHT);
+                historyViewModel.fetchGraphDataForExercise(selectedExercise, HistoryViewModel.ChartMetric.TOTAL_VOLUME);
             }
-        }
-        renderChart(chartLoad, loadEntries, "Max Load (kg)", ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
-        renderChart(chartReps, repsEntries, "Total Reps", Color.parseColor("#FF9800"));
+
+            @Override
+            public void onNothingSelected(AdapterView<?> p) {
+                chartLoad.clear();
+                chartReps.clear();
+            }
+        });
     }
 
     private void renderChart(LineChart chart, List<Entry> entries, String label, int color) {
@@ -311,9 +300,13 @@ public class StatsFragment extends Fragment {
         }
     }
 
-    private boolean isWorkoutDay(LocalDate d) {
-        for (var s : fullHistory) {
-            if (Instant.ofEpochMilli(s.session.startTime).atZone(ZoneId.systemDefault()).toLocalDate().isEqual(d)) return true;
+    private boolean isWorkoutDay(LocalDate date, List<HistorySessionWithExercises> history) {
+        if (date == null || history == null) return false;
+        for (HistorySessionWithExercises s : history) {
+            LocalDate workoutDate = Instant.ofEpochMilli(s.session.getStartTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+            if (workoutDate.isEqual(date)) {
+                return true;
+            }
         }
         return false;
     }

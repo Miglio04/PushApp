@@ -132,10 +132,13 @@ public class HistoryLocalDataSource {
         });
     }
 
-    public void deleteSession(String sessionId) {
+    public void deleteSession(String sessionId, Runnable onSuccess) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 historyDao.deleteSessionById(sessionId);
+                if (onSuccess != null) {
+                    onSuccess.run();
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -149,7 +149,7 @@ public class RoutineFragment extends Fragment {
                 .setTitle("Workout in Progress")
                 .setMessage("You already have an active workout session. Would you like to discard it and start a new one?")
                 .setPositiveButton("Discard and Start", (dialog, which) -> {
-                    workoutViewModel.stopWorkout(new FirebaseCallback<Void>() {
+                    workoutViewModel.stopAndDiscardWorkout(new FirebaseCallback<Void>() {
                         @Override
                         public void onSuccess(Void result) {
                             startNewWorkout(routine);

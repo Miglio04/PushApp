@@ -35,28 +35,14 @@
                 android:contentDescription="@string/app_name"
                 android:src="@drawable/ic_launcher_foreground" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
+            <TextView
+                android:id="@+id/card_title"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/md_theme_onSurface" />
 
-                <TextView
-                    android:id="@+id/card_title"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textSize="18sp"
-                    android:textColor="@color/md_theme_onSurface" />
-
-                <TextView
-                    android:id="@+id/card_description"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:textSize="14sp"
-                    android:textColor="@color/md_theme_onSurface" />
-            </LinearLayout>
         </LinearLayout>
 
     <LinearLayout
@@ -65,24 +51,6 @@
         android:orientation="horizontal"
         android:gravity="top"
         android:paddingBottom="4dp">
-
-        <EditText
-            android:id="@+id/card_note"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical|start"
-            android:hint="@string/note"
-            android:inputType="textCapSentences"
-            android:textColor="@color/md_theme_onSurface"
-            android:textColorHint="@color/md_theme_onSurfaceVariant" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical|end"
-            android:layout_marginTop="8dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -95,8 +63,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"/>
-
-        </LinearLayout>
 
     </LinearLayout>
 

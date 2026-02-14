@@ -3,57 +3,48 @@ package com.example.pushapp.viewModels;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.util.Log;
+
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.pushapp.models.WorkoutExercise;
-import com.example.pushapp.models.Serie;
-import com.example.pushapp.models.Training;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.repositories.HistoryRepository;
-import com.example.pushapp.repositories.TrainingRepository;
 // --- FIX 1: Import corretto (utils) ---
 import com.example.pushapp.utils.SessionManager;
+import com.example.pushapp.utils.WorkoutState;
 
-import java.util.List;
 import java.util.Locale;
 
 public class WorkoutViewModel extends ViewModel {
 
     private final String TAG = "WorkoutViewModel";
     private final ExerciseRepository exerciseRepository;
-    private final TrainingRepository trainingRepository;
     private final HistoryRepository historyRepository;
     private final SessionManager sessionManager;
-
-    private Training parentTraining;
     private long workoutStartTimeMillis = 0L;
-    private long startTime = 0L;
-    private long timeWhenPaused = 0L;
+    private long pauseTimeMillis = 0L;
+    private long totalPausedTimeMillis = 0L;
     private long restEndTime = 0L;
     private final Handler timerHandler = new Handler(Looper.getMainLooper());
 
     private final MutableLiveData<String> workoutTitle = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isWorkoutInProgress = new MutableLiveData<>(false);
-    private final MutableLiveData<Routine> activeTrainingDay = new MutableLiveData<>();
+    private final MutableLiveData<WorkoutState> activeWorkoutState = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isWorkoutTimerRunning = new MutableLiveData<>(false);
     private final MutableLiveData<String> formattedTime = new MutableLiveData<>("00:00");
     private final MutableLiveData<Long> elapsedMillis = new MutableLiveData<>(0L);
     private final MutableLiveData<Boolean> isRestTimerRunning = new MutableLiveData<>(false);
     private final MutableLiveData<Integer> restSecondsRemaining = new MutableLiveData<>(0);
     private final MutableLiveData<Integer> restTotalSeconds = new MutableLiveData<>(0);
-
     private final MutableLiveData<Boolean> navigateToHome = new MutableLiveData<>(false);
 
-    public WorkoutViewModel(TrainingRepository trainingRepository,
-                            ExerciseRepository exerciseRepository,
+    public WorkoutViewModel(ExerciseRepository exerciseRepository,
                             HistoryRepository historyRepository,
                             SessionManager sessionManager) {
-        this.trainingRepository = trainingRepository;
         this.exerciseRepository = exerciseRepository;
         this.historyRepository = historyRepository;
         this.sessionManager = sessionManager;
@@ -61,70 +52,149 @@ public class WorkoutViewModel extends ViewModel {
 
     public void checkRestoredSession() {
         if (sessionManager.isSessionActive()) {
-            Routine restored = sessionManager.getSavedRoutine();
-            if (restored != null) {
+            WorkoutState restoredSession = sessionManager.getSavedSession();
+            if (restoredSession != null) {
                 this.workoutStartTimeMillis = sessionManager.getSavedStartTime();
-
-                workoutTitle.setValue(restored.getName());
-                activeTrainingDay.setValue(restored);
+                activeWorkoutState.setValue(restoredSession);
+                workoutTitle.setValue(restoredSession.getCurrentSession().session.getName());
                 isWorkoutInProgress.setValue(true);
-
-                // Calcolo il tempo trascorso reale per riallineare il timer
-                long elapsedSoFar = System.currentTimeMillis() - workoutStartTimeMillis;
-                this.timeWhenPaused = elapsedSoFar;
-
                 startWorkoutTimer();
             }
         }
     }
 
-    public void startWorkout(Routine day, Training parentTraining) {
+    public void startWorkout(Routine day) {
         if (day == null) return;
-        deepResetRoutine(day);
-        this.parentTraining = parentTraining;
-        this.workoutStartTimeMillis = System.currentTimeMillis();
-        workoutTitle.setValue(day.getName());
-        activeTrainingDay.setValue(day);
-        isWorkoutInProgress.setValue(true);
+        WorkoutState newSession = historyRepository.createNewWorkoutSessionWithTemplate(day);
+        if (newSession == null) return;
 
-        navigateToHome.setValue(false); // Reset navigazione
+        this.workoutStartTimeMillis = newSession.getCurrentSession().session.getStartTime();
+        this.totalPausedTimeMillis = 0L;
+        this.pauseTimeMillis = 0L;
+        activeWorkoutState.setValue(newSession);
+        workoutTitle.setValue(newSession.getCurrentSession().session.getName());
+        isWorkoutInProgress.setValue(true);
+        navigateToHome.setValue(false);
         resetWorkoutTimer();
         startWorkoutTimer();
-
-        sessionManager.saveSessionState(day, workoutStartTimeMillis);
+        sessionManager.saveSessionState(newSession, workoutStartTimeMillis);
     }
 
-    public void stopWorkout(FirebaseCallback<Void> callback) {
+    public void startOrRestoreWorkout(@Nullable Routine dayToStart) {
+        Boolean inProgress = isWorkoutInProgress().getValue();
+        if (inProgress != null && inProgress) {
+            return;
+        }
+        if (dayToStart != null) {
+            startWorkout(dayToStart);
+        }
+    }
+
+    public void finishWorkout(Runnable onComplete) {
+        WorkoutState stateToSave = activeWorkoutState.getValue();
+        if (stateToSave == null) {
+            if (onComplete != null) onComplete.run();
+            return;
+        }
+        long endTime = System.currentTimeMillis();
+        stateToSave.getCurrentSession().session.setEndTime(endTime);
+        stateToSave.getCurrentSession().session.setDuration(endTime - stateToSave.getCurrentSession().session.getStartTime());
+
+        historyRepository.saveWorkoutSession(stateToSave.getCurrentSession(), () -> {
+            timerHandler.post(() -> {
+                sessionManager.clearSession();
+                resetWorkoutState();
+                navigateToHome.setValue(true);
+                if (onComplete != null) {
+                    onComplete.run();
+                }
+            });
+        });
+    }
+
+    public void stopAndDiscardWorkout(FirebaseCallback<Void> callback) {
         sessionManager.clearSession();
         resetWorkoutState();
-        navigateToHome.setValue(true); // Forza uscita
+        navigateToHome.setValue(true);
         if (callback != null) callback.onSuccess(null);
     }
 
-    public void toggleSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds) {
-        Routine currentDay = activeTrainingDay.getValue();
-        if (currentDay == null || currentDay.getWorkoutExercises() == null) return;
-        List<WorkoutExercise> workoutExercises = currentDay.getWorkoutExercises();
-        if (exercisePosition >= 0 && exercisePosition < workoutExercises.size()) {
-            WorkoutExercise workoutExercise = workoutExercises.get(exercisePosition);
-            if (workoutExercise.getSeries() != null && setPosition >= 0 && setPosition < workoutExercise.getSeries().size()) {
-                Serie serie = workoutExercise.getSeries().get(setPosition);
-                // RIMOSSO COMPLETED  da serie. Andrà trovato un altro modo per gestirlo
-                /*
-                boolean newState = !serie.isCompleted();
-                serie.setCompleted(newState);
-                if (newState) {
-                    startRestTimer(restTimeSeconds);
-                } else {
-                    stopRestTimer();
-                }
-                */
-                activeTrainingDay.setValue(currentDay);
-            }
+    public void addSetToExercise(int exercisePosition) {
+        WorkoutState currentState = activeWorkoutState.getValue();
+        if (currentState == null) return;
+
+        boolean success = currentState.addSetToExercise(exercisePosition);
+
+        if (success) {
+            activeWorkoutState.setValue(currentState);
+            sessionManager.saveSessionState(currentState, workoutStartTimeMillis);
         }
     }
-    public void cancelWorkout() {
-        stopWorkout(null);
+
+    public void deleteSetFromExercise(int exercisePosition, int setPosition) {
+        WorkoutState currentState = activeWorkoutState.getValue();
+        if (currentState == null) return;
+        boolean success = currentState.deleteSetFromExercise(exercisePosition, setPosition);
+
+        if (success) {
+            activeWorkoutState.setValue(currentState);
+            sessionManager.saveSessionState(currentState, workoutStartTimeMillis);
+        }
+    }
+
+    public void toggleSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds) {
+        WorkoutState currentState = activeWorkoutState.getValue();
+        if (currentState == null) return;
+        boolean isNowCompleted = currentState.toggleSetCompleted(exercisePosition, setPosition);
+        if (isNowCompleted) {
+            startRestTimer(restTimeSeconds);
+        } else {
+            stopRestTimer();
+        }
+        activeWorkoutState.setValue(currentState);
+        sessionManager.saveSessionState(currentState, workoutStartTimeMillis);
+    }
+
+    public void updateSetData(int exPos, int setPos, double weight, int reps) {
+        WorkoutState currentState = activeWorkoutState.getValue();
+        if (currentState == null) return;
+
+        boolean success = currentState.updateSetData(exPos, setPos, weight, reps);
+
+        if (success) {
+            activeWorkoutState.setValue(currentState);
+            sessionManager.saveSessionState(currentState, workoutStartTimeMillis);
+        }
+    }
+
+    public void updateExerciseRestTime(int exercisePosition, int newRestTimeIndex) {
+        WorkoutState currentState = activeWorkoutState.getValue();
+        if (currentState == null) return;
+
+        boolean success = currentState.updateExerciseRestTime(exercisePosition, newRestTimeIndex);
+
+        if (success) {
+            activeWorkoutState.setValue(currentState);
+            sessionManager.saveSessionState(currentState, workoutStartTimeMillis);
+        }
+    }
+
+    public void startWorkoutTimer() {
+        if (Boolean.TRUE.equals(isWorkoutTimerRunning.getValue())) return;
+        if (pauseTimeMillis > 0) {
+            long pausedDuration = System.currentTimeMillis() - pauseTimeMillis;
+            totalPausedTimeMillis += pausedDuration;
+        }
+        pauseTimeMillis = 0L;
+        isWorkoutTimerRunning.setValue(true);
+        timerHandler.post(updateRunnable);
+    }
+
+    public void pauseWorkoutTimer() {
+        if (Boolean.FALSE.equals(isWorkoutTimerRunning.getValue())) return;
+        pauseTimeMillis = System.currentTimeMillis();
+        isWorkoutTimerRunning.postValue(false);
+        timerHandler.removeCallbacks(updateRunnable);
     }
 
     public void startRestTimer(int seconds) {
@@ -142,7 +212,35 @@ public class WorkoutViewModel extends ViewModel {
         restSecondsRemaining.postValue(0);
     }
 
-    public void skipRestTimer() { stopRestTimer(); }
+    private void resetWorkoutTimer() {
+        elapsedMillis.postValue(0L);
+        formattedTime.postValue("00:00");
+    }
+
+
+    private void resetWorkoutState() {
+        workoutTitle.postValue(null);
+        activeWorkoutState.postValue(null);
+        isWorkoutInProgress.postValue(false);
+        workoutStartTimeMillis = 0L;
+        totalPausedTimeMillis = 0L;
+        pauseTimeMillis = 0L;
+        pauseWorkoutTimer();
+        resetWorkoutTimer();
+        stopRestTimer();
+    }
+
+    private String formatMillis(long millis) {
+        long s = millis / 1000;
+        return String.format(Locale.getDefault(), "%02d:%02d", (s % 3600) / 60, s % 60);
+    }
+
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        timerHandler.removeCallbacks(updateRunnable);
+        timerHandler.removeCallbacks(restUpdateRunnable);
+    }
 
     private final Runnable restUpdateRunnable = new Runnable() {
         @Override public void run() {
@@ -163,116 +261,23 @@ public class WorkoutViewModel extends ViewModel {
     private final Runnable updateRunnable = new Runnable() {
         @Override public void run() {
             if (Boolean.TRUE.equals(isWorkoutTimerRunning.getValue())) {
-                long now = SystemClock.elapsedRealtime();
-                long totalMillis = timeWhenPaused + (now - startTime);
-                elapsedMillis.postValue(totalMillis);
-                formattedTime.postValue(formatMillis(totalMillis));
+                if (workoutStartTimeMillis > 0) {
+                    long totalMillis = System.currentTimeMillis() - workoutStartTimeMillis - totalPausedTimeMillis;
+                    elapsedMillis.postValue(totalMillis);
+                    formattedTime.postValue(formatMillis(totalMillis));
+                }
                 timerHandler.postDelayed(this, 1000);
             }
         }
     };
 
-    public void startWorkoutTimer() {
-        if (Boolean.TRUE.equals(isWorkoutTimerRunning.getValue())) return;
-        startTime = SystemClock.elapsedRealtime() - timeWhenPaused;
-        isWorkoutTimerRunning.setValue(true);
-        timerHandler.post(updateRunnable);
-    }
-
-    public void pauseWorkoutTimer() {
-        isWorkoutTimerRunning.postValue(false);
-        timerHandler.removeCallbacks(updateRunnable);
-        timeWhenPaused = SystemClock.elapsedRealtime() - startTime;
-    }
-
-                // Aggiorna i campi 'actual' dell'oggetto Serie
-                // RIMOSSI actualWeight e actualReps da serie. Andrà trovato un altro modo per gestirlo
-                /*
-                serie.setActualWeight(actualWeight);
-                serie.setActualReps(actualReps);
-                 */
-    private void deepResetRoutine(Routine routine) {
-        if (routine == null || routine.getWorkoutExercises() == null) return;
-        for (WorkoutExercise ex : routine.getWorkoutExercises()) {
-            if (ex.getSeries() != null) {
-                for (Serie s : ex.getSeries()) {
-                    //s.setCompleted(false);
-                    //s.setActualWeight(0);
-                    //s.setActualReps(0);
-                }
-            }
-        }
-    }
-
-    private void resetWorkoutState() {
-        parentTraining = null;
-        workoutTitle.postValue(null);
-        activeTrainingDay.postValue(null);
-        isWorkoutInProgress.postValue(false);
-        pauseWorkoutTimer();
-        resetWorkoutTimer();
-        stopRestTimer();
-    }
-
-    private void resetWorkoutTimer() { timeWhenPaused = 0L; elapsedMillis.postValue(0L); formattedTime.postValue("00:00"); }
-
-    private String formatMillis(long millis) {
-        long s = millis / 1000;
-        return String.format(Locale.getDefault(), "%02d:%02d", (s % 3600) / 60, s % 60);
-    }
-
-    public void finishWorkout(Runnable onComplete) {
-        finishWorkout();
-        if (onComplete != null) {
-            timerHandler.postDelayed(onComplete, 100);
-        }
-    }
-
-    public void finishWorkout() {
-        Routine currentRoutine = activeTrainingDay.getValue();
-        if (currentRoutine == null) return;
-
-        historyRepository.saveWorkout(currentRoutine, workoutStartTimeMillis, () -> {
-            timerHandler.post(() -> {
-                sessionManager.clearSession();
-                resetWorkoutState();
-                navigateToHome.setValue(true);
-            });
-        });
-    }
-
-    public void updateSetData(int exPos, int setPos, double weight, int reps) {
-        Routine current = activeTrainingDay.getValue();
-        if (current == null) return;
-        Serie s = current.getWorkoutExercises().get(exPos).getSeries().get(setPos);
-        //s.setActualWeight(weight); s.setActualReps(reps);
-        activeTrainingDay.setValue(current);
-        sessionManager.saveSessionState(current, workoutStartTimeMillis);
-    }
-
-    // --- GETTERS ---
     public LiveData<String> getWorkoutTitle() { return workoutTitle; }
     public LiveData<Boolean> isWorkoutInProgress() { return isWorkoutInProgress; }
-    public LiveData<Routine> getActiveTrainingDay() { return activeTrainingDay; }
     public LiveData<String> getFormattedTime() { return formattedTime; }
     public LiveData<Boolean> isWorkoutTimerRunning() { return isWorkoutTimerRunning; }
     public LiveData<Boolean> isRestTimerRunning() { return isRestTimerRunning; }
     public LiveData<Integer> getRestSecondsRemaining() { return restSecondsRemaining; }
     public LiveData<Integer> getRestTotalSeconds() { return restTotalSeconds; }
     public LiveData<Boolean> getNavigateToHome() { return navigateToHome; }
-
-    // CRUD METODI
-    public void addSetToExercise(int pos) {
-        Routine c = activeTrainingDay.getValue(); if(c == null) return;
-        Serie n = new Serie(); n.setSerieNumber(c.getWorkoutExercises().get(pos).getSeries().size()+1);
-        c.getWorkoutExercises().get(pos).getSeries().add(n);
-        activeTrainingDay.setValue(c);
-        sessionManager.saveSessionState(c, workoutStartTimeMillis);
-    }
-    public void deleteSetFromExercise(int exP, int setP) {
-        Routine c = activeTrainingDay.getValue(); if(c == null) return;
-        c.getWorkoutExercises().get(exP).getSeries().remove(setP);
-        activeTrainingDay.setValue(c);
-        sessionManager.saveSessionState(c, workoutStartTimeMillis);
-    }
+    public LiveData<WorkoutState> getActiveWorkoutState() { return activeWorkoutState; }
 }

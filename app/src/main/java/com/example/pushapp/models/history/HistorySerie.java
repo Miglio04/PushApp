@@ -1,13 +1,17 @@
 package com.example.pushapp.models.history;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import java.util.UUID;
+
 @Entity(
-        tableName = "history_series",
+        tableName = "historySeries",
         foreignKeys = @ForeignKey(
                 entity = HistoryWorkoutExercise.class,
                 parentColumns = "historyExerciseId",
@@ -19,31 +23,38 @@ import androidx.room.PrimaryKey;
 public class HistorySerie {
 
     @PrimaryKey
+    @ColumnInfo(name = "historySerieId")
     @NonNull
-    public String historySetId;
-
+    private String historySerieId;
+    @ColumnInfo(name = "userId")
+    private String userId;
     @NonNull
-    public String historyExerciseId;
+    @ColumnInfo(name = "historyExerciseId")
+    private String historyExerciseId;
+    @ColumnInfo(name = "setNumber")
+    private int setNumber;
+    @ColumnInfo(name = "weight")
+    private double weight;
+    @ColumnInfo(name = "reps")
+    private int reps;
+    @Ignore
+    private boolean isCompleted;
 
-    public int setNumber;
-    public double weight;
-    public int reps;
-    public boolean isPersonalRecord;
+    public HistorySerie() {
+        this.historySerieId = UUID.randomUUID().toString();
+    }
 
-    public HistorySerie() {}
-
-    public HistorySerie(@NonNull String historySetId, @NonNull String historyExerciseId, int setNumber, double weight, int reps) {
-        this.historySetId = historySetId;
+    public HistorySerie(@NonNull String historyExerciseId, int setNumber, double weight, int reps) {
+        this.historySerieId = UUID.randomUUID().toString();
         this.historyExerciseId = historyExerciseId;
         this.setNumber = setNumber;
         this.weight = weight;
         this.reps = reps;
-        this.isPersonalRecord = false;
     }
 
     @NonNull
-    public String getHistorySetId() { return historySetId; }
-    public void setHistorySetId(@NonNull String historySetId) { this.historySetId = historySetId; }
+    public String getHistorySerieId() { return historySerieId; }
+    public void setHistorySerieId(@NonNull String historySerieId) { this.historySerieId = historySerieId; }
 
     @NonNull
     public String getHistoryExerciseId() { return historyExerciseId; }
@@ -57,7 +68,14 @@ public class HistorySerie {
 
     public int getReps() { return reps; }
     public void setReps(int reps) { this.reps = reps; }
+    public boolean getIsCompleted() { return isCompleted; }
+    public void setIsCompleted(boolean isCompleted) { this.isCompleted = isCompleted; }
 
-    public boolean isPersonalRecord() { return isPersonalRecord; }
-    public void setPersonalRecord(boolean personalRecord) { isPersonalRecord = personalRecord; }
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 }

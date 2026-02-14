@@ -16,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.pushapp.R;
+import com.example.pushapp.viewModels.HistoryViewModel;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.UserViewModel;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private WorkoutViewModel workoutViewModel;
     private UserViewModel userViewModel;
+    private HistoryViewModel historyViewModel;
     private TrainingViewModel trainingViewModel;
     private View miniPlayerView;
     private NavController navController;
@@ -45,12 +47,16 @@ public class MainActivity extends AppCompatActivity {
                 this,
                 new ViewModelFactory(getApplicationContext())).get(UserViewModel.class);
 
+        historyViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(getApplicationContext())).get(HistoryViewModel.class);
         trainingViewModel = new ViewModelProvider(
                 this,
                 new ViewModelFactory(getApplicationContext())).get(TrainingViewModel.class);
 
 
         userViewModel.fetchUser();
+        historyViewModel.fetchHistory();
         workoutViewModel.checkRestoredSession();
         Result result = userViewModel.getSessionLiveData().getValue();
 
