@@ -51,6 +51,13 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
     }
+
+    testOptions {
+        unitTests {
+            // Permette di ignorare i metodi Android (come Log) nei test locali
+            isReturnDefaultValues = true
+        }
+    }
 }
 
 dependencies {
@@ -138,5 +145,22 @@ dependencies {
     val room_version = "2.8.4"
     implementation("androidx.room:room-runtime:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    // Testing dependencies
+    testImplementation ("junit:junit:4.13.2")
+    testImplementation ("org.mockito:mockito-core:5.3.1")
+    testImplementation ("org.mockito:mockito-inline:5.2.0")
+
+    // AndroidX Test - per InstantTaskExecutorRule
+    testImplementation ("androidx.arch.core:core-testing:2.2.0")
+
+    // Hamcrest per assertions più leggibili
+    testImplementation ("org.hamcrest:hamcrest:2.2")
+    testImplementation ("org.hamcrest:hamcrest-library:2.2")
+
+
+    androidTestImplementation ("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation ("androidx.test.espresso:espresso-core:3.5.1")
+
 
 }
