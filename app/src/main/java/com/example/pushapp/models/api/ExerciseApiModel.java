@@ -21,7 +21,6 @@ public class ExerciseApiModel {
     @SerializedName("instructions")
     private String instructions;
 
-    // --- COSTRUTTORI ---
     public ExerciseApiModel() { }
 
     public ExerciseApiModel(String name, String type, String muscle, String equipment, String difficulty, String instructions) {
@@ -33,7 +32,6 @@ public class ExerciseApiModel {
         this.instructions = instructions;
     }
 
-    // --- GETTERS ---
     public String getName() { return name; }
     public String getType() { return type; }
     public String getMuscle() { return muscle; }
@@ -41,7 +39,6 @@ public class ExerciseApiModel {
     public String getDifficulty() { return difficulty; }
     public String getInstructions() { return instructions; }
 
-    // --- SETTERS ---
     public void setName(String name) { this.name = name; }
     public void setType(String type) { this.type = type; }
     public void setMuscle(String muscle) { this.muscle = muscle; }

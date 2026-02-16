@@ -27,6 +27,9 @@ public interface HistoryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertSerie(HistorySerie serie);
 
+    @Query("DELETE FROM historySessions")
+    void deleteAllHistory();
+
     @Transaction
     @Query("SELECT * FROM historySessions ORDER BY startTime DESC")
     List<HistorySessionWithExercises> getAllHistory();

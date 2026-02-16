@@ -231,4 +231,11 @@ public class HistoryRepository implements HistoryCallback {
     @Override public void onFailureFromLocal(Exception e) { historyList.postValue(new Result.Error(e.getMessage())); }
     @Override public void onFailureFromRemote(Exception e) { Log.w(TAG, "Firebase upload failed: " + e.getMessage()); }
     @Override public void onSuccessSaveLocal() { }
+
+    public void resetLocalDatabase() {
+        localDataSource.resetLocalDatabase();
+        if(historyList != null) historyList.postValue(null);
+        if(graphData != null) graphData.postValue(null);
+        if(graphVolumeData != null) graphVolumeData.postValue(null);
+    }
 }

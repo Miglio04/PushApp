@@ -278,4 +278,8 @@ public class HistoryViewModel extends ViewModel {
         repository.getGraphVolumeData().removeObserver(repoGraphVolumeObserver);
         repository.getHistoryList().removeObserver(historyListObserver);
     }
+
+    public void resetLocalDatabase(){
+        repository.resetLocalDatabase();
+    }
 }
