@@ -23,6 +23,7 @@ import com.example.pushapp.adapter.HistoryAdapter;
 import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
 import com.example.pushapp.viewModels.HistoryViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,25 +34,35 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
     private TextView emptyStateText;
     private TextInputEditText searchEditText;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        historyViewModel = new ViewModelProvider(requireActivity(), new ViewModelFactory(requireContext())).get(HistoryViewModel.class);
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_history, container, false);
-        emptyStateText = root.findViewById(R.id.history_empty_state_text);
-        searchEditText = root.findViewById(R.id.search_edit_text);
-        RecyclerView rv = root.findViewById(R.id.history_recycler_view);
+        return inflater.inflate(R.layout.fragment_history, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        emptyStateText = view.findViewById(R.id.history_empty_state_text);
+        searchEditText = view.findViewById(R.id.search_edit_text);
+        RecyclerView rv = view.findViewById(R.id.history_recycler_view);
+
         emptyStateText.setText("No history found");
+
         historyAdapter = new HistoryAdapter(new ArrayList<>(), this);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
         rv.setAdapter(historyAdapter);
-        ViewModelFactory factory = new ViewModelFactory(requireContext());
-        historyViewModel = new ViewModelProvider(this, factory).get(HistoryViewModel.class);
+
         observeData();
         initSearch();
-        return root;
     }
-
-    @Override public void onHistoryClicked(HistorySessionWithExercises session) {}
 
     @Override
     public void onDeleteClicked(HistorySessionWithExercises session) {
@@ -59,7 +70,6 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
         AlertDialog d = new AlertDialog.Builder(requireContext()).setView(v).create();
         if (d.getWindow() != null) d.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        ImageView icon = v.findViewById(R.id.iconError);
         TextView title = v.findViewById(R.id.tvDeleteTitle);
         TextView msg = v.findViewById(R.id.tvErrorMessage);
         Button btnOk = v.findViewById(R.id.btnErrorOk);
@@ -73,9 +83,8 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
         btnOk.setOnClickListener(view -> {
             historyViewModel.deleteSession(session);
             d.dismiss();
-            // Toast rimosso: eliminazione silenziosa
+            Snackbar.make(requireView(), "Session deleted", Snackbar.LENGTH_LONG).show();
         });
-
         btnCancel.setOnClickListener(view -> d.dismiss());
         d.show();
     }

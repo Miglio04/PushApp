@@ -24,25 +24,6 @@ public class HistoryLocalDataSource {
         this.historyCallback = callback;
     }
 
-    public void searchHistory(String query) {
-        searchHistory(query, this.historyCallback);
-    }
-
-    public void searchHistory(String query, HistoryCallback callback) {
-        LocalDatabase.databaseWriteExecutor.execute(() -> {
-            try {
-                List<HistorySessionWithExercises> result = historyDao.searchHistory(query);
-                if (callback != null) {
-                    callback.onSuccessHistoryListFromLocal(result);
-                }
-            } catch (Exception e) {
-                if (callback != null) {
-                    callback.onFailureFromLocal(e);
-                }
-            }
-        });
-    }
-
     public void saveSession(HistorySession session, List<HistoryWorkoutExercise> exercises, List<HistorySerie> series, HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {

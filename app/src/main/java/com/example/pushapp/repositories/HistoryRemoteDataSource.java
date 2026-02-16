@@ -121,14 +121,22 @@ public class HistoryRemoteDataSource {
                 });
     }
 
-    public void deleteSession(String sessionId) {
-        if (auth.getCurrentUser() == null) return;
+    public void deleteSession(String sessionId, OnFailureListener listener) {
+        if (auth.getCurrentUser() == null) {
+            if (listener != null) listener.onFailure(new Exception("User not authenticated"));
+            return;
+        }
 
         db.collection("users")
                 .document(auth.getCurrentUser().getUid())
                 .collection("historySessions")
                 .document(sessionId)
-                .delete();
+                .delete()
+                .addOnFailureListener(e -> {
+                    if (listener != null) {
+                        listener.onFailure(e);
+                    }
+                });
     }
 
     private HistorySessionWithExercises parseDocumentToHistoryObject(DocumentSnapshot doc) {
@@ -188,4 +196,9 @@ public class HistoryRemoteDataSource {
 
         return result;
     }
+
+    public interface OnFailureListener {
+        void onFailure(Exception e);
+    }
+
 }

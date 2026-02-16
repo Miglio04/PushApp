@@ -22,16 +22,18 @@ import java.util.TimeZone;
 
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
     private List<HistorySessionWithExercises> historyList;
-    private OnHistoryInteractionListener listener;
+    private final OnHistoryInteractionListener listener;
+    private final SimpleDateFormat sdf;
 
     public interface OnHistoryInteractionListener {
-        void onHistoryClicked(HistorySessionWithExercises session);
         void onDeleteClicked(HistorySessionWithExercises session);
     }
 
     public HistoryAdapter(List<HistorySessionWithExercises> list, OnHistoryInteractionListener listener) {
         this.historyList = list;
         this.listener = listener;
+        this.sdf = new SimpleDateFormat("dd MMMM yyyy - HH:mm", Locale.ITALY);
+        this.sdf.setTimeZone(TimeZone.getTimeZone("Europe/Rome"));
     }
 
     @NonNull
@@ -46,10 +48,22 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         HistorySessionWithExercises item = historyList.get(position);
         holder.tvName.setText(item.session.getName());
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy - HH:mm", Locale.ITALY);
-        sdf.setTimeZone(TimeZone.getTimeZone("Europe/Rome"));
         holder.tvDate.setText(sdf.format(new Date(item.session.getStartTime())));
 
+        holder.tvDetails.setText(buildDetailsString(item));
+
+        holder.btnExpand.setOnClickListener(v -> {
+            boolean visible = holder.detailsContainer.getVisibility() == View.VISIBLE;
+            TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView.getParent());
+            holder.detailsContainer.setVisibility(visible ? View.GONE : View.VISIBLE);
+            holder.ivIcon.setRotation(visible ? 90 : 270);
+        });
+
+        holder.btnDelete.setOnClickListener(v -> listener.onDeleteClicked(item));
+    }
+
+    @NonNull
+    private String buildDetailsString(HistorySessionWithExercises item) {
         StringBuilder sb = new StringBuilder();
         if (item.exercises != null) {
             for (HistoryWorkoutExerciseWithSeries ex : item.exercises) {
@@ -62,17 +76,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
                 sb.append("\n");
             }
         }
-        holder.tvDetails.setText(sb.toString().trim());
-
-        holder.btnExpand.setOnClickListener(v -> {
-            boolean visible = holder.detailsContainer.getVisibility() == View.VISIBLE;
-            TransitionManager.beginDelayedTransition((ViewGroup) holder.itemView.getParent());
-            holder.detailsContainer.setVisibility(visible ? View.GONE : View.VISIBLE);
-            holder.ivIcon.setRotation(visible ? 90 : 270);
-            listener.onHistoryClicked(item);
-        });
-
-        holder.btnDelete.setOnClickListener(v -> listener.onDeleteClicked(item));
+        return sb.toString().trim();
     }
 
     @Override public int getItemCount() { return historyList.size(); }
@@ -82,7 +86,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-    static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvDate, tvDetails;
         View btnExpand;
         ImageView ivIcon;

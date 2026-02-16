@@ -3,7 +3,7 @@ package com.example.pushapp.repositories;
 import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import com.example.pushapp.models.GraphPoint;
+
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Serie;
@@ -13,7 +13,6 @@ import com.example.pushapp.models.history.HistorySession;
 import com.example.pushapp.models.history.HistoryWorkoutExercise;
 import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
 import com.example.pushapp.models.roomModels.helpers.HistoryWorkoutExerciseWithSeries;
-import com.example.pushapp.utils.WorkoutState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +22,6 @@ public class HistoryRepository implements HistoryCallback {
     private final HistoryLocalDataSource localDataSource;
     private final HistoryRemoteDataSource remoteDataSource;
     private final MutableLiveData<Result> historyList = new MutableLiveData<>();
-    private final MutableLiveData<Result> graphData = new MutableLiveData<>();
-    private final MutableLiveData<Result> graphVolumeData = new MutableLiveData<>();
 
     public enum StatMetric {
         MAX_WEIGHT,
@@ -52,16 +49,7 @@ public class HistoryRepository implements HistoryCallback {
         }
     }
 
-
-    public void searchHistory(String query) {
-        if (query == null || query.isEmpty()) {
-            localDataSource.getAllHistory();
-        } else {
-            localDataSource.searchHistory(query);
-        }
-    }
-
-    public HistorySessionWithExercises createNewWorkoutSessionWithouthTemplate(Routine day) {
+    public HistorySessionWithExercises createNewWorkoutSessionWithoutTemplate(Routine day) {
         if (day == null) return null;
 
         String currentUserId = day.getUserId();
@@ -111,32 +99,9 @@ public class HistoryRepository implements HistoryCallback {
         return sessionWithExercises;
     }
 
-    public WorkoutState createNewWorkoutSessionWithTemplate(Routine day) {
-        HistorySessionWithExercises session = createNewWorkoutSessionWithouthTemplate(day);
-        if (session == null) return null;
-        return new WorkoutState(session, day);
-    }
-
     public void saveWorkoutSession(HistorySessionWithExercises sessionToSave, Runnable onComplete) {
         if (sessionToSave == null) {
             if (onComplete != null) onComplete.run();
-            return;
-        }
-
-        if (sessionToSave.exercises != null) {
-            for (HistoryWorkoutExerciseWithSeries ex : sessionToSave.exercises) {
-                if (ex.historySeries != null) {
-                    ex.historySeries.removeIf(serie -> serie.getReps() == 0);
-                }
-            }
-            sessionToSave.exercises.removeIf(ex -> ex.historySeries == null || ex.historySeries.isEmpty());
-        }
-
-        if (sessionToSave.exercises == null || sessionToSave.exercises.isEmpty()) {
-            Log.i(TAG, "Workout session is empty after cleanup. Aborting save.");
-            if (onComplete != null) {
-                onComplete.run();
-            }
             return;
         }
 
@@ -168,57 +133,26 @@ public class HistoryRepository implements HistoryCallback {
             public void onFailureFromLocal(Exception e) {
                 historyList.postValue(new Result.Error(e.getMessage()));
             }
-            @Override public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> l) {}
-            @Override public void onSuccessGraphDataFromLocal(List<GraphPoint> p) {}
-            @Override public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> l) {}
-            @Override public void onFailureFromRemote(Exception e) {}
         });
     }
 
     public void deleteSession(String sessionId) {
-        localDataSource.deleteSession(sessionId, () -> {
-            localDataSource.getAllHistory();
-        });
+        localDataSource.deleteSession(sessionId, localDataSource::getAllHistory);
 
         if (remoteDataSource != null) {
-            remoteDataSource.deleteSession(sessionId);
+            remoteDataSource.deleteSession(sessionId, e ->
+                    Log.w(TAG, "Failed to delete remote session: " + sessionId, e)
+            );
         }
     }
 
-    public LiveData<Result> getGraphData() {
-        return graphData;
-    }
-
-    public LiveData<Result> getGraphVolumeData() {
-        return graphVolumeData;
-    }
-
-    public void fetchGraphData(String exerciseName, StatMetric metric) {
-        localDataSource.getGraphData(exerciseName, metric, new HistoryCallback() {
-            @Override
-            public void onSuccessGraphDataFromLocal(List<GraphPoint> points) {
-                if (metric == StatMetric.TOTAL_VOLUME) {
-                    graphVolumeData.postValue(new Result.GraphSuccess(points));
-                } else {
-                    graphData.postValue(new Result.GraphSuccess(points));
-                }
-            }
-            @Override public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> list) {}
-            @Override public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> remoteData) {}
-            @Override public void onSuccessSaveLocal() {}
-            @Override public void onFailureFromLocal(Exception e) {}
-            @Override public void onFailureFromRemote(Exception e) {}
-        });
+    public void fetchGraphData(String exerciseName, StatMetric metric, HistoryCallback callback) {
+        localDataSource.getGraphData(exerciseName, metric, callback);
     }
 
     @Override
     public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> list) {
         historyList.postValue(new Result.HistorySuccess(list));
-    }
-
-    @Override
-    public void onSuccessGraphDataFromLocal(List<GraphPoint> points) {
-        graphData.postValue(new Result.GraphSuccess(points));
     }
 
     @Override
@@ -228,7 +162,14 @@ public class HistoryRepository implements HistoryCallback {
         }
     }
 
-    @Override public void onFailureFromLocal(Exception e) { historyList.postValue(new Result.Error(e.getMessage())); }
-    @Override public void onFailureFromRemote(Exception e) { Log.w(TAG, "Firebase upload failed: " + e.getMessage()); }
-    @Override public void onSuccessSaveLocal() { }
+    @Override public void onFailureFromLocal(Exception e) {
+        historyList.postValue(new Result.Error(e.getMessage()));
+    }
+    @Override public void onFailureFromRemote(Exception e) {
+        Log.w(TAG, "Firebase upload failed: " + e.getMessage());
+    }
+    @Override public void onSuccessSaveLocal() {
+        Log.d(TAG, "Session saved locally. Fetching updated history list.");
+        localDataSource.getAllHistory();
+    }
 }
