@@ -28,8 +28,12 @@ public class ExerciseAPIDataSource {
             "lower_back", "middle_back", "neck", "quadriceps", "traps", "triceps"
     );
 
-    ExerciseAPIDataSource() {
-        apiService = ApiClient.getClient().create(NinjaApiService.class);
+    public ExerciseAPIDataSource(NinjaApiService apiService) {
+        this.apiService = apiService;
+    }
+
+    public ExerciseAPIDataSource() {
+        this(ApiClient.getClient().create(NinjaApiService.class));
     }
     public void setCallback(ExerciseCallback callback){
         this.callback = callback;
