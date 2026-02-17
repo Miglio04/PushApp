@@ -20,7 +20,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
     private List<LocalDate> days = new ArrayList<>();
     private final Consumer<LocalDate> onDateClicked;
     private final IsWorkoutDayChecker isWorkoutDayChecker;
-    private LocalDate selectedDate;
     private final LocalDate today = LocalDate.now();
 
     public interface IsWorkoutDayChecker {
@@ -53,9 +52,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
             if (date.isEqual(today)) {
                 holder.dayText.setBackgroundResource(R.drawable.bg_circle_selection);
                 holder.dayText.setTextColor(Color.WHITE);
-            } else if (date.isEqual(selectedDate)) {
-                holder.dayText.setBackgroundResource(R.drawable.bg_circle_outline);
-                holder.dayText.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.md_theme_primary));
             } else {
                 holder.dayText.setBackground(null);
                 holder.dayText.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), R.color.md_theme_onSurface));
@@ -74,9 +70,8 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHo
         return days.size();
     }
 
-    public void updateDays(List<LocalDate> newDays, LocalDate newSelectedDate) {
+    public void updateDays(List<LocalDate> newDays) {
         this.days = newDays;
-        this.selectedDate = newSelectedDate;
         notifyDataSetChanged();
     }
 

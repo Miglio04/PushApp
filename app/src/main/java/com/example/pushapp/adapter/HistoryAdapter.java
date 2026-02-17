@@ -49,11 +49,9 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
         holder.tvDate.setText(sdf.format(new Date(item.session.getStartTime())));
 
-        // Set exercise count
         int exerciseCount = item.exercises != null ? item.exercises.size() : 0;
         holder.tvStats.setText(exerciseCount + (exerciseCount == 1 ? " exercise" : " exercises"));
 
-        // Set duration
         long durationMillis = item.session.getDuration();
         holder.tvDuration.setText(formatDuration(durationMillis));
 

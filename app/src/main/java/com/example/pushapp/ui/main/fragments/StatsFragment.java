@@ -125,7 +125,7 @@ public class StatsFragment extends Fragment {
 
         txtMonthTitle.setText(selectedDate.format(monthFormatter).toUpperCase());
         List<LocalDate> days = historyViewModel.getCalendarDays();
-        calendarAdapter.updateDays(days, selectedDate);
+        calendarAdapter.updateDays(days);//, selectedDate);
     }
 
     private void setupExerciseSpinner(List<String> names) {
@@ -137,6 +137,7 @@ public class StatsFragment extends Fragment {
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, spinnerNames);
         exerciseSpinner.setAdapter(adapter);
+        exerciseSpinner.setOnClickListener(v -> exerciseSpinner.showDropDown());
         exerciseSpinner.setOnItemClickListener((parent, view, position, id) -> {
             String selectedExercise = spinnerNames.get(position);
             loadChartsForExercise(selectedExercise);
