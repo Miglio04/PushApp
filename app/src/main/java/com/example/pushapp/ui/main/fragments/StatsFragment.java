@@ -1,27 +1,19 @@
 package com.example.pushapp.ui.main.fragments;
 
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.gridlayout.widget.GridLayout;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.pushapp.R;
 import com.example.pushapp.adapter.CalendarAdapter;
 import com.example.pushapp.utils.ChartHelper;

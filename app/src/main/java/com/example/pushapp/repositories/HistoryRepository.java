@@ -29,7 +29,7 @@ public class HistoryRepository implements HistoryCallback {
         ESTIMATED_1RM
     }
 
-    HistoryRepository(HistoryLocalDataSource localDataSource, HistoryRemoteDataSource remoteDataSource) {
+    public HistoryRepository(HistoryLocalDataSource localDataSource, HistoryRemoteDataSource remoteDataSource) {
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
         this.localDataSource.setHistoryCallback(this);
@@ -48,6 +48,8 @@ public class HistoryRepository implements HistoryCallback {
             remoteDataSource.fetchHistoryFromRemote();
         }
     }
+
+
 
     public HistorySessionWithExercises createNewWorkoutSessionWithoutTemplate(Routine day) {
         if (day == null) return null;

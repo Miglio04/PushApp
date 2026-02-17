@@ -60,4 +60,5 @@ public class HistorySession {
     public void setUserId(String userId) {
         this.userId = userId;
     }
+
 }
