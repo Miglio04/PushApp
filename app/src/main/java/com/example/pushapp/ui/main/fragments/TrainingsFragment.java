@@ -1,5 +1,7 @@
 package com.example.pushapp.ui.main.fragments;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,11 +23,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.adapter.TrainingsRecyclerViewAdapter;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
+import com.example.pushapp.utils.DeleteDialogHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -38,6 +40,8 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     private TrainingViewModel trainingViewModel;
     private TrainingsRecyclerViewAdapter adapter;
     private NavController navController;
+    private View emptyStateContainer;
+    private RecyclerView recyclerView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -66,7 +70,8 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
                 requireActivity(),
                 new ViewModelFactory(requireContext())).get(TrainingViewModel.class);
 
-        RecyclerView recyclerView = view.findViewById(R.id.training_list);
+        emptyStateContainer = view.findViewById(R.id.empty_state_container);
+        recyclerView = view.findViewById(R.id.training_list);
         setupRecyclerView(recyclerView);
 
         FloatingActionButton fab = view.findViewById(R.id.fab_add_training);
@@ -81,11 +86,6 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
             }
         });
 
-        Button btnAddSampleData = view.findViewById(R.id.btn_add_sample_data);
-        btnAddSampleData.setOnClickListener(v -> {
-            createSampleTraining();
-            Toast.makeText(getContext(), "Adding sample data to Firebase...", Toast.LENGTH_SHORT).show();
-        });
 
 
 
@@ -103,7 +103,8 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         trainingViewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
             Log.d("TrainingsFragment", "observeViewModel called");
             if (trainings == null ) {
-                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), R.string.something_went_wrong, Toast.LENGTH_LONG).show();
+                updateEmptyState(true);
             } else if (trainings.isTrainingsSuccess()){
                 List<Training> trainingsList = ((Result.TrainingsSuccess) trainings).getData();
                 Log.d("TrainingsFragment", "Received " + trainingsList.size() + " trainings:");
@@ -111,10 +112,19 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
                     Log.d("TrainingsFragment", "  - ID: " + t.getTrainingId() + ", Name: " + t.getName());
                 }
                 adapter.updateTrainings(trainingsList);
+                updateEmptyState(trainingsList.isEmpty());
             }else{
                 Toast.makeText(getContext(), ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
+                updateEmptyState(true);
             }
         });
+    }
+
+    private void updateEmptyState(boolean isEmpty) {
+        if (emptyStateContainer != null && recyclerView != null) {
+            emptyStateContainer.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        }
     }
 
     @Override
@@ -126,32 +136,60 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
 
     @Override
     public void onTrainingDeleteClicked(Training training) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Conferma Eliminazione")
-                .setMessage("Sei sicuro di voler eliminare la scheda '" + training.getName() + "'?")
-                .setPositiveButton("Elimina", (dialog, which) -> {
-                    trainingViewModel.deleteTraining(training);
-                })
-                .setNegativeButton("Annulla", null)
-                .show();
+        showDeleteDialog(training);
     }
 
     @Override
-    public void onTrainingEditFinished(Training training, String newName, String newDescription) {
-        training.setName(newName);
-        training.setDescription(newDescription);
-        trainingViewModel.updateTraining(training);
+    public void onTrainingEditClicked(Training training) {
+        showEditDialog(training);
     }
 
-    private void createSampleTraining() {
-        Result result = userViewModel.getSessionLiveData().getValue();
+    private void showDeleteDialog(Training training) {
+        if (getContext() == null) return;
 
-        if (result != null && result.isSessionSuccess()) {
-            String userId = ((Result.SessionSuccess) result).getData().getUserId();
-            trainingViewModel.createSampleTraining(userId);
-        } else{
-            Log.d(TAG, "Errore nella fetch dell'utente");
+        DeleteDialogHelper.show(
+            requireContext(),
+            R.string.delete_training_title,
+            R.string.delete_training_message,
+            () -> trainingViewModel.deleteTraining(training)
+        );
+    }
+
+    private void showEditDialog(Training training) {
+        if (getContext() == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_training, null);
+        builder.setView(dialogView);
+
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
+        com.google.android.material.textfield.TextInputEditText etName = dialogView.findViewById(R.id.etTrainingName);
+        com.google.android.material.textfield.TextInputEditText etDescription = dialogView.findViewById(R.id.etTrainingDescription);
+        Button btnSave = dialogView.findViewById(R.id.btnSave);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+
+        etName.setText(training.getName());
+        etDescription.setText(training.getDescription());
+
+        btnSave.setOnClickListener(v -> {
+            String newName = etName.getText() != null ? etName.getText().toString().trim() : "";
+            String newDescription = etDescription.getText() != null ? etDescription.getText().toString().trim() : "";
+
+            if (!newName.isEmpty()) {
+                training.setName(newName);
+                training.setDescription(newDescription);
+                trainingViewModel.updateTraining(training);
+                dialog.dismiss();
+            }
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }

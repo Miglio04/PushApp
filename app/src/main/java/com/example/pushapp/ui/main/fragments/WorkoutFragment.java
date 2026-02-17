@@ -208,11 +208,19 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     public void onStart() {
         super.onStart();
         updateGlobalUIVisibility(false);
+        // Resume timer when entering workout screen
+        if (Boolean.TRUE.equals(workoutViewModel.isWorkoutInProgress().getValue())) {
+            workoutViewModel.startWorkoutTimer();
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
         updateGlobalUIVisibility(true);
+        // Pause timer when leaving workout screen
+        if (Boolean.TRUE.equals(workoutViewModel.isWorkoutInProgress().getValue())) {
+            workoutViewModel.pauseWorkoutTimer();
+        }
     }
 }

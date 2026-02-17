@@ -129,13 +129,13 @@ public class LoginFragment extends Fragment {
             if(userId.isSessionSuccess()){
                 showLoginSuccessDialog();
             }else if(userId.isRegistrationError()){
-                Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
+                showUserNotFoundDialog();
                 userViewModel.clearSessionLiveData();
             }else if(userId.isLoginError()){
-                Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
+                showUserNotFoundDialog();
                 userViewModel.clearSessionLiveData();
             }else if(userId.isLocalDatabaseError()){
-                Toast.makeText(requireContext(), ((Result.Error) userId).getMessage(), Toast.LENGTH_SHORT).show();
+                showUserNotFoundDialog();
                 userViewModel.clearSessionLiveData();
             }else if(userId.isUserNotFound()){
                 showUserNotFoundDialog();
