@@ -13,7 +13,6 @@ import com.example.pushapp.R;
 import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
 import com.example.pushapp.models.roomModels.helpers.HistoryWorkoutExerciseWithSeries;
 import com.example.pushapp.models.history.HistorySerie;
-import com.google.android.material.button.MaterialButton;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -32,7 +31,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     public HistoryAdapter(List<HistorySessionWithExercises> list, OnHistoryInteractionListener listener) {
         this.historyList = list;
         this.listener = listener;
-        this.sdf = new SimpleDateFormat("dd MMMM yyyy - HH:mm", Locale.ITALY);
+        this.sdf = new SimpleDateFormat("dd MMMM yyyy - HH:mm", Locale.ENGLISH);
         this.sdf.setTimeZone(TimeZone.getTimeZone("Europe/Rome"));
     }
 
@@ -50,6 +49,14 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
 
         holder.tvDate.setText(sdf.format(new Date(item.session.getStartTime())));
 
+        // Set exercise count
+        int exerciseCount = item.exercises != null ? item.exercises.size() : 0;
+        holder.tvStats.setText(exerciseCount + (exerciseCount == 1 ? " exercise" : " exercises"));
+
+        // Set duration
+        long durationMillis = item.session.getDuration();
+        holder.tvDuration.setText(formatDuration(durationMillis));
+
         holder.tvDetails.setText(buildDetailsString(item));
 
         holder.btnExpand.setOnClickListener(v -> {
@@ -60,6 +67,17 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         });
 
         holder.btnDelete.setOnClickListener(v -> listener.onDeleteClicked(item));
+    }
+
+    private String formatDuration(long millis) {
+        if (millis <= 0) return "0 min";
+        long totalMinutes = millis / 60000;
+        long hours = totalMinutes / 60;
+        long minutes = totalMinutes % 60;
+        if (hours > 0) {
+            return hours + "h " + minutes + "m";
+        }
+        return minutes + " min";
     }
 
     @NonNull
@@ -87,17 +105,19 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvDate, tvDetails;
+        TextView tvName, tvDate, tvDetails, tvStats, tvDuration;
         View btnExpand;
         ImageView ivIcon;
+        ImageView btnDelete;
         LinearLayout detailsContainer;
-        MaterialButton btnDelete;
 
         ViewHolder(View v) {
             super(v);
             tvName = v.findViewById(R.id.tv_workout_name);
             tvDate = v.findViewById(R.id.tv_workout_date);
             tvDetails = v.findViewById(R.id.tv_exercises_details);
+            tvStats = v.findViewById(R.id.tv_workout_stats);
+            tvDuration = v.findViewById(R.id.tv_workout_duration);
             btnExpand = v.findViewById(R.id.workout_icon_bg);
             ivIcon = v.findViewById(R.id.iv_expand_icon);
             detailsContainer = v.findViewById(R.id.details_container);
