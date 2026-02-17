@@ -26,7 +26,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Workout in pausa"
+            android:text="@string/paused_workout"
             android:textColor="@color/md_theme_onSurface"
             android:textStyle="bold" />
 
@@ -34,13 +34,13 @@
             android:id="@+id/mini_resume_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="resume" />
+            android:text="@string/resume" />
 
         <Button
             android:id="@+id/mini_discard_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="discard" />
+            android:text="@string/discard" />
     </LinearLayout>
 </LinearLayout>

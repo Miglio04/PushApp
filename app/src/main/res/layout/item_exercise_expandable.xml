@@ -30,7 +30,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Nome Esercizio"
+                android:text="@string/exercise_name"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="?attr/colorOnSurface"/>
@@ -92,7 +92,7 @@
                 android:background="?attr/selectableItemBackground"
                 android:src="@drawable/add"
                 app:tint="?attr/colorOnSurface"
-                android:contentDescription="Aggiungi serie" />
+                android:contentDescription="@string/add_series" />
 
         </LinearLayout>
 

@@ -23,7 +23,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Workout History"
+                android:text="@string/workout_history"
                 android:textColor="@color/md_theme_onBackground"
                 android:textSize="32sp"
                 android:fontFamily="sans-serif-black" />
@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Check your past sessions and progress"
+                android:text="@string/check_your_past_sessions_and_progress"
                 android:textColor="@color/md_theme_onBackground"
                 android:textSize="14sp"
                 android:alpha="0.6"
@@ -57,7 +57,7 @@
                     android:id="@+id/search_edit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Search sessions..."
+                    android:hint="@string/search_sessions"
                     android:inputType="text"
                     android:maxLines="1"
                     android:imeOptions="actionSearch" />
@@ -81,7 +81,7 @@
         android:layout_gravity="center"
         android:gravity="center"
         android:padding="40dp"
-        android:text="No sessions found.\nReady for a new workout?"
+        android:text="@string/no_sessions_found_nready_for_a_new_workout"
         android:textSize="16sp"
         android:textColor="@color/md_theme_onBackground"
         android:alpha="0.6"

@@ -58,13 +58,12 @@
                 android:id="@+id/workout_timer_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="00:00"
+                android:text="@string/_00_00"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:padding="4dp"
                 android:textColor="@color/md_theme_onSecondaryContainer" />
 
-            <!-- Start / Pause toggle -->
             <ImageButton
                 android:id="@+id/workout_start_pause_button"
                 android:layout_width="wrap_content"
@@ -75,7 +74,6 @@
                 android:padding="4dp"
                 android:layout_marginStart="8dp" />
 
-            <!-- Stop -->
             <ImageButton
                 android:id="@+id/workout_stop_button"
                 android:layout_width="25dp"
@@ -89,8 +87,6 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <!-- RecyclerView sotto l'intestazione -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_workout"

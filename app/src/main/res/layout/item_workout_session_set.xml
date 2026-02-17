@@ -11,7 +11,7 @@
         android:id="@+id/set_number_session"
         android:layout_width="40dp"
         android:layout_height="wrap_content"
-        android:text="1"
+        android:text="@string/_1"
         android:textSize="16sp"
         android:textStyle="bold" />
 
@@ -20,14 +20,14 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Target: 80kg x 8"
+        android:text="@string/target_80kg_x_8"
         android:textColor="?android:attr/textColorSecondary" />
 
     <EditText
         android:id="@+id/set_actual_weight"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
-        android:hint="kg"
+        android:hint="@string/kg"
         android:inputType="numberDecimal"
         android:textSize="14sp" />
 
@@ -35,7 +35,7 @@
         android:id="@+id/set_actual_reps"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
-        android:hint="reps"
+        android:hint="@string/reps"
         android:inputType="number"
         android:textSize="14sp" />
 
@@ -45,7 +45,7 @@
         android:layout_height="40dp"
         android:src="@android:drawable/ic_menu_delete"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Elimina set"
+        android:contentDescription="@string/delete_set"
         app:tint="@color/md_theme_error" />
 
     <ImageButton
@@ -54,6 +54,6 @@
         android:layout_height="wrap_content"
         android:src="@android:drawable/checkbox_off_background"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Completa serie" />
+        android:contentDescription="@string/complete_set" />
 
 </LinearLayout>

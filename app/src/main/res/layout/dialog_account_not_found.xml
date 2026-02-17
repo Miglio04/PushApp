@@ -17,13 +17,13 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:src="@drawable/ic_error_vector"
-        app:tint="?attr/colorError" android:contentDescription="Error Icon"
+        app:tint="?attr/colorError" android:contentDescription="@string/error_icon"
         android:layout_marginBottom="16dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Account Not Found"
+        android:text="@string/account_not_found"
         android:textColor="?attr/colorError" android:textSize="22sp"
         android:textStyle="bold"
         android:layout_marginBottom="8dp"/>
@@ -31,7 +31,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="This email is not registered. Do you want to create a new account?"
+        android:text="@string/this_email_is_not_registered_do_you_want_to_create_a_new_account"
         android:gravity="center"
         android:textColor="?attr/colorOnSurfaceVariant" android:textSize="14sp"
         android:layout_marginBottom="24dp"/>
@@ -40,7 +40,7 @@
         android:id="@+id/btnRegister"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:text="REGISTER NOW"
+        android:text="@string/register_now"
         android:textColor="?attr/colorOnPrimary"
         android:backgroundTint="?attr/colorPrimary" android:textStyle="bold"
         android:layout_marginBottom="12dp"/>
@@ -49,7 +49,7 @@
         android:id="@+id/btnTryAgain"
         android:layout_width="match_parent"
         android:layout_height="40dp"
-        android:text="No, Try Again"
+        android:text="@string/try_again"
         android:gravity="center"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:textStyle="bold"

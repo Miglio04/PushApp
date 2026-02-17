@@ -54,7 +54,7 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
         searchEditText = view.findViewById(R.id.search_edit_text);
         RecyclerView rv = view.findViewById(R.id.history_recycler_view);
 
-        emptyStateText.setText("No history found");
+        emptyStateText.setText(getString(R.string.no_history_found));
 
         historyAdapter = new HistoryAdapter(new ArrayList<>(), this);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -75,10 +75,10 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
         Button btnOk = v.findViewById(R.id.btnErrorOk);
         TextView btnCancel = v.findViewById(R.id.btnErrorCancel);
 
-        title.setText("Delete Workout");
-        msg.setText("Are you sure you want to delete this session? This action cannot be undone.");
-        btnOk.setText("DELETE");
-        btnCancel.setText("Cancel");
+        title.setText(getString(R.string.delete_workout));
+        msg.setText(getString(R.string.are_you_sure_you_want_to_delete_this_session_this_action_cannot_be_undone));
+        btnOk.setText(getString(R.string.delete));
+        btnCancel.setText(getString(R.string.cancel));
 
         btnOk.setOnClickListener(view -> {
             historyViewModel.deleteSession(session);

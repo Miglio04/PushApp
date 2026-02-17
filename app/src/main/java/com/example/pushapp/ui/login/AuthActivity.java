@@ -84,14 +84,14 @@ public class AuthActivity extends AppCompatActivity {
                     // LOGICA PER CAMBIARE IL TESTO E IL TAB
                     if (destination.getId() == R.id.loginFragment) {
                         // Siamo su LOGIN
-                        tvAuthSubtitle.setText("Welcome back!"); // Testo per Login
+                        tvAuthSubtitle.setText(getString(R.string.welcome_back)); // Testo per Login
 
                         TabLayout.Tab tab = tabLayout.getTabAt(0);
                         if (tab != null && !tab.isSelected()) tab.select();
 
                     } else if (destination.getId() == R.id.registerFragment) {
                         // Siamo su REGISTER
-                        tvAuthSubtitle.setText("Create a new account"); // Testo per Register
+                        tvAuthSubtitle.setText(getString(R.string.create_new_account)); // Testo per Register
 
                         TabLayout.Tab tab = tabLayout.getTabAt(1);
                         if (tab != null && !tab.isSelected()) tab.select();

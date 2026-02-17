@@ -30,7 +30,7 @@
             android:padding="4dp"
             app:navigationIcon="@drawable/baseline_arrow_back_24"
             app:navigationIconTint="?attr/colorOnSecondaryContainer"
-            app:title="Modifica Giorno"
+            app:title="@string/edit_day"
             app:titleTextColor="?attr/colorOnSecondaryContainer"/>
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -42,7 +42,7 @@
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="8dp"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:hint="Nome Giorno"
+        android:hint="@string/day_name"
         app:layout_constraintTop_toBottomOf="@id/app_bar_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
@@ -73,7 +73,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:contentDescription="Aggiungi Esercizio"
+        android:contentDescription="@string/add_exercise"
         android:src="@drawable/add"
         app:backgroundTint="?attr/colorPrimary"
         app:tint="?attr/colorOnPrimary"
@@ -99,7 +99,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginEnd="8dp"
-            android:text="Annulla"
+            android:text="@string/cancel"
             android:textColor="?attr/colorError"
             app:strokeColor="?attr/colorError" />
 
@@ -109,7 +109,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="8dp"
-            android:text="Salva Modifiche"
+            android:text="@string/save_changes"
             android:backgroundTint="?attr/colorPrimary"
             android:textColor="?attr/colorOnPrimary"/>
 
@@ -153,7 +153,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Gruppo Muscolare"
+                    android:text="@string/muscle_group"
                     android:textStyle="bold"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"/>
@@ -178,7 +178,7 @@
                             style="@style/Widget.MaterialComponents.Chip.Choice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Tutti"
+                            android:text="@string/all"
                             android:checked="true"
                             app:chipMinHeight="32dp"
                             app:ensureMinTouchTargetSize="false"
@@ -189,7 +189,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Difficoltà"
+                    android:text="@string/diffulty"
                     android:textStyle="bold"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="12dp"/>
@@ -214,7 +214,7 @@
                             style="@style/Widget.MaterialComponents.Chip.Choice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Tutti"
+                            android:text="@string/all"
                             android:checked="true"
                             app:chipMinHeight="32dp"
                             app:ensureMinTouchTargetSize="false"

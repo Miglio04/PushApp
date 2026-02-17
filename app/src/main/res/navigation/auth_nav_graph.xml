@@ -5,11 +5,10 @@
     android:id="@+id/nav_graph_auth"
     app:startDestination="@id/loginFragment">
 
-    <!-- LOGIN -->
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.example.pushapp.ui.login.fragments.LoginFragment"
-        android:label="Login"
+        android:label="@string/login"
         tools:layout="@layout/fragment_login">
 
         <action
@@ -25,7 +24,7 @@
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.example.pushapp.ui.login.fragments.RegisterFragment"
-        android:label="Register"
+        android:label="@string/register"
         tools:layout="@layout/fragment_register">
 
         <action
@@ -38,7 +37,7 @@
     <fragment
         android:id="@+id/forgotPasswordFragment"
         android:name="com.example.pushapp.ui.login.fragments.ForgotPasswordFragment"
-        android:label="Forgot Password"
+        android:label="@string/forgot_password_title"
         tools:layout="@layout/fragment_forgot_password" />
 
 </navigation>

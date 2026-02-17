@@ -121,12 +121,12 @@ public class RoutineFragment extends Fragment {
     private void handleDeleteRoutine(Routine routine){
         if (getView() != null && routine.getRoutineId() != null) {
             new AlertDialog.Builder(requireContext())
-                    .setTitle("Delete Routine")
-                    .setMessage("Are you sure you want to delete this routine?")
-                    .setPositiveButton("Delete", (dialog, which) -> {
+                    .setTitle(getString(R.string.delete_routine_title))
+                    .setMessage(getString(R.string.delete_routine_message))
+                    .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
                         trainingViewModel.deleteRoutine(routine);
                     })
-                    .setNegativeButton("Cancel", null)
+                    .setNegativeButton(getString(R.string.cancel), null)
                     .show();
         }
     }

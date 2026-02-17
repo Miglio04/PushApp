@@ -189,28 +189,28 @@ public class RegisterFragment extends Fragment {
         boolean isValid = true;
 
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            showError(etEmail, tvEmailError, "Please enter a valid email address.");
+            showError(etEmail, tvEmailError, getString(R.string.please_enter_a_valid_email));
             isValid = false;
         }
         if (password.isEmpty() || password.length() < 6) {
-            showError(etPassword, tvPasswordError, "Password must be at least 6 characters.");
+            showError(etPassword, tvPasswordError, getString(R.string.password_must_be_6));
             isValid = false;
         }
         if (!password.equals(confirmPassword)) {
-            showError(etConfirmPassword, tvConfirmError, "Passwords do not match.");
+            showError(etConfirmPassword, tvConfirmError, getString(R.string.passwords_do_not_match));
             isValid = false;
         }
 
         if (!isValid) return;
 
-        showLoading(true, "Creating account...");
+        showLoading(true, getString(R.string.creating_account));
 
         userViewModel.registerWithEmailAndPassword(email, password);
     }
 
     // to be moved into sessionRepository
     private void signInWithGoogle() {
-        showLoading(true, "Connecting to Google...");
+        showLoading(true, getString(R.string.connecting_to_google));
 
         mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
             Intent signInIntent = mGoogleSignInClient.getSignInIntent();
@@ -220,7 +220,7 @@ public class RegisterFragment extends Fragment {
 
     // to be moved into sessionRepository
     private void firebaseAuthWithGoogle(String idToken) {
-        if(tvLoadingText != null) tvLoadingText.setText("Authenticating...");
+        if(tvLoadingText != null) tvLoadingText.setText(getString(R.string.authenticating));
         userViewModel.registerWithGoogle(idToken);
 
         /*AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
@@ -283,18 +283,18 @@ public class RegisterFragment extends Fragment {
         TextView tvMessage = view.findViewById(R.id.tvMessage);
         Button btnAction = view.findViewById(R.id.btnAction);
 
-        if (tvTitle != null) tvTitle.setText("Welcome!");
+        if (tvTitle != null) tvTitle.setText(getString(R.string.welcome));
 
         if (tvMessage != null) {
             if (isGoogle) {
-                tvMessage.setText("Account connected via Google.\nYou are ready to setup your profile.");
+                tvMessage.setText(getString(R.string.account_connected_via_google));
             } else {
-                tvMessage.setText("Account created successfully.\nYou are ready to setup your profile.");
+                tvMessage.setText(getString(R.string.account_created_successfully_ready));
             }
         }
 
         if (btnAction != null) {
-            btnAction.setText("START SETUP");
+            btnAction.setText(getString(R.string.start_setup));
             btnAction.setOnClickListener(v -> {
                 dialog.dismiss();
                 goToQuestionsActivity();
