@@ -1,15 +1,15 @@
 package com.example.pushapp.repositories;
 
-import android.util.Log;
-import android.view.View;
-import android.widget.Toast;
-
 import com.example.pushapp.models.SessionUser;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 
+/**
+ * Data source for handling session-related operations with the remote Firebase Authentication service.
+ * Manages sign-in with credentials (e.g., Google), email/password login, registration, and password reset.
+ */
 public class SessionRemoteDataSource {
     private SessionCallback callback = null;
     private final FirebaseAuth mAuth;
@@ -18,11 +18,21 @@ public class SessionRemoteDataSource {
         mAuth = FirebaseAuth.getInstance();
     }
 
+    /**
+     * Sets the callback interface for receiving asynchronous operation results.
+     *
+     * @param callback The callback implementation.
+     */
     public void setCallback(SessionCallback callback){
         this.callback = callback;
     }
 
-    //usato da google per sign in
+    /**
+     * Authenticates a user using an AuthCredential (e.g., Google Sign-In).
+     * Determines if the user is new or existing and triggers the appropriate callback.
+     *
+     * @param credential The authentication credential to verify.
+     */
     public void signInWithCredentials(AuthCredential credential){
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(task -> {
@@ -31,12 +41,9 @@ public class SessionRemoteDataSource {
                         if (firebaseUser != null) {
                             boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
                             SessionUser sessionUser = new SessionUser(firebaseUser.getUid(), firebaseUser.getEmail());
-                            Log.e("SessionRemoteDataSource", "isNewUser: " + isNewUser);
                             if(isNewUser) {
-                                Log.e("SessionRemoteDataSource", "Registering with google: ");
                                 callback.onSuccessFromRegister(sessionUser);
                             } else{
-                                Log.e("SessionRemoteDataSource", "Logging in with google: ");
                                 callback.onSuccessFromLogin(sessionUser);
                             }
                         }
@@ -49,6 +56,12 @@ public class SessionRemoteDataSource {
                 });
     }
 
+    /**
+     * Authenticates a user using email and password.
+     *
+     * @param email    The user's email address.
+     * @param password The user's password.
+     */
     public void signInWithEmailAndPassword(String email, String password){
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
@@ -61,6 +74,12 @@ public class SessionRemoteDataSource {
                 });
     }
 
+    /**
+     * Registers a new user account with email and password.
+     *
+     * @param email    The email address for registration.
+     * @param password The password for the new account.
+     */
     public void registerWithEmailAndPassword(String email, String password) {
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
@@ -78,6 +97,12 @@ public class SessionRemoteDataSource {
                 });
     }
 
+    /**
+     * Sends a password reset email to the specified address.
+     * Handles cases where the user is not found.
+     *
+     * @param email The email address to send the reset link to.
+     */
     public void sendPasswordResetEmail(String email) {
         mAuth.sendPasswordResetEmail(email)
                 .addOnCompleteListener(task -> {
@@ -91,6 +116,9 @@ public class SessionRemoteDataSource {
                 });
     }
 
+    /**
+     * Signs out the current user from Firebase Authentication.
+     */
     public void logout() {
         mAuth.signOut();
     }

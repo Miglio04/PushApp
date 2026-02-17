@@ -1,6 +1,5 @@
 package com.example.pushapp.repositories;
 
-import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -17,18 +16,32 @@ import com.example.pushapp.models.roomModels.helpers.HistoryWorkoutExerciseWithS
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Repository class responsible for managing workout history data.
+ * Mediate between local (Room) and remote (Firestore) data sources to fetch, save,
+ * and synchronize workout sessions and statistics.
+ */
 public class HistoryRepository implements HistoryCallback {
-    private final String TAG = "HistoryRepository";
     private final HistoryLocalDataSource localDataSource;
     private final HistoryRemoteDataSource remoteDataSource;
     private final MutableLiveData<Result> historyList = new MutableLiveData<>();
 
+    /**
+     * Enum representing the different types of statistics metrics that can be queried.
+     */
     public enum StatMetric {
         MAX_WEIGHT,
         TOTAL_VOLUME,
         ESTIMATED_1RM
     }
 
+    /**
+     * Constructs a new HistoryRepository.
+     * Initializes data sources and sets this repository as the callback listener.
+     *
+     * @param localDataSource  The local data source for history.
+     * @param remoteDataSource The remote data source for history.
+     */
     public HistoryRepository(HistoryLocalDataSource localDataSource, HistoryRemoteDataSource remoteDataSource) {
         this.localDataSource = localDataSource;
         this.remoteDataSource = remoteDataSource;
@@ -38,10 +51,19 @@ public class HistoryRepository implements HistoryCallback {
         }
     }
 
+    /**
+     * Returns the LiveData observing the history list.
+     *
+     * @return LiveData containing the Result of history operations.
+     */
     public LiveData<Result> getHistoryList() {
         return historyList;
     }
 
+    /**
+     * Triggers a fetch of history data.
+     * Calls the local data source immediately and optionally synchronizes with the remote source.
+     */
     public void fetchHistoryData() {
         localDataSource.getAllHistory();
         if (remoteDataSource != null) {
@@ -50,13 +72,18 @@ public class HistoryRepository implements HistoryCallback {
     }
 
 
-
+    /**
+     * Creates a new workout session object from a Routine template without saving it to the database yet.
+     * Used to initialize a workout session state.
+     *
+     * @param day The Routine template to base the session on.
+     * @return A populated HistorySessionWithExercises object, or null if the routine is invalid.
+     */
     public HistorySessionWithExercises createNewWorkoutSessionWithoutTemplate(Routine day) {
         if (day == null) return null;
 
         String currentUserId = day.getUserId();
         if (currentUserId == null || currentUserId.isEmpty()) {
-            Log.e(TAG, "Cannot create workout session: Routine template does not have a userId.");
             return null;
         }
 
@@ -77,16 +104,15 @@ public class HistoryRepository implements HistoryCallback {
 
             List<HistorySerie> historySeries = new ArrayList<>();
             int count = 1;
-            for (Serie templateSerie : woEx.getSeries()) {
-                HistorySerie hSerie = new HistorySerie(
+            for (Serie ignored : woEx.getSeries()) {
+                HistorySerie hSeries = new HistorySerie(
                         hExercise.getHistoryExerciseId(),
-                        /*templateSerie.getSerieNumber(),*/
                         count,
                         0,
                         0
                 );
-                hSerie.setUserId(currentUserId);
-                historySeries.add(hSerie);
+                hSeries.setUserId(currentUserId);
+                historySeries.add(hSeries);
                 count++;
             }
 
@@ -104,6 +130,13 @@ public class HistoryRepository implements HistoryCallback {
         return sessionWithExercises;
     }
 
+    /**
+     * Saves a completed workout session to the local database.
+     * Upon local success, attempts to upload the session to the remote server.
+     *
+     * @param sessionToSave The session object to save.
+     * @param onComplete    A Runnable to execute when the local save is complete.
+     */
     public void saveWorkoutSession(HistorySessionWithExercises sessionToSave, Runnable onComplete) {
         if (sessionToSave == null) {
             if (onComplete != null) onComplete.run();
@@ -141,25 +174,48 @@ public class HistoryRepository implements HistoryCallback {
         });
     }
 
+    /**
+     * Deletes a specific workout session locally and remotely.
+     *
+     * @param sessionId The ID of the session to delete.
+     */
     public void deleteSession(String sessionId) {
         localDataSource.deleteSession(sessionId, localDataSource::getAllHistory);
 
         if (remoteDataSource != null) {
-            remoteDataSource.deleteSession(sessionId, e ->
-                    Log.w(TAG, "Failed to delete remote session: " + sessionId, e)
+            remoteDataSource.deleteSession(sessionId, e -> {}
             );
         }
     }
 
+    /**
+     * Fetches graph data for a specific exercise and metric.
+     *
+     * @param exerciseName The name of the exercise.
+     * @param metric       The metric to calculate (e.g., Max Weight, Volume).
+     * @param callback     The callback to receive the graph data points.
+     */
     public void fetchGraphData(String exerciseName, StatMetric metric, HistoryCallback callback) {
         localDataSource.getGraphData(exerciseName, metric, callback);
     }
 
+    /**
+     * Callback received when the history list is successfully retrieved from local storage.
+     * Updates the LiveData.
+     *
+     * @param list The list of history sessions.
+     */
     @Override
     public void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> list) {
         historyList.postValue(new Result.HistorySuccess(list));
     }
 
+    /**
+     * Callback received when history data is fetched from the remote source.
+     * Updates the local database with the remote data.
+     *
+     * @param remoteData The list of history sessions from the server.
+     */
     @Override
     public void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> remoteData) {
         if (remoteData != null && !remoteData.isEmpty()) {
@@ -167,17 +223,37 @@ public class HistoryRepository implements HistoryCallback {
         }
     }
 
+    /**
+     * Callback received when a local database operation fails.
+     * Posts an error to the LiveData.
+     *
+     * @param e The exception causing the failure.
+     */
     @Override public void onFailureFromLocal(Exception e) {
         historyList.postValue(new Result.Error(e.getMessage()));
     }
+
+    /**
+     * Callback received when a remote operation fails.
+     * Posts an error to the LiveData.
+     *
+     * @param e The exception causing the failure.
+     */
     @Override public void onFailureFromRemote(Exception e) {
-        Log.w(TAG, "Firebase upload failed: " + e.getMessage());
+        historyList.postValue(new Result.Error(e.getMessage()));
     }
+
+    /**
+     * Callback received when a local save operation completes successfully.
+     * Refreshes the history list.
+     */
     @Override public void onSuccessSaveLocal() {
-        Log.d(TAG, "Session saved locally. Fetching updated history list.");
         localDataSource.getAllHistory();
     }
 
+    /**
+     * Resets the local database by clearing all history data.
+     */
     public void resetLocalDatabase() {
         localDataSource.resetLocalDatabase();
         historyList.postValue(null);

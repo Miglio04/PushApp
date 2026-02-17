@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +23,11 @@ import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.material.button.MaterialButton;
 
+/**
+ * Fragment responsible for displaying the user profile.
+ * Shows personal details, valid workout statistics (KPIs), and provides options for logout and theme toggling.
+ */
 public class ProfileFragment extends Fragment {
-    private static final String TAG = "ProfileFragment";
-
     private UserViewModel userViewModel;
     private TrainingViewModel trainingViewModel;
     private HistoryViewModel historyViewModel;
@@ -38,16 +39,28 @@ public class ProfileFragment extends Fragment {
     private MaterialButton btnLogout;
     private MaterialButton btnToggleTheme;
 
-    public ProfileFragment() {
-        // Required empty public constructor
-    }
+    public ProfileFragment() {}
 
+    /**
+     * Inflates the layout for the profile screen.
+     *
+     * @param inflater           LayoutInflater to inflate views.
+     * @param container          Parent view group.
+     * @param savedInstanceState Saved state bundle.
+     * @return The root view of the fragment.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
+    /**
+     * Sets up views, ViewModels, and listeners after the view is created.
+     *
+     * @param view               The root view.
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -58,6 +71,11 @@ public class ProfileFragment extends Fragment {
         setupThemeToggle();
     }
 
+    /**
+     * Initializes UI references from the fragment layout.
+     *
+     * @param view The root view.
+     */
     private void initializeViews(View view) {
         profileInitial = view.findViewById(R.id.profileInitial);
         profileFullName = view.findViewById(R.id.profileFullName);
@@ -77,6 +95,10 @@ public class ProfileFragment extends Fragment {
         btnToggleTheme = view.findViewById(R.id.btnToggleTheme);
     }
 
+    /**
+     * initializes and observes ViewModels for user data and statistics.
+     * Updates the UI when data changes.
+     */
     private void setupViewModel() {
         ViewModelFactory factory = new ViewModelFactory(requireContext());
 
@@ -84,7 +106,6 @@ public class ProfileFragment extends Fragment {
         trainingViewModel = new ViewModelProvider(this, factory).get(TrainingViewModel.class);
         historyViewModel = new ViewModelProvider(this, factory).get(HistoryViewModel.class);
 
-        // 1. Dati Utente
         userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), result -> {
             if (result instanceof Result.UserSuccess) {
                 User user = ((Result.UserSuccess) result).getData();
@@ -109,6 +130,11 @@ public class ProfileFragment extends Fragment {
         historyViewModel.fetchHistory();
     }
 
+    /**
+     * Updates the UI with the provided user information.
+     *
+     * @param user The user object containing profile details.
+     */
     private void updateUserUi(User user) {
         if (user == null) return;
 
@@ -129,10 +155,13 @@ public class ProfileFragment extends Fragment {
         if (tvDetailWeight != null) tvDetailWeight.setText(user.getWeight() + " kg");
     }
 
+    /**
+     * Sets up the logout button listener.
+     * Clears local databases and user session, then redirects to the authentication screen.
+     */
     private void setupLogout() {
         if (btnLogout != null) {
             btnLogout.setOnClickListener(v -> {
-                Log.d(TAG, "Logout button clicked");
                 userViewModel.logout();
                 trainingViewModel.resetLocalDatabase();
                 userViewModel.resetLocalDatabase();
@@ -147,6 +176,10 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Configures the theme toggle button.
+     * Switches between light and dark mode and updates the button icon/text accordingly.
+     */
     private void setupThemeToggle() {
         if (btnToggleTheme != null) {
             int currentNightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
@@ -170,6 +203,12 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Formats a volume number into a compact string representation (e.g. 1.2k, 1.5M).
+     *
+     * @param volume The volume value to format.
+     * @return A string representing the formatted volume.
+     */
     private String formatVolume(Double volume) {
         if (volume == null || volume == 0) return "0";
         if (volume >= 1000000) return String.format(java.util.Locale.US, "%.1fM", volume / 1000000.0);

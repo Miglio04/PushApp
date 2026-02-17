@@ -8,6 +8,10 @@ import com.example.pushapp.models.Training;
 
 import java.util.List;
 
+/**
+ * Room Relationship class modeling a Training plan with its associated Routines.
+ * Binds the Training entity to a list of Routine entities via trainingId.
+ */
 public class TrainingWithRoutines {
     @Embedded
     public Training training;

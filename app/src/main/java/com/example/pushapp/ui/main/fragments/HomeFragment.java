@@ -105,23 +105,6 @@ public class HomeFragment extends Fragment {
                 if (tvWeightVal != null) {
                     tvWeightVal.setText(String.format(Locale.getDefault(), "%.1f kg", user.getWeight()));
                 }
-
-                // Aggiorna la differenza di peso
-                if (tvWeightDiff != null) {
-                    List<Double> progress = user.getWeightProgress();
-                    if (progress != null && progress.size() >= 2) {
-                        // Calcola differenza tra l'ultimo (peso attuale) e il penultimo
-                        double currentWeight = progress.get(progress.size() - 1);
-                        double previousWeight = progress.get(progress.size() - 2);
-                        double diff = currentWeight - previousWeight;
-
-                        String sign = diff > 0 ? "+" : "";
-                        tvWeightDiff.setText(String.format(Locale.getDefault(), "%s%.1f kg", sign, diff));
-                    } else {
-                        // Solo un peso o nessuno
-                        tvWeightDiff.setText("0.0 kg");
-                    }
-                }
             }
         });
     }

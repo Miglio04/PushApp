@@ -21,6 +21,11 @@ import com.example.pushapp.utils.converters.TimeConverter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * The main Room database class for the application.
+ * Defines the database entities and provides access to Data Access Objects (DAOs).
+ * Manages the singleton database instance and background execution.
+ */
 @Database(entities = {
         Training.class,
         Routine.class,
@@ -44,9 +49,19 @@ public abstract class LocalDatabase extends RoomDatabase {
     public abstract HistoryDao historyDao();
     public abstract ExerciseDao exerciseDao();
 
+    /**
+     * Executor service for running database operations on a background thread.
+     */
     public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
+    /**
+     * Retrieves the singleton instance of the LocalDatabase.
+     * Creates the database if it does not exist.
+     *
+     * @param context The application context.
+     * @return The singleton LocalDatabase instance.
+     */
     public static LocalDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (LocalDatabase.class) {

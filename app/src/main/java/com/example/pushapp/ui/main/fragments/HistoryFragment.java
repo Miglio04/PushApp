@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,26 +25,48 @@ import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * Fragment responsible for displaying the user's workout history.
+ * Provides functionality to view past sessions, search by name or exercise, and delete specific records.
+ */
 public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistoryInteractionListener {
     private HistoryViewModel historyViewModel;
     private HistoryAdapter historyAdapter;
     private TextView emptyStateText;
     private TextInputEditText searchEditText;
 
+    /**
+     * Initializes the HistoryViewModel.
+     *
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         historyViewModel = new ViewModelProvider(requireActivity(), new ViewModelFactory(requireContext())).get(HistoryViewModel.class);
     }
 
+    /**
+     * Inflates the layout for the history screen.
+     *
+     * @param inflater           LayoutInflater to inflate views.
+     * @param container          Parent view group.
+     * @param savedInstanceState Saved state bundle.
+     * @return The root view of the fragment.
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_history, container, false);
     }
 
+    /**
+     * Sets up views, adapters, observers, and listeners after the view is created.
+     *
+     * @param view               The root view.
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -64,6 +85,12 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
         initSearch();
     }
 
+    /**
+     * Handles the deletion of a specific history session.
+     * Displays a confirmation dialog before proceeding with deletion.
+     *
+     * @param session The history session to be deleted.
+     */
     @Override
     public void onDeleteClicked(HistorySessionWithExercises session) {
         View v = LayoutInflater.from(requireContext()).inflate(R.layout.dialog_delete_workout, null);
@@ -89,6 +116,10 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
         d.show();
     }
 
+    /**
+     * Observes changes in the history data from the ViewModel.
+     * Updates the RecyclerView adapter and toggles the empty state visibility accordingly.
+     */
     private void observeData() {
         historyViewModel.getHistorySessions().observe(getViewLifecycleOwner(), sessions -> {
             historyAdapter.updateHistory(sessions);
@@ -96,6 +127,10 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
         });
     }
 
+    /**
+     * Initializes the search input components.
+     * Sets up a text watcher to filter the history list as the user types.
+     */
     private void initSearch() {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}

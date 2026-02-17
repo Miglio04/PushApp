@@ -1,6 +1,5 @@
 package com.example.pushapp.repositories;
 
-import android.util.Log;
 import com.example.pushapp.database.HistoryDao;
 import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.models.GraphPoint;
@@ -11,6 +10,11 @@ import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises
 
 import java.util.List;
 
+/**
+ * Data source for handling history-related operations with the local Room database.
+ * Executes database operations regarding workout sessions, exercises, and series
+ * asynchronously on a background thread.
+ */
 public class HistoryLocalDataSource {
 
     private final HistoryDao historyDao;
@@ -20,10 +24,23 @@ public class HistoryLocalDataSource {
         this.historyDao = database.historyDao();
     }
 
+    /**
+     * Sets the callback interface for receiving asynchronous operation results.
+     *
+     * @param callback The callback implementation.
+     */
     public void setHistoryCallback(HistoryCallback callback) {
         this.historyCallback = callback;
     }
 
+    /**
+     * Saves a complete workout session (session info, exercises, series) to the local database.
+     *
+     * @param session   The session entity.
+     * @param exercises The list of exercises in the session.
+     * @param series    The list of series in the session.
+     * @param callback  Callback to notify upon completion or failure.
+     */
     public void saveSession(HistorySession session, List<HistoryWorkoutExercise> exercises, List<HistorySerie> series, HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -48,6 +65,10 @@ public class HistoryLocalDataSource {
         });
     }
 
+    /**
+     * Retrieves all workout history sessions from the local database.
+     * Results are delivered via the registered HistoryCallback.
+     */
     public void getAllHistory() {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -63,6 +84,13 @@ public class HistoryLocalDataSource {
         });
     }
 
+    /**
+     * Calculates statistics for a specific exercise to generate graph data.
+     *
+     * @param exerciseName The name of the exercise.
+     * @param metric       The metric to calculate (e.g., Max Weight, Total Volume).
+     * @param callback     Callback to receive the list of graph points.
+     */
     public void getGraphData(String exerciseName, HistoryRepository.StatMetric metric, HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -91,6 +119,12 @@ public class HistoryLocalDataSource {
         });
     }
 
+    /**
+     * Deletes a specific workout session from the local database.
+     *
+     * @param sessionId The ID of the session to delete.
+     * @param onSuccess Runnable to execute upon successful deletion.
+     */
     public void deleteSession(String sessionId, Runnable onSuccess) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -98,12 +132,16 @@ public class HistoryLocalDataSource {
                 if (onSuccess != null) {
                     onSuccess.run();
                 }
-            } catch (Exception e) {
-                Log.e("HistoryLocalDataSrc", "Failed to delete session: " + e.getMessage(), e);
-            }
+            } catch (Exception e) {}
         });
     }
 
+    /**
+     * Updates the local database with a list of history sessions fetched from a remote source.
+     * Inserts or replaces local records with the provided remote data.
+     *
+     * @param remoteData The list of history sessions from the remote source.
+     */
     public void updateHistoryFromRemote(List<HistorySessionWithExercises> remoteData) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -130,13 +168,14 @@ public class HistoryLocalDataSource {
         });
     }
 
+    /**
+     * Clears all history data (sessions, exercises, series) from the local database.
+     */
     public void resetLocalDatabase() {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 historyDao.deleteAllHistory();
-            } catch (Exception e) {
-                Log.e("HistoryLocalDataSrc", "Failed to reset local history: " + e.getMessage(), e);
-            }
+            } catch (Exception e) {}
         });
     }
 }

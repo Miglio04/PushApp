@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,7 +12,6 @@ import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import android.widget.ViewFlipper;
 
@@ -27,27 +25,20 @@ import com.example.pushapp.models.User;
 import com.example.pushapp.ui.main.MainActivity;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+/**
+ * Activity for collecting initial user profile information via a multi-step form.
+ * Handles input validation, progress tracking, and saving user details (name, age, measurements, goals).
+ */
 public class QuestionsActivity extends AppCompatActivity {
-
-    private static final String TAG = "QuestionsActivity";
-
     private ViewFlipper viewFlipper;
     private ProgressBar progressBar;
     private TextView tvStepCounter, tvProgressPercentage;
     private Button btnBack, btnNext;
 
-    // Campi Form
     private EditText etName, etSurname, etAge, etWeight, etHeight, etGoalWeight;
     private TextView tvNameError, tvSurnameError, tvAgeError, tvWeightError, tvHeightError, tvGoalError;
     private RadioGroup radioGroupGender;
@@ -58,6 +49,12 @@ public class QuestionsActivity extends AppCompatActivity {
 
     private UserViewModel userViewModel;
 
+    /**
+     * Initializes the activity, ViewModels, and UI components.
+     * Starts the data collection process by clearing previous user data and fetching the current user context.
+     *
+     * @param savedInstanceState Saved state from a previous instance.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +73,9 @@ public class QuestionsActivity extends AppCompatActivity {
         btnNext.setOnClickListener(v -> navigateNext());
     }
 
+    /**
+     * Finds and initializes all UI views from the layout resource.
+     */
     private void initializeViews() {
         viewFlipper = findViewById(R.id.viewFlipper);
         progressBar = findViewById(R.id.progressBar);
@@ -84,38 +84,34 @@ public class QuestionsActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         btnNext = findViewById(R.id.btnNext);
 
-        // Step 1
         etName = findViewById(R.id.etName);
         etSurname = findViewById(R.id.etSurname);
         tvNameError = findViewById(R.id.tvNameError);
         tvSurnameError = findViewById(R.id.tvSurnameError);
 
-        // Step 2
         radioGroupGender = findViewById(R.id.radioGroupGender);
         tvGenderError = findViewById(R.id.tvGenderError);
 
-        // Step 3
         etAge = findViewById(R.id.etAge);
         tvAgeError = findViewById(R.id.tvAgeError);
 
-        // Step 4
         etWeight = findViewById(R.id.etWeight);
         etHeight = findViewById(R.id.etHeight);
         tvWeightError = findViewById(R.id.tvWeightError);
         tvHeightError = findViewById(R.id.tvHeightError);
 
-        // Step 5
         etGoalWeight = findViewById(R.id.etGoalWeight);
         tvGoalError = findViewById(R.id.tvGoalError);
     }
 
-    // --- NAVIGAZIONE ---
-
+    /**
+     * Validates the current step's input and advances to the next step.
+     * If on the final step, initiates the save process.
+     */
     private void navigateNext() {
         if (!validateCurrentStep()) {
             return;
         }
-
         if (currentStep < TOTAL_STEPS - 1) {
             currentStep++;
             viewFlipper.showNext();
@@ -125,6 +121,9 @@ public class QuestionsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Navigates back to the previous step in the form, if possible.
+     */
     private void navigateBack() {
         if (currentStep > 0) {
             currentStep--;
@@ -133,6 +132,10 @@ public class QuestionsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Updates the progress bar and step counter text based on the current step.
+     * Adjusts button visibility (Back button) and text (Next vs Finish).
+     */
     private void updateProgress() {
         int progress = (currentStep + 1) * 100 / TOTAL_STEPS;
         progressBar.setProgress(progress);
@@ -152,8 +155,11 @@ public class QuestionsActivity extends AppCompatActivity {
         }
     }
 
-    // --- VALIDAZIONE ---
-
+    /**
+     * Validates input fields for the currently active step.
+     *
+     * @return true if all inputs for the current step are valid, false otherwise.
+     */
     private boolean validateCurrentStep() {
         resetErrors();
         switch (currentStep) {
@@ -166,6 +172,10 @@ public class QuestionsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Validates Step 1: Name and Surname inputs.
+     * @return true if valid.
+     */
     private boolean validateStep1_Name() {
         boolean isValid = true;
         if (TextUtils.isEmpty(etName.getText())) {
@@ -179,6 +189,10 @@ public class QuestionsActivity extends AppCompatActivity {
         return isValid;
     }
 
+    /**
+     * Validates Step 2: Gender selection.
+     * @return true if valid.
+     */
     private boolean validateStep2_Gender() {
         if (radioGroupGender.getCheckedRadioButtonId() == -1) {
             showError(null, tvGenderError, "Please select a gender.");
@@ -187,6 +201,10 @@ public class QuestionsActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Validates Step 3: Age input. Checks for reasonable age range (16-99).
+     * @return true if valid.
+     */
     private boolean validateStep3_Age() {
         String ageStr = etAge.getText().toString();
         if (TextUtils.isEmpty(ageStr) || Integer.parseInt(ageStr) < 16 || Integer.parseInt(ageStr) > 99) {
@@ -196,6 +214,10 @@ public class QuestionsActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Validates Step 4: Weight and Height inputs.
+     * @return true if valid.
+     */
     private boolean validateStep4_Measurements() {
         boolean isValid = true;
         String weightStr = etWeight.getText().toString();
@@ -212,6 +234,10 @@ public class QuestionsActivity extends AppCompatActivity {
         return isValid;
     }
 
+    /**
+     * Validates Step 5: Goal weight input.
+     * @return true if valid.
+     */
     private boolean validateStep5_Goal() {
         String goalStr = etGoalWeight.getText().toString();
         if (TextUtils.isEmpty(goalStr) || Double.parseDouble(goalStr) < 20) {
@@ -221,6 +247,13 @@ public class QuestionsActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Displays an error message for a specific input field and highlights it.
+     *
+     * @param field     The EditText field to highlight (optional).
+     * @param errorText The TextView to display the error message.
+     * @param message   The error message string.
+     */
     private void showError(EditText field, TextView errorText, String message) {
         if (field != null) field.setBackgroundResource(R.drawable.bg_input_error);
         if (errorText != null) {
@@ -229,6 +262,9 @@ public class QuestionsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Resets visual error indicators for all input fields.
+     */
     private void resetErrors() {
         if(etName!=null) etName.setBackgroundResource(R.drawable.bg_input_outline);
         if(tvNameError!=null) tvNameError.setVisibility(View.GONE);
@@ -249,11 +285,12 @@ public class QuestionsActivity extends AppCompatActivity {
         if(tvGoalError!=null) tvGoalError.setVisibility(View.GONE);
     }
 
-    // --- SALVATAGGIO E POPUP FINALE ---
-
+    /**
+     * Collects all validated data, updates the User object via ViewModel, and shows success dialog.
+     */
     private void saveDataAndShowPopup() {
 
-        btnNext.setEnabled(false); // Disabilita per evitare click multipli
+        btnNext.setEnabled(false);
 
         Result result = userViewModel.getUserLiveData().getValue();
 
@@ -265,7 +302,6 @@ public class QuestionsActivity extends AppCompatActivity {
             int age = Integer.parseInt(etAge.getText().toString().trim());
             double weight = Double.parseDouble(etWeight.getText().toString().trim());
             int height = Integer.parseInt(etHeight.getText().toString().trim());
-            double goalWeight = Double.parseDouble(etGoalWeight.getText().toString().trim());
 
             int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
             RadioButton rbSelected = findViewById(selectedGenderId);
@@ -279,14 +315,16 @@ public class QuestionsActivity extends AppCompatActivity {
             user.setGender(gender);
             user.setWeight(weight);
             user.setHeight(height);
-            user.setGoalWeight(goalWeight);
-            user.setWeightProgress(weightProgress);
 
             userViewModel.updateCurrentUser(user);
             showProfileCompletedDialog();
         }
     }
 
+    /**
+     * Shows a confirmation dialog upon successful profile completion.
+     * Redirects the user to the main activity when dismissed.
+     */
     private void showProfileCompletedDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = getLayoutInflater().inflate(R.layout.dialog_success, null);

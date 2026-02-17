@@ -35,8 +35,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 
+/**
+ * Fragment responsible for user login functionality.
+ * Supports email/password authentication and Google Sign-In integration.
+ * Handles user input validation, loading states, and navigation upon successful login.
+ */
 public class LoginFragment extends Fragment {
     private EditText etEmail, etPassword;
     private TextView tvEmailError, tvPasswordError;
@@ -44,7 +48,6 @@ public class LoginFragment extends Fragment {
     private UserViewModel userViewModel;
     private GoogleSignInClient mGoogleSignInClient;
 
-    // --- Launcher per il risultato del login con Google ---
     private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -63,10 +66,13 @@ public class LoginFragment extends Fragment {
             }
     );
 
-    public LoginFragment() {
-        // Costruttore vuoto obbligatorio
-    }
+    public LoginFragment() {}
 
+    /**
+     * Initializes the ViewModel and Google Sign-In client.
+     *
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,12 +90,26 @@ public class LoginFragment extends Fragment {
         mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
     }
 
+    /**
+     * Inflates the login layout.
+     *
+     * @param inflater           LayoutInflater to inflate views.
+     * @param container          Parent view group.
+     * @param savedInstanceState Saved state bundle.
+     * @return The root view of the fragment.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_login, container, false);
     }
 
+    /**
+     * Sets up UI references, observers, and button listeners after view creation.
+     *
+     * @param view               The root view.
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -120,7 +140,10 @@ public class LoginFragment extends Fragment {
         }
     }
 
-    // provvisorio: non distingue se sono sbagliate le credenziali oppure se l'utente non esiste
+    /**
+     * Observes the UserViewModel for session updates.
+     * Handles successful login, user not found (redirects to registration or retry), and error scenarios.
+     */
     private void observeUserViewModel(){
         if (userViewModel == null) return;
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), userId -> {
@@ -144,10 +167,12 @@ public class LoginFragment extends Fragment {
         });
     }
 
+    /**
+     * Validates input fields and triggers the email/password login process.
+     */
     private void performLogin() {
         resetErrors();
 
-        // data validation: da spostare in un metodo apposito
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         boolean isValid = true;
@@ -172,27 +197,14 @@ public class LoginFragment extends Fragment {
         userViewModel.signInWithEmailAndPassword(email, password);
     }
 
-    /*private void firebaseAuthWithGoogle(String idToken) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(requireActivity(), task -> {
-                    if (task.isSuccessful()) {
-                        // SUCCESSO CON GOOGLE -> Mostra il popup di benvenuto
-                        hideLoading();
-                        showLoginSuccessDialog();
-                    } else {
-                        hideLoading();
-                        Toast.makeText(requireContext(), "Google Authentication failed.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }*/
-
-    // --- NUOVO METODO CHE MOSTRA IL POPUP DI SUCCESSO DEL LOGIN ---
+    /**
+     * Displays a success dialog upon successful login.
+     * Provides navigation to the main application screen.
+     */
     private void showLoginSuccessDialog() {
         if (getContext() == null) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        // Riutilizziamo lo stesso layout della registrazione
         View view = getLayoutInflater().inflate(R.layout.dialog_success, null);
         builder.setView(view);
 
@@ -202,27 +214,26 @@ public class LoginFragment extends Fragment {
         }
         dialog.setCancelable(false);
 
-        // Recuperiamo i componenti del popup per modificarli
         TextView tvTitle = view.findViewById(R.id.tvTitle);
         TextView tvMessage = view.findViewById(R.id.tvMessage);
         Button btnAction = view.findViewById(R.id.btnAction);
 
-        // Personalizziamo testi e azione per il LOGIN
         if (tvTitle != null) tvTitle.setText("Welcome Back!");
         if (tvMessage != null) tvMessage.setText("You are now successfully logged in.");
         if (btnAction != null) {
             btnAction.setText("GO TO HOME");
             btnAction.setOnClickListener(v -> {
                 dialog.dismiss();
-                goToHome(); // Chiamiamo il metodo che va alla MainActivity
+                goToHome();
             });
         }
 
         dialog.show();
     }
-    // ----------------------------------------------------
 
-    // Il metodo goToHome non prende più "user" come parametro
+    /**
+     * Navigates to the MainActivity and clears the back stack.
+     */
     private void goToHome() {
         if (getContext() == null) return;
         Intent intent = new Intent(requireContext(), MainActivity.class);
@@ -231,7 +242,10 @@ public class LoginFragment extends Fragment {
         requireActivity().finish();
     }
 
-    // --- Il resto dei metodi (showUserNotFound, showError, ecc.) rimangono uguali ---
+    /**
+     * Displays a dialog when the user account is not found.
+     * Offers options to try again or navigate to registration.
+     */
     private void showUserNotFoundDialog() {
         if (getContext() == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -259,6 +273,13 @@ public class LoginFragment extends Fragment {
         dialog.show();
     }
 
+    /**
+     * Displays an error message for a specific input field and highlights it.
+     *
+     * @param field     The EditText to highlight.
+     * @param errorText The TextView to show the error message.
+     * @param message   The error message content.
+     */
     private void showError(EditText field, TextView errorText, String message) {
         if (field != null) {
             field.setBackgroundResource(R.drawable.bg_input_error);
@@ -269,6 +290,9 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    /**
+     * Resets visual error indicators on input fields.
+     */
     private void resetErrors() {
         if (etEmail != null) etEmail.setBackgroundResource(R.drawable.bg_input_outline);
         if (tvEmailError != null) tvEmailError.setVisibility(View.GONE);
@@ -276,12 +300,18 @@ public class LoginFragment extends Fragment {
         if (tvPasswordError != null) tvPasswordError.setVisibility(View.GONE);
     }
 
+    /**
+     * Shows the loading overlay.
+     */
     private void showLoading() {
         if (loadingOverlay != null) {
             loadingOverlay.setVisibility(View.VISIBLE);
         }
     }
 
+    /**
+     * Hides the loading overlay.
+     */
     private void hideLoading() {
         if (loadingOverlay != null) {
             loadingOverlay.setVisibility(View.GONE);

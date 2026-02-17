@@ -17,24 +17,45 @@ import com.example.pushapp.models.history.HistorySerie;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Adapter for displaying and managing sets (series) within a specific exercise during a live workout session.
+ * Handles the display of target values vs actual values, completion toggling, and set deletion.
+ */
 public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessionSetAdapter.ViewHolder> {
 
     private final List<HistorySerie> series;
     private final List<Serie> templateSeries;
     private final OnSessionSetListener listener;
 
+    /**
+     * Listener interface for handling set-level interactions.
+     */
     public interface OnSessionSetListener {
         void onSetCompleted(int position);
         void onSetDataChanged(int position, double actualWeight, int actualReps);
         void onSetDeleted(int position);
     }
 
+    /**
+     * Constructs a new WorkoutSessionSetAdapter.
+     *
+     * @param series         The list of history series (actual performed sets).
+     * @param templateSeries The list of template series (goals/targets) from the routine.
+     * @param listener       The listener for user interactions.
+     */
     public WorkoutSessionSetAdapter(List<HistorySerie> series, List<Serie> templateSeries, OnSessionSetListener listener) {
         this.series = series;
         this.templateSeries = templateSeries;
         this.listener = listener;
     }
 
+    /**
+     * Creates a new ViewHolder for a set item.
+     *
+     * @param parent   The parent ViewGroup.
+     * @param viewType The view type integer.
+     * @return A new ViewHolder instance.
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -43,6 +64,13 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
         return new ViewHolder(view, listener);
     }
 
+    /**
+     * Binds data to the ViewHolder at the specified position.
+     * Matches the history set with its corresponding template target if available.
+     *
+     * @param holder   The ViewHolder to bind.
+     * @param position The position in the data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HistorySerie serie = series.get(position);
@@ -54,11 +82,19 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
         holder.bind(serie, templateSerie);
     }
 
+    /**
+     * Returns the total number of sets.
+     *
+     * @return The size of the series list.
+     */
     @Override
     public int getItemCount() {
         return series != null ? series.size() : 0;
     }
 
+    /**
+     * ViewHolder class for caching view references for a set item.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView setNumber, targetDetails;
         final EditText actualWeight, actualReps;
@@ -66,6 +102,12 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
         private final OnSessionSetListener listener;
         TextWatcher weightWatcher, repsWatcher;
 
+        /**
+         * Constructs a ViewHolder and initializes view references.
+         *
+         * @param itemView The root view of the item.
+         * @param listener The listener for events.
+         */
         public ViewHolder(View itemView, OnSessionSetListener listener) {
             super(itemView);
             this.listener = listener;
@@ -78,6 +120,13 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
             setupListeners();
         }
 
+        /**
+         * Binds data to the UI elements.
+         * Sets text watchers, target display, and checkbox state.
+         *
+         * @param serie         The actual set data.
+         * @param templateSerie The target set data (can be null).
+         */
         public void bind(HistorySerie serie, Serie templateSerie) {
             actualWeight.removeTextChangedListener(weightWatcher);
             actualReps.removeTextChangedListener(repsWatcher);
@@ -134,6 +183,9 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
             };
         }
 
+        /**
+         * Parses input from EditTexts and notifies the listener of data changes.
+         */
         private void updateSetData() {
             int position = getBindingAdapterPosition();
             if (position == RecyclerView.NO_POSITION) return;
@@ -146,11 +198,15 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
                 int reps = rStr.isEmpty() ? 0 : Integer.parseInt(rStr);
 
                 listener.onSetDataChanged(position, weight, reps);
-            } catch (NumberFormatException ignored) {
-                // Ignora input se nel formato sbagliato, non aggiorna i dati
-            }
+            } catch (NumberFormatException ignored) {}
         }
 
+        /**
+         * Updates visual state based on whether the set is marked as completed.
+         * Disables inputs if completed.
+         *
+         * @param completed True if the set is complete.
+         */
         private void updateCompletedUI(boolean completed) {
             int iconRes = completed ? android.R.drawable.checkbox_on_background : android.R.drawable.checkbox_off_background;
             completeButton.setImageResource(iconRes);
@@ -160,6 +216,12 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
         }
     }
 
+    /**
+     * Updates the adapter's data with new lists and refreshes the RecyclerView.
+     *
+     * @param newSeries         The new list of history series.
+     * @param newTemplateSeries The new list of template series.
+     */
     public void updateData(List<HistorySerie> newSeries, List<Serie> newTemplateSeries) {
         this.series.clear();
         this.series.addAll(newSeries);

@@ -28,6 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Fragment responsible for displaying user statistics.
+ * Shows a calendar view of workout history, Key Performance Indicators (KPIs),
+ * and line charts for exercise progress (Max Weight and Total Volume).
+ */
 public class StatsFragment extends Fragment {
 
     private RecyclerView calendarRecyclerView;
@@ -39,17 +44,36 @@ public class StatsFragment extends Fragment {
     private HistoryViewModel historyViewModel;
     private final DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
 
+    /**
+     * Initializes the HistoryViewModel.
+     *
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         historyViewModel = new ViewModelProvider(requireActivity(), new ViewModelFactory(requireContext())).get(HistoryViewModel.class);
     }
 
+    /**
+     * Inflates the layout for the statistics screen.
+     *
+     * @param inflater           LayoutInflater to inflate views.
+     * @param container          Parent view group.
+     * @param savedInstanceState Saved state bundle.
+     * @return The root view of the fragment.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_stats, container, false);
     }
 
+    /**
+     * Sets up views, styles, observers, and listeners after the view is created.
+     *
+     * @param view               The root view.
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -60,6 +84,11 @@ public class StatsFragment extends Fragment {
         setupClickListeners();
     }
 
+    /**
+     * Initializes UI references from the fragment layout.
+     *
+     * @param view The root view of the fragment.
+     */
     private void initViews(View view) {
         calendarRecyclerView = view.findViewById(R.id.calendarRecyclerView);
         txtMonthTitle = view.findViewById(R.id.txtMonthTitle);
@@ -77,6 +106,9 @@ public class StatsFragment extends Fragment {
         setupCalendar();
     }
 
+    /**
+     * Sets up observers for ViewModel LiveData to update the UI (calendar, KPIs, charts) whenever data changes.
+     */
     private void setupObservers() {
         historyViewModel.getSelectedDate().observe(getViewLifecycleOwner(), date -> drawCalendar());
 
@@ -113,12 +145,19 @@ public class StatsFragment extends Fragment {
         });
     }
 
+    /**
+     * Configures click listeners for calendar navigation and view toggling buttons.
+     */
     private void setupClickListeners() {
         btnPrev.setOnClickListener(v -> historyViewModel.previous());
         btnNext.setOnClickListener(v -> historyViewModel.next());
         btnExpand.setOnClickListener(v -> historyViewModel.toggleCalendarView());
     }
 
+    /**
+     * Refreshes the calendar view based on the currently selected date.
+     * Updates the month title and the list of days.
+     */
     private void drawCalendar() {
         LocalDate selectedDate = historyViewModel.getSelectedDate().getValue();
         if (selectedDate == null) return;
@@ -128,6 +167,12 @@ public class StatsFragment extends Fragment {
         calendarAdapter.updateDays(days, selectedDate);
     }
 
+    /**
+     * populates the exercise spinner with available exercise names for filtering charts.
+     * Automatically selects the first exercise if available.
+     *
+     * @param names List of exercise names.
+     */
     private void setupExerciseSpinner(List<String> names) {
         if (names == null) return;
         List<String> spinnerNames = new ArrayList<>(names);
@@ -154,6 +199,11 @@ public class StatsFragment extends Fragment {
         }
     }
 
+    /**
+     * Triggers data fetching for the charts based on the selected exercise.
+     *
+     * @param exerciseName The name of the selected exercise.
+     */
     private void loadChartsForExercise(String exerciseName) {
         if (exerciseName == null || exerciseName.trim().isEmpty() || "No Data".equals(exerciseName)) {
             chartLoad.clear();
@@ -170,6 +220,9 @@ public class StatsFragment extends Fragment {
         historyViewModel.fetchGraphDataForExercise(trimmedExerciseName, HistoryViewModel.ChartMetric.TOTAL_VOLUME);
     }
 
+    /**
+     * Configures the calendar RecyclerView and its adapter.
+     */
     private void setupCalendar() {
         calendarAdapter = new CalendarAdapter(
                 date -> historyViewModel.changeSelectedDate(date),

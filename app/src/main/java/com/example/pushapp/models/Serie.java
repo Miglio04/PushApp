@@ -12,6 +12,10 @@ import com.google.firebase.firestore.Exclude;
 import java.io.Serializable;
 import java.util.UUID;
 
+/**
+ * Entity representing a specific set (Serie) within a WorkoutExercise.
+ * Stores targets (reps, weight) for the training plan.
+ */
 @Entity(tableName = "serie",
         foreignKeys = @ForeignKey(
                 entity = WorkoutExercise.class,
@@ -33,19 +37,27 @@ public class Serie implements Serializable {
     @ColumnInfo(name = "targetWeight")
     private double targetWeight;
 
+    /**
+     * Default constructor.
+     */
     public Serie() {
         this.serieId = UUID.randomUUID().toString();
         this.targetReps = 0;
         this.targetWeight = 0.0;
     }
 
-    public Serie(int serieNumber, int targetReps, double targetWeight) {
+    /**
+     * Constructs a Serie with specified targets.
+     *
+     * @param targetReps  The target number of repetitions.
+     * @param targetWeight The target weight.
+     */
+    public Serie(int targetReps, double targetWeight) {
         this.serieId = UUID.randomUUID().toString();
         this.targetReps = targetReps;
         this.targetWeight = targetWeight;
     }
 
-    // Getters e Setters
     @Exclude
     public String getSerieId() { return serieId; }
 

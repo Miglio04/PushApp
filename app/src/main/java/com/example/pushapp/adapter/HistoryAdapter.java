@@ -20,15 +20,28 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+/**
+ * Adapter for displaying a history of completed workout sessions in a RecyclerView.
+ * Manages the display of expandable cards showing workout details (exercises, sets, stats).
+ */
 public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHolder> {
     private List<HistorySessionWithExercises> historyList;
     private final OnHistoryInteractionListener listener;
     private final SimpleDateFormat sdf;
 
+    /**
+     * Interface definition for handling interactions with history items.
+     */
     public interface OnHistoryInteractionListener {
         void onDeleteClicked(HistorySessionWithExercises session);
     }
 
+    /**
+     * Constructs a new HistoryAdapter.
+     *
+     * @param list     The initial list of history sessions.
+     * @param listener The listener for interaction events.
+     */
     public HistoryAdapter(List<HistorySessionWithExercises> list, OnHistoryInteractionListener listener) {
         this.historyList = list;
         this.listener = listener;
@@ -36,6 +49,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         this.sdf.setTimeZone(TimeZone.getTimeZone("Europe/Rome"));
     }
 
+    /**
+     * Creates a new ViewHolder for a history card.
+     *
+     * @param parent   The parent ViewGroup.
+     * @param viewType The view type integer.
+     * @return A new ViewHolder instance.
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -43,6 +63,13 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         return new ViewHolder(v);
     }
 
+    /**
+     * Binds data to the ViewHolder at the specified position.
+     * Handles displaying session summaries and expanding/collapsing detailed views.
+     *
+     * @param holder   The ViewHolder to bind.
+     * @param position The position in the history list.
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HistorySessionWithExercises item = historyList.get(position);
@@ -62,6 +89,12 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         holder.btnDelete.setOnClickListener(v -> listener.onDeleteClicked(item));
     }
 
+    /**
+     * Helper method to build a formatted string string of exercises and sets for the details view.
+     *
+     * @param item The history session object.
+     * @return A formatted string describing the completed workout.
+     */
     @NonNull
     private String buildDetailsString(HistorySessionWithExercises item) {
         StringBuilder sb = new StringBuilder();
@@ -79,13 +112,26 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         return sb.toString().trim();
     }
 
+    /**
+     * Returns the total number of history items.
+     *
+     * @return The size of the history list.
+     */
     @Override public int getItemCount() { return historyList.size(); }
 
+    /**
+     * Updates the list of history sessions and refreshes the RecyclerView.
+     *
+     * @param newList The new list of history sessions.
+     */
     public void updateHistory(List<HistorySessionWithExercises> newList) {
         this.historyList = newList;
         notifyDataSetChanged();
     }
 
+    /**
+     * ViewHolder class for caching view references for a history card.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName, tvDate, tvDetails;
         View btnExpand;
@@ -93,6 +139,11 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
         LinearLayout detailsContainer;
         MaterialButton btnDelete;
 
+        /**
+         * Constructs a new ViewHolder.
+         *
+         * @param v The item view.
+         */
         ViewHolder(View v) {
             super(v);
             tvName = v.findViewById(R.id.tv_workout_name);

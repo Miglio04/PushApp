@@ -16,6 +16,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Data source for handling history-related operations with the remote Firestore database.
+ * Manages uploading, fetching, and deleting workout history sessions in the cloud.
+ */
 public class HistoryRemoteDataSource {
 
     private final FirebaseFirestore db;
@@ -27,10 +31,22 @@ public class HistoryRemoteDataSource {
         this.auth = FirebaseAuth.getInstance();
     }
 
+    /**
+     * Sets the callback interface for receiving asynchronous operation results.
+     *
+     * @param callback The callback implementation.
+     */
     public void setHistoryCallback(HistoryCallback callback) {
         this.callback = callback;
     }
 
+    /**
+     * Uploads a completed workout session to Firestore.
+     * Maps the session, exercises, and series objects to a nested Map structure for storage.
+     *
+     * @param sessionToSave  The session object to upload.
+     * @param remoteCallback The callback to notify on failure (success is silent here).
+     */
     public void uploadWorkoutSession(HistorySessionWithExercises sessionToSave, HistoryCallback remoteCallback) {
         if (auth.getCurrentUser() == null) {
             if (remoteCallback != null) remoteCallback.onFailureFromRemote(new Exception("User not authenticated"));
@@ -92,6 +108,11 @@ public class HistoryRemoteDataSource {
                 });
     }
 
+    /**
+     * Fetches the user's workout history from Firestore.
+     * Retrieving sessions ordered by start time descending.
+     * Parses the documents into local history models and notifies the callback.
+     */
     public void fetchHistoryFromRemote() {
         if (auth.getCurrentUser() == null) return;
 
@@ -108,7 +129,7 @@ public class HistoryRemoteDataSource {
                             HistorySessionWithExercises item = parseDocumentToHistoryObject(doc);
                             resultList.add(item);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            resultList.add(null);
                         }
                     }
 
@@ -121,6 +142,12 @@ public class HistoryRemoteDataSource {
                 });
     }
 
+    /**
+     * Deletes a specific history session from Firestore.
+     *
+     * @param sessionId The ID of the session to delete.
+     * @param listener  The listener to notify upon failure.
+     */
     public void deleteSession(String sessionId, OnFailureListener listener) {
         if (auth.getCurrentUser() == null) {
             if (listener != null) listener.onFailure(new Exception("User not authenticated"));
@@ -139,6 +166,13 @@ public class HistoryRemoteDataSource {
                 });
     }
 
+    /**
+     * Parses a Firestore document snapshot into a HistorySessionWithExercises object.
+     * Reconstructs the session, exercises, and series hierarchy from the document data.
+     *
+     * @param doc The DocumentSnapshot to parse.
+     * @return The populated HistorySessionWithExercises object.
+     */
     private HistorySessionWithExercises parseDocumentToHistoryObject(DocumentSnapshot doc) {
         HistorySession session = new HistorySession();
         session.setHistorySessionId(Objects.requireNonNull(doc.getString("historySessionId")));
@@ -175,7 +209,7 @@ public class HistoryRemoteDataSource {
                         Long sNum = (Long) sMap.get("setNumber");
                         s.setSetNumber((sNum != null) ? sNum.intValue() : 0);
                         Double w = (Double) sMap.get("weight");
-                        s.setWeight((w != null) ? (Double) w : 0.0);
+                        s.setWeight((w != null) ? w : 0.0);
                         Long r = (Long) sMap.get("reps");
                         s.setReps((r != null) ? r.intValue() : 0);
                         seriesList.add(s);
@@ -197,6 +231,9 @@ public class HistoryRemoteDataSource {
         return result;
     }
 
+    /**
+     * Interface definition for a callback to be invoked when a remote operation fails.
+     */
     public interface OnFailureListener {
         void onFailure(Exception e);
     }

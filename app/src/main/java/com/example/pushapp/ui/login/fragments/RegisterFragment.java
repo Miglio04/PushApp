@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +23,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-// import androidx.navigation.Navigation; // Non serve più qui perché lo switch è gestito dall'Activity
 
 import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
@@ -38,31 +36,26 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Fragment responsible for user registration functionality.
+ * Supports email/password registration and Google Sign-In integration.
+ * Handles validation, loading states, and navigation upon success.
+ */
 public class RegisterFragment extends Fragment {
 
-    private static final String TAG = "RegisterFragment";
-
-    // UI Components
     private EditText etEmail, etPassword, etConfirmPassword;
     private TextView tvEmailError, tvPasswordError, tvConfirmError;
     private AppCompatButton btnRegister;
     private AppCompatButton btnGoogle;
 
-    // Loading Components
     private LinearLayout loadingOverlay;
     private TextView tvLoadingText;
 
-    // Firebase & Google
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
     private GoogleSignInClient mGoogleSignInClient;
 
     private UserViewModel userViewModel;
 
-    // Launcher per il risultato del Google Sign-In
     private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -83,10 +76,13 @@ public class RegisterFragment extends Fragment {
             }
     );
 
-    public RegisterFragment() {
-        // Required empty public constructor
-    }
+    public RegisterFragment() {}
 
+    /**
+     * Initializes the ViewModel and Google Sign-In client.
+     *
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,10 +93,6 @@ public class RegisterFragment extends Fragment {
 
         userViewModel.clearLiveData();
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-
-        // Google Configuration
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -108,12 +100,25 @@ public class RegisterFragment extends Fragment {
         mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
     }
 
+    /**
+     * Inflates the registration layout.
+     *
+     * @param inflater           LayoutInflater to inflate views.
+     * @param container          Parent view group.
+     * @param savedInstanceState Saved state bundle.
+     * @return The root view of the fragment.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_register, container, false);
     }
 
+    /**
+     * Sets up UI references, observers, and button listeners after view creation.
+     *
+     * @param view               The root view.
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -131,6 +136,11 @@ public class RegisterFragment extends Fragment {
         }
     }
 
+    /**
+     * Initializes UI components from the layout.
+     *
+     * @param view The root view.
+     */
     private void initializeViews(View view) {
         etEmail = view.findViewById(R.id.etEmailRegister);
         etPassword = view.findViewById(R.id.etPasswordRegister);
@@ -143,11 +153,13 @@ public class RegisterFragment extends Fragment {
         btnRegister = view.findViewById(R.id.btnRegister);
         btnGoogle = view.findViewById(R.id.btnGoogle);
 
-        // Overlay
         loadingOverlay = view.findViewById(R.id.loadingOverlay);
         tvLoadingText = view.findViewById(R.id.tvLoadingText);
     }
 
+    /**
+     * Observes session LiveData for registration errors.
+     */
     public void observeSessionLiveData(){
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
            if(result == null) return;
@@ -156,33 +168,33 @@ public class RegisterFragment extends Fragment {
                Result.Error.RegistrationError error = (Result.Error.RegistrationError) result;
                Toast.makeText(requireContext(), "Registration error: " + error.getMessage(), Toast.LENGTH_LONG).show();
                userViewModel.clearSessionLiveData();
-           } else if (result.isSessionSuccess()) {
-               Log.d(TAG, "Registration successful");
            }
         });
     }
 
+    /**
+     * Observes user LiveData for successful registration or local database errors.
+     */
     public void observeUserLiveData(){
         userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), result -> {
             if(result == null) return;
             showLoading(false, null);
             if (result.isUserSuccess()) {
-                Log.d(TAG, "Local database success");
-                showSuccessDialog(false);
+                showSuccessDialog();
             } else if (result.isLocalDatabaseError()) {
-                Log.d(TAG, "Local database error");
                 Result.Error.LocalDatabaseError error = (Result.Error.LocalDatabaseError) result;
-                // fatal exception
                 Toast.makeText(requireContext(), "Local database error: " + error.getMessage(), Toast.LENGTH_LONG).show();
                 userViewModel.clearUserLiveData();
             }
         });
     }
 
+    /**
+     * Validates input fields and triggers the email/password registration process.
+     */
     private void handleRegistration() {
         resetErrors();
 
-        // email validation should be moved into a separate method
         String email = etEmail.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
@@ -208,7 +220,9 @@ public class RegisterFragment extends Fragment {
         userViewModel.registerWithEmailAndPassword(email, password);
     }
 
-    // to be moved into sessionRepository
+    /**
+     * Initiates the Google Sign-In flow.
+     */
     private void signInWithGoogle() {
         showLoading(true, "Connecting to Google...");
 
@@ -218,55 +232,20 @@ public class RegisterFragment extends Fragment {
         });
     }
 
-    // to be moved into sessionRepository
+    /**
+     * Delegates Google authentication to the ViewModel using the ID token.
+     *
+     * @param idToken The Google ID token.
+     */
     private void firebaseAuthWithGoogle(String idToken) {
         if(tvLoadingText != null) tvLoadingText.setText("Authenticating...");
         userViewModel.registerWithGoogle(idToken);
-
-        /*AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(requireActivity(), task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            createUserProfile(user.getUid(), user.getEmail(), true);
-                        }
-                    } else {
-                        showLoading(false, null);
-                        Toast.makeText(requireContext(), "Authentication Failed.", Toast.LENGTH_SHORT).show();
-                    }
-                });*/
     }
 
-    // to be moved into sessionRepository
-    // method only used by Google Sign up
-    /*private void createUserProfile(String uid, String email, boolean isGoogle) {
-        if (tvLoadingText != null) tvLoadingText.setText("Saving profile...");
-
-        Map<String, Object> user = new HashMap<>();
-        user.put("email", email);
-        user.put("createdAt", FieldValue.serverTimestamp());
-        user.put("workoutPlans", new ArrayList<String>());
-        user.put("weightProgress", new ArrayList<Double>());
-        user.put("currentTrainingPlan", "");
-
-        db.collection("users").document(uid)
-                .set(user)
-                .addOnSuccessListener(aVoid -> {
-                    Log.d(TAG, "User profile created in Firestore for UID: " + uid);
-                    showLoading(false, null);
-                    showSuccessDialog(isGoogle);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "Error saving user profile", e);
-                    showLoading(false, null);
-                    Toast.makeText(requireContext(), "Error saving profile: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                });
-    }*/
-
-    private void showSuccessDialog(boolean isGoogle) {
-        Log.d(TAG, "Showing success dialog");
+    /**
+     * Displays a success dialog upon registration completion.
+     */
+    private void showSuccessDialog() {
         if (getContext() == null) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
@@ -286,11 +265,7 @@ public class RegisterFragment extends Fragment {
         if (tvTitle != null) tvTitle.setText("Welcome!");
 
         if (tvMessage != null) {
-            if (isGoogle) {
-                tvMessage.setText("Account connected via Google.\nYou are ready to setup your profile.");
-            } else {
-                tvMessage.setText("Account created successfully.\nYou are ready to setup your profile.");
-            }
+            tvMessage.setText("Account created successfully.\nYou are ready to setup your profile.");
         }
 
         if (btnAction != null) {
@@ -304,6 +279,9 @@ public class RegisterFragment extends Fragment {
         dialog.show();
     }
 
+    /**
+     * Navigates to the QuestionsActivity for user profiling.
+     */
     private void goToQuestionsActivity() {
         if (getContext() == null) return;
 
@@ -313,6 +291,12 @@ public class RegisterFragment extends Fragment {
         requireActivity().finish();
     }
 
+    /**
+     * Toggles the visibility of the loading overlay.
+     *
+     * @param isLoading True to show loading, false to hide.
+     * @param message   Optional message to display during loading.
+     */
     private void showLoading(boolean isLoading, String message) {
         if (loadingOverlay != null) {
             if (isLoading) {
@@ -330,6 +314,13 @@ public class RegisterFragment extends Fragment {
         }
     }
 
+    /**
+     * Displays an error message for a specific input field.
+     *
+     * @param field     The EditText to highlight.
+     * @param errorText The TextView to show the error message.
+     * @param message   The error message content.
+     */
     private void showError(EditText field, TextView errorText, String message) {
         if (field != null) field.setBackgroundResource(R.drawable.bg_input_error);
         if (errorText != null) {
@@ -338,6 +329,9 @@ public class RegisterFragment extends Fragment {
         }
     }
 
+    /**
+     * Resets visual error indicators on input fields.
+     */
     private void resetErrors() {
         if (etEmail != null) etEmail.setBackgroundResource(R.drawable.bg_input_outline);
         if (tvEmailError != null) tvEmailError.setVisibility(View.GONE);

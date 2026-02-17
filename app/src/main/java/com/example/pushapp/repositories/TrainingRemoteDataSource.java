@@ -5,8 +5,6 @@ import static com.example.pushapp.utils.Constants.COLLECTION_TRAININGS;
 import static com.example.pushapp.utils.Constants.COLLECTION_USERS;
 import static com.example.pushapp.utils.Constants.COLLECTION_WORKOUT_EXERCISES;
 
-import android.util.Log;
-
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.Training;
@@ -25,21 +23,37 @@ import com.google.firebase.firestore.WriteBatch;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Data source for handling training-related operations with the remote Firestore database.
+ * Manages the creation, retrieval, update, and deletion of training plans, routines, and exercises in the cloud.
+ */
 public class TrainingRemoteDataSource {
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
     private TrainingCallback trainingCallback;
-    private static final String TAG = "TrainingRemoteDS";
 
     TrainingRemoteDataSource() {
         this.db = FirebaseFirestore.getInstance();
         this.auth = FirebaseAuth.getInstance();
         this.trainingCallback = null;
     }
+
+    /**
+     * Sets the callback interface for receiving asynchronous operation results.
+     *
+     * @param trainingCallback The callback implementation.
+     */
     public void setTrainingCallback(TrainingCallback trainingCallback) {
         this.trainingCallback = trainingCallback;
     }
 
+    /**
+     * Creates a new training plan in Firestore along with its routines and exercises.
+     * Uses a batch write to ensure atomicity.
+     *
+     * @param userId   The ID of the user creating the training.
+     * @param training The Training object to save remotely.
+     */
     public void createTraining(String userId, Training training) {
         if (userId == null) {
             trainingCallback.onFailureFromRemote(new Exception("Local Training ID (UUID) is missing."));
@@ -59,8 +73,6 @@ public class TrainingRemoteDataSource {
 
         training.setUserId(userId);
         training.setCreatedAt(System.currentTimeMillis());
-        training.setUpdatedAt(System.currentTimeMillis());
-        training.setDeleted(false);
 
         batch.set(trainingRef, training);
 
@@ -89,6 +101,13 @@ public class TrainingRemoteDataSource {
         }
         batch.commit();
     }
+
+    /**
+     * Fetches all training plans for a specific user from Firestore.
+     * Retrieving is hierarchical: Trainings -> Routines -> Exercises.
+     *
+     * @param userId The ID of the user whose trainings are to be fetched.
+     */
     public void fetchTrainings(String userId) {
         if (userId == null) {
             trainingCallback.onFailureFromRemote(new Exception("User not authenticated for fetch."));
@@ -132,20 +151,30 @@ public class TrainingRemoteDataSource {
                     trainingCallback.onFailureFromRemote(e);
                 });
     }
+
+    /**
+     * Updates an existing training plan's top-level details in Firestore.
+     *
+     * @param training The Training object containing updated information.
+     */
     public void updateTraining(Training training) {
         if (training == null) {
             trainingCallback.onFailureFromRemote(new Exception("Training is null"));
         } else if (training.getTrainingId() == null) {
             trainingCallback.onFailureFromRemote(new Exception("Training ID is null"));
         } else {
-            training.setUpdatedAt(System.currentTimeMillis());
-
             db.collection(COLLECTION_USERS).document(training.getUserId())
                     .collection(COLLECTION_TRAININGS).document(training.getTrainingId())
                     .set(training)
                     .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
         }
     }
+
+    /**
+     * Deletes a training plan and all its sub-collections (Routines, WorkoutExercises) from Firestore.
+     *
+     * @param training The Training object to delete.
+     */
     public void deleteTraining(Training training) {
         if (training == null || training.getTrainingId() == null) {
             trainingCallback.onFailureFromRemote(new Exception("Training or Training ID is null"));
@@ -193,6 +222,12 @@ public class TrainingRemoteDataSource {
         }).addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
     }
 
+    /**
+     * ADDs a new routine to an existing training plan in Firestore.
+     * Also saves any exercises contained within the routine.
+     *
+     * @param routine The Routine object to add.
+     */
     public void createRoutine(Routine routine) {
         String userId = routine.getUserId();
         if (userId == null) {
@@ -234,6 +269,13 @@ public class TrainingRemoteDataSource {
 
         batch.commit().addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
     }
+
+    /**
+     * Updates an existing routine in Firestore.
+     * Handles updating routine details and synchronizing the list of exercises (adding/removing).
+     *
+     * @param routine The Routine object with updated data.
+     */
     public void updateRoutine(Routine routine){
         String userId = routine.getUserId();
         if (userId == null) {
@@ -290,6 +332,12 @@ public class TrainingRemoteDataSource {
                 })
                 .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
     }
+
+    /**
+     * Deletes a specific routine and its sub-collection of exercises from Firestore.
+     *
+     * @param routine The Routine object to delete.
+     */
     public void deleteRoutine(Routine routine){
         String userId = routine.getUserId();
         String trainingId = routine.getTrainingId();
@@ -319,6 +367,13 @@ public class TrainingRemoteDataSource {
                 .addOnFailureListener(e -> trainingCallback.onFailureFromRemote(e));
     }
 
+    /**
+     * Helper method to fetch all routines associated with a specific training document.
+     *
+     * @param training The parent training object being populated.
+     * @param trainingRef The DocumentReference to the training in Firestore.
+     * @return A Task that completes when all routines and their exercises are fetched.
+     */
     private Task<Void> fetchRoutinesForTraining(Training training, DocumentReference trainingRef) {
         return trainingRef.collection(COLLECTION_ROUTINES).get().onSuccessTask(routineSnapshots -> {
             List<Routine> routines = new ArrayList<>();
@@ -338,6 +393,14 @@ public class TrainingRemoteDataSource {
             return Tasks.whenAllComplete(exerciseTasks).continueWith(task -> null);
         });
     }
+
+    /**
+     * Helper method to fetch all exercises associated with a specific routine document.
+     *
+     * @param routine The parent routine object being populated.
+     * @param routineRef The DocumentReference to the routine in Firestore.
+     * @return A Task that completes when the exercises are fetched and assigned to the routine.
+     */
     private Task<Void> fetchExercisesForRoutine(Routine routine, DocumentReference routineRef) {
         return routineRef.collection(COLLECTION_WORKOUT_EXERCISES).get().onSuccessTask(exerciseSnapshots -> {
             List<WorkoutExercise> exercises = new ArrayList<>();

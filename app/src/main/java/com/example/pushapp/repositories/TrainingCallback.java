@@ -5,6 +5,11 @@ import com.example.pushapp.models.Training;
 
 import java.util.List;
 
+/**
+ * Callback interface for handling Training repository operations.
+ * Provides specific methods for success and failure regarding Trainings and Routines,
+ * distinguishing between local database and remote updates.
+ */
 public interface TrainingCallback {
 
     void onSuccessFromLocalTrainingFetch(String userId, List<Training> finalTrainingList);

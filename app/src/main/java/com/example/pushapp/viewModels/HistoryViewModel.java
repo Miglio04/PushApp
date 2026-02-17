@@ -30,6 +30,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+/**
+ * ViewModel responsible for managing workout history and statistics.
+ * Handles fetching, filtering, and displaying past workout sessions, as well as calculating KPIs and graph data.
+ */
 public class HistoryViewModel extends ViewModel {
     private final HistoryRepository repository;
     private final MutableLiveData<List<HistorySessionWithExercises>> historySessions = new MutableLiveData<>();
@@ -41,6 +45,10 @@ public class HistoryViewModel extends ViewModel {
     private final MutableLiveData<List<String>> exerciseNamesLiveData = new MutableLiveData<>();
     private final MutableLiveData<GraphChartData> graphMaxWeightData = new MutableLiveData<>();
     private final MutableLiveData<GraphChartData> graphTotalVolumeData = new MutableLiveData<>();
+
+    /**
+     * Data class to hold chart entries and raw graph points.
+     */
     public static class GraphChartData {
         public final List<Entry> entries;
         public final List<GraphPoint> points;
@@ -49,11 +57,21 @@ public class HistoryViewModel extends ViewModel {
             this.points = points;
         }
     }
+
+    /**
+     * Metrics supported for charting.
+     */
     public enum ChartMetric {
         MAX_WEIGHT,
         TOTAL_VOLUME
     }
 
+    /**
+     * Constructor for HistoryViewModel.
+     * Starts observing the repository's history list and initiates a data fetch.
+     *
+     * @param repository The repository for history data operations.
+     */
     public HistoryViewModel(HistoryRepository repository) {
         this.repository = repository;
         this.repository.getHistoryList().observeForever(historyListObserver);
@@ -61,29 +79,62 @@ public class HistoryViewModel extends ViewModel {
     }
 
     public LiveData<List<HistorySessionWithExercises>> getHistorySessions() { return historySessions; }
+
+    /**
+     * Returns the LiveData for Key Performance Indicators (KPIs).
+     */
     public LiveData<KpiStats> getKpiStats() {
         return kpiStatsLiveData;
     }
+
+    /**
+     * Returns the LiveData for the currently selected date in the calendar view.
+     */
     public LiveData<LocalDate> getSelectedDate() {
         return selectedDateLiveData;
     }
+
+    /**
+     * Returns the LiveData indicating if the calendar is in month view (true) or week view (false).
+     */
     public LiveData<Boolean> isMonthView() {
         return isMonthView;
     }
+
+    /**
+     * Returns the LiveData containing the list of unique exercise names found in history.
+     */
     public LiveData<List<String>> getExerciseNames() {
         return exerciseNamesLiveData;
     }
+
+    /**
+     * Returns the LiveData for the Max Weight graph data.
+     */
     public LiveData<GraphChartData> getGraphMaxWeightData() {
         return graphMaxWeightData;
     }
+
+    /**
+     * Returns the LiveData for the Total Volume graph data.
+     */
     public LiveData<GraphChartData> getGraphTotalVolumeData() {
         return graphTotalVolumeData;
     }
 
+    /**
+     * Triggers a fetch of history data from the repository.
+     */
     public void fetchHistory() {
         repository.fetchHistoryData();
     }
 
+    /**
+     * Filters the history list based on a search query.
+     * Matches against session names and exercise names.
+     *
+     * @param query The search string.
+     */
     public void searchHistory(String query) {
         this.currentSearchQuery = (query != null) ? query : "";
         if (fullHistoryList == null) {
@@ -114,6 +165,13 @@ public class HistoryViewModel extends ViewModel {
         historySessions.postValue(filteredList);
     }
 
+    /**
+     * Saves a completed workout session to history.
+     * Performs cleanup on empty series/exercises before saving.
+     *
+     * @param sessionToSave The session object to save.
+     * @param onComplete    Runnable to execute after saving is complete.
+     */
     public void saveWorkoutSession(HistorySessionWithExercises sessionToSave, Runnable onComplete) {
         if (sessionToSave == null) {
             if (onComplete != null) onComplete.run();
@@ -139,18 +197,33 @@ public class HistoryViewModel extends ViewModel {
         repository.saveWorkoutSession(sessionToSave, onComplete);
     }
 
+    /**
+     * Creates a new workout session wrapper from a Routine template, without saving it yet.
+     *
+     * @param day The routine template.
+     * @return A WorkoutState object initialized with the new session.
+     */
     public WorkoutState createNewWorkoutSessionWithTemplate(Routine day) {
         HistorySessionWithExercises session = repository.createNewWorkoutSessionWithoutTemplate(day);
         if (session == null) return null;
         return new WorkoutState(session, day);
     }
 
+    /**
+     * Deletes a history session.
+     *
+     * @param wrapper The session wrapper containing the session to delete.
+     */
     public void deleteSession(HistorySessionWithExercises wrapper) {
         if (wrapper != null && wrapper.session != null) {
             repository.deleteSession(wrapper.session.getHistorySessionId());
         }
     }
 
+    /**
+     * Advances the selected date by one week or one month, depending on the current view mode.
+     * Triggers a recalculation of KPIs.
+     */
     public void next() {
         LocalDate current = selectedDateLiveData.getValue();
         if (current != null) {
@@ -160,6 +233,10 @@ public class HistoryViewModel extends ViewModel {
         }
     }
 
+    /**
+     * Moves the selected date back by one week or one month, depending on the current view mode.
+     * Triggers a recalculation of KPIs.
+     */
     public void previous() {
         LocalDate current = selectedDateLiveData.getValue();
         if (current != null) {
@@ -169,15 +246,30 @@ public class HistoryViewModel extends ViewModel {
         }
     }
 
+    /**
+     * Toggles between month view and week view for the calendar/KPIs.
+     */
     public void toggleCalendarView() {
         isMonthView.setValue(!Boolean.TRUE.equals(isMonthView.getValue()));
     }
 
+    /**
+     * Updates the currently selected date.
+     *
+     * @param newDate The new date to select.
+     */
     public void changeSelectedDate(LocalDate newDate) {
         selectedDateLiveData.setValue(newDate);
         recalculateKpisAndCalendar();
     }
 
+    /**
+     * Fetches graph data for a specific exercise and metric.
+     * Updates the corresponding LiveData (total volume or max weight) upon success.
+     *
+     * @param exerciseName The name of the exercise to graph.
+     * @param metric       The metric to visualize (MAX_WEIGHT or TOTAL_VOLUME).
+     */
     public void fetchGraphDataForExercise(String exerciseName, ChartMetric metric) {
         HistoryRepository.StatMetric repoMetric = (metric == ChartMetric.MAX_WEIGHT) ?
                 HistoryRepository.StatMetric.MAX_WEIGHT : HistoryRepository.StatMetric.TOTAL_VOLUME;
@@ -212,18 +304,34 @@ public class HistoryViewModel extends ViewModel {
         }
     };
 
+    /**
+     * Handles updates to the history data list.
+     * Extracts exercise names and recalculates KPIs.
+     *
+     * @param history The new list of history sessions.
+     */
     private void onHistoryDataChanged(List<HistorySessionWithExercises> history) {
         this.fullHistoryList = (history != null) ? history : new ArrayList<>();
         extractExerciseNames(this.fullHistoryList);
         recalculateKpisAndCalendar();
     }
 
+    /**
+     * Triggers a recalculation of KPIs based on the currently selected date and full history.
+     */
     private void recalculateKpisAndCalendar() {
         LocalDate currentDate = selectedDateLiveData.getValue();
         if (currentDate == null) return;
         calculateKpis(fullHistoryList, currentDate);
     }
 
+    /**
+     * Calculates Key Performance Indicators (KPIs) for the selected month.
+     * Computes total workouts, volume, duration, and current streak.
+     *
+     * @param history      The full history list.
+     * @param selectedDate The selected date to determine the target month.
+     */
     public void calculateKpis(List<HistorySessionWithExercises> history, LocalDate selectedDate) {
         if (history == null || history.isEmpty()) {
             kpiStatsLiveData.postValue(new KpiStats(0, 0.0, 0L, 0));
@@ -260,6 +368,11 @@ public class HistoryViewModel extends ViewModel {
         kpiStatsLiveData.postValue(new KpiStats(workoutsMonth, volumeMonth, timeMillisMonth, streak));
     }
 
+    /**
+     * Extracts a list of unique exercise names from the history for filtering/graphing.
+     *
+     * @param history The list of history sessions to scan.
+     */
     public void extractExerciseNames(List<HistorySessionWithExercises> history) {
         if (history == null) {
             exerciseNamesLiveData.postValue(new ArrayList<>());
@@ -280,6 +393,12 @@ public class HistoryViewModel extends ViewModel {
         exerciseNamesLiveData.postValue(names);
     }
 
+    /**
+     * Converts a list of GraphPoints into a GraphChartData object for the UI.
+     *
+     * @param points The raw data points.
+     * @return A GraphChartData object containing Entry objects for the chart.
+     */
     private GraphChartData createChartDataFromPoints(List<GraphPoint> points) {
         if (points == null || points.isEmpty()) {
             return null;
@@ -291,6 +410,12 @@ public class HistoryViewModel extends ViewModel {
         return new GraphChartData(entries, points);
     }
 
+    /**
+     * Generates a list of dates representing the days to display in the calendar view.
+     * Can be a single week or a full month including padding days.
+     *
+     * @return A list of LocalDate objects.
+     */
     public List<LocalDate> getCalendarDays() {
         LocalDate date = selectedDateLiveData.getValue();
         if (date == null) return new ArrayList<>();
@@ -308,6 +433,12 @@ public class HistoryViewModel extends ViewModel {
         return days;
     }
 
+    /**
+     * Checks if a workout occurred on a specific date.
+     *
+     * @param date The date to check.
+     * @return true if a workout exists on that date, false otherwise.
+     */
     public boolean isWorkoutDay(LocalDate date) {
         if (date == null || fullHistoryList == null) return false;
         for (HistorySessionWithExercises s : fullHistoryList) {
@@ -319,12 +450,19 @@ public class HistoryViewModel extends ViewModel {
         return false;
     }
 
+    /**
+     * Called when the ViewModel is about to be destroyed.
+     * Removes the history list observer to prevent leaks.
+     */
     @Override
     protected void onCleared() {
         super.onCleared();
         repository.getHistoryList().removeObserver(historyListObserver);
     }
 
+    /**
+     * Resets the local database via the repository.
+     */
     public void resetLocalDatabase(){
         repository.resetLocalDatabase();
     }
