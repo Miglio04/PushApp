@@ -16,8 +16,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
 import com.example.pushapp.adapter.CalendarAdapter;
+import com.example.pushapp.models.Result;
+import com.example.pushapp.models.User;
 import com.example.pushapp.utils.ChartHelper;
 import com.example.pushapp.viewModels.HistoryViewModel;
+import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.github.mikephil.charting.charts.LineChart;
 import com.google.android.material.snackbar.Snackbar;
@@ -33,16 +36,20 @@ public class StatsFragment extends Fragment {
     private RecyclerView calendarRecyclerView;
     private CalendarAdapter calendarAdapter;
     private TextView txtMonthTitle, txtKpiWorkouts, txtKpiVolume, txtKpiTime, txtStreakCount, txtStreakMessage;
+    private TextView nameTitle;
     private ImageButton btnPrev, btnNext, btnExpand;
     private LineChart chartLoad, chartReps;
     private AutoCompleteTextView exerciseSpinner;
     private HistoryViewModel historyViewModel;
+    private UserViewModel userViewModel;
     private final DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        historyViewModel = new ViewModelProvider(requireActivity(), new ViewModelFactory(requireContext())).get(HistoryViewModel.class);
+        ViewModelFactory factory = new ViewModelFactory(requireContext());
+        historyViewModel = new ViewModelProvider(requireActivity(), factory).get(HistoryViewModel.class);
+        userViewModel = new ViewModelProvider(requireActivity(), factory).get(UserViewModel.class);
     }
 
     @Override
@@ -74,10 +81,21 @@ public class StatsFragment extends Fragment {
         txtKpiTime = view.findViewById(R.id.txtKpiTime);
         txtStreakCount = view.findViewById(R.id.txtStreakCount);
         txtStreakMessage = view.findViewById(R.id.txtStreakMessage);
+        nameTitle = view.findViewById(R.id.nameTitle);
         setupCalendar();
     }
 
     private void setupObservers() {
+        userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), result -> {
+            if (result == null) return;
+            if (result.isUserSuccess()) {
+                User user = ((Result.UserSuccess) result).getData();
+                if (user != null && user.getName() != null && !user.getName().isEmpty()) {
+                    nameTitle.setText(user.getName());
+                }
+            }
+        });
+
         historyViewModel.getSelectedDate().observe(getViewLifecycleOwner(), date -> drawCalendar());
 
         historyViewModel.isMonthView().observe(getViewLifecycleOwner(), isMonthView -> {

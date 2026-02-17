@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/nav_home"
+        android:id="@+id/nav_stats"
         android:icon="@drawable/home"
         android:title="Home" />
 
@@ -10,11 +10,6 @@
         android:id="@+id/trainings_graph"
         android:icon="@drawable/cards_stack"
         android:title="Trainings" />
-
-    <item
-        android:id="@+id/nav_stats"
-        android:icon="@drawable/bar_chart"
-        android:title="Stats" />
 
     <item
         android:id="@+id/nav_history"
