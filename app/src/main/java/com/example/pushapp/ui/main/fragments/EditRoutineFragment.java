@@ -358,7 +358,7 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     @Override public void onDeleteExercise(int position) {
         Routine routine = trainingViewModel.getEditableRoutine().getValue();
         if(routine == null) return;
-        new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + routine.getWorkoutExercises().get(position).getApiExerciseId() + "?")
+        new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + routine.getWorkoutExercises().get(position).getExerciseName() + "?")
                 .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteExerciseFromRoutine(position)).setNegativeButton("Annulla", null).show();
     }
 

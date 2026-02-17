@@ -102,7 +102,6 @@ public class TrainingViewModelUnitTest {
         assertEquals(1, ((Result.ExerciseSuccess)result).getData().size());
         assertEquals("Push Up", ((Result.ExerciseSuccess)result).getData().get(0).getName());
     }
-
     @Test
     public void applyFilters_filtersCorrectly() {
         // Arrange

@@ -1,4 +1,4 @@
-package com.example.pushapp;
+package com.example.pushapp.repositories;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -17,10 +17,6 @@ import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Serie;
 import com.example.pushapp.models.WorkoutExercise;
 import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
-import com.example.pushapp.repositories.HistoryCallback;
-import com.example.pushapp.repositories.HistoryLocalDataSource;
-import com.example.pushapp.repositories.HistoryRemoteDataSource;
-import com.example.pushapp.repositories.HistoryRepository;
 
 import org.junit.After;
 import org.junit.Before;
@@ -316,7 +312,7 @@ public class HistoryRepositoryTest {
 
         List<WorkoutExercise> exercises = new ArrayList<>();
         WorkoutExercise ex = new WorkoutExercise();
-        ex.setApiExerciseId("ex_cardio");
+        ex.setExerciseName("ex_cardio");
         ex.setWorkoutExerciseId("work_ex_cardio");
         ex.setSeries(new ArrayList<>());
         exercises.add(ex);

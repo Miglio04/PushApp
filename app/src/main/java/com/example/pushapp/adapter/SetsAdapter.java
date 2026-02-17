@@ -55,9 +55,9 @@ public class SetsAdapter extends RecyclerView.Adapter<SetsAdapter.SetViewHolder>
     @Override
     public void onBindViewHolder(@NonNull SetViewHolder holder, int position) {
         Serie serie = series.get(position);
+        int displayPosition = position + 1;
 
-        holder.setNumber.setText("Set " + serie.getSerieNumber());
-        // Usa i campi corretti dal modello 'Serie'
+        holder.setNumber.setText("Set " + displayPosition);
         holder.setDetails.setText(serie.getTargetWeight() + "kg x " + serie.getTargetReps() + " reps");
 
         holder.btnEdit.setOnClickListener(v -> {

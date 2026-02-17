@@ -38,8 +38,8 @@ public class WorkoutExercise implements Serializable {
     private String userId;
     @ColumnInfo(name = "routineId")
     private String routineId;
-    @ColumnInfo(name = "apiExerciseId")
-    private String apiExerciseId;
+    @ColumnInfo(name = "exerciseName")
+    private String exerciseName;
     @ColumnInfo(name = "exerciseOrder")
     private int order;
     @ColumnInfo(name = "restTimeIndex")
@@ -60,9 +60,9 @@ public class WorkoutExercise implements Serializable {
     }
 
     // Costruttore per creare un nuovo esercizio a partire da un esercizio base dell'API
-    public WorkoutExercise(String apiExerciseId, int order) {
+    public WorkoutExercise(String exerciseName, int order) {
         this.workoutExerciseId = UUID.randomUUID().toString();
-        this.apiExerciseId = apiExerciseId;
+        this.exerciseName = exerciseName;
         this.order = order;
         this.series = new ArrayList<>();
     }
@@ -73,8 +73,8 @@ public class WorkoutExercise implements Serializable {
     public String getRoutineId() { return routineId; }
     public void setRoutineId(String routineId) { this.routineId = routineId; }
 
-    public String getApiExerciseId() { return apiExerciseId != null ? apiExerciseId : ""; }
-    public void setApiExerciseId(String apiExerciseId) { this.apiExerciseId = apiExerciseId; }
+    public String getExerciseName() { return exerciseName != null ? exerciseName : ""; }
+    public void setExerciseName(String exerciseName) { this.exerciseName = exerciseName; }
 
     public int getOrder() { return order; }
     public void setOrder(int order) { this.order = order; }

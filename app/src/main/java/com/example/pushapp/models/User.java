@@ -37,16 +37,6 @@ public class User {
     private String currentTrainingPlan;
     @ColumnInfo(name = "createdAt")
     private Timestamp createdAt;
-
-    //questi due campi andranno inseriti nel database quando verrà implementato il versioning
-    // @ColumnInfo(name = "userUpdatedAt")
-    @Ignore
-    private Timestamp userUpdatedAt;
-    // @ColumnInfo(name = "deleted")
-    @Ignore
-    private boolean deleted;
-    @Ignore
-    private List<Training> trainingLists;
     @Ignore
     private List<String> trainingPlans;
     @Ignore
@@ -57,8 +47,6 @@ public class User {
         this.email = email;
         this.trainingPlans = new ArrayList<>();
         this.createdAt = Timestamp.now();
-        this.userUpdatedAt = Timestamp.now();
-        this.deleted = false;
     }
 
     // Getters and Setters
@@ -91,10 +79,7 @@ public class User {
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
-    public Timestamp getUserUpdatedAt() { return userUpdatedAt; }
-    public void setUserUpdatedAt(Timestamp userUpdatedAt) { this.userUpdatedAt = userUpdatedAt; }
-    public boolean getDeleted() { return deleted; }
-    public void setDeleted(boolean deleted) { this.deleted = deleted; }
+
     @Ignore
     public List<String> getTrainingPlans() {
         if (trainingPlans == null) trainingPlans = new ArrayList<>();
@@ -116,13 +101,5 @@ public class User {
 
     public void setCurrentTrainingPlan(String currentTrainingPlan) {
         this.currentTrainingPlan = currentTrainingPlan;
-    }
-
-    public List<Training> getTrainingLists() {
-        return trainingLists;
-    }
-
-    public void setTrainingLists(List<Training> trainingLists) {
-        this.trainingLists = trainingLists;
     }
 }

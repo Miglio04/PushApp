@@ -39,14 +39,11 @@ public class Routine implements Serializable {
     private String trainingId;
     @ColumnInfo(name = "name")
     private String name;
-    @ColumnInfo(name = "dayOrder")
-    private int dayOrder;
     @ColumnInfo(name = "notes")
     private String notes;
     @Ignore
     private List<WorkoutExercise> workoutExercises;
 
-    // Costruttore vuoto richiesto da Firebase
     public Routine() {
         this.routineId = UUID.randomUUID().toString();
         this.workoutExercises = new ArrayList<>();
@@ -55,24 +52,21 @@ public class Routine implements Serializable {
         this.updatedAt = System.currentTimeMillis();
     }
 
-    public Routine(String name, int dayOrder) {
+    public Routine(String name) {
         this.routineId = UUID.randomUUID().toString();
         this.name = name;
-        this.dayOrder = dayOrder;
         this.workoutExercises = new ArrayList<>();
         this.deleted = false;
         this.createdAt = System.currentTimeMillis();
         this.updatedAt = System.currentTimeMillis();
     }
 
-    // Ha senso questo costruttore?
     @Ignore
     public Routine(Routine routine) {
         this.trainingId = routine.getTrainingId();
         this.userId = routine.getUserId();
         this.routineId = routine.getRoutineId();
         this.name = routine.getName();
-        this.dayOrder = routine.getDayOrder();
         if (routine.getWorkoutExercises() != null) {
             this.workoutExercises = new ArrayList<>(routine.getWorkoutExercises());
         } else {
@@ -87,12 +81,12 @@ public class Routine implements Serializable {
     // Getters e Setters
     public String getRoutineId() { return routineId; }
     public void setRoutineId(String routineId) { if (routineId != null) { this.routineId = routineId; } }
+
     public String getTrainingId() { return trainingId; }
     public void setTrainingId(String trainingId) { this.trainingId = trainingId; }
+
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-    public int getDayOrder() { return dayOrder; }
-    public void setDayOrder(int dayOrder) { this.dayOrder = dayOrder; }
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
 
@@ -115,7 +109,6 @@ public class Routine implements Serializable {
     public long getCreatedAt() {
         return createdAt;
     }
-
     public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
     }
@@ -123,7 +116,6 @@ public class Routine implements Serializable {
     public long getUpdatedAt() {
         return updatedAt;
     }
-
     public void setUpdatedAt(long updatedAt) {
         this.updatedAt = updatedAt;
     }
@@ -131,7 +123,6 @@ public class Routine implements Serializable {
     public boolean isDeleted() {
         return deleted;
     }
-
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
@@ -139,7 +130,6 @@ public class Routine implements Serializable {
     public String getUserId() {
         return userId;
     }
-
     public void setUserId(String userId) {
         this.userId = userId;
     }

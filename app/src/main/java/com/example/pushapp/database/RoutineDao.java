@@ -27,9 +27,6 @@ public interface RoutineDao {
     @Delete
     void delete(Routine routine);
 
-    @Query("SELECT * FROM Routine WHERE trainingId = :trainingId ORDER BY dayOrder")
-    List<Routine> getByTrainingId(String trainingId);
-
     @Transaction
     @Query("SELECT * FROM Routine WHERE routineId = :id")
     RoutineWithWorkoutExercises getWithExercises(String id);

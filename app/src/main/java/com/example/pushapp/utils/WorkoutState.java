@@ -50,7 +50,6 @@ public class WorkoutState {
                 templateExercise.setSeries(new ArrayList<>());
             }
             Serie newTemplateSerie = new Serie();
-            newTemplateSerie.setSerieNumber(templateExercise.getSeries().size() + 1);
             if (!templateExercise.getSeries().isEmpty()) {
                 Serie lastTemplateSerie = templateExercise.getSeries().get(templateExercise.getSeries().size() - 1);
                 newTemplateSerie.setTargetWeight(lastTemplateSerie.getTargetWeight());

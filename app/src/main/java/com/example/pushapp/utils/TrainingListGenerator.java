@@ -33,7 +33,7 @@ public class TrainingListGenerator {
         ArrayList<Routine> pplRoutines = new ArrayList<>();
 
         // Routine 1: Push Day
-        Routine pushDay = new Routine("Push Day", 1);
+        Routine pushDay = new Routine("Push Day");
 
         // Crea e aggiungi gli esercizi alla routine "Push Day"
         pushDay.setUserId(userId);
@@ -43,7 +43,7 @@ public class TrainingListGenerator {
         pplRoutines.add(pushDay);
 
         // Routine 2: Pull Day
-        Routine pullDay = new Routine("Pull Day", 2);
+        Routine pullDay = new Routine("Pull Day");
 
         // Crea e aggiungi gli esercizi alla routine "Pull Day"
         pullDay.setUserId(userId);

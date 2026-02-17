@@ -96,7 +96,6 @@ public class TrainingViewModel extends ViewModel {
         routine.setName("New Routine");
         routine.setTrainingId(currentTraining.getTrainingId());
         routine.setUserId(currentTraining.getUserId());
-        routine.setDayOrder(currentTraining.getRoutinesList().size() + 1);
         trainingRepository.createRoutine(routine);
     }
     public void updateRoutine(Routine routine){
@@ -236,7 +235,6 @@ public class TrainingViewModel extends ViewModel {
             Serie defaultSet = new Serie();
             defaultSet.setTargetWeight(10.0);
             defaultSet.setTargetReps(6);
-            defaultSet.setSerieNumber(i+1);
             series.add(defaultSet);
         }
         return series;
@@ -309,7 +307,6 @@ public class TrainingViewModel extends ViewModel {
                 Serie newSet = new Serie();
                 newSet.setUserId(routine.getUserId());
                 newSet.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
-                newSet.setSerieNumber(updatedSeries.size() + 1);
 
                 updatedSeries.add(newSet);
                 workoutExercise.setSeries(updatedSeries);

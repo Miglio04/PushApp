@@ -70,21 +70,24 @@ public class HistoryRepository implements HistoryCallback {
 
             HistoryWorkoutExercise hExercise = new HistoryWorkoutExercise(
                     newSession.getHistorySessionId(),
-                    woEx.getApiExerciseId(),
+                    woEx.getExerciseName(),
                     day.getWorkoutExercises().indexOf(woEx)
             );
             hExercise.setUserId(currentUserId);
 
             List<HistorySerie> historySeries = new ArrayList<>();
+            int count = 1;
             for (Serie templateSerie : woEx.getSeries()) {
                 HistorySerie hSerie = new HistorySerie(
                         hExercise.getHistoryExerciseId(),
-                        templateSerie.getSerieNumber(),
+                        /*templateSerie.getSerieNumber(),*/
+                        count,
                         0,
                         0
                 );
                 hSerie.setUserId(currentUserId);
                 historySeries.add(hSerie);
+                count++;
             }
 
             hExercise.setCurrentRestTimeIndex(woEx.getRestTimeIndex());
@@ -174,12 +177,9 @@ public class HistoryRepository implements HistoryCallback {
         Log.d(TAG, "Session saved locally. Fetching updated history list.");
         localDataSource.getAllHistory();
     }
-   
 
     public void resetLocalDatabase() {
         localDataSource.resetLocalDatabase();
-        if(historyList != null) historyList.postValue(null);
-        if(graphData != null) graphData.postValue(null);
-        if(graphVolumeData != null) graphVolumeData.postValue(null);
+        historyList.postValue(null);
     }
 }

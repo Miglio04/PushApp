@@ -28,8 +28,6 @@ public class Serie implements Serializable {
     private String userId;
     @ColumnInfo(name = "workoutExerciseId")
     private String workoutExerciseId;
-    @ColumnInfo(name = "serieNumber")
-    private int serieNumber;
     @ColumnInfo(name = "targetReps")
     private int targetReps;
     @ColumnInfo(name = "targetWeight")
@@ -37,14 +35,12 @@ public class Serie implements Serializable {
 
     public Serie() {
         this.serieId = UUID.randomUUID().toString();
-        this.serieNumber = 0;
         this.targetReps = 0;
         this.targetWeight = 0.0;
     }
 
     public Serie(int serieNumber, int targetReps, double targetWeight) {
         this.serieId = UUID.randomUUID().toString();
-        this.serieNumber = serieNumber;
         this.targetReps = targetReps;
         this.targetWeight = targetWeight;
     }
@@ -57,8 +53,6 @@ public class Serie implements Serializable {
     @Exclude
     public String getWorkoutExerciseId() { return workoutExerciseId; }
     public void setWorkoutExerciseId(String workoutExerciseId) { this.workoutExerciseId = workoutExerciseId; }
-    public int getSerieNumber() { return serieNumber; }
-    public void setSerieNumber(int serieNumber) { this.serieNumber = serieNumber; }
 
     public int getTargetReps() { return targetReps; }
     public void setTargetReps(int targetReps) { this.targetReps = targetReps; }

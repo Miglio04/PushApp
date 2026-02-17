@@ -57,7 +57,7 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
         WorkoutExercise workoutExercise = workoutExercises.get(position);
 
         // Imposta i dati dell'esercizio
-        holder.nameTextView.setText(workoutExercise.getApiExerciseId());
+        holder.nameTextView.setText(workoutExercise.getExerciseName());
 
         // Gestione espansione (Visibility e Rotazione freccia)
         boolean isExpanded = workoutExercise.isExpanded();
