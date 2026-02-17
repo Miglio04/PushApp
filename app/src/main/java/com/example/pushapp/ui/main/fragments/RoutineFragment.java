@@ -146,9 +146,9 @@ public class RoutineFragment extends Fragment {
 
     private void showReplaceWorkoutDialog(Routine routine) {
         new AlertDialog.Builder(requireContext())
-                .setTitle("Workout in Progress")
-                .setMessage("You already have an active workout session. Would you like to discard it and start a new one?")
-                .setPositiveButton("Discard and Start", (dialog, which) -> {
+                .setTitle(getString(R.string.workout_in_progress))
+                .setMessage(getString(R.string.already_active_session))
+                .setPositiveButton(getString(R.string.discard_and_start), (dialog, which) -> {
                     workoutViewModel.stopAndDiscardWorkout(new FirebaseCallback<Void>() {
                         @Override
                         public void onSuccess(Void result) {
@@ -160,7 +160,7 @@ public class RoutineFragment extends Fragment {
                         }
                     });
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(getString(R.string.cancel), null)
                 .show();
     }
 }

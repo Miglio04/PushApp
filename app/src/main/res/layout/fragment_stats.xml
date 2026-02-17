@@ -174,13 +174,13 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginTop="12dp">
-                        <TextView style="@style/LegendTextStyle" android:text="@string/m" />
-                        <TextView style="@style/LegendTextStyle" android:text="@string/t" />
-                        <TextView style="@style/LegendTextStyle" android:text="@string/w" />
-                        <TextView style="@style/LegendTextStyle" android:text="@string/t" />
-                        <TextView style="@style/LegendTextStyle" android:text="@string/f" />
-                        <TextView style="@style/LegendTextStyle" android:text="@string/s" />
-                        <TextView style="@style/LegendTextStyle" android:text="@string/s" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_mon" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_tue" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_wed" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_thu" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_fri" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_sat" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_sun" />
 
                     </LinearLayout>
                     <androidx.recyclerview.widget.RecyclerView

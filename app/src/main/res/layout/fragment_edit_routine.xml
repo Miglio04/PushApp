@@ -130,7 +130,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
-            app:queryHint="Cerca esercizio..."
+            app:queryHint="@string/search_for_exercise"
             app:iconifiedByDefault="false"
             android:background="@drawable/rectangle_round_corners"
             app:layout_constraintTop_toTopOf="parent"

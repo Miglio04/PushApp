@@ -205,4 +205,23 @@
     <string name="profile_completed">Profilo Completato!</string>
     <string name="data_saved">I tuoi dati sono stati salvati. Sei pronto per allenarti.</string>
     <string name="please_valide_age">Inserisci un\'età valida (16-99).</string>
+    <string name="workout_in_progress">Allenamento in Corso.</string>
+    <string name="discard_and_start">Elimina e Avvia</string>
+    <string name="already_active_session">Hai già una sessione di allenamento in corso. Vuoi eliminarlo e crearne uno nuovo?</string>
+    <string name="search_for_exercise">Cerca esercizio...</string>
+    <string name="replace">Sostituisci</string>
+    <plurals name="streak_days">
+        <item quantity="one">%d GIORNO DI FILA!</item>
+        <item quantity="other">%d GIORNI DI FILA!</item>
+    </plurals>
+    <string name="streak_fire">Sei inarrestabile! 🔥</string>
+    <string name="streak_start">Inizia la tua serie oggi!</string>
+    <string name="day_mon">L</string>
+    <string name="day_tue">M</string>
+    <string name="day_wed">M</string>
+    <string name="day_thu">G</string>
+    <string name="day_fri">V</string>
+    <string name="day_sat">S</string>
+    <string name="day_sun">D</string>
+    <string name="no_data_exercise">Non ci sono dati per l\'esercizio selezionato</string>
 </resources>

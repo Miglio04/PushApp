@@ -32,7 +32,7 @@ public class HistoryAdapter extends RecyclerView.Adapter<HistoryAdapter.ViewHold
     public HistoryAdapter(List<HistorySessionWithExercises> list, OnHistoryInteractionListener listener) {
         this.historyList = list;
         this.listener = listener;
-        this.sdf = new SimpleDateFormat("dd MMMM yyyy - HH:mm", Locale.ITALY);
+        this.sdf = new SimpleDateFormat("dd MMMM yyyy - HH:mm", Locale.getDefault());
         this.sdf.setTimeZone(TimeZone.getTimeZone("Europe/Rome"));
     }
 

@@ -62,7 +62,7 @@
     <string name="select_training">Select training</string>
     <string name="coming_soon">Coming soon...</string>
     <string name="confirm_operation">Confirm delete</string>
-    <string name="are_you_sure_delete">Are you sure to delete this element?</string>
+    <string name="are_you_sure_delete">Are you sure to delete this training?</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
     <string name="note">Text note</string>
@@ -175,11 +175,13 @@
     <string name="consistency_is_key_to_results">Consistency is key to results!</string>
     <string name="select_exercise">Select Exercise</string>
     <string name="total_repetitions">Total Repetitions</string>
-    <string name="m" translatable="false">M</string>
-    <string name="t" translatable="false">T</string>
-    <string name="w" translatable="false">W</string>
-    <string name="f" translatable="false">F</string>
-    <string name="s" translatable="false">S</string>
+    <string name="day_mon">M</string>
+    <string name="day_tue">T</string>
+    <string name="day_wed">W</string>
+    <string name="day_thu">T</string>
+    <string name="day_fri">F</string>
+    <string name="day_sat">S</string>
+    <string name="day_sun">S</string>
     <string name="add_sample_data">Add Sample Data</string>
     <string name="_00_00" translatable="false">00:00</string>
     <string name="_01" translatable="false">01</string>
@@ -230,4 +232,16 @@
     <string name="profile_completed">Profile Completed!</string>
     <string name="data_saved">Your data has been saved. You are ready to start training.</string>
     <string name="please_valide_age">Please enter a valid age (16-99).</string>
+    <string name="workout_in_progress">Workout in progress.</string>
+    <string name="discard_and_start">Discard and Start</string>
+    <string name="already_active_session">You already have an active workout session. Would you like to discard it and start a new one?</string>
+    <string name="search_for_exercise">Search for exercise...</string>
+    <string name="replace">Replace</string>
+    <plurals name="streak_days">
+        <item quantity="one">%d DAY STREAK!</item>
+        <item quantity="other">%d DAYS STREAK!</item>
+    </plurals>
+    <string name="streak_fire">You\'re on fire! 🔥</string>
+    <string name="streak_start">Start your streak today!</string>
+    <string name="no_data_exercise">No data for selected exercise</string>
 </resources>
