@@ -24,25 +24,6 @@ public class HistoryLocalDataSource {
         this.historyCallback = callback;
     }
 
-    public void searchHistory(String query) {
-        searchHistory(query, this.historyCallback);
-    }
-
-    public void searchHistory(String query, HistoryCallback callback) {
-        LocalDatabase.databaseWriteExecutor.execute(() -> {
-            try {
-                List<HistorySessionWithExercises> result = historyDao.searchHistory(query);
-                if (callback != null) {
-                    callback.onSuccessHistoryListFromLocal(result);
-                }
-            } catch (Exception e) {
-                if (callback != null) {
-                    callback.onFailureFromLocal(e);
-                }
-            }
-        });
-    }
-
     public void saveSession(HistorySession session, List<HistoryWorkoutExercise> exercises, List<HistorySerie> series, HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
@@ -68,19 +49,15 @@ public class HistoryLocalDataSource {
     }
 
     public void getAllHistory() {
-        getAllHistory(this.historyCallback);
-    }
-
-    public void getAllHistory(HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 List<HistorySessionWithExercises> result = historyDao.getAllHistory();
-                if (callback != null) {
-                    callback.onSuccessHistoryListFromLocal(result);
+                if (historyCallback != null) {
+                    historyCallback.onSuccessHistoryListFromLocal(result);
                 }
             } catch (Exception e) {
-                if (callback != null) {
-                    callback.onFailureFromLocal(e);
+                if (historyCallback != null) {
+                    historyCallback.onFailureFromLocal(e);
                 }
             }
         });
@@ -128,10 +105,6 @@ public class HistoryLocalDataSource {
     }
 
     public void updateHistoryFromRemote(List<HistorySessionWithExercises> remoteData) {
-        updateHistoryFromRemote(remoteData, this.historyCallback);
-    }
-
-    public void updateHistoryFromRemote(List<HistorySessionWithExercises> remoteData, HistoryCallback callback) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             try {
                 for (HistorySessionWithExercises item : remoteData) {
@@ -146,12 +119,12 @@ public class HistoryLocalDataSource {
                     }
                 }
                 List<HistorySessionWithExercises> updatedList = historyDao.getAllHistory();
-                if (callback != null) {
-                    callback.onSuccessHistoryListFromLocal(updatedList);
+                if (historyCallback != null) {
+                    historyCallback.onSuccessHistoryListFromLocal(updatedList);
                 }
             } catch (Exception e) {
-                if (callback != null) {
-                    callback.onFailureFromLocal(e);
+                if (historyCallback != null) {
+                    historyCallback.onFailureFromLocal(e);
                 }
             }
         });

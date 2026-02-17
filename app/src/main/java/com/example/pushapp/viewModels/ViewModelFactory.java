@@ -10,6 +10,7 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 
     private final Context context;
     private final ServiceLocator serviceLocator;
+    private HistoryViewModel historyViewModelInstance;
 
     public ViewModelFactory(Context context) {
         this.context = context.getApplicationContext();
@@ -33,13 +34,17 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
                     locator.getExerciseRepository(context));
 
         } else if (modelClass.isAssignableFrom(HistoryViewModel.class)) {
-            return (T) new HistoryViewModel(
-                    locator.getHistoryRepository(context));
+            if (historyViewModelInstance == null) {
+                historyViewModelInstance = new HistoryViewModel(locator.getHistoryRepository(context));
+            }
+            return (T) historyViewModelInstance;
 
         } else if (modelClass.isAssignableFrom(WorkoutViewModel.class)) {
+            HistoryViewModel sharedHistoryViewModel = create(HistoryViewModel.class);
+
             return (T) new WorkoutViewModel(
                     locator.getExerciseRepository(context),
-                    locator.getHistoryRepository(context),
+                    sharedHistoryViewModel,
                     locator.getSessionManager(context)
             );
         }

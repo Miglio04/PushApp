@@ -12,8 +12,6 @@ import androidx.lifecycle.ViewModel;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.repositories.ExerciseRepository;
 import com.example.pushapp.repositories.FirebaseCallback;
-import com.example.pushapp.repositories.HistoryRepository;
-// --- FIX 1: Import corretto (utils) ---
 import com.example.pushapp.utils.SessionManager;
 import com.example.pushapp.utils.WorkoutState;
 
@@ -23,7 +21,7 @@ public class WorkoutViewModel extends ViewModel {
 
     private final String TAG = "WorkoutViewModel";
     private final ExerciseRepository exerciseRepository;
-    private final HistoryRepository historyRepository;
+    private final HistoryViewModel historyViewModel;
     private final SessionManager sessionManager;
     private long workoutStartTimeMillis = 0L;
     private long pauseTimeMillis = 0L;
@@ -43,10 +41,10 @@ public class WorkoutViewModel extends ViewModel {
     private final MutableLiveData<Boolean> navigateToHome = new MutableLiveData<>(false);
 
     public WorkoutViewModel(ExerciseRepository exerciseRepository,
-                            HistoryRepository historyRepository,
+                            HistoryViewModel historyViewModel,
                             SessionManager sessionManager) {
         this.exerciseRepository = exerciseRepository;
-        this.historyRepository = historyRepository;
+        this.historyViewModel = historyViewModel;
         this.sessionManager = sessionManager;
     }
 
@@ -65,7 +63,7 @@ public class WorkoutViewModel extends ViewModel {
 
     public void startWorkout(Routine day) {
         if (day == null) return;
-        WorkoutState newSession = historyRepository.createNewWorkoutSessionWithTemplate(day);
+        WorkoutState newSession = historyViewModel.createNewWorkoutSessionWithTemplate(day);
         if (newSession == null) return;
 
         this.workoutStartTimeMillis = newSession.getCurrentSession().session.getStartTime();
@@ -100,7 +98,7 @@ public class WorkoutViewModel extends ViewModel {
         stateToSave.getCurrentSession().session.setEndTime(endTime);
         stateToSave.getCurrentSession().session.setDuration(endTime - stateToSave.getCurrentSession().session.getStartTime());
 
-        historyRepository.saveWorkoutSession(stateToSave.getCurrentSession(), () -> {
+        historyViewModel.saveWorkoutSession(stateToSave.getCurrentSession(), () -> {
             timerHandler.post(() -> {
                 sessionManager.clearSession();
                 resetWorkoutState();

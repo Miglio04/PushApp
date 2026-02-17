@@ -5,10 +5,15 @@ import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises
 import java.util.List;
 
 public interface HistoryCallback {
-    void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> list);
-    void onSuccessGraphDataFromLocal(List<GraphPoint> points);
-    void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> remoteData);
-    void onSuccessSaveLocal();
-    void onFailureFromLocal(Exception e);
-    void onFailureFromRemote(Exception e);
+    default void onSuccessSaveLocal() {}
+
+    default void onSuccessHistoryListFromLocal(List<HistorySessionWithExercises> list) {}
+
+    default void onSuccessGraphDataFromLocal(List<GraphPoint> points) {}
+
+    default void onSuccessHistoryFromRemote(List<HistorySessionWithExercises> remoteData) {}
+
+    default void onFailureFromLocal(Exception e) {}
+
+    default void onFailureFromRemote(Exception e) {}
 }

@@ -20,8 +20,10 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.gridlayout.widget.GridLayout;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
+import com.example.pushapp.adapter.CalendarAdapter;
 import com.example.pushapp.utils.ChartHelper;
 import com.example.pushapp.viewModels.HistoryViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
@@ -36,15 +38,20 @@ import java.util.Locale;
 
 public class StatsFragment extends Fragment {
 
-    private GridLayout calendarGrid;
+    private RecyclerView calendarRecyclerView;
+    private CalendarAdapter calendarAdapter;
     private TextView txtMonthTitle, txtKpiWorkouts, txtKpiVolume, txtKpiTime, txtStreakCount, txtStreakMessage;
     private ImageButton btnPrev, btnNext, btnExpand;
     private LineChart chartLoad, chartReps;
     private AutoCompleteTextView exerciseSpinner;
-    private LinearLayout legendLayout;
-
     private HistoryViewModel historyViewModel;
     private final DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        historyViewModel = new ViewModelProvider(requireActivity(), new ViewModelFactory(requireContext())).get(HistoryViewModel.class);
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -55,17 +62,14 @@ public class StatsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initViews(view);
-        // use helper for chart styling
         ChartHelper.setupChartStyle(chartLoad, requireContext());
         ChartHelper.setupChartStyle(chartReps, requireContext());
-        historyViewModel = new ViewModelProvider(requireActivity(), new ViewModelFactory(requireContext())).get(HistoryViewModel.class);
         setupObservers();
         setupClickListeners();
-        historyViewModel.fetchHistory();
     }
 
     private void initViews(View view) {
-        calendarGrid = view.findViewById(R.id.calendarGrid);
+        calendarRecyclerView = view.findViewById(R.id.calendarRecyclerView);
         txtMonthTitle = view.findViewById(R.id.txtMonthTitle);
         btnPrev = view.findViewById(R.id.btnPrev);
         btnNext = view.findViewById(R.id.btnNext);
@@ -78,8 +82,7 @@ public class StatsFragment extends Fragment {
         txtKpiTime = view.findViewById(R.id.txtKpiTime);
         txtStreakCount = view.findViewById(R.id.txtStreakCount);
         txtStreakMessage = view.findViewById(R.id.txtStreakMessage);
-        legendLayout = view.findViewById(R.id.legendLayout);
-        setupLegend();
+        setupCalendar();
     }
 
     private void setupObservers() {
@@ -95,12 +98,10 @@ public class StatsFragment extends Fragment {
         historyViewModel.getKpiStats().observe(getViewLifecycleOwner(), stats -> {
             if (stats == null) return;
             txtKpiWorkouts.setText(String.valueOf(stats.getWorkoutsMonth()));
-            txtKpiVolume.setText(String.format(Locale.ENGLISH, "%.1fK", stats.getVolumeMonth() / 1000));
-            long mins = stats.getTimeMillisMonth() / 60000;
-            txtKpiTime.setText(mins > 60 ? (mins / 60) + "h " + (mins % 60) + "m" : mins + "m");
-            int streak = stats.getCurrentStreak();
-            txtStreakCount.setText(String.format(Locale.ENGLISH, "%d %s", streak, (streak == 1 ? "DAY STREAK!" : "DAYS STREAK!")));
-            txtStreakMessage.setText(streak > 0 ? "You're on fire! 🔥" : "Start your streak today!");
+            txtKpiVolume.setText(stats.getFormattedVolume());
+            txtKpiTime.setText(stats.getFormattedTime());
+            txtStreakCount.setText(stats.getFormattedStreakCountText());
+            txtStreakMessage.setText(stats.getFormattedStreakMessageText());
         });
 
         historyViewModel.getGraphMaxWeightData().observe(getViewLifecycleOwner(), chartData -> {
@@ -113,7 +114,6 @@ public class StatsFragment extends Fragment {
 
         historyViewModel.getGraphTotalVolumeData().observe(getViewLifecycleOwner(), chartData -> {
             if (chartData != null) {
-                // use secondary color for the second chart to differentiate
                 ChartHelper.bindChart(chartReps, chartData.entries, "Total Volume", ContextCompat.getColor(requireContext(), R.color.md_theme_secondary), chartData.points, requireContext());
             } else {
                 chartReps.clear();
@@ -129,49 +129,15 @@ public class StatsFragment extends Fragment {
 
     private void drawCalendar() {
         LocalDate selectedDate = historyViewModel.getSelectedDate().getValue();
-        if (selectedDate == null || getContext() == null) return;
+        if (selectedDate == null) return;
 
-        calendarGrid.removeAllViews();
         txtMonthTitle.setText(selectedDate.format(monthFormatter).toUpperCase());
-
         List<LocalDate> days = historyViewModel.getCalendarDays();
-
-        LocalDate today = LocalDate.now();
-        for (LocalDate date : days) {
-            View v = LayoutInflater.from(getContext()).inflate(R.layout.item_day_header, calendarGrid, false);
-            TextView tv = v.findViewById(R.id.txtDayNumber);
-            ImageView dot = v.findViewById(R.id.indicatorDot);
-
-            if (date != null) {
-                tv.setText(String.valueOf(date.getDayOfMonth()));
-                if (date.isEqual(today)) {
-                    tv.setBackgroundResource(R.drawable.bg_circle_selection);
-                    tv.setTextColor(Color.WHITE);
-                } else if (date.isEqual(selectedDate)) {
-                    tv.setBackgroundResource(R.drawable.bg_circle_outline);
-                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
-                } else {
-                    tv.setBackground(null);
-                    tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_onSurface));
-                }
-
-                dot.setVisibility(historyViewModel.isWorkoutDay(date) ? View.VISIBLE : View.INVISIBLE);
-                dot.setColorFilter(ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
-                v.setOnClickListener(v1 -> historyViewModel.changeSelectedDate(date));
-            } else {
-                v.setVisibility(View.INVISIBLE);
-            }
-
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams(
-                    GridLayout.spec(GridLayout.UNDEFINED, 1f),
-                    GridLayout.spec(GridLayout.UNDEFINED, 1f));
-            params.width = 0;
-            calendarGrid.addView(v, params);
-        }
+        calendarAdapter.updateDays(days, selectedDate);
     }
 
     private void setupExerciseSpinner(List<String> names) {
-        if (getContext() == null || names == null) return;
+        if (names == null) return;
         List<String> spinnerNames = new ArrayList<>(names);
         if (spinnerNames.isEmpty()) {
             spinnerNames.add("No Data");
@@ -187,6 +153,7 @@ public class StatsFragment extends Fragment {
         if (!spinnerNames.isEmpty() && !"No Data".equals(spinnerNames.get(0))) {
             String first = spinnerNames.get(0);
             exerciseSpinner.post(() -> {
+                if (!isAdded()) return;
                 try {
                     exerciseSpinner.setText(first, false);
                     loadChartsForExercise(first);
@@ -211,17 +178,13 @@ public class StatsFragment extends Fragment {
         historyViewModel.fetchGraphDataForExercise(trimmedExerciseName, HistoryViewModel.ChartMetric.TOTAL_VOLUME);
     }
 
-    private void setupLegend() {
-        legendLayout.removeAllViews();
-        String[] days = {"M", "T", "W", "T", "F", "S", "S"};
-        for (String d : days) {
-            TextView tv = new TextView(getContext());
-            tv.setText(d);
-            tv.setGravity(Gravity.CENTER);
-            tv.setLayoutParams(new LinearLayout.LayoutParams(0, -2, 1f));
-            tv.setTextColor(ContextCompat.getColor(requireContext(), R.color.md_theme_primary));
-            tv.setTypeface(null, Typeface.BOLD);
-            legendLayout.addView(tv);
-        }
+    private void setupCalendar() {
+        calendarAdapter = new CalendarAdapter(
+                date -> historyViewModel.changeSelectedDate(date),
+                date -> historyViewModel.isWorkoutDay(date)
+        );
+
+        calendarRecyclerView.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(requireContext(), 7));
+        calendarRecyclerView.setAdapter(calendarAdapter);
     }
 }
