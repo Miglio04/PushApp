@@ -9,6 +9,7 @@ public class Constants {
     public static final String BASE_EXERCISES_API_URL = "https://api.api-ninjas.com/";
     public static final String NINJA_API_KEY = "GbwJ1ZlJJQxuPTIf8Hnr5Q==g0AjKf0qK6MD3GpX";
 
+    public static final long API_FETCH_INTERVAL = 7 * 24 * 60 * 60 * 1000;
 
 
 }

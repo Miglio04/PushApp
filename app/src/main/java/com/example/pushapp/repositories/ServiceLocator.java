@@ -59,7 +59,8 @@ public class ServiceLocator {
         if(exerciseRepository == null){
             exerciseRepository = new ExerciseRepository(
                     getExerciseLocalDataSource(context),
-                    getExerciseAPIDataSource()
+                    getExerciseAPIDataSource(),
+                    getSessionManager(context)
             );
         }
         return exerciseRepository;

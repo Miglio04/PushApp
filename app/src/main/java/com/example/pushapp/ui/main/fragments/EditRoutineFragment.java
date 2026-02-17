@@ -25,12 +25,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.Exercise;
+import com.example.pushapp.models.Result;
 import com.example.pushapp.models.WorkoutExercise;
-import com.example.pushapp.models.api.ExerciseApiModel;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.adapter.AvailableExercisesAdapter;
 import com.example.pushapp.adapter.EditRoutineAdapter;
 import com.example.pushapp.viewModels.TrainingViewModel;
+import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.viewModels.WorkoutViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -74,8 +76,14 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        trainingViewModel = new ViewModelProvider(requireActivity()).get(TrainingViewModel.class);
-        workoutViewModel = new ViewModelProvider(requireActivity()).get(WorkoutViewModel.class);
+        workoutViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(requireContext())).get(WorkoutViewModel.class);
+
+        trainingViewModel = new ViewModelProvider(
+                this,
+                new ViewModelFactory(requireContext())).get(TrainingViewModel.class);
+
         if (getArguments() != null) {
             routineId = getArguments().getString("dayId");
             trainingId = getArguments().getString("trainingId");
@@ -102,7 +110,6 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         // Correzione colori Chip Statici ("Tutti")
         applyDynamicColorsToStaticChips(view);
 
-        trainingViewModel.loadAvailableExercises();
         setupToolbar();
         setupRoutineNameInput();
         setupMainRecyclerView();
@@ -137,7 +144,6 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             }
         });
     }
-
     private void setupToolbar() {
         toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
     }
@@ -162,13 +168,22 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             setupFilterListeners();
 
             trainingViewModel.getFilteredAvailableExercises().observe(getViewLifecycleOwner(), exercises -> {
-                if (exercises != null && availableExercisesAdapter != null) availableExercisesAdapter.updateExercises(exercises);
+                if (exercises != null && availableExercisesAdapter != null) {
+                    if(exercises.isExerciseSuccess()){
+                        availableExercisesAdapter.updateExercises(((Result.ExerciseSuccess) exercises).getData());
+                    }
+
+                }
             });
             trainingViewModel.getAvailableMuscleGroups().observe(getViewLifecycleOwner(), muscleGroups -> {
-                if (muscleGroups != null) populateFilterChips(chipGroupMuscles, muscleGroups);
+                if (muscleGroups != null) {
+                    populateFilterChips(chipGroupMuscles, muscleGroups);
+                }
             });
             trainingViewModel.getAvailableDifficulties().observe(getViewLifecycleOwner(), difficultyList -> {
-                if (difficultyList != null) populateFilterChips(chipGroupDifficulty, difficultyList);
+                if (difficultyList != null) {
+                    populateFilterChips(chipGroupDifficulty, difficultyList);
+                }
             });
             areFilterComponentsInitialized = true;
         }
@@ -179,18 +194,18 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         if (filterRecycler == null) return;
         filterRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        availableExercisesAdapter = new AvailableExercisesAdapter(new ArrayList<>(), exerciseApiModel -> {
+        availableExercisesAdapter = new AvailableExercisesAdapter(new ArrayList<>(), exercise -> {
             if (trainingViewModel.getEditableRoutine().getValue() == null) {
                 Toast.makeText(getContext(), "Errore: Giorno non caricato.", Toast.LENGTH_SHORT).show();
                 return;
             }
             int order = adapter.getItemCount() + 1;
 
-            WorkoutExercise newWorkoutExercise = new WorkoutExercise(exerciseApiModel.getName(), order);
+            WorkoutExercise newWorkoutExercise = new WorkoutExercise(exercise.getName(), order);
 
             trainingViewModel.addExerciseToRoutine(newWorkoutExercise);
             toggleSearchPanel(false);
-            Snackbar.make(requireView(), "Aggiunto: " + exerciseApiModel.getName(), Snackbar.LENGTH_SHORT).show();
+            Snackbar.make(requireView(), "Aggiunto: " + exercise.getName(), Snackbar.LENGTH_SHORT).show();
         });
         filterRecycler.setAdapter(availableExercisesAdapter);
     }
@@ -266,26 +281,38 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         return new ColorStateList(states, colors);
     }
     private void showAddOrReplaceExerciseDialog(final int positionToReplace) {
-        List<ExerciseApiModel> available = trainingViewModel.getAvailableExercises().getValue();
-        if (available != null && !available.isEmpty()) openSelectionDialog(available, positionToReplace);
+        List<Exercise> available = new ArrayList<>();
+        Result result = trainingViewModel.getAvailableExercises().getValue();
+        if(result != null && result.isExerciseSuccess()){
+             available = ((Result.ExerciseSuccess) result).getData();
+        }
+        if (available != null && !available.isEmpty()) {
+            openSelectionDialog(available, positionToReplace);
+        }
         else {
             ProgressDialog progressDialog = new ProgressDialog(getContext());
             progressDialog.setMessage("Caricamento...");
             progressDialog.show();
-            trainingViewModel.loadAvailableExercises();
-            trainingViewModel.getAvailableExercises().observe(getViewLifecycleOwner(), new Observer<List<ExerciseApiModel>>() {
-                @Override public void onChanged(List<ExerciseApiModel> exerciseApiModels) {
-                    if (exerciseApiModels != null && !exerciseApiModels.isEmpty()) {
+            trainingViewModel.getAvailableExercises().observe(getViewLifecycleOwner(), new Observer<Result>() {
+                @Override public void onChanged(Result result) {
+                    if (result.isExerciseSuccess()) {
+                        List<Exercise> exercises = ((Result.ExerciseSuccess) result).getData();
+                        if (exercises != null && !exercises.isEmpty()) {
+                            progressDialog.dismiss();
+                            trainingViewModel.getAvailableExercises().removeObserver(this);
+                            openSelectionDialog(exercises, positionToReplace);
+                        }
+                    } else if (result.isExerciseError()) {
                         progressDialog.dismiss();
                         trainingViewModel.getAvailableExercises().removeObserver(this);
-                        openSelectionDialog(exerciseApiModels, positionToReplace);
+                        Toast.makeText(getContext(), "Errore caricamento", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
             new Handler().postDelayed(() -> { if (progressDialog.isShowing()) progressDialog.dismiss(); }, 5000);
         }
     }
-    private void openSelectionDialog(List<ExerciseApiModel> exercises, int positionToReplace) {
+    private void openSelectionDialog(List<Exercise> exercises, int positionToReplace) {
         String[] names = new String[exercises.size()];
         for (int i = 0; i < exercises.size(); i++) names[i] = exercises.get(i).getName();
         new AlertDialog.Builder(requireContext()).setTitle("Sostituisci").setItems(names, (dialog, which) ->
@@ -320,7 +347,6 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         trainingViewModel.updateRoutine(routine);
         Toast.makeText(getContext(), "Salvato", Toast.LENGTH_SHORT).show();
     }
-
     private void cancelChanges() {
         trainingViewModel.clearEditableRoutine();
         NavHostFragment.findNavController(this).popBackStack();
@@ -340,7 +366,6 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     public void onSetCreated(int exercisePosition) {
         trainingViewModel.addSetInExercise(exercisePosition);
     }
-
     @Override public void onSetUpdated(int exPos, int setPos, double w, int r) {
         trainingViewModel.updateSetInExercise(exPos, setPos, w, r);
     }

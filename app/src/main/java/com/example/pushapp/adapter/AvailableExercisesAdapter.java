@@ -6,20 +6,22 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
+import com.example.pushapp.models.Exercise;
 import com.example.pushapp.models.api.ExerciseApiModel;
+import com.example.pushapp.repositories.ExerciseRepository;
 import com.google.android.material.chip.Chip;
 import java.util.List;
 
 public class AvailableExercisesAdapter extends RecyclerView.Adapter<AvailableExercisesAdapter.ExerciseViewHolder> {
 
-    private List<ExerciseApiModel> exercises;
+    private List<Exercise> exercises;
     private final OnExerciseClickListener listener;
 
     public interface OnExerciseClickListener {
-        void onExerciseClick(ExerciseApiModel exercise);
+        void onExerciseClick(Exercise exercise);
     }
 
-    public AvailableExercisesAdapter(List<ExerciseApiModel> exercises, OnExerciseClickListener listener) {
+    public AvailableExercisesAdapter(List<Exercise> exercises, OnExerciseClickListener listener) {
         this.exercises = exercises;
         this.listener = listener;
     }
@@ -33,7 +35,7 @@ public class AvailableExercisesAdapter extends RecyclerView.Adapter<AvailableExe
 
     @Override
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
-        ExerciseApiModel exercise = exercises.get(position);
+        Exercise exercise = exercises.get(position);
         holder.bind(exercise, listener);
     }
 
@@ -42,7 +44,7 @@ public class AvailableExercisesAdapter extends RecyclerView.Adapter<AvailableExe
         return exercises.size();
     }
 
-    public void updateExercises(List<ExerciseApiModel> newExercises) {
+    public void updateExercises(List<Exercise> newExercises) {
         this.exercises = newExercises;
         notifyDataSetChanged();
     }
@@ -57,7 +59,7 @@ public class AvailableExercisesAdapter extends RecyclerView.Adapter<AvailableExe
             muscle = itemView.findViewById(R.id.chip_exercise_muscle);
         }
 
-        public void bind(final ExerciseApiModel exercise, final OnExerciseClickListener listener) {
+        public void bind(final Exercise exercise, final OnExerciseClickListener listener) {
             name.setText(exercise.getName());
             muscle.setText(capitalize(exercise.getMuscle()));
             itemView.setOnClickListener(v -> listener.onExerciseClick(exercise));

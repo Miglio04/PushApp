@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -35,6 +36,7 @@ public class ProfileFragment extends Fragment {
 
     private TextView txtKpiWorkouts, txtKpiStreak, txtKpiVolume;
     private MaterialButton btnLogout;
+    private MaterialButton btnToggleTheme;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -53,6 +55,7 @@ public class ProfileFragment extends Fragment {
         initializeViews(view);
         setupViewModel();
         setupLogout();
+        setupThemeToggle();
     }
 
     private void initializeViews(View view) {
@@ -71,6 +74,7 @@ public class ProfileFragment extends Fragment {
         txtKpiVolume = view.findViewById(R.id.txtKpiVolume);
 
         btnLogout = view.findViewById(R.id.btnLogout);
+        btnToggleTheme = view.findViewById(R.id.btnToggleTheme);
     }
 
     private void setupViewModel() {
@@ -132,11 +136,35 @@ public class ProfileFragment extends Fragment {
                 userViewModel.logout();
                 trainingViewModel.resetLocalDatabase();
                 userViewModel.resetLocalDatabase();
+                historyViewModel.resetLocalDatabase();
 
                 Intent intent = new Intent(getActivity(), AuthActivity.class);
                 startActivity(intent);
                 if (getActivity() != null) {
                     getActivity().finishAffinity();
+                }
+            });
+        }
+    }
+
+    private void setupThemeToggle() {
+        if (btnToggleTheme != null) {
+            int currentNightMode = getResources().getConfiguration().uiMode & android.content.res.Configuration.UI_MODE_NIGHT_MASK;
+            boolean isNightMode = currentNightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+
+            if (isNightMode) {
+                btnToggleTheme.setIconResource(R.drawable.sun);
+                btnToggleTheme.setText(R.string.light_theme);
+            } else {
+                btnToggleTheme.setIconResource(R.drawable.moon);
+                btnToggleTheme.setText(R.string.dark_theme);
+            }
+
+            btnToggleTheme.setOnClickListener(v -> {
+                if (isNightMode) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                } else {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
                 }
             });
         }
