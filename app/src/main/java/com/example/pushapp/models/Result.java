@@ -15,6 +15,7 @@ public abstract class Result {
     public boolean isTrainingsSuccess() { return this instanceof TrainingsSuccess; }
     public boolean isUserSuccess(){ return this instanceof UserSuccess; }
     public boolean isSessionSuccess(){ return this instanceof SessionSuccess; }
+    public boolean isExerciseSuccess() { return this instanceof ExerciseSuccess; }
 
     public boolean isHistorySuccess() { return this instanceof HistorySuccess; }
     public boolean isGraphSuccess() { return this instanceof GraphSuccess; }
@@ -25,6 +26,7 @@ public abstract class Result {
     public boolean isForgotPasswordError(){ return this instanceof Error.ForgotPasswordError; }
     public boolean isForgotPasswordSuccess() { return this instanceof PasswordResetSuccess; }
     public boolean isLoginError(){ return this instanceof Error.LoginError; }
+    public boolean isExerciseError() { return this instanceof Error.ExerciseError; }
 
     public static final class TrainingsSuccess extends Result {
         private final List<Training> trainingList;
@@ -87,6 +89,12 @@ public abstract class Result {
         }
     }
 
+    public static final class ExerciseSuccess extends Result {
+        private final List<Exercise> exerciseList;
+        public ExerciseSuccess(List<Exercise> exerciseList) { this.exerciseList = exerciseList; }
+        public List<Exercise> getData() { return exerciseList; }
+    }
+
     public static class Error extends Result {
         private final String message;
 
@@ -123,6 +131,10 @@ public abstract class Result {
             public LoginError(String message) {
                 super(message);
             }
+        }
+
+        public static final class ExerciseError extends Error {
+            public ExerciseError(String message) { super(message); }
         }
     }
 }

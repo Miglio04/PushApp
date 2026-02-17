@@ -18,6 +18,8 @@ composeBom = "2024.09.00"
 navigationRuntime = "2.9.6"
 roomCommonJvm = "2.8.4"
 gridlayout = "1.1.0"
+mockito = "5.11.0"
+archCore = "2.1.0"
 
 [libraries]
 blurview = { module = "com.github.Dimezis:BlurView", version.ref = "blurview" }
@@ -44,9 +46,10 @@ material3 = { group = "androidx.compose.material3", name = "material3" }
 navigation-runtime = { group = "androidx.navigation", name = "navigation-runtime", version.ref = "navigationRuntime" }
 room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
 gridlayout = { group = "androidx.gridlayout", name = "gridlayout", version.ref = "gridlayout" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "archCore" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-

@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -58,15 +59,19 @@ public class MainActivity extends AppCompatActivity {
         userViewModel.fetchUser();
         historyViewModel.fetchHistory();
         workoutViewModel.checkRestoredSession();
-        Result result = userViewModel.getSessionLiveData().getValue();
-
-        if (result != null && result.isSessionSuccess()) {
-            String userId = ((Result.SessionSuccess) result).getData().getUserId();
-            trainingViewModel.fetchTrainings(userId);
-        } else{
-            Log.d(TAG, "Errore nella fetch dell'utente");
-        }
-
+        userViewModel.getSessionLiveData().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result != null && result.isSessionSuccess()) {
+                    userViewModel.getSessionLiveData().removeObserver(this);
+                    String userId = ((Result.SessionSuccess) result).getData().getUserId();
+                    trainingViewModel.fetchTrainings(userId);
+                    trainingViewModel.loadAvailableExercises();
+                } else {
+                    Log.d(TAG, "Errore nella fetch dell'utente");
+                }
+            }
+        });
 
         setupWindowInsets();
         setupNavigation();

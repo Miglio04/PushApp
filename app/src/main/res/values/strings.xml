@@ -95,7 +95,7 @@
     <string name="detail_age">Age: %1$d</string>
     <string name="detail_height">Height: %1$d cm</string>
     <string name="detail_weight">Weight: %1$.1f kg</string>
-    <string name="title_activity_auth">AuthActivity</string>
+    <string name="title_activity_auth" translatable="false">AuthActivity</string>
     <string name="accedi">Log In</string>
     <string name="registrati">Register</string>
     <string name="confirm_password">Confirm Password</string>
@@ -108,9 +108,9 @@
     <string name="progress_chart">Progress Chart</string>
     <string name="push_yourself_because_no_none_else_will">Push yourself, because no\none else will</string>
     <string name="consistency_beats_talent">Consistency beats talent</string>
-    <string name="logout">Logout</string>
+    <string name="logout" translatable="false">Logout</string>
     <string name="step_1_of_5">Step 1 of 5</string>
-    <string name="_20">20%</string>
+    <string name="_20" translatable="false">20%</string>
     <string name="welcome">Welcome!</string>
     <string name="let_s_get_to_know_you_better_what_s_your_name">Let\'s get to know you better. What\'s your name?</string>
     <string name="first_name">First Name</string>
@@ -124,15 +124,15 @@
     <string name="prefer_not_to_say">Prefer not to say</string>
     <string name="how_old_are_you">How old are you?</string>
     <string name="crucial_for_personalizing_your_workout">Crucial for personalizing your workout</string>
-    <string name="e_g_25">e.g. 25</string>
+    <string name="e_g_25" translatable="false">e.g. 25</string>
     <string name="please_enter_your_age">Please enter your age</string>
     <string name="body_measurements">Body Measurements</string>
     <string name="to_track_your_progress_over_time">To track your progress over time</string>
     <string name="current_weight_kg">Current Weight (kg)</string>
-    <string name="kg">kg</string>
+    <string name="kg" translatable="false">kg</string>
     <string name="please_enter_your_weight">Please enter your weight</string>
     <string name="height_cm">Height (cm)</string>
-    <string name="cm">cm</string>
+    <string name="cm" translatable="false">cm</string>
     <string name="please_enter_your_height">Please enter your height</string>
     <string name="your_goal">Your Goal</string>
     <string name="what_is_your_target_weight">What is your target weight?</string>
@@ -141,5 +141,7 @@
     <string name="you_re_ready_to_go">You\'re ready to go!</string>
     <string name="new_training">New Training</string>
     <string name="description">Description</string>
+    <string name="dark_theme">Dark theme</string>
+    <string name="light_theme">Light theme</string>
 
 </resources>

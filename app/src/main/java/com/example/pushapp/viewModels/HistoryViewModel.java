@@ -324,4 +324,8 @@ public class HistoryViewModel extends ViewModel {
         super.onCleared();
         repository.getHistoryList().removeObserver(historyListObserver);
     }
+
+    public void resetLocalDatabase(){
+        repository.resetLocalDatabase();
+    }
 }

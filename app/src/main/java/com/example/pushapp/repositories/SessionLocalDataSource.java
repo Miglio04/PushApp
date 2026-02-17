@@ -5,14 +5,9 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class SessionLocalDataSource {
     private final FirebaseAuth auth;
-    private UserCallback userCallback = null;
 
     SessionLocalDataSource() {
         this.auth = FirebaseAuth.getInstance();
-    }
-
-    public void setUserCallback(UserCallback userCallback){
-        this.userCallback = userCallback;
     }
 
     public SessionUser getCurrentSessionUser(){

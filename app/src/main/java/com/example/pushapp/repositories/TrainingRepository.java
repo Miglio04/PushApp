@@ -20,7 +20,7 @@ import java.util.List;
 
 public class TrainingRepository implements TrainingCallback{
     private final String TAG = "TrainingRepository";
-    private final FirebaseFirestore db;
+    private final FirebaseFirestore db; // Da vaporizzare
     private final FirebaseAuth auth;
     private ListenerRegistration trainingsListener;
     private final TrainingLocalDataSource trainingLocalDataSource;
@@ -36,15 +36,6 @@ public class TrainingRepository implements TrainingCallback{
         trainingRemoteDataSource.setTrainingCallback(this);
     }
 
-    // da spostare nella repository dell'utente
-    private String getCurrentUserId() {
-        return auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
-    }
-
-    public void fetchTrainings(String userId){
-        trainingLocalDataSource.fetchTrainings(userId);
-    }
-
     public LiveData<Result> getTrainingList(){
         return trainingList;
     }
@@ -57,6 +48,43 @@ public class TrainingRepository implements TrainingCallback{
 
     public void createSampleTraining(String userId){
         createTraining(userId, TrainingListGenerator.generateTrainingList(userId));
+    }
+    public void fetchTrainings(String userId){
+        trainingLocalDataSource.fetchTrainings(userId);
+    }
+
+    public void createTraining(String userId, Training training) {
+        trainingLocalDataSource.createTraining(userId, training);
+    }
+    public void updateTraining(Training training){
+        if(training != null){
+            trainingLocalDataSource.updateTraining(training);
+            trainingRemoteDataSource.updateTraining(training);
+        }
+    }
+    public void deleteTraining(Training training) {
+        trainingLocalDataSource.deleteTraining(training);
+    }
+
+    public void createRoutine(Routine routine){
+        if(routine != null){
+            trainingLocalDataSource.createRoutine(routine);
+        }
+    }
+    public void updateRoutine(Routine routine){
+        if(routine != null){
+            trainingLocalDataSource.updateRoutine(routine);
+        }
+    }
+    public void deleteRoutine(Routine routine){
+        if(routine != null){
+            trainingLocalDataSource.deleteRoutine(routine);
+        }
+    }
+
+    // Da vaporizzare
+    private String getCurrentUserId() {
+        return auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
     }
     public void getActiveTraining(FirebaseCallback<Training> callback) {
         String userId = getCurrentUserId();
@@ -81,34 +109,6 @@ public class TrainingRepository implements TrainingCallback{
                 })
                 .addOnFailureListener(callback::onError);
     }
-    public void createTraining(String userId, Training training) {
-        trainingLocalDataSource.createTraining(userId, training);
-    }
-    public void updateTraining(Training training){
-        if(training != null){
-            trainingLocalDataSource.updateTraining(training);
-            trainingRemoteDataSource.updateTraining(training);
-        }
-    }
-    public void deleteTraining(Training training) {
-        trainingLocalDataSource.deleteTraining(training);
-    }
-    public void createRoutine(Routine routine){
-        if(routine != null){
-            trainingLocalDataSource.createRoutine(routine);
-        }
-    }
-    public void updateRoutine(Routine routine){
-        if(routine != null){
-            trainingLocalDataSource.updateRoutine(routine);
-        }
-    }
-    public void deleteRoutine(Routine routine){
-        if(routine != null){
-            trainingLocalDataSource.deleteRoutine(routine);
-        }
-    }
-
     public void setActiveTraining(String trainingId, FirebaseCallback<Void> callback) {
         String userId = getCurrentUserId();
         if (userId == null) {
@@ -116,7 +116,6 @@ public class TrainingRepository implements TrainingCallback{
             return;
         }
 
-        // Disattiva tutti, poi attiva quello selezionato
         db.collection(COLLECTION_TRAININGS)
                 .whereEqualTo("userId", userId)
                 .get()
@@ -128,6 +127,7 @@ public class TrainingRepository implements TrainingCallback{
                 })
                 .addOnFailureListener(callback::onError);
     }
+    // Da vaporizzare
 
     public void onSuccessFromLocalTrainingFetch(String userId, List<Training> trainingListSuccess) {
         Result.TrainingsSuccess result = new Result.TrainingsSuccess(new ArrayList<Training>(trainingListSuccess));
@@ -170,7 +170,6 @@ public class TrainingRepository implements TrainingCallback{
             trainingLocalDataSource.getTrainings();
         }
     }
-
     public void onSuccessFromLocalRoutineDelete(Routine routine){
         if(routine != null) {
             trainingRemoteDataSource.deleteRoutine(routine);
@@ -178,8 +177,8 @@ public class TrainingRepository implements TrainingCallback{
         }
     }
 
-    public void onSuccessFromRemote(List<Training> trainingListSuccess) {
-        trainingLocalDataSource.overwriteTrainings(trainingListSuccess, getCurrentUserId());
+    public void onSuccessFromRemote(List<Training> trainingListSuccess, String userId) {
+        trainingLocalDataSource.overwriteTrainings(trainingListSuccess, userId);
     }
     public void onFailureFromLocal(Exception exception) {
         Result.Error resultError = new Result.Error(exception.getMessage());
@@ -192,9 +191,11 @@ public class TrainingRepository implements TrainingCallback{
     public void resetLocalDatabase(){
         try{
             trainingLocalDataSource.resetDatabase();
+            if(trainingList != null){
+                trainingList.postValue(null);
+            }
         }catch (Exception e){
             Log.e(TAG, "resetLocalDatabase: " + e.getMessage());
         }
     }
-
 }

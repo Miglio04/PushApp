@@ -1,36 +1,82 @@
 package com.example.pushapp.repositories;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.pushapp.models.Exercise;
 import com.example.pushapp.models.Result;
-import com.example.pushapp.models.api.ExerciseApiModel;
+import com.example.pushapp.utils.Constants;
+import com.example.pushapp.utils.SessionManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class ExerciseRepository {
+public class ExerciseRepository implements ExerciseCallback {
 
     private ExerciseLocalDataSource exerciseLocalDataSource;
     private ExerciseAPIDataSource exerciseAPIDataSource;
     private MutableLiveData<Result> exercises;
 
-    ExerciseRepository(ExerciseLocalDataSource exerciseLocalDataSource, ExerciseAPIDataSource exerciseAPIDataSource) {
+    private SessionManager sessionManager;
+
+    ExerciseRepository(ExerciseLocalDataSource exerciseLocalDataSource, ExerciseAPIDataSource exerciseAPIDataSource, SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
         exercises = new MutableLiveData<>();
         this.exerciseLocalDataSource = exerciseLocalDataSource;
         this.exerciseAPIDataSource = exerciseAPIDataSource;
-        // TO BE COMPLETED
+        exerciseLocalDataSource.setCallback(this);
+        exerciseAPIDataSource.setCallback(this);
     }
+
+
 
     public MutableLiveData<Result> getExercises(){
         return exercises;
     }
     public void fetchExercises(){
-        //ottenere gli esercizi dal database locale
-        //richiedere gli esercizi all'API (ogni tot)
-        //aggiornare i liveData
+        long lastFetchTime = sessionManager.getLastApiFetchTime();
+        long timeSinceLastFetch = System.currentTimeMillis() - lastFetchTime;
+
+        if(lastFetchTime == 0 || timeSinceLastFetch > Constants.API_FETCH_INTERVAL){
+            Log.e("Exercise Repository", "Sto fetchando dalle API");
+            exerciseAPIDataSource.fetchAllExercises();
+            lastFetchTime = System.currentTimeMillis();
+            sessionManager.saveApiFetchTime(lastFetchTime);
+        } else {
+            Log.e("Exercise Repository", "Sto fetchando dal DB locale");
+            exerciseLocalDataSource.getExercises();
+        }
     }
 
-    // da rimuovere: viene chiamato da TrainingviewModel, ma il viewModel dovrebbe chiamare fetchExercises
-    // serviva a ottenere gli esercizi direttamente dall'API
-    public void getAvailableExercises(FirebaseCallback<List<ExerciseApiModel>> callback){}
+    public void resetLocalDatabase(){
+        exerciseLocalDataSource.deleteExercises();
+        if(exercises != null){
+            exercises.postValue(null);
+            sessionManager.clearApiFetchTime();
+        }
+    }
 
+    @Override
+    public void onSuccessFromRemote(ArrayList<Exercise> exerciseList) {
+        exercises.postValue(new Result.ExerciseSuccess(exerciseList));
+        exerciseLocalDataSource.insertExercises(exerciseList);
+    }
+    @Override
+    public void onSuccessFromLocalGet(List<Exercise> exerciseList) {
+        exercises.postValue(new Result.ExerciseSuccess(exerciseList));
+    }
+    @Override
+    public void onSuccessFromLocalDelete() {
+        exercises.postValue(new Result.ExerciseSuccess(new ArrayList<>()));
+    }
+
+    @Override
+    public void onFailureFromRemote(Exception e) {
+        exerciseLocalDataSource.getExercises();
+    }
+    @Override
+    public void onFailureFromLocal(Exception e) {
+        exercises.postValue(new Result.Error(e));
+    }
 }

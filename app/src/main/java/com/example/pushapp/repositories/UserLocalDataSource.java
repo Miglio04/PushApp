@@ -11,7 +11,6 @@ public class UserLocalDataSource {
     UserLocalDataSource(LocalDatabase localDatabase) {
         this.userDao = localDatabase.userDao();
     }
-
     public void setUserCallback(UserCallback userCallback){
         this.userCallback = userCallback;
     }
@@ -22,7 +21,6 @@ public class UserLocalDataSource {
             userCallback.onSuccessFromLocalGet(user, id);
         });
     }
-
     public void updateCurrentUser(User user) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             if(user != null) {
@@ -31,11 +29,6 @@ public class UserLocalDataSource {
             }
         });
     }
-
-    public void insertNewCurrentUser(User user){
-
-    }
-
     public void insertUser(User user) {
         LocalDatabase.databaseWriteExecutor.execute(() -> {
             if(user != null) {

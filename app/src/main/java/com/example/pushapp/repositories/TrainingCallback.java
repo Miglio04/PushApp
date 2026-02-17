@@ -15,7 +15,7 @@ public interface TrainingCallback {
     void onSuccessFromLocalRoutineCreate(Routine routine);
     void onSuccessFromLocalRoutineUpdate(Routine routine);
     void onSuccessFromLocalRoutineDelete(Routine routine);
-    void onSuccessFromRemote(List<Training> trainingsList);
+    void onSuccessFromRemote(List<Training> trainingsList, String userId);
     void onFailureFromLocal(Exception exception);
     void onFailureFromRemote(Exception exception);
 

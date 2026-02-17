@@ -7,6 +7,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+import com.example.pushapp.models.Exercise;
 import com.example.pushapp.models.WorkoutExercise;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.Serie;
@@ -28,19 +29,20 @@ import java.util.concurrent.Executors;
         User.class,
         HistorySession.class,
         HistoryWorkoutExercise.class,
-        HistorySerie.class
+        HistorySerie.class,
+        Exercise.class
 }, version = 3)
 @TypeConverters({TimeConverter.class})
 public abstract class LocalDatabase extends RoomDatabase {
 
     private static volatile LocalDatabase INSTANCE;
-
     public abstract TrainingDao trainingDao();
     public abstract RoutineDao routineDao();
     public abstract WorkoutExerciseDao workoutExerciseDao();
     public abstract SerieDao serieDao();
     public abstract UserDao userDao();
     public abstract HistoryDao historyDao();
+    public abstract ExerciseDao exerciseDao();
 
     public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());

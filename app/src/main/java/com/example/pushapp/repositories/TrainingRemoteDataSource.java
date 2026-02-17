@@ -102,7 +102,7 @@ public class TrainingRemoteDataSource {
                 .get()
                 .addOnSuccessListener(trainingSnapshots -> {
                     if (trainingSnapshots.isEmpty()) {
-                        trainingCallback.onSuccessFromRemote(new ArrayList<>());
+                        trainingCallback.onSuccessFromRemote(new ArrayList<>(), userId);
                         return;
                     }
 
@@ -122,7 +122,7 @@ public class TrainingRemoteDataSource {
 
                     Tasks.whenAllComplete(allFetchTasks)
                             .addOnSuccessListener(taskSnapshots -> {
-                                trainingCallback.onSuccessFromRemote(trainings);
+                                trainingCallback.onSuccessFromRemote(trainings, userId);
                             })
                             .addOnFailureListener(e -> {
                                 trainingCallback.onFailureFromRemote(e);

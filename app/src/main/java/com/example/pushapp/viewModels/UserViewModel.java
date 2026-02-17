@@ -21,8 +21,6 @@ public class UserViewModel extends ViewModel {
     private final MutableLiveData<Boolean> registrationStatus = new MutableLiveData<>(false);
     private LiveData<Result> sessionLiveData;
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
     public UserViewModel(UserRepository userRepository, SessionRepository sessionRepository){
         this.sessionRepository = sessionRepository;
@@ -123,5 +121,6 @@ public class UserViewModel extends ViewModel {
 
     public void resetLocalDatabase(){
         userRepository.resetLocalDatabase();
+        clearLiveData();
     }
 }

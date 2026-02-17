@@ -172,4 +172,12 @@ public class HistoryRepository implements HistoryCallback {
         Log.d(TAG, "Session saved locally. Fetching updated history list.");
         localDataSource.getAllHistory();
     }
+   
+
+    public void resetLocalDatabase() {
+        localDataSource.resetLocalDatabase();
+        if(historyList != null) historyList.postValue(null);
+        if(graphData != null) graphData.postValue(null);
+        if(graphVolumeData != null) graphVolumeData.postValue(null);
+    }
 }

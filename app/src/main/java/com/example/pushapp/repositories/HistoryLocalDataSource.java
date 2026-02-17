@@ -129,4 +129,14 @@ public class HistoryLocalDataSource {
             }
         });
     }
+
+    public void resetLocalDatabase() {
+        LocalDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                historyDao.deleteAllHistory();
+            } catch (Exception e) {
+                Log.e("HistoryLocalDataSrc", "Failed to reset local history: " + e.getMessage(), e);
+            }
+        });
+    }
 }

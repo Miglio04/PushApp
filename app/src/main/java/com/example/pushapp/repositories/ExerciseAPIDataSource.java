@@ -1,13 +1,13 @@
 package com.example.pushapp.repositories;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 
 import com.example.pushapp.api.ApiClient;
 import com.example.pushapp.api.NinjaApiService;
+import com.example.pushapp.models.Exercise;
 import com.example.pushapp.models.api.ExerciseApiModel;
 import com.example.pushapp.utils.Constants;
+import com.example.pushapp.utils.converters.ExerciseConverter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,49 +20,41 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ExerciseAPIDataSource {
-
-    private static final String API_KEY = Constants.NINJA_API_KEY;
+    private ExerciseCallback callback = null;
+    NinjaApiService apiService;
     private final List<String> muscles = Arrays.asList(
             "abdominals", "abductors", "adductors", "biceps", "calves",
             "chest", "forearms", "glutes", "hamstrings", "lats",
             "lower_back", "middle_back", "neck", "quadriceps", "traps", "triceps"
     );
 
-    ExerciseAPIDataSource() {
-        // TO BE IMPLEMENTED
+    public ExerciseAPIDataSource(NinjaApiService apiService) {
+        this.apiService = apiService;
     }
 
-    private void fetchAllMusclesFromApi(final FirebaseCallback<List<ExerciseApiModel>> callback) {
-        NinjaApiService apiService = ApiClient.getClient().create(NinjaApiService.class);
+    public ExerciseAPIDataSource() {
+        this(ApiClient.getClient().create(NinjaApiService.class));
+    }
+    public void setCallback(ExerciseCallback callback){
+        this.callback = callback;
+    }
+
+    public void fetchAllExercises() {
 
         List<ExerciseApiModel> allDownloadedExercises = Collections.synchronizedList(new ArrayList<>());
         AtomicInteger completedRequests = new AtomicInteger(0);
         int totalRequests = muscles.size();
 
         for (String muscle : muscles) {
-            Call<List<ExerciseApiModel>> call = apiService.getExercises(API_KEY, muscle);
+            Call<List<ExerciseApiModel>> call = apiService.getExercises(Constants.NINJA_API_KEY, muscle);
 
             call.enqueue(new Callback<List<ExerciseApiModel>>() {
                 @Override
                 public void onResponse(@NonNull Call<List<ExerciseApiModel>> call, @NonNull Response<List<ExerciseApiModel>> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         List<ExerciseApiModel> results = response.body();
-                        Log.d("REPO", "Muscle: " + muscle + " | Items: " + results.size());
-
-                        // DEBUG: Stampa il primo elemento per vedere se equipment c'è
-                        if(!results.isEmpty()) {
-                            Log.d("REPO", "Check Equipment: " + results.get(0).getName() + " -> " + results.get(0).getEquipment());
-                        }
 
                         if (!results.isEmpty()) {
-                            // Pulizia Dati
-                            for(ExerciseApiModel ex : results) {
-                                // Se l'equipment è nullo, proviamo a dedurlo o impostarlo a body_only se è type cardio/stretching
-                                if (ex.getEquipment() == null || ex.getEquipment().isEmpty()) {
-                                    if("body_only".equals(ex.getEquipment())) continue; // already set
-                                    // Fallback opzionale, altrimenti lascia null ma gson dovrebbe averlo preso ora
-                                }
-                            }
                             allDownloadedExercises.addAll(results);
                         }
                     }
@@ -71,17 +63,22 @@ public class ExerciseAPIDataSource {
 
                 @Override
                 public void onFailure(@NonNull Call<List<ExerciseApiModel>> call, @NonNull Throwable t) {
-                    Log.e("REPO", "Fail: " + muscle + " -> " + t.getMessage());
                     checkCompletion();
                 }
 
                 private void checkCompletion() {
                     if (completedRequests.incrementAndGet() == totalRequests) {
                         if (allDownloadedExercises.isEmpty()) {
-                            callback.onError(new Exception("Nessun esercizio."));
+                            callback.onFailureFromRemote(new Exception("No exercises found from API"));
                         } else {
+                            // Sorting exercises alphabetically by name, ignoring case
                             Collections.sort(allDownloadedExercises, (e1, e2) -> e1.getName().compareToIgnoreCase(e2.getName()));
-                            callback.onSuccess(new ArrayList<>(allDownloadedExercises));
+                            ArrayList<Exercise> exerciseList = new ArrayList<>();
+                            for (ExerciseApiModel apiModel : allDownloadedExercises) {
+                                Exercise exercise = ExerciseConverter.apiToExercise(apiModel);
+                                exerciseList.add(exercise);
+                            }
+                            callback.onSuccessFromRemote(exerciseList);
                         }
                     }
                 }
