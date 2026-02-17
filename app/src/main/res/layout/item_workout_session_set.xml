@@ -1,59 +1,104 @@
-<!-- Nuovo file: res/layout/item_workout_session_set.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:paddingVertical="8dp">
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="4dp">
 
+    <!-- Set Number (senza cerchio) -->
     <TextView
         android:id="@+id/set_number_session"
-        android:layout_width="40dp"
+        android:layout_width="28dp"
         android:layout_height="wrap_content"
         android:text="1"
         android:textSize="16sp"
-        android:textStyle="bold" />
+        android:fontFamily="sans-serif-bold"
+        android:textColor="@color/md_theme_onSurface"
+        android:gravity="center" />
 
+    <!-- Target Details -->
     <TextView
         android:id="@+id/set_target_details"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Target: 80kg x 8"
-        android:textColor="?android:attr/textColorSecondary" />
+        android:layout_marginStart="8dp"
+        android:text="80kg × 8"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/md_theme_onSurfaceVariant" />
 
-    <EditText
+    <!-- Actual Weight Input -->
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/set_actual_weight"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
+        android:layout_width="64dp"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_input_small"
+        android:gravity="center"
         android:hint="kg"
         android:inputType="numberDecimal"
-        android:textSize="14sp" />
+        android:textSize="15sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/md_theme_onSurface"
+        android:textColorHint="@color/md_theme_onSurfaceVariant"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="8dp"
+        android:textAlignment="center" />
 
-    <EditText
+    <!-- Actual Reps Input -->
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/set_actual_reps"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
+        android:layout_width="52dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/bg_input_small"
+        android:gravity="center"
         android:hint="reps"
         android:inputType="number"
-        android:textSize="14sp" />
+        android:textSize="15sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/md_theme_onSurface"
+        android:textColorHint="@color/md_theme_onSurfaceVariant"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="8dp"
+        android:textAlignment="center" />
 
-    <ImageButton
-        android:id="@+id/set_delete_button_session"
+    <!-- Complete Button -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/set_complete_button_session"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:src="@android:drawable/ic_menu_delete"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Elimina set"
-        app:tint="@color/md_theme_error" />
+        android:layout_marginStart="12dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/md_theme_surfaceContainerHighest"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground">
 
+        <ImageView
+            android:id="@+id/set_complete_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_check"
+            app:tint="@color/md_theme_onSurfaceVariant"
+            android:contentDescription="@string/confirm" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Delete Button -->
     <ImageButton
-        android:id="@+id/set_complete_button_session"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/checkbox_off_background"
+        android:id="@+id/set_delete_button_session"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="4dp"
+        android:src="@drawable/delete"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Completa serie" />
+        android:contentDescription="@string/delete"
+        app:tint="@color/md_theme_error" />
 
 </LinearLayout>

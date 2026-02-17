@@ -47,7 +47,7 @@
             android:layout_height="100dp"
             app:cardBackgroundColor="@color/md_theme_primary"
             app:cardCornerRadius="50dp"
-            app:cardElevation="4dp">
+            app:cardElevation="0dp">
 
             <TextView
                 android:id="@+id/profileInitial"
@@ -258,38 +258,38 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnToggleTheme"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:fontFamily="sans-serif-medium"
             android:text="Appearance"
-            android:textColor="@color/md_theme_onSurface"
+            android:textColor="@color/md_theme_onSecondaryContainer"
             android:textSize="15sp"
-            app:backgroundTint="@color/md_theme_surfaceContainerHighest"
+            app:backgroundTint="@color/md_theme_secondaryContainer"
             app:cornerRadius="20dp"
             app:icon="@drawable/moon"
             app:iconGravity="textStart"
             app:iconPadding="16dp"
             app:iconSize="24dp"
-            app:iconTint="@color/md_theme_primary" />
+            app:iconTint="@color/md_theme_onSecondaryContainer" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
-            style="@style/Widget.Material3.Button.TonalButton"
+            style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="60dp"
             android:layout_marginTop="16dp"
             android:fontFamily="sans-serif-medium"
             android:text="Logout"
-            android:textColor="@color/md_theme_error"
+            android:textColor="@color/md_theme_onError"
             android:textSize="15sp"
-            app:backgroundTint="@color/md_theme_errorContainer"
+            app:backgroundTint="@color/md_theme_error"
             app:cornerRadius="20dp"
             app:icon="@drawable/ic_logout"
             app:iconGravity="textStart"
             app:iconPadding="16dp"
             app:iconSize="24dp"
-            app:iconTint="@color/md_theme_error" />
+            app:iconTint="@color/md_theme_onError" />
     </LinearLayout>
 
 </LinearLayout>

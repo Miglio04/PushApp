@@ -3,7 +3,6 @@ package com.example.pushapp.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -69,8 +68,8 @@ public class RoutineCardAdapter extends RecyclerView.Adapter<RoutineCardAdapter.
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView title;
         final TextView description;
-        final Button startWorkoutButton;
-        final Button editRoutineButton;
+        final View startWorkoutButton;
+        final ImageButton editRoutineButton;
         final ImageButton deleteRoutineButton;
 
         ViewHolder(@NonNull View itemView) {

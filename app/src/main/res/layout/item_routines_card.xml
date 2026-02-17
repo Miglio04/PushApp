@@ -1,85 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--Se card_view:cardUseCompatPadding="true" viene settate false consente di gestire meglio le
-    spaziature fra le varie card. Questo però sembra possa dare problemi fra le veriosni
-    pre-Lollipop-->
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="12dp"
-    android:layout_marginEnd="12dp"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
-    card_view:cardCornerRadius="12dp"
-    card_view:cardElevation="6dp"
-    card_view:cardUseCompatPadding="true"
-    card_view:cardBackgroundColor="@color/md_theme_secondaryContainer"
-    app:strokeColor="@color/md_theme_primary"
-    app:strokeWidth="1dp">
+    android:layout_marginVertical="6dp"
+    app:cardBackgroundColor="@color/md_theme_secondaryContainer"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="0dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="100dp"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp">
 
-        <TextView
-            android:id="@+id/card_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="@color/md_theme_onSecondaryContainer"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            />
-
-        <TextView
-            android:id="@+id/card_description"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:textSize="15sp"
-            android:textColor="@color/md_theme_onSecondaryContainer"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card_title"/>
-
-        <Button
-            android:id="@+id/card_edit_workout_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/edit_workout"
-            app:layout_constraintEnd_toStartOf="@+id/delete_routine_button"
-            app:layout_constraintTop_toTopOf="@id/card_title"
-            app:layout_constraintBottom_toBottomOf="@id/card_description"/>
-
-        <ImageButton
-            android:id="@+id/delete_routine_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:src="@drawable/delete"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="12dp"
-            app:tint="@color/md_theme_error"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/card_title"
-            app:layout_constraintBottom_toBottomOf="@id/card_description"/>
-
-        <Button
-            android:id="@+id/card_start_workout_button"
+        <!-- Header: Titolo + Bottoni -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/start_workout"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card_description"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
+            <!-- Titolo e Descrizione -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/card_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/md_theme_onSecondaryContainer"
+                    android:textSize="18sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    tools:text="Push Day" />
+
+                <TextView
+                    android:id="@+id/card_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:alpha="0.7"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    android:textColor="@color/md_theme_onSecondaryContainer"
+                    android:textSize="14sp"
+                    tools:ignore="TextContrastCheck"
+                    tools:text="Chest, Shoulders, Triceps" />
+
+            </LinearLayout>
+
+            <!-- Bottone Edit -->
+            <ImageButton
+                android:id="@+id/card_edit_workout_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/edit_workout"
+                android:padding="8dp"
+                android:src="@drawable/edit"
+                app:tint="@color/md_theme_onSecondaryContainer"
+                tools:ignore="TouchTargetSizeCheck" />
+
+            <!-- Bottone Delete -->
+            <ImageButton
+                android:id="@+id/delete_routine_button"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/delete"
+                android:padding="8dp"
+                android:src="@drawable/delete"
+                app:tint="@color/md_theme_error"
+                tools:ignore="TouchTargetSizeCheck" />
+
+        </LinearLayout>
+
+        <!-- Bottone Start Workout -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/card_start_workout_button"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="16dp"
+            android:text="@string/start_workout"
+            android:textColor="@color/md_theme_onPrimary"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-medium"
+            app:backgroundTint="@color/md_theme_primary"
+            app:cornerRadius="14dp"
+            app:icon="@drawable/ic_play"
+            app:iconGravity="textStart"
+            app:iconTint="@color/md_theme_onPrimary"
+            tools:ignore="VisualLintButtonSize" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

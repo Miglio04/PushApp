@@ -72,20 +72,19 @@
             <!-- Pulsante Discard -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/mini_discard_button"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.Material3.Button"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 android:padding="0dp"
+                app:backgroundTint="@color/md_theme_error"
                 app:cornerRadius="12dp"
                 app:icon="@drawable/ic_close"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
                 app:iconSize="20dp"
-                app:iconTint="@color/md_theme_onSecondaryContainer"
-                app:strokeColor="@color/md_theme_outline"
-                app:strokeWidth="1dp" />
+                app:iconTint="@color/md_theme_onError" />
 
         </LinearLayout>
 

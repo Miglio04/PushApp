@@ -162,7 +162,7 @@
     <string name="edit_training_title">Modifica Scheda</string>
     <string name="training_name">Nome Scheda</string>
     <string name="save">Salva</string>
-    <!-- Routines Fragment -->
+
     <string name="select_routine">Seleziona una routine per iniziare</string>
     <string name="no_routines_yet">Nessuna routine</string>
     <string name="create_first_routine">Aggiungi la prima routine\na questa scheda!</string>
@@ -170,9 +170,37 @@
     <string name="delete_routine_title">Elimina Routine</string>
     <string name="delete_routine_message">Sei sicuro di voler eliminare questa routine? L\'azione non può essere annullata.</string>
 
-    <!-- History Fragment -->
     <string name="delete_workout_title">Elimina Allenamento</string>
     <string name="delete_workout_message">Sei sicuro di voler eliminare questa sessione? L\'azione non può essere annullata.</string>
     <string name="session_deleted">Sessione eliminata</string>
+
+    <string name="rest_time">RECUPERO</string>
+    <string name="add_30s">+30s</string>
+    <string name="skip">Salta</string>
+
+    <string name="elapsed_time">Tempo Trascorso</string>
+    <string name="lets_go">Spacchiamo tutto!</string>
+    <string name="minimize">Riduci</string>
+
+    <!-- Workout Card -->
+    <string name="set_label">Serie</string>
+    <string name="target_label">Obiettivo</string>
+    <string name="actual_label">Fatto</string>
+
+    <!-- Edit Routine -->
+    <string name="edit_routine">Modifica Routine</string>
+    <string name="routine_name">Nome Routine</string>
+    <string name="routine_name_hint">Inserisci nome routine</string>
+    <string name="exercises">Esercizi</string>
+    <string name="add_exercise">Aggiungi Esercizio</string>
+    <string name="search_exercise">Cerca esercizio…</string>
+    <string name="muscle_group">Gruppo Muscolare</string>
+    <string name="difficulty">Difficoltà</string>
+    <string name="all">Tutti</string>
+    <string name="error_routine_not_loaded">Errore: Routine non caricata</string>
+    <string name="loading">Caricamento…</string>
+    <string name="error_loading">Errore di caricamento</string>
+    <string name="replace">Sostituisci</string>
+    <string name="delete_exercise_confirm">Eliminare %1$s?</string>
 
 </resources>

@@ -78,6 +78,7 @@ public class WorkoutViewModel extends ViewModel {
         sessionManager.saveSessionState(newSession, workoutStartTimeMillis);
     }
 
+
     public void startOrRestoreWorkout(@Nullable Routine dayToStart) {
         Boolean inProgress = isWorkoutInProgress().getValue();
         if (inProgress != null && inProgress) {

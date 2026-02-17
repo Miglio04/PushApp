@@ -3,7 +3,6 @@ package com.example.pushapp.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ImageView;
@@ -111,9 +110,9 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
         public final ImageView arrowIcon;
         public final LinearLayout headerLayout;
         public final LinearLayout expandableLayout;
-        public final ImageButton btnEditExercise;
-        public final ImageButton btnDeleteExercise;
-        public final ImageButton btnAddSet;
+        public final View btnEditExercise;
+        public final View btnDeleteExercise;
+        public final View btnAddSet;
         final RecyclerView recyclerSeries;
         private SetsAdapter setsAdapter;
 

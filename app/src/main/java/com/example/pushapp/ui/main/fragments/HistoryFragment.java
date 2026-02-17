@@ -21,7 +21,6 @@ import com.example.pushapp.utils.DeleteDialogHelper;
 import com.example.pushapp.viewModels.HistoryViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
@@ -69,10 +68,7 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
             requireContext(),
             R.string.delete_workout_title,
             R.string.delete_workout_message,
-            () -> {
-                historyViewModel.deleteSession(session);
-                Snackbar.make(requireView(), R.string.session_deleted, Snackbar.LENGTH_LONG).show();
-            }
+            () -> historyViewModel.deleteSession(session)
         );
     }
 
