@@ -35,6 +35,7 @@ public class HistoryViewModel extends ViewModel {
     private final MutableLiveData<List<HistorySessionWithExercises>> historySessions = new MutableLiveData<>();
     private List<HistorySessionWithExercises> fullHistoryList = new ArrayList<>();
     private String currentSearchQuery = "";
+    private FilterPeriod currentFilter = FilterPeriod.ALL;
     private final MutableLiveData<KpiStats> kpiStatsLiveData = new MutableLiveData<>();
     private final MutableLiveData<LocalDate> selectedDateLiveData = new MutableLiveData<>(LocalDate.now());
     private final MutableLiveData<Boolean> isMonthView = new MutableLiveData<>(false);
@@ -52,6 +53,12 @@ public class HistoryViewModel extends ViewModel {
     public enum ChartMetric {
         MAX_WEIGHT,
         TOTAL_VOLUME
+    }
+
+    public enum FilterPeriod {
+        ALL,
+        THIS_WEEK,
+        THIS_MONTH
     }
 
     public HistoryViewModel(HistoryRepository repository) {
@@ -86,29 +93,55 @@ public class HistoryViewModel extends ViewModel {
 
     public void searchHistory(String query) {
         this.currentSearchQuery = (query != null) ? query : "";
+        applyFilters();
+    }
+
+    public void filterByPeriod(FilterPeriod period) {
+        this.currentFilter = period;
+        applyFilters();
+    }
+
+    private void applyFilters() {
         if (fullHistoryList == null) {
             return;
         }
 
-        if (currentSearchQuery.trim().isEmpty()) {
-            historySessions.postValue(fullHistoryList);
-            return;
+        List<HistorySessionWithExercises> filteredList = new ArrayList<>(fullHistoryList);
+
+        // Apply period filter
+        if (currentFilter != FilterPeriod.ALL) {
+            LocalDate now = LocalDate.now();
+            long startOfPeriod;
+
+            if (currentFilter == FilterPeriod.THIS_WEEK) {
+                startOfPeriod = now.minusDays(now.getDayOfWeek().getValue() - 1)
+                        .atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            } else { // THIS_MONTH
+                startOfPeriod = now.withDayOfMonth(1)
+                        .atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            }
+
+            filteredList.removeIf(session -> session.session.getStartTime() < startOfPeriod);
         }
 
-        List<HistorySessionWithExercises> filteredList = new ArrayList<>();
-        String lowerCaseQuery = currentSearchQuery.toLowerCase(Locale.ROOT);
+        // Apply search filter
+        if (!currentSearchQuery.trim().isEmpty()) {
+            String lowerCaseQuery = currentSearchQuery.toLowerCase(Locale.ROOT);
+            List<HistorySessionWithExercises> searchFiltered = new ArrayList<>();
 
-        for (HistorySessionWithExercises session : fullHistoryList) {
-            if (session.session.getName().toLowerCase(Locale.ROOT).contains(lowerCaseQuery)) {
-                filteredList.add(session);
-                continue;
-            }
-            for (HistoryWorkoutExerciseWithSeries exercise : session.exercises) {
-                if (exercise.historyWorkoutExercise.getExerciseName().toLowerCase(Locale.ROOT).contains(lowerCaseQuery)) {
-                    filteredList.add(session);
-                    break;
+            for (HistorySessionWithExercises session : filteredList) {
+                if (session.session.getName().toLowerCase(Locale.ROOT).contains(lowerCaseQuery)) {
+                    searchFiltered.add(session);
+                    continue;
+                }
+                for (HistoryWorkoutExerciseWithSeries exercise : session.exercises) {
+                    if (exercise.historyWorkoutExercise.getExerciseName().toLowerCase(Locale.ROOT).contains(lowerCaseQuery)) {
+                        searchFiltered.add(session);
+                        break;
+                    }
                 }
             }
+            filteredList = searchFiltered;
         }
 
         historySessions.postValue(filteredList);
