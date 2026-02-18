@@ -4,51 +4,97 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:paddingVertical="8dp"
+    android:paddingHorizontal="4dp">
 
+    <!-- Set Number (senza cerchio) -->
     <TextView
-        android:id="@+id/set_index"
+        android:id="@+id/set_number_session"
         android:layout_width="28dp"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
+        android:text="1"
+        android:textSize="16sp"
+        android:fontFamily="sans-serif-bold"
         android:textColor="@color/md_theme_onSurface"
-        android:text="1" />
+        android:gravity="center" />
 
-    <EditText
-        android:id="@+id/set_reps"
+    <!-- Target Details -->
+    <TextView
+        android:id="@+id/set_target_details"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:inputType="number"
-        android:hint="@string/reps"
-        android:textColor="@color/md_theme_onSurface" />
+        android:layout_marginStart="8dp"
+        android:text="80kg × 8"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif"
+        android:textColor="@color/md_theme_onSurfaceVariant" />
 
-    <EditText
-        android:id="@+id/set_weight"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
+    <!-- Actual Weight Input -->
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/set_actual_weight"
+        android:layout_width="64dp"
+        android:layout_height="44dp"
+        android:background="@drawable/bg_input_small"
+        android:gravity="center"
+        android:hint="kg"
         android:inputType="numberDecimal"
-        android:hint="@string/weight"
-        android:textColor="@color/md_theme_onSurface" />
+        android:textSize="15sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/md_theme_onSurface"
+        android:textColorHint="@color/md_theme_onSurfaceVariant"
+        android:padding="8dp" />
 
-    <ImageButton
-        android:id="@+id/set_delete"
+    <!-- Actual Reps Input -->
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/set_actual_reps"
+        android:layout_width="52dp"
+        android:layout_height="44dp"
+        android:layout_marginStart="8dp"
+        android:background="@drawable/bg_input_small"
+        android:gravity="center"
+        android:hint="reps"
+        android:inputType="number"
+        android:textSize="15sp"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/md_theme_onSurface"
+        android:textColorHint="@color/md_theme_onSurfaceVariant"
+        android:padding="8dp" />
+
+    <!-- Complete Button -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/set_complete_button_session"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:contentDescription="@string/delete"
-        android:src="@android:drawable/ic_menu_delete"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        app:tint="@color/md_theme_error" />
+        android:layout_marginStart="12dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/md_theme_surfaceContainerHighest"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground">
 
+        <ImageView
+            android:id="@+id/set_complete_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_check"
+            app:tint="@color/md_theme_onSurfaceVariant"
+            android:contentDescription="@string/confirm" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Delete Button -->
     <ImageButton
-        android:id="@+id/set_complete_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@android:drawable/checkbox_off_background"
+        android:id="@+id/set_delete_button_session"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="4dp"
+        android:src="@drawable/delete"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Completa set"/>
+        android:contentDescription="@string/delete"
+        app:tint="@color/md_theme_error" />
 
 </LinearLayout>

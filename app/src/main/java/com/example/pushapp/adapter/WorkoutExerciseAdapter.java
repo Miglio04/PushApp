@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -124,15 +123,17 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
      * Handles the inner RecyclerView for sets and spinner for rest time.
      */
     public static class ExerciseViewHolder extends RecyclerView.ViewHolder {
-        final ImageView cardImage;
         final TextView cardTitle;
         final Spinner restSpinner;
+        final View restTimeChip;
+        final TextView restTimeValue;
         final RecyclerView setsRecyclerView;
         final Button addSetButton;
 
         private final OnWorkoutInteractionListener listener;
         private final WorkoutSessionSetAdapter setAdapter;
         private final int[] restValues;
+        private final String[] restTimes;
 
         /**
          * Constructs a new ExerciseViewHolder.
@@ -146,10 +147,12 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
             super(itemView);
             this.listener = listener;
             this.restValues = restValues;
+            this.restTimes = restTimes;
 
-            cardImage = itemView.findViewById(R.id.card_image);
             cardTitle = itemView.findViewById(R.id.card_title);
             restSpinner = itemView.findViewById(R.id.card_rest_spinner);
+            restTimeChip = itemView.findViewById(R.id.rest_time_chip);
+            restTimeValue = itemView.findViewById(R.id.rest_time_value);
             setsRecyclerView = itemView.findViewById(R.id.card_sets_recycler);
             addSetButton = itemView.findViewById(R.id.card_add_set);
 
@@ -181,8 +184,10 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
                 if (restSpinner.getSelectedItemPosition() != initialIndex) {
                     restSpinner.setSelection(initialIndex, false);
                 }
+                restTimeValue.setText(restTimes[initialIndex]);
             } else {
                 restSpinner.setSelection(2, false);
+                restTimeValue.setText(restTimes[2]);
             }
         }
 
@@ -194,9 +199,9 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
         private void setupRestSpinner(String[] restTimes) {
             ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
                     itemView.getContext(),
-                    R.layout.item_spinner_custom,
+                    R.layout.item_spinner_selected,
                     restTimes);
-            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
             restSpinner.setAdapter(spinnerAdapter);
         }
 
@@ -208,12 +213,19 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
                 }
             });
 
+            // Click sul chip apre lo spinner
+            restTimeChip.setOnClickListener(v -> restSpinner.performClick());
+
             restSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                     int currentPos = getBindingAdapterPosition();
                     if (currentPos != RecyclerView.NO_POSITION) {
                         listener.onRestTimeChanged(currentPos, pos);
+                    }
+                    // Aggiorna la TextView del valore
+                    if (pos >= 0 && pos < restTimes.length) {
+                        restTimeValue.setText(restTimes[pos]);
                     }
                 }
                 @Override

@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,11 +39,11 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
 
     private WorkoutViewModel workoutViewModel;
     private WorkoutExerciseAdapter workoutAdapter;
-    private ImageButton workoutBackButton;
     private RecyclerView recyclerView;
     private TextView timerText;
-    private ImageButton startPauseButton;
-    private ImageButton stopButton;
+    private com.google.android.material.button.MaterialButton startPauseButton;
+    private com.google.android.material.button.MaterialButton stopButton;
+    private View btnMinimize;
     private TextView headerTitle;
     private View restTimerContainer;
     private TextView restTimerText;
@@ -92,11 +91,11 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
      * @param view The root view of the fragment.
      */
     private void initViews(View view) {
-        workoutBackButton = view.findViewById(R.id.workout_back_button);
         headerTitle = view.findViewById(R.id.header_title);
         timerText = view.findViewById(R.id.workout_timer_text);
         startPauseButton = view.findViewById(R.id.workout_start_pause_button);
         stopButton = view.findViewById(R.id.workout_stop_button);
+        btnMinimize = view.findViewById(R.id.btn_minimize);
         recyclerView = view.findViewById(R.id.recycler_workout);
 
         restTimerContainer = view.findViewById(R.id.rest_timer_container);
@@ -160,8 +159,6 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
      * Sets up click listeners for buttons (back, start/pause, stop, skip rest).
      */
     private void setupClickListeners() {
-        workoutBackButton.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
-
         startPauseButton.setOnClickListener(v -> {
             if (Boolean.TRUE.equals(workoutViewModel.isWorkoutTimerRunning().getValue())) {
                 workoutViewModel.pauseWorkoutTimer();
@@ -180,6 +177,10 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
                     });
                 }
             });
+        });
+
+        btnMinimize.setOnClickListener(v -> {
+            NavHostFragment.findNavController(this).popBackStack();
         });
 
         restTimerSkip.setOnClickListener(v -> workoutViewModel.stopRestTimer());
@@ -250,7 +251,8 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
      * @param isRunning True if the workout timer is running, false otherwise.
      */
     private void updateStartPauseIcon(boolean isRunning) {
-        startPauseButton.setImageResource(isRunning ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
+        startPauseButton.setIconResource(isRunning ? R.drawable.ic_pause : R.drawable.ic_play);
+        startPauseButton.setText(isRunning ? R.string.pause : R.string.start);
     }
 
     /**
@@ -271,11 +273,17 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     public void onStart() {
         super.onStart();
         updateGlobalUIVisibility(false);
+        if (Boolean.TRUE.equals(workoutViewModel.isWorkoutInProgress().getValue())) {
+            workoutViewModel.startWorkoutTimer();
+        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
         updateGlobalUIVisibility(true);
+        if (Boolean.TRUE.equals(workoutViewModel.isWorkoutInProgress().getValue())) {
+            workoutViewModel.pauseWorkoutTimer();
+        }
     }
 }

@@ -1,55 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="300dp"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="20dp"
+    app:cardBackgroundColor="@color/md_theme_surfaceContainerHigh"
+    app:cardCornerRadius="28dp"
     app:cardElevation="8dp"
-    app:cardBackgroundColor="@android:color/white">
+    tools:ignore="TextSizeCheck">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:gravity="center"
-        android:padding="24dp">
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="28dp"
+        android:paddingBottom="20dp">
 
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@drawable/ic_check_circle"
-            app:tint="#4CAF50"
-            android:layout_marginBottom="16dp"/>
+        <!-- Icona -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="@color/green"
+            app:cardCornerRadius="36dp"
+            app:cardElevation="0dp">
 
+            <ImageView
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/success_icon"
+                android:src="@drawable/ic_check_circle"
+                app:tint="@android:color/white" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Titolo -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Success!"
-            android:textColor="#4CAF50"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="8dp"/>
+            android:layout_marginBottom="10dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/success"
+            android:textColor="@color/md_theme_onSurface"
+            android:textSize="20sp" />
 
+        <!-- Messaggio -->
         <TextView
             android:id="@+id/tvMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Operation completed."
-            android:gravity="center"
-            android:textColor="#757575"
-            android:textSize="14sp"
-            android:layout_marginBottom="24dp"/>
-
-        <Button
-            android:id="@+id/btnAction"
             android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:text="OK"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:gravity="center"
+            android:lineSpacingExtra="2dp"
+            android:text="@string/operation_completed"
+            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:textSize="14sp" />
+
+        <!-- Pulsante OK -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAction"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/ok"
             android:textColor="@android:color/white"
-            android:background="@drawable/bg_button_blue"
-            app:backgroundTint="@null"
-            android:textStyle="bold"/>
+            android:textSize="15sp"
+            app:backgroundTint="@color/green"
+            app:cornerRadius="14dp" />
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

@@ -28,7 +28,7 @@
                 android:layout_height="44dp"
                 app:cardCornerRadius="22dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/md_theme_secondary">
+                app:cardBackgroundColor="@color/md_theme_primary">
 
                 <ImageView
                     android:id="@+id/iv_expand_icon"
@@ -37,7 +37,7 @@
                     android:layout_gravity="center"
                     android:src="@android:drawable/ic_media_play"
                     android:rotation="90"
-                    app:tint="@color/md_theme_onSecondary" />
+                    app:tint="@color/md_theme_onPrimary" />
             </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout

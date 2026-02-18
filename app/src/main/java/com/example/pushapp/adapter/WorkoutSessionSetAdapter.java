@@ -98,7 +98,8 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView setNumber, targetDetails;
         final EditText actualWeight, actualReps;
-        final ImageButton completeButton, deleteButton;
+        final View completeButton;
+        final ImageButton deleteButton;
         private final OnSessionSetListener listener;
         TextWatcher weightWatcher, repsWatcher;
 
@@ -134,15 +135,29 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
             setNumber.setText(String.valueOf(serie.getSetNumber()));
 
             if (templateSerie != null) {
-                String target = String.format(Locale.getDefault(), "%.1f kg x %d reps",
+                String target = String.format(Locale.getDefault(), "%.1f kg × %d",
                         templateSerie.getTargetWeight(), templateSerie.getTargetReps());
+                target = target.replace(".", ",");
                 targetDetails.setText(target);
                 targetDetails.setVisibility(View.VISIBLE);
             } else {
                 targetDetails.setVisibility(View.GONE);
             }
 
-            actualWeight.setText(serie.getWeight() > 0 ? String.format(Locale.US, "%.1f", serie.getWeight()) : "");
+            // Mostra il peso con virgola se ha decimali
+            if (serie.getWeight() > 0) {
+                double weight = serie.getWeight();
+                if (weight == Math.floor(weight)) {
+                    // Numero intero
+                    actualWeight.setText(String.valueOf((int) weight));
+                } else {
+                    // Numero decimale con virgola
+                    actualWeight.setText(String.format(Locale.ITALIAN, "%.1f", weight));
+                }
+            } else {
+                actualWeight.setText("");
+            }
+
             actualReps.setText(serie.getReps() > 0 ? String.valueOf(serie.getReps()) : "");
 
             updateCompletedUI(serie.getIsCompleted());
@@ -191,7 +206,7 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
             if (position == RecyclerView.NO_POSITION) return;
 
             try {
-                String wStr = actualWeight.getText().toString();
+                String wStr = actualWeight.getText().toString().replace(",", ".");
                 String rStr = actualReps.getText().toString();
 
                 double weight = wStr.isEmpty() ? 0 : Double.parseDouble(wStr);
@@ -208,8 +223,15 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
          * @param completed True if the set is complete.
          */
         private void updateCompletedUI(boolean completed) {
-            int iconRes = completed ? android.R.drawable.checkbox_on_background : android.R.drawable.checkbox_off_background;
-            completeButton.setImageResource(iconRes);
+            if (completed) {
+                // Verde quando completato
+                completeButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    itemView.getContext().getColor(R.color.green)));
+            } else {
+                // Grigio quando non completato
+                completeButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    itemView.getContext().getColor(R.color.md_theme_surfaceContainerHighest)));
+            }
 
             actualWeight.setEnabled(!completed);
             actualReps.setEnabled(!completed);

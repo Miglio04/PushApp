@@ -1,9 +1,12 @@
 package com.example.pushapp.ui.main.fragments;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,6 +26,7 @@ import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.adapter.TrainingsRecyclerViewAdapter;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
+import com.example.pushapp.utils.DeleteDialogHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -37,6 +41,8 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     private TrainingViewModel trainingViewModel;
     private TrainingsRecyclerViewAdapter adapter;
     private NavController navController;
+    private View emptyStateContainer;
+    private RecyclerView recyclerView;
 
     /**
      * Called when the fragment is being created.
@@ -82,7 +88,8 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
                 requireActivity(),
                 new ViewModelFactory(requireContext())).get(TrainingViewModel.class);
 
-        RecyclerView recyclerView = view.findViewById(R.id.training_list);
+        emptyStateContainer = view.findViewById(R.id.empty_state_container);
+        recyclerView = view.findViewById(R.id.training_list);
         setupRecyclerView(recyclerView);
 
         FloatingActionButton fab = view.findViewById(R.id.fab_add_training);
@@ -94,7 +101,6 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
                 trainingViewModel.createTraining(userId);
             }
         });
-
         observeViewModel();
     }
 
@@ -116,14 +122,24 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     private void observeViewModel() {
         trainingViewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
             if (trainings == null ) {
-                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), R.string.something_went_wrong, Toast.LENGTH_LONG).show();
+                updateEmptyState(true);
             } else if (trainings.isTrainingsSuccess()){
                 List<Training> trainingsList = ((Result.TrainingsSuccess) trainings).getData();
                 adapter.updateTrainings(trainingsList);
+                updateEmptyState(trainingsList.isEmpty());
             }else{
                 Toast.makeText(getContext(), ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
+                updateEmptyState(true);
             }
         });
+    }
+
+    private void updateEmptyState(boolean isEmpty) {
+        if (emptyStateContainer != null && recyclerView != null) {
+            emptyStateContainer.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        }
     }
 
     /**
@@ -146,6 +162,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
      */
     @Override
     public void onTrainingDeleteClicked(Training training) {
+        showDeleteDialog(training);
         new AlertDialog.Builder(requireContext())
                 .setTitle("Conferma Eliminazione")
                 .setMessage("Sei sicuro di voler eliminare la scheda '" + training.getName() + "'?")
@@ -160,10 +177,60 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
      * Updates the training details in the ViewModel.
      *
      * @param training       The training plan being edited.
-     * @param newName        The new name.
-     * @param newDescription The new description.
      */
     @Override
+    public void onTrainingEditClicked(Training training) {
+        showEditDialog(training);
+    }
+
+    private void showDeleteDialog(Training training) {
+        if (getContext() == null) return;
+
+        DeleteDialogHelper.show(
+            requireContext(),
+            R.string.delete_training_title,
+            R.string.delete_training_message,
+            () -> trainingViewModel.deleteTraining(training)
+        );
+    }
+
+    private void showEditDialog(Training training) {
+        if (getContext() == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_training, null);
+        builder.setView(dialogView);
+
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        com.google.android.material.textfield.TextInputEditText etName = dialogView.findViewById(R.id.etTrainingName);
+        com.google.android.material.textfield.TextInputEditText etDescription = dialogView.findViewById(R.id.etTrainingDescription);
+        Button btnSave = dialogView.findViewById(R.id.btnSave);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+
+        etName.setText(training.getName());
+        etDescription.setText(training.getDescription());
+
+        btnSave.setOnClickListener(v -> {
+            String newName = etName.getText() != null ? etName.getText().toString().trim() : "";
+            String newDescription = etDescription.getText() != null ? etDescription.getText().toString().trim() : "";
+
+            if (!newName.isEmpty()) {
+                training.setName(newName);
+                training.setDescription(newDescription);
+                trainingViewModel.updateTraining(training);
+                dialog.dismiss();
+            }
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
     public void onTrainingEditFinished(Training training, String newName, String newDescription) {
         training.setName(newName);
         training.setDescription(newDescription);

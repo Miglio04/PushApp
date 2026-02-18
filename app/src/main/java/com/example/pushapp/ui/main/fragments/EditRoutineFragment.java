@@ -9,13 +9,13 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SearchView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
@@ -34,12 +34,10 @@ import com.example.pushapp.adapter.EditRoutineAdapter;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.example.pushapp.viewModels.WorkoutViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.textfield.TextInputEditText;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -59,17 +57,18 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     private TrainingViewModel trainingViewModel;
     private EditRoutineAdapter adapter;
     private AvailableExercisesAdapter availableExercisesAdapter;
-    private MaterialToolbar toolbar;
-    private TextInputEditText etRoutineName;
+    private View btnBack;
+    private EditText etRoutineName;
     private ConstraintLayout searchPanel;
     private RecyclerView mainRecyclerView;
-    private FloatingActionButton fabAddExercise;
-    private SearchView searchView;
+    private View fabAddExercise;
+    private View btnCloseSearch;
+    private EditText searchEditText;
     private ChipGroup chipGroupMuscles;
     private ChipGroup chipGroupDifficulty;
     private String currentQuery = "";
-    private String currentMuscleFilter = "Tutti";
-    private String currentDifficultyFilter = "Tutti";
+    private String currentMuscleFilter = "All";
+    private String currentDifficultyFilter = "All";
     private boolean areFilterComponentsInitialized = false;
 
     public EditRoutineFragment() {}
@@ -116,17 +115,18 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        toolbar = view.findViewById(R.id.toolbar_edit_day);
+        btnBack = view.findViewById(R.id.btn_back);
         etRoutineName = view.findViewById(R.id.et_routine_name);
         mainRecyclerView = view.findViewById(R.id.recycler_exercises);
         fabAddExercise = view.findViewById(R.id.fab_add_exercise);
         searchPanel = view.findViewById(R.id.search_panel_container);
+        btnCloseSearch = view.findViewById(R.id.btn_close_search);
         MaterialButton btnSave = view.findViewById(R.id.btn_save_edit);
         MaterialButton btnCancel = view.findViewById(R.id.btn_cancel_edit);
 
         applyDynamicColorsToStaticChips(view);
 
-        setupToolbar();
+        setupBackButton();
         setupRoutineNameInput();
         setupMainRecyclerView();
         setupBackButtonHandler();
@@ -170,11 +170,11 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         });
     }
 
-    /**
-     * Configures the toolbar navigation listener to handle back actions.
-     */
-    private void setupToolbar() {
-        toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
+    private void setupBackButton() {
+        btnBack.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
+        if (btnCloseSearch != null) {
+            btnCloseSearch.setOnClickListener(v -> toggleSearchPanel(false));
+        }
     }
 
     /**
@@ -183,9 +183,16 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
      */
     private void setupBackButtonHandler() {
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
-            @Override public void handleOnBackPressed() {
-                if (searchPanel != null && searchPanel.getVisibility() == View.VISIBLE) toggleSearchPanel(false);
-                else { setEnabled(false); if (isAdded()) NavHostFragment.findNavController(EditRoutineFragment.this).popBackStack(); }
+            @Override
+            public void handleOnBackPressed() {
+                if (searchPanel != null && searchPanel.getVisibility() == View.VISIBLE) {
+                    toggleSearchPanel(false);
+                } else {
+                    setEnabled(false);
+                    if (isAdded()) {
+                        NavHostFragment.findNavController(EditRoutineFragment.this).popBackStack();
+                    }
+                }
             }
         });
     }
@@ -196,8 +203,11 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
      */
     private void initializeAndShowSearchPanel() {
         if (getView() == null || searchPanel == null) return;
+
+        trainingViewModel.loadAvailableExercises();
+
         if (!areFilterComponentsInitialized) {
-            searchView = getView().findViewById(R.id.search_view);
+            searchEditText = getView().findViewById(R.id.search_edit_text);
             chipGroupMuscles = getView().findViewById(R.id.chip_group_muscle_filters);
             chipGroupDifficulty = getView().findViewById(R.id.chip_group_difficulty_filters);
 
@@ -206,10 +216,9 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
 
             trainingViewModel.getFilteredAvailableExercises().observe(getViewLifecycleOwner(), exercises -> {
                 if (exercises != null && availableExercisesAdapter != null) {
-                    if(exercises.isExerciseSuccess()){
+                    if (exercises.isExerciseSuccess()) {
                         availableExercisesAdapter.updateExercises(((Result.ExerciseSuccess) exercises).getData());
                     }
-
                 }
             });
             trainingViewModel.getAvailableMuscleGroups().observe(getViewLifecycleOwner(), muscleGroups -> {
@@ -239,15 +248,15 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
 
         availableExercisesAdapter = new AvailableExercisesAdapter(new ArrayList<>(), exercise -> {
             if (trainingViewModel.getEditableRoutine().getValue() == null) {
-                Toast.makeText(getContext(), "Errore: Giorno non caricato.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), R.string.error_routine_not_loaded, Toast.LENGTH_SHORT).show();
                 return;
             }
+            int order = adapter.getItemCount() + 1;
 
             WorkoutExercise newWorkoutExercise = new WorkoutExercise(exercise.getName());
 
             trainingViewModel.addExerciseToRoutine(newWorkoutExercise);
             toggleSearchPanel(false);
-            Snackbar.make(requireView(), "Aggiunto: " + exercise.getName(), Snackbar.LENGTH_SHORT).show();
         });
         filterRecycler.setAdapter(availableExercisesAdapter);
     }
@@ -256,17 +265,25 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
      * Sets up listeners for the search view and filter chips (muscle/difficulty).
      */
     private void setupFilterListeners() {
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override public boolean onQueryTextSubmit(String query) { return false; }
-            @Override public boolean onQueryTextChange(String newText) {
-                currentQuery = newText;
-                trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
-                return true;
-            }
-        });
+        if (searchEditText != null) {
+            searchEditText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    currentQuery = s.toString();
+                    trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {}
+            });
+        }
+
         chipGroupMuscles.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) {
-                currentMuscleFilter = "Tutti";
+                currentMuscleFilter = "All";
                 View allChip = group.findViewById(R.id.chip_all_muscles);
                 if (allChip instanceof Chip) ((Chip) allChip).setChecked(true);
             } else {
@@ -275,9 +292,10 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             }
             trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
         });
+
         chipGroupDifficulty.setOnCheckedStateChangeListener((group, checkedIds) -> {
             if (checkedIds.isEmpty()) {
-                currentDifficultyFilter = "Tutti";
+                currentDifficultyFilter = "All";
                 View allChip = group.findViewById(R.id.chip_all_difficulty);
                 if (allChip instanceof Chip) ((Chip) allChip).setChecked(true);
             } else {
@@ -333,12 +351,12 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         requireContext().getTheme().resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true);
         int colorOnSurface = typedValue.data;
 
-        int[][] states = new int[][] {
-                new int[] { android.R.attr.state_checked },
-                new int[] { android.R.attr.state_selected },
-                new int[] {}
+        int[][] states = new int[][]{
+                new int[]{android.R.attr.state_checked},
+                new int[]{android.R.attr.state_selected},
+                new int[]{}
         };
-        int[] colors = new int[] {
+        int[] colors = new int[]{
                 Color.BLACK,
                 Color.BLACK,
                 colorOnSurface
@@ -355,18 +373,18 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     private void showAddOrReplaceExerciseDialog(final int positionToReplace) {
         List<Exercise> available = new ArrayList<>();
         Result result = trainingViewModel.getAvailableExercises().getValue();
-        if(result != null && result.isExerciseSuccess()){
-             available = ((Result.ExerciseSuccess) result).getData();
+        if (result != null && result.isExerciseSuccess()) {
+            available = ((Result.ExerciseSuccess) result).getData();
         }
         if (available != null && !available.isEmpty()) {
             openSelectionDialog(available, positionToReplace);
-        }
-        else {
+        } else {
             ProgressDialog progressDialog = new ProgressDialog(getContext());
-            progressDialog.setMessage("Caricamento...");
+            progressDialog.setMessage(getString(R.string.loading));
             progressDialog.show();
             trainingViewModel.getAvailableExercises().observe(getViewLifecycleOwner(), new Observer<>() {
-                @Override public void onChanged(Result result) {
+                @Override
+                public void onChanged(Result result) {
                     if (result.isExerciseSuccess()) {
                         List<Exercise> exercises = ((Result.ExerciseSuccess) result).getData();
                         if (exercises != null && !exercises.isEmpty()) {
@@ -377,11 +395,13 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
                     } else if (result.isExerciseError()) {
                         progressDialog.dismiss();
                         trainingViewModel.getAvailableExercises().removeObserver(this);
-                        Toast.makeText(getContext(), "Errore caricamento", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), R.string.error_loading, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
-            new Handler().postDelayed(() -> { if (progressDialog.isShowing()) progressDialog.dismiss(); }, 5000);
+            new Handler().postDelayed(() -> {
+                if (progressDialog.isShowing()) progressDialog.dismiss();
+            }, 5000);
         }
     }
 
@@ -394,8 +414,12 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     private void openSelectionDialog(List<Exercise> exercises, int positionToReplace) {
         String[] names = new String[exercises.size()];
         for (int i = 0; i < exercises.size(); i++) names[i] = exercises.get(i).getName();
-        new AlertDialog.Builder(requireContext()).setTitle("Sostituisci").setItems(names, (dialog, which) ->
-                trainingViewModel.replaceExerciseRoutine(positionToReplace, exercises.get(which))).setNegativeButton("Annulla", null).show();
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.replace)
+                .setItems(names, (dialog, which) ->
+                        trainingViewModel.replaceExerciseRoutine(positionToReplace, exercises.get(which)))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     /**
@@ -409,7 +433,15 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         if (fabAddExercise != null) fabAddExercise.setVisibility(showSearch ? View.GONE : View.VISIBLE);
         View buttonsContainer = getView().findViewById(R.id.buttons_container);
         if (buttonsContainer != null) buttonsContainer.setVisibility(showSearch ? View.GONE : View.VISIBLE);
-        if (showSearch && searchView != null) { searchView.setIconified(false); searchView.requestFocus(); }
+        View exercisesHeader = getView().findViewById(R.id.exercises_header);
+        if (exercisesHeader != null) exercisesHeader.setVisibility(showSearch ? View.GONE : View.VISIBLE);
+        View nameCard = getView().findViewById(R.id.name_card);
+        if (nameCard != null) nameCard.setVisibility(showSearch ? View.GONE : View.VISIBLE);
+        View header = getView().findViewById(R.id.header);
+        if (header != null) header.setVisibility(showSearch ? View.GONE : View.VISIBLE);
+        if (showSearch && searchEditText != null) {
+            searchEditText.requestFocus();
+        }
     }
 
     /**
@@ -425,9 +457,11 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             }
         });
         trainingViewModel.getErrorMessage().observe(getViewLifecycleOwner(), error -> {
-            if (error != null && !error.isEmpty()) Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
+            if (error != null && !error.isEmpty())
+                Toast.makeText(getContext(), error, Toast.LENGTH_LONG).show();
         });
-        if (trainingId != null && routineId != null) trainingViewModel.loadRoutineForEdit(trainingId, routineId);
+        if (trainingId != null && routineId != null)
+            trainingViewModel.loadRoutineForEdit(trainingId, routineId);
     }
 
     /**
@@ -435,8 +469,11 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
      */
     private void saveChanges() {
         Routine routine = trainingViewModel.getEditableRoutine().getValue();
-        trainingViewModel.updateRoutine(routine);
-        Toast.makeText(getContext(), "Salvato", Toast.LENGTH_SHORT).show();
+        if (routine != null) {
+            trainingViewModel.updateRoutine(routine);
+            trainingViewModel.clearEditableRoutine();
+            NavHostFragment.findNavController(this).popBackStack();
+        }
     }
 
     /**
@@ -464,9 +501,13 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
      */
     @Override public void onDeleteExercise(int position) {
         Routine routine = trainingViewModel.getEditableRoutine().getValue();
-        if(routine == null) return;
-        new AlertDialog.Builder(requireContext()).setTitle("Elimina").setMessage("Eliminare " + routine.getWorkoutExercises().get(position).getExerciseName() + "?")
-                .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteExerciseFromRoutine(position)).setNegativeButton("Annulla", null).show();
+        if (routine == null) return;
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.delete)
+                .setMessage(getString(R.string.delete_exercise_confirm, routine.getWorkoutExercises().get(position).getExerciseName()))
+                .setPositiveButton(R.string.delete, (dialog, which) -> trainingViewModel.deleteExerciseFromRoutine(position))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 
     /**
@@ -499,7 +540,11 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
      * @param setPos The index of the set.
      */
     @Override public void onSetDeleted(int exPos, int setPos) {
-        new AlertDialog.Builder(requireContext()).setTitle("Elimina Serie").setMessage("Eliminare questa serie?")
-                .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteSetFromExercise(exPos, setPos)).setNegativeButton("Annulla", null).show();
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.delete_set_title)
+                .setMessage(R.string.delete_set_confirm)
+                .setPositiveButton(R.string.delete, (dialog, which) -> trainingViewModel.deleteSetFromExercise(exPos, setPos))
+                .setNegativeButton(R.string.cancel, null)
+                .show();
     }
 }

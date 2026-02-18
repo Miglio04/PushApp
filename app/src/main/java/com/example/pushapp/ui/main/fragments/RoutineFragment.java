@@ -1,6 +1,12 @@
 package com.example.pushapp.ui.main.fragments;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -11,17 +17,13 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
-
 import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.adapter.RoutineCardAdapter;
+import com.example.pushapp.utils.DeleteDialogHelper;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.viewModels.WorkoutViewModel;
@@ -41,6 +43,9 @@ public class RoutineFragment extends Fragment {
     private WorkoutViewModel workoutViewModel;
     private RoutineCardAdapter adapter;
     private Training currentTraining;
+    private TextView headerTitle;
+    private View emptyStateContainer;
+    private RecyclerView recyclerView;
 
     public RoutineFragment() {
 
@@ -86,7 +91,15 @@ public class RoutineFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_training_days);
+
+        headerTitle = view.findViewById(R.id.header_title);
+        emptyStateContainer = view.findViewById(R.id.empty_state_container);
+        recyclerView = view.findViewById(R.id.recycler_training_days);
+
+        view.findViewById(R.id.btn_back).setOnClickListener(v ->
+            NavHostFragment.findNavController(this).popBackStack()
+        );
+
         setupRecyclerView(recyclerView);
         observeViewModel();
 
@@ -120,14 +133,29 @@ public class RoutineFragment extends Fragment {
                 for (Training training : trainingsList) {
                     if (trainingId.equals(training.getTrainingId())) {
                         currentTraining = training;
-                        adapter.updateCards(training.getRoutinesList());
+
+                        if (headerTitle != null && training.getName() != null) {
+                            headerTitle.setText(training.getName());
+                        }
+
+                        List<Routine> routines = training.getRoutinesList();
+                        adapter.updateCards(routines);
+                        updateEmptyState(routines == null || routines.isEmpty());
                         break;
                     }
                 }
             } else if (trainings instanceof Result.Error) {
                 Toast.makeText(getContext(), "Error retrieving trainings: " + ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
+                updateEmptyState(true);
             }
         });
+    }
+
+    private void updateEmptyState(boolean isEmpty) {
+        if (emptyStateContainer != null && recyclerView != null) {
+            emptyStateContainer.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        }
     }
 
     /**
@@ -165,14 +193,13 @@ public class RoutineFragment extends Fragment {
      * @param routine The routine to be deleted.
      */
     private void handleDeleteRoutine(Routine routine){
-        if (getView() != null && routine.getRoutineId() != null) {
-            new AlertDialog.Builder(requireContext())
-                    .setTitle("Delete Routine")
-                    .setMessage("Are you sure you want to delete this routine?")
-                    .setPositiveButton("Delete", (dialog, which) ->
-                        trainingViewModel.deleteRoutine(routine)
-                    ).setNegativeButton("Cancel", null)
-                    .show();
+        if (getContext() != null && routine.getRoutineId() != null) {
+            DeleteDialogHelper.show(
+                requireContext(),
+                R.string.delete_routine_title,
+                R.string.delete_routine_message,
+                () -> trainingViewModel.deleteRoutine(routine)
+            );
         }
     }
 
