@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.pushapp.R;
-import com.example.pushapp.models.Result;
 import com.example.pushapp.ui.main.MainActivity;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
@@ -99,8 +98,7 @@ public class LoginFragment extends Fragment {
      * @return The root view of the fragment.
      */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_login, container, false);
     }
 
@@ -133,10 +131,8 @@ public class LoginFragment extends Fragment {
         });
 
         if (tvForgotPassword != null) {
-            tvForgotPassword.setOnClickListener(v -> {
-                Navigation.findNavController(v)
-                        .navigate(R.id.action_loginFragment_to_forgotPasswordFragment);
-            });
+            tvForgotPassword.setOnClickListener(v -> Navigation.findNavController(v)
+                    .navigate(R.id.action_loginFragment_to_forgotPasswordFragment));
         }
     }
 

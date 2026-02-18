@@ -57,15 +57,6 @@ public class KpiStats {
     }
 
     /**
-     * Formats the current streak count into a display string.
-     *
-     * @return Formatted streak count text (e.g., "5 DAYS STREAK!").
-     */
-    public String getFormattedStreakCountText() {
-        return String.format(Locale.ENGLISH, "%d %s", currentStreak, (currentStreak == 1 ? "DAY STREAK!" : "DAYS STREAK!"));
-    }
-
-    /**
      * Returns a motivational message based on the current streak.
      *
      * @return Motivational message string.

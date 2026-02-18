@@ -26,9 +26,6 @@ import com.example.pushapp.ui.main.MainActivity;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Activity for collecting initial user profile information via a multi-step form.
  * Handles input validation, progress tracking, and saving user details (name, age, measurements, goals).
@@ -307,8 +304,6 @@ public class QuestionsActivity extends AppCompatActivity {
             int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
             RadioButton rbSelected = findViewById(selectedGenderId);
             String gender = rbSelected != null ? rbSelected.getText().toString() : "";
-            List<Double> weightProgress = new ArrayList<>();
-            weightProgress.add(weight);
 
             user.setName(name);
             user.setSurname(surname);

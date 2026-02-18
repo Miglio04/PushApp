@@ -170,7 +170,7 @@ public class TrainingViewModel extends ViewModel {
                         for (Routine routine : t.getRoutinesList()) {
                             if (routineId.equals(routine.getRoutineId())) {
                                 Routine routineTemp = new Routine(routine);
-                                editableRoutine.setValue(routineTemp); // Pubblica il giorno reale
+                                editableRoutine.setValue(routineTemp);
                                 isLoading.setValue(false);
                                 return;
                             }
@@ -296,7 +296,6 @@ public class TrainingViewModel extends ViewModel {
      */
     private List<Serie> createDefaultSeries() {
         List<Serie> series = new ArrayList<>();
-        // Crea 4 serie di default
         for (int i = 0; i < 4; i++) {
             Serie defaultSet = new Serie();
             defaultSet.setTargetWeight(10.0);
@@ -416,7 +415,6 @@ public class TrainingViewModel extends ViewModel {
         if (routine != null && routine.getWorkoutExercises() != null) {
             if (exercisePosition < routine.getWorkoutExercises().size()) {
 
-                // Crea una nuova lista di esercizi per forzare l'aggiornamento della UI
                 List<WorkoutExercise> updatedExercises = new ArrayList<>(routine.getWorkoutExercises());
                 WorkoutExercise workoutExercise = updatedExercises.get(exercisePosition);
 
@@ -425,7 +423,6 @@ public class TrainingViewModel extends ViewModel {
                     serie.setTargetWeight(newWeight);
                     serie.setTargetReps(newReps);
 
-                    // Aggiorna la lista nella routine e notifica
                     routine.setWorkoutExercises(updatedExercises);
                     editableRoutine.setValue(routine);
                 }
@@ -444,14 +441,12 @@ public class TrainingViewModel extends ViewModel {
         if (routine != null && routine.getWorkoutExercises() != null) {
             if (exercisePosition < routine.getWorkoutExercises().size()) {
 
-                // Crea una nuova lista di esercizi per forzare l'aggiornamento della UI
                 List<WorkoutExercise> updatedExercises = new ArrayList<>(routine.getWorkoutExercises());
                 WorkoutExercise workoutExercise = updatedExercises.get(exercisePosition);
 
                 if (workoutExercise.getSeries() != null && setPosition < workoutExercise.getSeries().size()) {
                     workoutExercise.getSeries().remove(setPosition);
 
-                    // Aggiorna la lista nella routine e notifica
                     routine.setWorkoutExercises(updatedExercises);
                     editableRoutine.setValue(routine);
                 }
