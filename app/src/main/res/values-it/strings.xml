@@ -88,6 +88,7 @@
     <string name="goals">Obiettivi</string>
     <string name="notifications">Notifiche</string>
     <string name="theme">Tema</string>
+    <string name="change_theme">Cambia Tema</string>
     <string name="detail_email">Email: %1$s</string>
     <string name="detail_gender">Genere: %1$s</string>
     <string name="detail_age">Età: %1$d</string>
@@ -133,4 +134,5 @@
     <string name="what_is_your_target_weight">Qual\'è il tuo peso obiettivo?</string>
     <string name="target_weight_kg">Peso obiettivo (kg)</string>
     <string name="please_enter_your_goal_weight">Inserisci il tuo peso obiettivo</string>
+
 </resources>

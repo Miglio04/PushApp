@@ -18,31 +18,45 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="24dp"
-            android:paddingTop="32dp"
-            android:paddingBottom="16dp">
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Statistics"
-                android:textColor="@color/md_theme_onBackground"
-                android:textSize="32sp"
-                android:fontFamily="sans-serif-black" />
+                android:layout_marginBottom="2dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Track your fitness journey and progress"
-                android:textColor="@color/md_theme_onBackground"
-                android:textSize="14sp"
-                android:alpha="0.6"
-                android:fontFamily="sans-serif-medium"
-                android:layout_marginTop="2dp"/>
+                <TextView
+                    android:id="@+id/nameTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:drawablePadding="8dp"
+                    android:text="@string/trattino"
+                    android:textColor="@color/md_theme_onBackground"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    app:drawableStartCompat="@drawable/outline_local_fire_department_24"
+                    app:drawableTint="@color/md_theme_primary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/subTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/ready_to_train"
+                    android:textColor="@color/md_theme_onBackground_mediumContrast"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/nameTitle" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="2dp"
                 android:orientation="horizontal"
                 android:weightSum="3">
 
@@ -120,7 +134,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="16dp"
-            android:paddingBottom="100dp">
+            android:paddingBottom="24dp">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -190,6 +204,36 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp">
+                <TextView
+                    android:id="@+id/tvPhrase1"
+                    android:gravity="center"
+                    android:text="@string/push_yourself_because_no_none_else_will"
+                    android:textColor="@color/md_theme_onBackground"
+                    android:shadowColor="@color/md_theme_primary"
+                    android:shadowDx="0"
+                    android:shadowDy="0"
+                    android:shadowRadius="50"
+                    android:textStyle="bold"
+                    android:textSize="22sp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvPhrase2"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/consistency_beats_talent"
+                android:textColor="@color/md_theme_onBackground_mediumContrast"
+                android:textSize="14sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -228,6 +272,8 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
+
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
@@ -265,18 +311,18 @@
             <TextView android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Weight Progress (kg)"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/md_theme_primary"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"/>
             <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="200dp"
                 android:layout_marginTop="8dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="#1A000000"
+                app:strokeColor="@color/md_theme_outlineVariant"
                 app:cardBackgroundColor="@color/md_theme_surfaceContainer">
                 <com.github.mikephil.charting.charts.LineChart android:id="@+id/chartLoad"
                     android:layout_width="match_parent"
@@ -287,18 +333,18 @@
             <TextView android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Total Repetitions"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/md_theme_primary"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"/>
             <com.google.android.material.card.MaterialCardView android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="200dp"
                 android:layout_marginTop="8dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="0dp"
                 app:strokeWidth="1dp"
-                app:strokeColor="#1A000000"
+                app:strokeColor="@color/md_theme_outlineVariant"
                 app:cardBackgroundColor="@color/md_theme_surfaceContainer">
                 <com.github.mikephil.charting.charts.LineChart android:id="@+id/chartReps"
                     android:layout_width="match_parent"

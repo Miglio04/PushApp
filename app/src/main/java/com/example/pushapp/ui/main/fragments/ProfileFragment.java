@@ -79,17 +79,12 @@ public class ProfileFragment extends Fragment {
     private void initializeViews(View view) {
         profileInitial = view.findViewById(R.id.profileInitial);
         profileFullName = view.findViewById(R.id.profileFullName);
-        profileEmailTop = view.findViewById(R.id.profileEmailTop);
 
         tvDetailEmail = view.findViewById(R.id.tvDetailEmail);
         tvDetailGender = view.findViewById(R.id.tvDetailGender);
         tvDetailAge = view.findViewById(R.id.tvDetailAge);
         tvDetailHeight = view.findViewById(R.id.tvDetailHeight);
         tvDetailWeight = view.findViewById(R.id.tvDetailWeight);
-
-        txtKpiWorkouts = view.findViewById(R.id.txtKpiWorkouts);
-        txtKpiStreak = view.findViewById(R.id.txtKpiStreak);
-        txtKpiVolume = view.findViewById(R.id.txtKpiVolume);
 
         btnLogout = view.findViewById(R.id.btnLogout);
         btnToggleTheme = view.findViewById(R.id.btnToggleTheme);

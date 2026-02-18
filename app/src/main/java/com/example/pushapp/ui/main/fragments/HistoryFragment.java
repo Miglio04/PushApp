@@ -22,6 +22,8 @@ import com.example.pushapp.adapter.HistoryAdapter;
 import com.example.pushapp.models.roomModels.helpers.HistorySessionWithExercises;
 import com.example.pushapp.viewModels.HistoryViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import java.util.ArrayList;
@@ -33,8 +35,9 @@ import java.util.ArrayList;
 public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistoryInteractionListener {
     private HistoryViewModel historyViewModel;
     private HistoryAdapter historyAdapter;
-    private TextView emptyStateText;
+    private View emptyStateContainer;
     private TextInputEditText searchEditText;
+    private ChipGroup filterChipGroup;
 
     /**
      * Initializes the HistoryViewModel.
@@ -71,11 +74,10 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        emptyStateText = view.findViewById(R.id.history_empty_state_text);
+        emptyStateContainer = view.findViewById(R.id.empty_state_container);
         searchEditText = view.findViewById(R.id.search_edit_text);
+        filterChipGroup = view.findViewById(R.id.filter_chip_group);
         RecyclerView rv = view.findViewById(R.id.history_recycler_view);
-
-        emptyStateText.setText("No history found");
 
         historyAdapter = new HistoryAdapter(new ArrayList<>(), this);
         rv.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -83,6 +85,7 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
 
         observeData();
         initSearch();
+        initFilters();
     }
 
     /**
@@ -123,7 +126,7 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
     private void observeData() {
         historyViewModel.getHistorySessions().observe(getViewLifecycleOwner(), sessions -> {
             historyAdapter.updateHistory(sessions);
-            emptyStateText.setVisibility(sessions.isEmpty() ? View.VISIBLE : View.GONE);
+            emptyStateContainer.setVisibility(sessions.isEmpty() ? View.VISIBLE : View.GONE);
         });
     }
 
@@ -138,6 +141,24 @@ public class HistoryFragment extends Fragment implements HistoryAdapter.OnHistor
                 historyViewModel.searchHistory(s.toString());
             }
             @Override public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void initFilters() {
+        filterChipGroup.setOnCheckedStateChangeListener((group, checkedIds) -> {
+            if (checkedIds.isEmpty()) {
+                historyViewModel.filterByPeriod(HistoryViewModel.FilterPeriod.ALL);
+                return;
+            }
+
+            int checkedId = checkedIds.get(0);
+            if (checkedId == R.id.chip_all) {
+                historyViewModel.filterByPeriod(HistoryViewModel.FilterPeriod.ALL);
+            } else if (checkedId == R.id.chip_week) {
+                historyViewModel.filterByPeriod(HistoryViewModel.FilterPeriod.THIS_WEEK);
+            } else if (checkedId == R.id.chip_month) {
+                historyViewModel.filterByPeriod(HistoryViewModel.FilterPeriod.THIS_MONTH);
+            }
         });
     }
 }
