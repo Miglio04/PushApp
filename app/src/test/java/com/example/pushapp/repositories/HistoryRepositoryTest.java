@@ -205,10 +205,10 @@ public class HistoryRepositoryTest {
         routine.setUserId("user_123");
 
         List<WorkoutExercise> exercises = new ArrayList<>();
-        WorkoutExercise ex = new WorkoutExercise("Bench Press", 0);
+        WorkoutExercise ex = new WorkoutExercise("Bench Press");
         List<Serie> series = new ArrayList<>();
-        series.add(new Serie(1, 10, 50.0));
-        series.add(new Serie(2, 8, 55.0));
+        series.add(new Serie(10, 50.0));
+        series.add(new Serie(8, 55.0));
         ex.setSeries(series);
         exercises.add(ex);
         routine.setWorkoutExercises(exercises);
