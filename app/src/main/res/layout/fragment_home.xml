@@ -332,7 +332,7 @@
 
             <TextView android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/total_repetitions"
+                android:text="@string/total_volume"
                 android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/md_theme_primary"
