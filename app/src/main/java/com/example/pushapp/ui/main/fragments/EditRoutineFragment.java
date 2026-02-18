@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +51,7 @@ import java.util.List;
 
 public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.OnExerciseInteractionListener {
 
+    private static final String TAG = "EditRoutineFragment";
     private String routineId;
     private String trainingId;
     private TrainingViewModel trainingViewModel;
@@ -150,8 +152,16 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     private void setupBackButtonHandler() {
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
-                if (searchPanel != null && searchPanel.getVisibility() == View.VISIBLE) toggleSearchPanel(false);
-                else { setEnabled(false); if (isAdded()) NavHostFragment.findNavController(EditRoutineFragment.this).popBackStack(); }
+                if (searchPanel != null && searchPanel.getVisibility() == View.VISIBLE) {
+                    toggleSearchPanel(false);
+                }
+                else {
+                    setEnabled(false);
+                    if (isAdded()) {
+                        NavHostFragment.findNavController(EditRoutineFragment.this).popBackStack();
+
+                    }
+                }
             }
         });
     }
@@ -373,6 +383,4 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         new AlertDialog.Builder(requireContext()).setTitle("Elimina Serie").setMessage("Eliminare questa serie?")
                 .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteSetFromExercise(exPos, setPos)).setNegativeButton("Annulla", null).show();
     }
-
-
 }
