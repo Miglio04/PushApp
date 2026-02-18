@@ -31,6 +31,7 @@ public class ServiceLocator {
 
     private volatile TrainingRemoteDataSource trainingRemoteDataSource = null;
     private volatile ExerciseAPIDataSource exerciseAPIDataSource = null;
+    private volatile ExerciseSampleDataSource exerciseSampleDataSource = null;
     private volatile UserRemoteDataSource userRemoteDataSource = null;
     private volatile SessionRemoteDataSource sessionRemoteDataSource = null;
     private volatile HistoryRemoteDataSource historyRemoteDataSource = null;
@@ -78,6 +79,7 @@ public class ServiceLocator {
             exerciseRepository = new ExerciseRepository(
                     getExerciseLocalDataSource(context),
                     getExerciseAPIDataSource(),
+                    getExerciseSampleDataSource(),
                     getSessionManager(context)
             );
         }
@@ -231,6 +233,18 @@ public class ServiceLocator {
             exerciseAPIDataSource = new ExerciseAPIDataSource();
         }
         return exerciseAPIDataSource;
+    }
+
+    /**
+     * Returns the ExerciseSampleDataSource instance.
+     *
+     * @return The ExerciseSampleDataSource instance.
+     */
+    public synchronized ExerciseSampleDataSource getExerciseSampleDataSource() {
+        if(exerciseSampleDataSource == null){
+            exerciseSampleDataSource = new ExerciseSampleDataSource();
+        }
+        return exerciseSampleDataSource;
     }
 
     /**
