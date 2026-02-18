@@ -174,6 +174,14 @@ public class WorkoutState {
         }
         return false;
     }
+
+    /**
+     * Finds and returns a specific HistorySerie based on exercise and set position.
+     *
+     * @param exercisePosition The index of the exercise.
+     * @param setPosition      The index of the set.
+     * @return The HistorySerie at the specified position, or null if not found.
+     */
     private HistorySerie findSerie(int exercisePosition, int setPosition) {
         if (currentSession == null || currentSession.exercises == null || exercisePosition < 0 || exercisePosition >= currentSession.exercises.size()) {
             return null;

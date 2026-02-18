@@ -85,6 +85,9 @@ public class HistoryViewModel extends ViewModel {
         fetchHistory();
     }
 
+    /**
+     * Returns the LiveData containing the list of history sessions.
+     */
     public LiveData<List<HistorySessionWithExercises>> getHistorySessions() { return historySessions; }
 
     /**
@@ -136,16 +139,29 @@ public class HistoryViewModel extends ViewModel {
         repository.fetchHistoryData();
     }
 
+    /**
+     * Searches the history list by the given query string.
+     *
+     * @param query The search query string.
+     */
     public void searchHistory(String query) {
         this.currentSearchQuery = (query != null) ? query : "";
         applyFilters();
     }
 
+    /**
+     * Filters the history by the specified time period.
+     *
+     * @param period The filter period (ALL, THIS_WEEK, THIS_MONTH).
+     */
     public void filterByPeriod(FilterPeriod period) {
         this.currentFilter = period;
         applyFilters();
     }
 
+    /**
+     * Applies current search query and period filters to the history list.
+     */
     private void applyFilters() {
         if (fullHistoryList == null) {
             return;

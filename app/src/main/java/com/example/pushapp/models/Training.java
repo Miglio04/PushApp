@@ -61,6 +61,13 @@ public class Training implements Serializable {
         this.createdAt = System.currentTimeMillis();
     }
 
+    /**
+     * Constructs a new Training plan with details and routines.
+     *
+     * @param name         The name of the training plan.
+     * @param description  A description of the plan.
+     * @param routinesList The list of routines in the plan.
+     */
     @Ignore
     public Training(String name, String description, ArrayList<Routine> routinesList) {
         this.trainingId = UUID.randomUUID().toString();

@@ -64,6 +64,11 @@ public class Routine implements Serializable {
         this.createdAt = System.currentTimeMillis();
     }
 
+    /**
+     * Copy constructor. Creates a new Routine from an existing one.
+     *
+     * @param routine The routine to copy.
+     */
     @Ignore
     public Routine(Routine routine) {
         this.trainingId = routine.getTrainingId();

@@ -205,7 +205,7 @@ public class HomeFragment extends Fragment {
             spinnerNames.add("No Data");
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_dropdown_item_1line, spinnerNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.item_exercise_dropdown, spinnerNames);
         exerciseSpinner.setAdapter(adapter);
         exerciseSpinner.setOnClickListener(v -> exerciseSpinner.showDropDown());
         exerciseSpinner.setOnItemClickListener((parent, view, position, id) -> {
