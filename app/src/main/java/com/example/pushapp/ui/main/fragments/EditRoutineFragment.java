@@ -5,6 +5,7 @@ import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,6 +54,7 @@ import java.util.List;
  */
 public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.OnExerciseInteractionListener {
 
+    private static final String TAG = "EditRoutineFragment";
     private String routineId;
     private String trainingId;
     private TrainingViewModel trainingViewModel;

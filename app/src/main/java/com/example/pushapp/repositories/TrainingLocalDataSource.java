@@ -13,6 +13,8 @@ import com.example.pushapp.models.roomModels.helpers.TrainingWithRoutines;
 import com.example.pushapp.models.roomModels.helpers.WorkoutExerciseWithSeries;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -70,6 +72,7 @@ public class TrainingLocalDataSource {
                 for (TrainingWithRoutines twr : trainingsWithRoutines) {
                     Training training = twr.training;
                     List<Routine> routines = twr.routines != null ? twr.routines : new ArrayList<>();
+                    Collections.sort(routines, Comparator.comparing(routine -> routine.getCreatedAt()));
                     if (!routines.isEmpty()) {
                         for (Routine routine : routines) {
                             List<WorkoutExerciseWithSeries> exercisesWithSeries =
@@ -281,13 +284,11 @@ public class TrainingLocalDataSource {
      * @param routine The Routine object with updated data.
      */
     public void updateRoutine(Routine routine){
-        LocalDatabase.databaseWriteExecutor.execute(() ->
-            localDatabase.runInTransaction(() -> {
-                try {
+        LocalDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                localDatabase.runInTransaction(() -> {
                     routineDao.delete(routine);
-
                     routineDao.insert(routine);
-
                     if (routine.getWorkoutExercises() != null) {
                         for (WorkoutExercise workoutExercise : routine.getWorkoutExercises()) {
                             workoutExercise.setRoutineId(routine.getRoutineId());
@@ -301,11 +302,12 @@ public class TrainingLocalDataSource {
                             }
                         }
                     }
-                    trainingCallback.onSuccessFromLocalRoutineUpdate(routine);
-                } catch (Exception e) {
-                    trainingCallback.onFailureFromLocal(e);
+                });
+                trainingCallback.onSuccessFromLocalRoutineUpdate(routine);
+            } catch (Exception e) {
+                trainingCallback.onFailureFromLocal(e);
                 }
-        }));
+            });
     }
 
     /**
