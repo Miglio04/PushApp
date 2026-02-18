@@ -54,16 +54,18 @@ public class UserViewModel extends ViewModel {
     }
 
     /**
-     * Loads the authenticated user's profile data from the repository after a successful login.
-     * Updates loading state during the process.
+     * Loads the authenticated user's profile data from the repository.
+     * Gets current user from Firebase Auth and fetches their data.
      */
     public void fetchUser() {
         isLoading.setValue(true);
 
-        sessionRepository.getSessionUser();
-        Result result = sessionLiveData.getValue();
-        if(result instanceof Result.SessionSuccess){
-            userRepository.fetchUserById(((Result.SessionSuccess) result).getData().getUserId());
+        // Get user directly from Firebase Auth
+        com.google.firebase.auth.FirebaseUser firebaseUser =
+            com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+
+        if (firebaseUser != null) {
+            userRepository.fetchUserById(firebaseUser.getUid());
         }
 
         isLoading.setValue(false);
@@ -86,6 +88,16 @@ public class UserViewModel extends ViewModel {
      */
     public void signInWithGoogle(String idToken){
         sessionRepository.signInWithGoogle(idToken);
+    }
+
+    /**
+     * Attempts login only with Google (does not register new users).
+     * If user is not registered, returns GoogleUserNotRegistered error.
+     *
+     * @param idToken The ID token obtained from Google Sign-In.
+     */
+    public void loginOnlyWithGoogle(String idToken) {
+        sessionRepository.loginOnlyWithGoogle(idToken);
     }
 
     /**
@@ -116,6 +128,15 @@ public class UserViewModel extends ViewModel {
      */
     public void updateCurrentUser(User user){
         userRepository.updateUser(user);
+    }
+
+    /**
+     * Inserts a new user into the database.
+     *
+     * @param user The new User object to insert.
+     */
+    public void insertUser(User user){
+        userRepository.insertUser(user);
     }
 
     /**

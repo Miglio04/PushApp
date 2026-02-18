@@ -1,13 +1,13 @@
 package com.example.pushapp.adapter;
 
 import android.content.Context;
-import android.text.InputType;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pushapp.R;
 import com.example.pushapp.models.Serie;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.List;
 
@@ -125,40 +126,44 @@ public class SetsAdapter extends RecyclerView.Adapter<SetsAdapter.SetViewHolder>
      * @param position The position of the set in the adapter.
      */
     private void showEditDialog(Context context, Serie serie, int position) {
-        LinearLayout layout = new LinearLayout(context);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 40, 50, 10);
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_edit_set, null);
+        builder.setView(dialogView);
 
-        final EditText inputWeight = new EditText(context);
-        inputWeight.setHint("Peso (kg)");
-        inputWeight.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        inputWeight.setText(String.valueOf(serie.getTargetWeight())); // Usa getTargetWeight
-        layout.addView(inputWeight);
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
 
-        final EditText inputReps = new EditText(context);
-        inputReps.setHint("Ripetizioni");
-        inputReps.setInputType(InputType.TYPE_CLASS_NUMBER);
-        inputReps.setText(String.valueOf(serie.getTargetReps())); // Usa getTargetReps
-        layout.addView(inputReps);
+        TextInputEditText etWeight = dialogView.findViewById(R.id.etWeight);
+        TextInputEditText etReps = dialogView.findViewById(R.id.etReps);
+        Button btnSave = dialogView.findViewById(R.id.btnSave);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
 
-        new AlertDialog.Builder(context)
-                .setTitle(context.getString(R.string.edit_set_title))
-                .setView(layout)
-                .setPositiveButton(context.getString(R.string.confirm), (dialog, which) -> {
-                    try {
-                        double newWeight = Double.parseDouble(inputWeight.getText().toString());
-                        int newReps = Integer.parseInt(inputReps.getText().toString());
+        etWeight.setText(String.valueOf(serie.getTargetWeight()));
+        etReps.setText(String.valueOf(serie.getTargetReps()));
 
-                        if (listener != null) {
-                            listener.onSetUpdated(position, newWeight, newReps);
-                        }
+        btnSave.setOnClickListener(v -> {
+            try {
+                String weightStr = etWeight.getText() != null ? etWeight.getText().toString() : "";
+                String repsStr = etReps.getText() != null ? etReps.getText().toString() : "";
 
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(context, context.getString(R.string.invalid_input), Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .setNegativeButton(context.getString(R.string.cancel), null)
-                .show();
+                double newWeight = Double.parseDouble(weightStr);
+                int newReps = Integer.parseInt(repsStr);
+
+                if (listener != null) {
+                    listener.onSetUpdated(position, newWeight, newReps);
+                }
+                dialog.dismiss();
+
+            } catch (NumberFormatException e) {
+                Toast.makeText(context, context.getString(R.string.invalid_input), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     /**

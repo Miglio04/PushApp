@@ -158,12 +158,18 @@ public class RegisterFragment extends Fragment {
     }
 
     /**
-     * Observes session LiveData for registration errors.
+     * Observes session LiveData for registration success or errors.
+     * On successful Google registration, shows success dialog to proceed to questions.
      */
     public void observeSessionLiveData(){
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
            if(result == null) return;
-           if (result.isRegistrationError()) {
+           if (result.isSessionSuccess()) {
+               // Google registration successful, show success dialog
+               showLoading(false, null);
+               showSuccessDialog();
+               userViewModel.clearSessionLiveData();
+           } else if (result.isRegistrationError()) {
                showLoading(false, null);
                Result.Error.RegistrationError error = (Result.Error.RegistrationError) result;
                Toast.makeText(requireContext(), "Registration error: " + error.getMessage(), Toast.LENGTH_LONG).show();

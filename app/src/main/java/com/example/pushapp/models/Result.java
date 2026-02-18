@@ -34,6 +34,7 @@ public abstract class Result {
     public boolean isForgotPasswordSuccess() { return this instanceof PasswordResetSuccess; }
     public boolean isLoginError(){ return this instanceof Error.LoginError; }
     public boolean isExerciseError() { return this instanceof Error.ExerciseError; }
+    public boolean isGoogleUserNotRegistered() { return this instanceof Error.GoogleUserNotRegistered; }
 
     /**
      * Success result containing a list of Trainings.
@@ -184,6 +185,19 @@ public abstract class Result {
          */
         public static final class ExerciseError extends Error {
             public ExerciseError(String message) { super(message); }
+        }
+
+        /**
+         * Error type for Google user not registered.
+         * Used when user tries to login with Google but is not registered.
+         */
+        public static final class GoogleUserNotRegistered extends Error {
+            private final SessionUser sessionUser;
+            public GoogleUserNotRegistered(String message, SessionUser sessionUser) {
+                super(message);
+                this.sessionUser = sessionUser;
+            }
+            public SessionUser getSessionUser() { return sessionUser; }
         }
     }
 }

@@ -107,7 +107,7 @@
     <string name="push_yourself_because_no_none_else_will">Push yourself, because no\none else will</string>
     <string name="consistency_beats_talent">Consistency beats talent</string>
     <string name="logout" translatable="false">Logout</string>
-    <string name="step_1_of_5">Step 1 of 5</string>
+    <string name="step_1_of_5">Step 1 of 4</string>
     <string name="_20" translatable="false">20%</string>
     <string name="welcome">Welcome!</string>
     <string name="let_s_get_to_know_you_better_what_s_your_name">Let\'s get to know you better. What\'s your name?</string>
@@ -313,5 +313,8 @@
     <string name="done">Done</string>
     <string name="delete_exercise_title">Delete Exercise</string>
     <string name="delete_exercise_confirm">Are you sure you want to delete %1$s?</string>
+
+    <string name="you_re_all_set">You\'re All Set!</string>
+    <string name="profile_setup_complete">Your profile is ready. Let\'s start your fitness journey!</string>
 
 </resources>

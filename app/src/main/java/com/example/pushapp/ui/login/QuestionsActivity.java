@@ -36,13 +36,13 @@ public class QuestionsActivity extends AppCompatActivity {
     private TextView tvStepCounter, tvProgressPercentage;
     private Button btnBack, btnNext;
 
-    private EditText etName, etSurname, etAge, etWeight, etHeight, etGoalWeight;
-    private TextView tvNameError, tvSurnameError, tvAgeError, tvWeightError, tvHeightError, tvGoalError;
+    private EditText etName, etSurname, etAge, etWeight, etHeight;
+    private TextView tvNameError, tvSurnameError, tvAgeError, tvWeightError, tvHeightError;
     private RadioGroup radioGroupGender;
     private TextView tvGenderError;
 
     private int currentStep = 0;
-    private final int TOTAL_STEPS = 5;
+    private final int TOTAL_STEPS = 4;
 
     private UserViewModel userViewModel;
 
@@ -96,9 +96,6 @@ public class QuestionsActivity extends AppCompatActivity {
         etHeight = findViewById(R.id.etHeight);
         tvWeightError = findViewById(R.id.tvWeightError);
         tvHeightError = findViewById(R.id.tvHeightError);
-
-        etGoalWeight = findViewById(R.id.etGoalWeight);
-        tvGoalError = findViewById(R.id.tvGoalError);
     }
 
     /**
@@ -165,7 +162,6 @@ public class QuestionsActivity extends AppCompatActivity {
             case 1: return validateStep2_Gender();
             case 2: return validateStep3_Age();
             case 3: return validateStep4_Measurements();
-            case 4: return validateStep5_Goal();
             default: return true;
         }
     }
@@ -232,18 +228,6 @@ public class QuestionsActivity extends AppCompatActivity {
         return isValid;
     }
 
-    /**
-     * Validates Step 5: Goal weight input.
-     * @return true if valid.
-     */
-    private boolean validateStep5_Goal() {
-        String goalStr = etGoalWeight.getText().toString();
-        if (TextUtils.isEmpty(goalStr) || Double.parseDouble(goalStr) < 20) {
-            showError(etGoalWeight, tvGoalError, getString(R.string.please_target_weight));
-            return false;
-        }
-        return true;
-    }
 
     /**
      * Displays an error message for a specific input field and highlights it.
@@ -278,9 +262,6 @@ public class QuestionsActivity extends AppCompatActivity {
         if(tvWeightError!=null) tvWeightError.setVisibility(View.GONE);
         if(etHeight!=null) etHeight.setBackgroundResource(R.drawable.bg_input_outline);
         if(tvHeightError!=null) tvHeightError.setVisibility(View.GONE);
-
-        if(etGoalWeight!=null) etGoalWeight.setBackgroundResource(R.drawable.bg_input_outline);
-        if(tvGoalError!=null) tvGoalError.setVisibility(View.GONE);
     }
 
     /**
@@ -290,31 +271,38 @@ public class QuestionsActivity extends AppCompatActivity {
 
         btnNext.setEnabled(false);
 
-        Result result = userViewModel.getUserLiveData().getValue();
+        // Get current Firebase user
+        com.google.firebase.auth.FirebaseUser firebaseUser =
+            com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
 
-        if(result == null) return;
-        if(result.isUserSuccess()){
-            User user = ((Result.UserSuccess) result).getData();
-            String name = etName.getText().toString().trim();
-            String surname = etSurname.getText().toString().trim();
-            int age = Integer.parseInt(etAge.getText().toString().trim());
-            double weight = Double.parseDouble(etWeight.getText().toString().trim());
-            int height = Integer.parseInt(etHeight.getText().toString().trim());
-
-            int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
-            RadioButton rbSelected = findViewById(selectedGenderId);
-            String gender = rbSelected != null ? rbSelected.getText().toString() : "";
-
-            user.setName(name);
-            user.setSurname(surname);
-            user.setAge(age);
-            user.setGender(gender);
-            user.setWeight(weight);
-            user.setHeight(height);
-
-            userViewModel.updateCurrentUser(user);
-            showProfileCompletedDialog();
+        if (firebaseUser == null) {
+            btnNext.setEnabled(true);
+            return;
         }
+
+        String name = etName.getText().toString().trim();
+        String surname = etSurname.getText().toString().trim();
+        int age = Integer.parseInt(etAge.getText().toString().trim());
+        double weight = Double.parseDouble(etWeight.getText().toString().trim());
+        int height = Integer.parseInt(etHeight.getText().toString().trim());
+
+        int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
+        RadioButton rbSelected = findViewById(selectedGenderId);
+        String gender = rbSelected != null ? rbSelected.getText().toString() : "";
+
+        // Create user with Firebase data
+        User user = new User(firebaseUser.getUid(), firebaseUser.getEmail());
+        user.setName(name);
+        user.setSurname(surname);
+        user.setAge(age);
+        user.setGender(gender);
+        user.setWeight(weight);
+        user.setHeight(height);
+
+        // Always insert - it will update if exists
+        userViewModel.insertUser(user);
+
+        showProfileCompletedDialog();
     }
 
     /**

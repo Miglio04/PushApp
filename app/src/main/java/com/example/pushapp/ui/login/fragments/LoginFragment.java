@@ -54,7 +54,7 @@ public class LoginFragment extends Fragment {
                     Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
                     try {
                         GoogleSignInAccount account = task.getResult(ApiException.class);
-                        userViewModel.signInWithGoogle(account.getIdToken());
+                        userViewModel.loginOnlyWithGoogle(account.getIdToken());
                     } catch (ApiException e) {
                         Toast.makeText(requireContext(), "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         hideLoading();
@@ -147,6 +147,9 @@ public class LoginFragment extends Fragment {
             hideLoading();
             if(userId.isSessionSuccess()){
                 showLoginSuccessDialog();
+            }else if(userId.isGoogleUserNotRegistered()){
+                showUserNotFoundDialog();
+                userViewModel.clearSessionLiveData();
             }else if(userId.isRegistrationError()){
                 showUserNotFoundDialog();
                 userViewModel.clearSessionLiveData();

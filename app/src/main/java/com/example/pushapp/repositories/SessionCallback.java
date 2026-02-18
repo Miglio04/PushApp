@@ -16,4 +16,5 @@ public interface SessionCallback {
     void onSuccessFromPasswordReset(String email);
     void onFailureFromPasswordReset(Exception e);
     void onUserNotFoundFromPasswordReset(Exception e);
+    void onGoogleUserNotRegistered(SessionUser sessionUser);
 }

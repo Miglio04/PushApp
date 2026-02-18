@@ -194,14 +194,12 @@ public class RoutineFragment extends Fragment {
      */
     private void handleDeleteRoutine(Routine routine){
         if (getView() != null && routine.getRoutineId() != null) {
-            new AlertDialog.Builder(requireContext())
-                    .setTitle(getString(R.string.delete_routine_title))
-                    .setMessage(getString(R.string.delete_routine_message))
-                    .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
-                        trainingViewModel.deleteRoutine(routine);
-                    })
-                    .setNegativeButton(getString(R.string.cancel), null)
-                    .show();
+            DeleteDialogHelper.show(
+                    requireContext(),
+                    R.string.delete_routine_title,
+                    R.string.delete_routine_message,
+                    () -> trainingViewModel.deleteRoutine(routine)
+            );
         }
     }
 

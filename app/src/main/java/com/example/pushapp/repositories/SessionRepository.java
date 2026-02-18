@@ -50,6 +50,17 @@ public class SessionRepository implements SessionCallback {
     }
 
     /**
+     * Attempts login only with Google credentials (does not register new users).
+     * If user is not registered, triggers GoogleUserNotRegistered error.
+     *
+     * @param idToken The ID token obtained from Google Sign-In.
+     */
+    public void loginOnlyWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        sessionRemoteDataSource.loginOnlyWithCredentials(credential);
+    }
+
+    /**
      * Initiates sign-in using email and password.
      *
      * @param email    The user's email.
@@ -168,6 +179,17 @@ public class SessionRepository implements SessionCallback {
      */
     public void onUserNotFoundFromPasswordReset(Exception e) {
         sessionLiveData.setValue(new Result.Error.UserNotFound(e.getMessage()));
+    }
+
+    /**
+     * Callback received when Google login attempt finds user is not registered.
+     * Updates LiveData with GoogleUserNotRegistered error.
+     *
+     * @param sessionUser The session user data from Google.
+     */
+    @Override
+    public void onGoogleUserNotRegistered(SessionUser sessionUser) {
+        sessionLiveData.setValue(new Result.Error.GoogleUserNotRegistered("User not registered", sessionUser));
     }
 
     /**

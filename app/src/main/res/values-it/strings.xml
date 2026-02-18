@@ -291,9 +291,9 @@
     <string name="sets">Serie</string>
     <string name="total_volume">Volume Totale</string>
     <string name="done">Fatto</string>
-
-
     <string name="delete_exercise_title">Elimina Esercizio</string>
     <string name="delete_exercise_confirm">Sei sicuro di voler eliminare %1$s?</string>
+    <string name="you_re_all_set">Tutto Pronto!</string>
+    <string name="profile_setup_complete">Il tuo profilo è pronto. Iniziamo il tuo percorso fitness!</string>
 
 </resources>

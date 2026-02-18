@@ -117,6 +117,36 @@ public class SessionRemoteDataSource {
     }
 
     /**
+     * Attempts to login with Google credentials (login only, not registration).
+     * If the user is new (not registered), triggers onGoogleUserNotRegistered callback.
+     *
+     * @param credential The Google authentication credential.
+     */
+    public void loginOnlyWithCredentials(AuthCredential credential) {
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser firebaseUser = task.getResult().getUser();
+                        if (firebaseUser != null) {
+                            boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
+                            SessionUser sessionUser = new SessionUser(firebaseUser.getUid(), firebaseUser.getEmail());
+                            if (isNewUser) {
+                                // User is not registered, delete the created account and notify
+                                firebaseUser.delete();
+                                callback.onGoogleUserNotRegistered(sessionUser);
+                            } else {
+                                callback.onSuccessFromLogin(sessionUser);
+                            }
+                        } else {
+                            callback.onFailureFromLogin(new Exception("User is null"));
+                        }
+                    } else {
+                        callback.onFailureFromLogin(task.getException());
+                    }
+                });
+    }
+
+    /**
      * Signs out the current user from Firebase Authentication.
      */
     public void logout() {

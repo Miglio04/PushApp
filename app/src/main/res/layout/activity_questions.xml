@@ -10,7 +10,7 @@
         android:id="@+id/tvStepCounter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/step_1_of_5"
+        android:text="@string/step_of"
         android:textColor="@color/md_theme_onBackground"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -68,6 +68,7 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:src="@drawable/logo_pushapp"
+                    android:contentDescription="@string/app_icon"
                     android:layout_marginBottom="20dp"/>
 
                 <TextView
@@ -103,7 +104,10 @@
                     android:hint="@string/your_first_name"
                     android:textColorHint="@color/md_theme_onBackground_mediumContrast"
                     android:textColor="@color/md_theme_onBackground"
-                    android:paddingStart="20dp"/>
+                    android:inputType="textPersonName"
+                    android:autofillHints="name"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
                 <TextView
                     android:id="@+id/tvNameError"
                     android:layout_width="match_parent"
@@ -130,7 +134,10 @@
                     android:backgroundTint="@color/md_theme_background"
                     android:textColorHint="@color/md_theme_onBackground_mediumContrast"
                     android:textColor="@color/md_theme_onBackground"
-                    android:paddingStart="20dp"/>
+                    android:inputType="textPersonName"
+                    android:autofillHints="name"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
                 <TextView
                     android:id="@+id/tvSurnameError"
                     android:layout_width="match_parent"
@@ -175,10 +182,11 @@
                         android:layout_height="60dp"
                         android:text="@string/male"
                         android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
                         android:background="@drawable/bg_radio_selector"
                         android:backgroundTint="@color/md_theme_background"
                         android:button="@null"
-                        android:drawableRight="?android:attr/listChoiceIndicatorSingle"
+                        android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
                         android:layout_marginBottom="10dp"/>
 
                     <RadioButton
@@ -187,10 +195,11 @@
                         android:layout_height="60dp"
                         android:text="@string/female"
                         android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
                         android:background="@drawable/bg_radio_selector"
                         android:backgroundTint="@color/md_theme_background"
                         android:button="@null"
-                        android:drawableRight="?android:attr/listChoiceIndicatorSingle"
+                        android:drawableEnd="?android:attr/listChoiceIndicatorSingle"
                         android:layout_marginBottom="10dp"/>
 
                     <RadioButton
@@ -199,10 +208,11 @@
                         android:layout_height="60dp"
                         android:text="@string/prefer_not_to_say"
                         android:paddingStart="15dp"
+                        android:paddingEnd="15dp"
                         android:background="@drawable/bg_radio_selector"
                         android:backgroundTint="@color/md_theme_background"
                         android:button="@null"
-                        android:drawableRight="?android:attr/listChoiceIndicatorSingle"/>
+                        android:drawableEnd="?android:attr/listChoiceIndicatorSingle"/>
                 </RadioGroup>
                 <TextView
                     android:id="@+id/tvGenderError"
@@ -249,6 +259,7 @@
                     android:hint="@string/e_g_25"
                     android:gravity="center"
                     android:inputType="number"
+                    android:autofillHints="none"
                     android:textSize="24sp"/>
                 <TextView
                     android:id="@+id/tvAgeError"
@@ -301,7 +312,9 @@
                     android:backgroundTint="@color/md_theme_background"
                     android:hint="@string/kg"
                     android:inputType="numberDecimal"
-                    android:paddingStart="20dp"/>
+                    android:autofillHints="none"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
                 <TextView
                     android:id="@+id/tvWeightError"
                     android:layout_width="match_parent"
@@ -327,70 +340,19 @@
                     android:backgroundTint="@color/md_theme_background"
                     android:hint="@string/cm"
                     android:inputType="number"
-                    android:paddingStart="20dp"/>
+                    android:autofillHints="none"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
                 <TextView
                     android:id="@+id/tvHeightError"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/error_icon"
+                    android:text="@string/please_enter_your_height"
                     android:textColor="@color/md_theme_error"
                     android:textSize="12sp"
                     android:visibility="gone"/>
             </LinearLayout>
 
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/your_goal"
-                    android:textSize="26sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/md_theme_primary"
-                    android:layout_marginBottom="5dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/what_is_your_target_weight"
-                    android:gravity="center"
-                    android:textColor="@color/md_theme_onBackground"
-                    android:layout_marginBottom="30dp"/>
-
-                <EditText
-                    android:id="@+id/etGoalWeight"
-                    android:layout_width="match_parent"
-                    android:layout_height="65dp"
-                    android:background="@drawable/bg_input_outline"
-                    android:backgroundTint="@color/md_theme_background"
-                    android:hint="@string/target_weight_kg"
-                    android:inputType="numberDecimal"
-                    android:gravity="center"
-                    android:textSize="24sp"/>
-                <TextView
-                    android:id="@+id/tvGoalError"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/please_enter_your_goal_weight"
-                    android:textColor="@color/md_theme_error"
-                    android:textSize="12sp"
-                    android:gravity="center"
-                    android:visibility="gone"
-                    android:layout_marginTop="5dp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/you_re_ready_to_go"
-                    android:textColor="@color/md_theme_primary"
-                    android:textStyle="bold"
-                    android:layout_marginTop="30dp"/>
-            </LinearLayout>
 
         </ViewFlipper>
     </androidx.cardview.widget.CardView>
