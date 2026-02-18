@@ -1,6 +1,7 @@
 package com.example.pushapp.ui.main.fragments;
 
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,10 +9,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -23,6 +24,9 @@ import com.example.pushapp.R;
 import com.example.pushapp.adapter.WorkoutExerciseAdapter;
 import com.example.pushapp.models.Routine;
 import com.example.pushapp.models.WorkoutExercise;
+import com.example.pushapp.models.history.HistorySerie;
+import com.example.pushapp.models.roomModels.helpers.HistoryWorkoutExerciseWithSeries;
+import com.example.pushapp.utils.WorkoutState;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.viewModels.WorkoutViewModel;
 
@@ -169,11 +173,38 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
 
         stopButton.setOnClickListener(v -> {
             stopButton.setEnabled(false);
+
+            // Salva i dati del workout prima di finire
+            WorkoutState currentState = workoutViewModel.getActiveWorkoutState().getValue();
+            String duration = workoutViewModel.getFormattedTime().getValue();
+            int exerciseCount = 0;
+            int setCount = 0;
+            double totalVolume = 0;
+
+            if (currentState != null && currentState.getCurrentSession() != null
+                    && currentState.getCurrentSession().exercises != null) {
+                exerciseCount = currentState.getCurrentSession().exercises.size();
+                for (HistoryWorkoutExerciseWithSeries ex : currentState.getCurrentSession().exercises) {
+                    if (ex.historySeries != null) {
+                        for (HistorySerie serie : ex.historySeries) {
+                            if (serie.getReps() > 0) {
+                                setCount++;
+                                totalVolume += serie.getWeight() * serie.getReps();
+                            }
+                        }
+                    }
+                }
+            }
+
+            final String finalDuration = duration != null ? duration : "00:00";
+            final int finalExerciseCount = exerciseCount;
+            final int finalSetCount = setCount;
+            final double finalVolume = totalVolume;
+
             workoutViewModel.finishWorkout(() -> {
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Workout Saved! Great job 🔥", Toast.LENGTH_SHORT).show();
-                        NavHostFragment.findNavController(WorkoutFragment.this).popBackStack();
+                        showWorkoutCompleteDialog(finalDuration, finalExerciseCount, finalSetCount, finalVolume);
                     });
                 }
             });
@@ -285,5 +316,48 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         if (Boolean.TRUE.equals(workoutViewModel.isWorkoutInProgress().getValue())) {
             workoutViewModel.pauseWorkoutTimer();
         }
+    }
+
+    /**
+     * Shows a dialog with the workout completion summary.
+     *
+     * @param duration      The formatted duration string.
+     * @param exerciseCount The number of exercises performed.
+     * @param setCount      The number of sets completed.
+     * @param totalVolume   The total volume lifted in kg.
+     */
+    private void showWorkoutCompleteDialog(String duration, int exerciseCount, int setCount, double totalVolume) {
+        if (getContext() == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.dialog_workout_complete, null);
+        builder.setView(view);
+
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        dialog.setCancelable(false);
+
+        TextView tvDuration = view.findViewById(R.id.tvDuration);
+        TextView tvExercises = view.findViewById(R.id.tvExercises);
+        TextView tvSets = view.findViewById(R.id.tvSets);
+        TextView tvVolume = view.findViewById(R.id.tvVolume);
+        Button btnDone = view.findViewById(R.id.btnDone);
+
+        tvDuration.setText(duration);
+        tvExercises.setText(String.valueOf(exerciseCount));
+        tvSets.setText(String.valueOf(setCount));
+
+        // Formatta il volume con separatore delle migliaia
+        String volumeFormatted = String.format(Locale.ITALIAN, "%,.0f kg", totalVolume);
+        tvVolume.setText(volumeFormatted);
+
+        btnDone.setOnClickListener(v -> {
+            dialog.dismiss();
+            NavHostFragment.findNavController(WorkoutFragment.this).popBackStack();
+        });
+
+        dialog.show();
     }
 }

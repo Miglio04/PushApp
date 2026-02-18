@@ -38,6 +38,7 @@ import com.example.pushapp.viewModels.WorkoutViewModel;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
+import com.example.pushapp.utils.DeleteDialogHelper;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -232,6 +233,18 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
                 }
             });
             areFilterComponentsInitialized = true;
+        } else {
+            currentQuery = "";
+            currentMuscleFilter = "All";
+            currentDifficultyFilter = "All";
+            if (searchEditText != null) {
+                searchEditText.setText("");
+            }
+            Chip allMusclesChip = getView().findViewById(R.id.chip_all_muscles);
+            if (allMusclesChip != null) allMusclesChip.setChecked(true);
+            Chip allDifficultyChip = getView().findViewById(R.id.chip_all_difficulty);
+            if (allDifficultyChip != null) allDifficultyChip.setChecked(true);
+            trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
         }
         toggleSearchPanel(true);
     }
@@ -281,29 +294,33 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             });
         }
 
-        chipGroupMuscles.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            if (checkedIds.isEmpty()) {
-                currentMuscleFilter = "All";
-                View allChip = group.findViewById(R.id.chip_all_muscles);
-                if (allChip instanceof Chip) ((Chip) allChip).setChecked(true);
-            } else {
-                Chip selectedChip = group.findViewById(checkedIds.get(0));
-                if (selectedChip != null) currentMuscleFilter = selectedChip.getText().toString();
-            }
-            trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
-        });
+        if (chipGroupMuscles != null) {
+            chipGroupMuscles.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                if (checkedIds.isEmpty()) {
+                    currentMuscleFilter = "All";
+                    View allChip = group.findViewById(R.id.chip_all_muscles);
+                    if (allChip instanceof Chip) ((Chip) allChip).setChecked(true);
+                } else {
+                    Chip selectedChip = group.findViewById(checkedIds.get(0));
+                    if (selectedChip != null) currentMuscleFilter = selectedChip.getText().toString();
+                }
+                trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
+            });
+        }
 
-        chipGroupDifficulty.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            if (checkedIds.isEmpty()) {
-                currentDifficultyFilter = "All";
-                View allChip = group.findViewById(R.id.chip_all_difficulty);
-                if (allChip instanceof Chip) ((Chip) allChip).setChecked(true);
-            } else {
-                Chip selectedChip = group.findViewById(checkedIds.get(0));
-                if (selectedChip != null) currentDifficultyFilter = selectedChip.getText().toString();
-            }
-            trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
-        });
+        if (chipGroupDifficulty != null) {
+            chipGroupDifficulty.setOnCheckedStateChangeListener((group, checkedIds) -> {
+                if (checkedIds.isEmpty()) {
+                    currentDifficultyFilter = "All";
+                    View allChip = group.findViewById(R.id.chip_all_difficulty);
+                    if (allChip instanceof Chip) ((Chip) allChip).setChecked(true);
+                } else {
+                    Chip selectedChip = group.findViewById(checkedIds.get(0));
+                    if (selectedChip != null) currentDifficultyFilter = selectedChip.getText().toString();
+                }
+                trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
+            });
+        }
     }
 
     /**
@@ -406,16 +423,52 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     }
 
     /**
-     * Opens a dialog with a list of exercises for replacement.
+     * Opens a modern dialog with a list of exercises for replacement.
      *
      * @param exercises         The list of exercises to choose from.
      * @param positionToReplace The index of the exercise to replace.
      */
     private void openSelectionDialog(List<Exercise> exercises, int positionToReplace) {
-        String[] names = new String[exercises.size()];
-        for (int i = 0; i < exercises.size(); i++) names[i] = exercises.get(i).getName();
-        new AlertDialog.Builder(requireContext()).setTitle(getString(R.string.replace)).setItems(names, (dialog, which) ->
-                trainingViewModel.replaceExerciseRoutine(positionToReplace, exercises.get(which))).setNegativeButton(getString(R.string.cancel), null).show();
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_replace_exercise, null);
+        builder.setView(dialogView);
+
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(Color.TRANSPARENT));
+        }
+
+        RecyclerView rvExercises = dialogView.findViewById(R.id.rvExercises);
+        EditText etSearch = dialogView.findViewById(R.id.etSearchExercise);
+        View btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+        rvExercises.setLayoutManager(new LinearLayoutManager(requireContext()));
+
+        List<Exercise> filteredList = new ArrayList<>(exercises);
+        AvailableExercisesAdapter dialogAdapter = new AvailableExercisesAdapter(filteredList, exercise -> {
+            trainingViewModel.replaceExerciseRoutine(positionToReplace, exercise);
+            dialog.dismiss();
+        });
+        rvExercises.setAdapter(dialogAdapter);
+
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String query = s.toString().toLowerCase().trim();
+                List<Exercise> filtered = new ArrayList<>();
+                for (Exercise ex : exercises) {
+                    if (ex.getName().toLowerCase().contains(query)) {
+                        filtered.add(ex);
+                    }
+                }
+                dialogAdapter.updateExercises(filtered);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     /**
@@ -497,9 +550,14 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
      */
     @Override public void onDeleteExercise(int position) {
         Routine routine = trainingViewModel.getEditableRoutine().getValue();
-        if(routine == null) return;
-        new AlertDialog.Builder(requireContext()).setTitle(getString(R.string.delete)).setMessage(getString(R.string.delete) + routine.getWorkoutExercises().get(position).getExerciseName() + "?")
-                .setPositiveButton(getString(R.string.delete), (dialog, which) -> trainingViewModel.deleteExerciseFromRoutine(position)).setNegativeButton(getString(R.string.cancel), null).show();
+        if(routine == null || routine.getWorkoutExercises() == null) return;
+        String exerciseName = routine.getWorkoutExercises().get(position).getExerciseName();
+        DeleteDialogHelper.show(
+            requireContext(),
+            getString(R.string.delete),
+            getString(R.string.delete_exercise_confirm, exerciseName),
+            () -> trainingViewModel.deleteExerciseFromRoutine(position)
+        );
     }
 
     /**
@@ -532,7 +590,11 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
      * @param setPos The index of the set.
      */
     @Override public void onSetDeleted(int exPos, int setPos) {
-        new AlertDialog.Builder(requireContext()).setTitle(getString(R.string.delete_set)).setMessage(getString(R.string.delete_set_confirm))
-                .setPositiveButton(getString(R.string.delete), (dialog, which) -> trainingViewModel.deleteSetFromExercise(exPos, setPos)).setNegativeButton(getString(R.string.cancel), null).show();
+        DeleteDialogHelper.show(
+            requireContext(),
+            R.string.delete_set_title,
+            R.string.delete_set_confirm,
+            () -> trainingViewModel.deleteSetFromExercise(exPos, setPos)
+        );
     }
 }

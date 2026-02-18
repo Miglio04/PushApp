@@ -8,7 +8,6 @@
     android:background="@color/md_theme_background"
     tools:context=".ui.main.fragments.EditRoutineFragment">
 
-    <!-- Header -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -20,7 +19,6 @@
         android:paddingBottom="8dp"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- Back Button -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/btn_back"
             android:layout_width="40dp"
@@ -49,8 +47,8 @@
             android:layout_weight="1"
             android:layout_marginStart="16dp"
             android:text="@string/edit_routine"
-            android:textSize="24sp"
-            android:fontFamily="sans-serif-bold"
+            android:textSize="32sp"
+            android:fontFamily="sans-serif-black"
             android:textColor="@color/md_theme_onBackground" />
 
     </LinearLayout>
@@ -244,48 +242,51 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:text="@string/add_exercise"
-                android:textSize="24sp"
-                android:fontFamily="sans-serif-bold"
+                android:textSize="32sp"
+                android:fontFamily="sans-serif-black"
                 android:textColor="@color/md_theme_onBackground" />
 
         </LinearLayout>
 
-        <!-- Search Input -->
+        <!-- Search Input - Stesso stile di History -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/search_card"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
             android:layout_marginTop="12dp"
-            app:cardCornerRadius="16dp"
+            app:cardCornerRadius="28dp"
             app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/md_theme_surfaceContainerLow"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/md_theme_surfaceContainerHighest"
             app:layout_constraintTop_toBottomOf="@id/search_header">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:padding="12dp">
+                android:paddingHorizontal="20dp">
 
                 <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
                     android:src="@drawable/ic_search"
-                    app:tint="@color/md_theme_onSurfaceVariant"
+                    app:tint="@color/md_theme_primary"
                     android:contentDescription="@null" />
 
-                <EditText
+                <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/search_edit_text"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:layout_marginStart="12dp"
-                    android:background="@android:color/transparent"
+                    android:layout_marginStart="16dp"
+                    android:background="@null"
                     android:hint="@string/search_exercise"
+                    android:imeOptions="actionSearch"
                     android:inputType="text"
-                    android:textSize="16sp"
+                    android:maxLines="1"
+                    android:textSize="15sp"
                     android:textColor="@color/md_theme_onSurface"
                     android:textColorHint="@color/md_theme_onSurfaceVariant" />
 
@@ -293,112 +294,108 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Filters -->
-        <ScrollView
-            android:id="@+id/filter_scroll_view"
+        <!-- Filters - Stesso stile di History -->
+        <LinearLayout
+            android:id="@+id/filter_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginTop="16dp"
             app:layout_constraintTop_toBottomOf="@id/search_card">
 
-            <LinearLayout
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/muscle_group"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:layout_marginStart="20dp"
+                android:layout_marginBottom="8dp"/>
+
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="8dp">
+                android:scrollbars="none"
+                android:clipToPadding="false"
+                android:paddingHorizontal="16dp">
 
-                <TextView
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_group_muscle_filters"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/muscle_group"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/md_theme_onSurfaceVariant"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginBottom="8dp"/>
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
 
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scrollbars="none"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:clipToPadding="false">
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chip_group_muscle_filters"
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_all_muscles"
+                        style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:singleSelection="true"
-                        app:selectionRequired="true">
+                        android:text="@string/all"
+                        android:checked="true"
+                        app:chipBackgroundColor="@color/md_theme_surfaceContainerHighest"
+                        app:chipCornerRadius="20dp"
+                        app:checkedIconTint="@color/md_theme_primary"
+                        app:chipStrokeWidth="0dp" />
 
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chip_all_muscles"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/all"
-                            android:checked="true" />
+                </com.google.android.material.chip.ChipGroup>
 
-                    </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
 
-                </HorizontalScrollView>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/difficulty"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="8dp"/>
 
-                <TextView
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:clipToPadding="false"
+                android:paddingHorizontal="16dp">
+
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/chip_group_difficulty_filters"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/difficulty"
-                    android:textSize="14sp"
-                    android:fontFamily="sans-serif-medium"
-                    android:textColor="@color/md_theme_onSurfaceVariant"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="8dp"
-                    android:textStyle="bold"/>
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
 
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scrollbars="none"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="16dp"
-                    android:clipToPadding="false">
-
-                    <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chip_group_difficulty_filters"
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chip_all_difficulty"
+                        style="@style/Widget.Material3.Chip.Filter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        app:singleSelection="true"
-                        app:selectionRequired="true">
+                        android:text="@string/all"
+                        android:checked="true"
+                        app:chipBackgroundColor="@color/md_theme_surfaceContainerHighest"
+                        app:chipCornerRadius="20dp"
+                        app:checkedIconTint="@color/md_theme_primary"
+                        app:chipStrokeWidth="0dp" />
 
-                        <com.google.android.material.chip.Chip
-                            android:id="@+id/chip_all_difficulty"
-                            style="@style/Widget.Material3.Chip.Filter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/all"
-                            android:checked="true"
-                            app:chipMinHeight="32dp"
-                            app:ensureMinTouchTargetSize="false"
-                            app:chipBackgroundColor="@color/chip_background_selector"/>
+                </com.google.android.material.chip.ChipGroup>
 
-                    </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
 
-                </HorizontalScrollView>
+        </LinearLayout>
 
-            </LinearLayout>
-
-        </ScrollView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_available_exercises"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:paddingHorizontal="16dp"
+            android:paddingHorizontal="4dp"
             android:paddingBottom="16dp"
             android:clipToPadding="false"
-            android:layout_marginTop="8dp"
-            app:layout_constraintTop_toBottomOf="@id/filter_scroll_view"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/filter_container"
             app:layout_constraintBottom_toBottomOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

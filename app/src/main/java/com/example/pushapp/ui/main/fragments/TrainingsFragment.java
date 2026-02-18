@@ -163,14 +163,6 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     @Override
     public void onTrainingDeleteClicked(Training training) {
         showDeleteDialog(training);
-        new AlertDialog.Builder(requireContext())
-                .setTitle(getString(R.string.confirm_operation))
-                .setMessage(R.string.are_you_sure_delete)
-                .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
-                    trainingViewModel.deleteTraining(training);
-                })
-                .setNegativeButton(getString(R.string.cancel), null)
-                .show();
     }
 
     /**

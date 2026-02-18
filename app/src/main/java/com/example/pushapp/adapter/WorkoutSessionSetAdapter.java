@@ -144,21 +144,22 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
                 targetDetails.setVisibility(View.GONE);
             }
 
-            // Mostra il peso con virgola se ha decimali
-            if (serie.getWeight() > 0) {
-                double weight = serie.getWeight();
-                if (weight == Math.floor(weight)) {
-                    // Numero intero
-                    actualWeight.setText(String.valueOf((int) weight));
+            if (!actualWeight.hasFocus()) {
+                if (serie.getWeight() > 0) {
+                    double weight = serie.getWeight();
+                    if (weight == Math.floor(weight)) {
+                        actualWeight.setText(String.valueOf((int) weight));
+                    } else {
+                        actualWeight.setText(String.format(Locale.ITALIAN, "%.1f", weight));
+                    }
                 } else {
-                    // Numero decimale con virgola
-                    actualWeight.setText(String.format(Locale.ITALIAN, "%.1f", weight));
+                    actualWeight.setText("");
                 }
-            } else {
-                actualWeight.setText("");
             }
 
-            actualReps.setText(serie.getReps() > 0 ? String.valueOf(serie.getReps()) : "");
+            if (!actualReps.hasFocus()) {
+                actualReps.setText(serie.getReps() > 0 ? String.valueOf(serie.getReps()) : "");
+            }
 
             updateCompletedUI(serie.getIsCompleted());
 
@@ -200,15 +201,21 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
 
         /**
          * Parses input from EditTexts and notifies the listener of data changes.
+         * Ignores incomplete input ending with comma or dot.
          */
         private void updateSetData() {
             int position = getBindingAdapterPosition();
             if (position == RecyclerView.NO_POSITION) return;
 
             try {
-                String wStr = actualWeight.getText().toString().replace(",", ".");
+                String wStr = actualWeight.getText().toString();
                 String rStr = actualReps.getText().toString();
 
+                if (wStr.endsWith(",") || wStr.endsWith(".")) {
+                    return;
+                }
+
+                wStr = wStr.replace(",", ".");
                 double weight = wStr.isEmpty() ? 0 : Double.parseDouble(wStr);
                 int reps = rStr.isEmpty() ? 0 : Integer.parseInt(rStr);
 
@@ -218,7 +225,7 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
 
         /**
          * Updates visual state based on whether the set is marked as completed.
-         * Disables inputs if completed.
+         * Disables inputs if completed and fades them to show they cannot be edited.
          *
          * @param completed True if the set is complete.
          */
@@ -227,10 +234,20 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
                 // Verde quando completato
                 completeButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
                     itemView.getContext().getColor(R.color.green)));
+                // Schiarisci i campi per mostrare che sono completati
+                actualWeight.setAlpha(0.5f);
+                actualReps.setAlpha(0.5f);
+                actualWeight.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurfaceVariant));
+                actualReps.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurfaceVariant));
             } else {
                 // Grigio quando non completato
                 completeButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
                     itemView.getContext().getColor(R.color.md_theme_surfaceContainerHighest)));
+                // Ripristina l'aspetto normale
+                actualWeight.setAlpha(1.0f);
+                actualReps.setAlpha(1.0f);
+                actualWeight.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurface));
+                actualReps.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurface));
             }
 
             actualWeight.setEnabled(!completed);

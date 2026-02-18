@@ -37,6 +37,7 @@
         android:gravity="center"
         android:hint="kg"
         android:inputType="numberDecimal"
+        android:digits="0123456789,."
         android:textSize="15sp"
         android:fontFamily="sans-serif-medium"
         android:textColor="@color/md_theme_onSurface"
@@ -94,12 +95,5 @@
         android:contentDescription="@string/delete"
         app:tint="@color/md_theme_error" />
 
-    <ImageButton
-        android:id="@+id/set_complete_button"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@android:drawable/checkbox_off_background"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/complete_set"/>
 
 </LinearLayout>

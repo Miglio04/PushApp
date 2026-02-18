@@ -295,7 +295,6 @@
     <string name="loading">Loading…</string>
     <string name="error_loading">Loading error</string>
     <string name="replace">Replace</string>
-    <string name="delete_exercise_confirm">Delete %1$s?</string>
     <string name="pause">Pause</string>
     <string name="history">History</string>
     <string name="track_your_workout_journey">Track your workout journey</string>
@@ -305,5 +304,14 @@
     <string name="start_your_first_workout_nto_see_it_here">Start your first workout\nto see it here!</string>
     <string name="workout_details">WORKOUT DETAILS</string>
     <string name="appearance">Appearance</string>
+
+    <string name="workout_complete">Workout Complete!</string>
+    <string name="great_job">Great job! Here\'s your summary</string>
+    <string name="duration">Duration</string>
+    <string name="sets">Sets</string>
+    <string name="total_volume">Total Volume</string>
+    <string name="done">Done</string>
+    <string name="delete_exercise_title">Delete Exercise</string>
+    <string name="delete_exercise_confirm">Are you sure you want to delete %1$s?</string>
 
 </resources>

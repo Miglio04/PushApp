@@ -209,11 +209,9 @@ public class TrainingViewModel extends ViewModel {
         Set<String> difficultySet = new HashSet<>();
 
         for (Exercise exercise : exercises) {
-            // Muscoli
             if (exercise.getMuscle() != null && !exercise.getMuscle().isEmpty()) {
                 muscleSet.add(capitalize(exercise.getMuscle()));
             }
-            // Difficoltà
             if (exercise.getDifficulty() != null && !exercise.getDifficulty().isEmpty()) {
                 difficultySet.add(capitalize(exercise.getDifficulty()));
             }
@@ -239,8 +237,8 @@ public class TrainingViewModel extends ViewModel {
         List<Exercise> tempFilteredList = new ArrayList<>(fullExerciseList);
         List<Exercise> nextStageList = new ArrayList<>();
 
-        String muscleFilter = (muscleGroup == null) ? "Tutti" : muscleGroup;
-        if (muscleFilter.equalsIgnoreCase("Tutti")) {
+        String muscleFilter = (muscleGroup == null) ? "All" : muscleGroup;
+        if (muscleFilter.equalsIgnoreCase("All") || muscleFilter.equalsIgnoreCase("Tutti")) {
             nextStageList.addAll(tempFilteredList);
         } else {
             for (Exercise exercise : tempFilteredList) {
@@ -252,8 +250,8 @@ public class TrainingViewModel extends ViewModel {
         tempFilteredList = new ArrayList<>(nextStageList);
         nextStageList.clear();
 
-        String diffFilter = (difficultyGroup == null) ? "Tutti" : difficultyGroup;
-        if (diffFilter.equalsIgnoreCase("Tutti")) {
+        String diffFilter = (difficultyGroup == null) ? "All" : difficultyGroup;
+        if (diffFilter.equalsIgnoreCase("All") || diffFilter.equalsIgnoreCase("Tutti")) {
             nextStageList.addAll(tempFilteredList);
         } else {
             for (Exercise exercise : tempFilteredList) {

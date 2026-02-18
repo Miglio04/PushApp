@@ -276,7 +276,6 @@
     <string name="error_routine_not_loaded">Errore: Routine non caricata</string>
     <string name="loading">Caricamento…</string>
     <string name="error_loading">Errore di caricamento</string>
-    <string name="delete_exercise_confirm">Eliminare %1$s?</string>
     <string name="pause">Pausa</string>
     <string name="history">Storico</string>
     <string name="track_your_workout_journey">Traccia il tuo percorso</string>
@@ -286,5 +285,15 @@
     <string name="start_your_first_workout_nto_see_it_here">Inizia il tuo primo workout per vederlo qua!</string>
     <string name="workout_details">DETTAGLI ALLENAMENTO</string>
     <string name="appearance">Tema</string>
+    <string name="workout_complete">Allenamento Completato!</string>
+    <string name="great_job">Ottimo lavoro! Ecco il riepilogo</string>
+    <string name="duration">Durata</string>
+    <string name="sets">Serie</string>
+    <string name="total_volume">Volume Totale</string>
+    <string name="done">Fatto</string>
+
+
+    <string name="delete_exercise_title">Elimina Esercizio</string>
+    <string name="delete_exercise_confirm">Sei sicuro di voler eliminare %1$s?</string>
 
 </resources>
