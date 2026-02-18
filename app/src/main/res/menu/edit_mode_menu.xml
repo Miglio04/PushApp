@@ -1,0 +1,12 @@
+<!-- in res/menu/edit_mode_menu.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_save"
+        android:title="Salva"
+        android:icon="@drawable/moon"
+        app:showAsAction="ifRoom" />
+    <!-- showAsAction="ifRoom" mostra l'icona se c'è spazio, altrimenti la mette nel menu a 3 puntini -->
+    <!-- Icona place holder -->
+</menu>

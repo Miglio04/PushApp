@@ -1,0 +1,157 @@
+package com.example.pushapp.ui.main.fragments;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.pushapp.R;
+import com.example.pushapp.models.Result;
+import com.example.pushapp.models.Training;
+import com.example.pushapp.repositories.FirebaseCallback;
+import com.example.pushapp.viewModels.TrainingViewModel;
+import com.example.pushapp.adapter.TrainingsRecyclerViewAdapter;
+import com.example.pushapp.viewModels.UserViewModel;
+import com.example.pushapp.viewModels.ViewModelFactory;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TrainingsFragment extends Fragment implements TrainingsRecyclerViewAdapter.OnTrainingInteractionListener {
+
+    private static final String TAG = "TrainingsFragment";
+    private UserViewModel userViewModel;
+    private TrainingViewModel trainingViewModel;
+    private TrainingsRecyclerViewAdapter adapter;
+    private NavController navController;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_trainings, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        Log.d("TrainingsFragment", "onViewCreated called");
+
+        navController = Navigation.findNavController(view);
+
+        userViewModel = new ViewModelProvider(
+                requireActivity(),
+                new ViewModelFactory(requireContext())).get(UserViewModel.class);
+
+        trainingViewModel = new ViewModelProvider(
+                requireActivity(),
+                new ViewModelFactory(requireContext())).get(TrainingViewModel.class);
+
+        RecyclerView recyclerView = view.findViewById(R.id.training_list);
+        setupRecyclerView(recyclerView);
+
+        FloatingActionButton fab = view.findViewById(R.id.fab_add_training);
+        fab.setOnClickListener(v -> {
+            Result result = userViewModel.getSessionLiveData().getValue();
+
+            if (result != null && result.isSessionSuccess()) {
+                String userId = ((Result.SessionSuccess) result).getData().getUserId();
+                trainingViewModel.createTraining(userId);
+            } else{
+                Log.d(TAG, "Errore nella fetch dell'utente");
+            }
+        });
+
+        Button btnAddSampleData = view.findViewById(R.id.btn_add_sample_data);
+        btnAddSampleData.setOnClickListener(v -> {
+            createSampleTraining();
+            Toast.makeText(getContext(), "Adding sample data to Firebase...", Toast.LENGTH_SHORT).show();
+        });
+
+
+
+        observeViewModel();
+
+    }
+
+    private void setupRecyclerView(RecyclerView recyclerView) {
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        adapter = new TrainingsRecyclerViewAdapter(new ArrayList<>(), this);
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void observeViewModel() {
+        trainingViewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
+            Log.d("TrainingsFragment", "observeViewModel called");
+            if (trainings == null ) {
+                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
+            } else if (trainings.isTrainingsSuccess()){
+                List<Training> trainingsList = ((Result.TrainingsSuccess) trainings).getData();
+                Log.d("TrainingsFragment", "Received " + trainingsList.size() + " trainings:");
+                for (Training t : trainingsList) {
+                    Log.d("TrainingsFragment", "  - ID: " + t.getTrainingId() + ", Name: " + t.getName());
+                }
+                adapter.updateTrainings(trainingsList);
+            }else{
+                Toast.makeText(getContext(), ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    @Override
+    public void onTrainingClicked(Training training) {
+        Bundle bundle = new Bundle();
+        bundle.putString("trainingId", training.getTrainingId());
+        navController.navigate(R.id.nav_training_to_training_days, bundle);
+    }
+
+    @Override
+    public void onTrainingDeleteClicked(Training training) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Conferma Eliminazione")
+                .setMessage("Sei sicuro di voler eliminare la scheda '" + training.getName() + "'?")
+                .setPositiveButton("Elimina", (dialog, which) -> {
+                    trainingViewModel.deleteTraining(training);
+                })
+                .setNegativeButton("Annulla", null)
+                .show();
+    }
+
+    @Override
+    public void onTrainingEditFinished(Training training, String newName, String newDescription) {
+        training.setName(newName);
+        training.setDescription(newDescription);
+        trainingViewModel.updateTraining(training);
+    }
+
+    private void createSampleTraining() {
+        Result result = userViewModel.getSessionLiveData().getValue();
+
+        if (result != null && result.isSessionSuccess()) {
+            String userId = ((Result.SessionSuccess) result).getData().getUserId();
+            trainingViewModel.createSampleTraining(userId);
+        } else{
+            Log.d(TAG, "Errore nella fetch dell'utente");
+        }
+
+    }
+}

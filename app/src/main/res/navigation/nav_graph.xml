@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.example.pushapp.ui.main.fragments.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" />
+    <!--
+    <fragment
+        android:id="@+id/nav_trainings"
+        android:name="com.example.pushapp.ui.main.fragments.TrainingsFragment"
+        android:label="Trainings"
+        tools:layout="@layout/fragment_trainings">
+        <action
+            android:id="@+id/nav_training_to_training_days"
+            app:destination="@id/nav_training_days">
+        </action>
+    </fragment>
+    -->
+
+    <fragment
+        android:id="@+id/nav_profile"
+        android:name="com.example.pushapp.ui.main.fragments.ProfileFragment"
+        android:label="Profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/nav_stats"
+        android:name="com.example.pushapp.ui.main.fragments.StatsFragment"
+        android:label="Stats"
+        tools:layout="@layout/fragment_stats" />
+
+    <fragment
+        android:id="@+id/nav_history"
+        android:name="com.example.pushapp.ui.main.fragments.HistoryFragment"
+        android:label="Activity"
+        tools:layout="@layout/fragment_history" />
+
+    <!--
+    <fragment
+        android:id="@+id/nav_training_days"
+        android:name="com.example.pushapp.ui.main.fragments.RoutineFragment"
+        android:label="fragment_training_days"
+        tools:layout="@layout/fragment_training_days" />
+        -->
+
+    <fragment
+        android:id="@+id/nav_workouts"
+        android:name="com.example.pushapp.ui.main.fragments.WorkoutFragment"
+        android:label="fragment_workout"
+        tools:layout="@layout/fragment_workout" >
+        <argument
+            android:name="param1"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="param2"
+            app:argType="string"
+            android:defaultValue="" />
+
+    </fragment>
+
+    <include app:graph="@navigation/trainings_nav_graph" />
+
+</navigation>

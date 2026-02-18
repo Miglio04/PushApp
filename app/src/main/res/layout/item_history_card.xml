@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp"
+    app:cardBackgroundColor="@color/md_theme_secondaryContainer">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <View
+            android:id="@+id/workout_icon_bg"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_circle_outline"
+            android:backgroundTint="@color/md_theme_primary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_expand_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@android:drawable/ic_media_play"
+            android:rotation="90"
+            app:tint="@color/cardview_light_background"
+            app:layout_constraintBottom_toBottomOf="@id/workout_icon_bg"
+            app:layout_constraintEnd_toEndOf="@id/workout_icon_bg"
+            app:layout_constraintStart_toStartOf="@id/workout_icon_bg"
+            app:layout_constraintTop_toTopOf="@id/workout_icon_bg" />
+
+        <TextView
+            android:id="@+id/tv_workout_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="Push Day"
+            android:textColor="@color/md_theme_onSecondaryContainer"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/tv_workout_date"
+            app:layout_constraintStart_toEndOf="@id/workout_icon_bg"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_workout_stats"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:alpha="0.7"
+            android:text="Workout info"
+            android:textColor="@color/md_theme_onSecondaryContainer"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="@id/tv_workout_name"
+            app:layout_constraintStart_toStartOf="@id/tv_workout_name"
+            app:layout_constraintTop_toBottomOf="@id/tv_workout_name" />
+
+        <TextView
+            android:id="@+id/tv_workout_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="09 February 2026 - 14:30"
+            android:textColor="@color/md_theme_primary"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <LinearLayout
+            android:id="@+id/details_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/tv_workout_name"
+            app:layout_constraintTop_toBottomOf="@id/workout_icon_bg">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:alpha="0.2"
+                android:background="@color/md_theme_onSecondaryContainer"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/tv_exercises_details"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Exercises details"
+                android:textColor="@color/md_theme_onSecondaryContainer"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_delete_workout"
+            style="@style/Widget.Material3.Button.TextButton.Icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete"
+            android:textColor="@color/md_theme_error"
+            app:icon="@android:drawable/ic_menu_delete"
+            app:iconTint="@color/md_theme_error"
+            android:layout_marginTop="4dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/details_container"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</com.google.android.material.card.MaterialCardView>
