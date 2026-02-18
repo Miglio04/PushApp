@@ -271,7 +271,6 @@ public class QuestionsActivity extends AppCompatActivity {
 
         btnNext.setEnabled(false);
 
-        // Get current Firebase user
         com.google.firebase.auth.FirebaseUser firebaseUser =
             com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
 
@@ -290,7 +289,6 @@ public class QuestionsActivity extends AppCompatActivity {
         RadioButton rbSelected = findViewById(selectedGenderId);
         String gender = rbSelected != null ? rbSelected.getText().toString() : "";
 
-        // Create user with Firebase data
         User user = new User(firebaseUser.getUid(), firebaseUser.getEmail());
         user.setName(name);
         user.setSurname(surname);
@@ -299,7 +297,6 @@ public class QuestionsActivity extends AppCompatActivity {
         user.setWeight(weight);
         user.setHeight(height);
 
-        // Always insert - it will update if exists
         userViewModel.insertUser(user);
 
         showProfileCompletedDialog();

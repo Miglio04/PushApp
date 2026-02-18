@@ -83,7 +83,6 @@ public class Routine implements Serializable {
         this.createdAt = routine.getCreatedAt();
     }
 
-    // Getters e Setters
     public String getRoutineId() { return routineId; }
     public void setRoutineId(String routineId) { if (routineId != null) { this.routineId = routineId; } }
 

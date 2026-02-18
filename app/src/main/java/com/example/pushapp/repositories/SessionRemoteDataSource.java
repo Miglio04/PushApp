@@ -131,7 +131,6 @@ public class SessionRemoteDataSource {
                             boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
                             SessionUser sessionUser = new SessionUser(firebaseUser.getUid(), firebaseUser.getEmail());
                             if (isNewUser) {
-                                // User is not registered, delete the created account and notify
                                 firebaseUser.delete();
                                 callback.onGoogleUserNotRegistered(sessionUser);
                             } else {

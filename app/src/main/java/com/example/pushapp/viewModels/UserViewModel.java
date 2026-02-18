@@ -60,7 +60,6 @@ public class UserViewModel extends ViewModel {
     public void fetchUser() {
         isLoading.setValue(true);
 
-        // Get user directly from Firebase Auth
         com.google.firebase.auth.FirebaseUser firebaseUser =
             com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
 

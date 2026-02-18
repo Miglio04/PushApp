@@ -52,7 +52,7 @@ public class WorkoutExercise implements Serializable {
 
     /** Index representing the rest time duration (e.g., 0=30s, 1=60s...). Default is 2. */
     @ColumnInfo(name = "restTimeIndex")
-    private int restTimeIndex = 2;  // Default index (90s)
+    private int restTimeIndex = 2;
 
     /** List of series (sets) for this exercise. Ignored by Room (stored in separate table). */
     @Ignore

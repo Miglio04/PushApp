@@ -169,7 +169,6 @@ public class HistoryViewModel extends ViewModel {
 
         List<HistorySessionWithExercises> filteredList = new ArrayList<>(fullHistoryList);
 
-        // Apply period filter
         if (currentFilter != FilterPeriod.ALL) {
             LocalDate now = LocalDate.now();
             long startOfPeriod;
@@ -177,7 +176,7 @@ public class HistoryViewModel extends ViewModel {
             if (currentFilter == FilterPeriod.THIS_WEEK) {
                 startOfPeriod = now.minusDays(now.getDayOfWeek().getValue() - 1)
                         .atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
-            } else { // THIS_MONTH
+            } else {
                 startOfPeriod = now.withDayOfMonth(1)
                         .atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
             }
@@ -185,7 +184,6 @@ public class HistoryViewModel extends ViewModel {
             filteredList.removeIf(session -> session.session.getStartTime() < startOfPeriod);
         }
 
-        // Apply search filter
         if (!currentSearchQuery.trim().isEmpty()) {
             String lowerCaseQuery = currentSearchQuery.toLowerCase(Locale.ROOT);
             List<HistorySessionWithExercises> searchFiltered = new ArrayList<>();

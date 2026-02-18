@@ -165,7 +165,6 @@ public class RegisterFragment extends Fragment {
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
            if(result == null) return;
            if (result.isSessionSuccess()) {
-               // Google registration successful, show success dialog
                showLoading(false, null);
                showSuccessDialog();
                userViewModel.clearSessionLiveData();

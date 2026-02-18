@@ -174,7 +174,6 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         stopButton.setOnClickListener(v -> {
             stopButton.setEnabled(false);
 
-            // Salva i dati del workout prima di finire
             WorkoutState currentState = workoutViewModel.getActiveWorkoutState().getValue();
             String duration = workoutViewModel.getFormattedTime().getValue();
             int exerciseCount = 0;
@@ -349,7 +348,6 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         tvExercises.setText(String.valueOf(exerciseCount));
         tvSets.setText(String.valueOf(setCount));
 
-        // Formatta il volume con separatore delle migliaia
         String volumeFormatted = String.format(Locale.ITALIAN, "%,.0f kg", totalVolume);
         tvVolume.setText(volumeFormatted);
 

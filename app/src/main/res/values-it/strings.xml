@@ -261,12 +261,10 @@
     <string name="lets_go">Spacchiamo tutto!</string>
     <string name="minimize">Riduci</string>
 
-    <!-- Workout Card -->
     <string name="set_label">Serie</string>
     <string name="target_label">Obiettivo</string>
     <string name="actual_label">Fatto</string>
 
-    <!-- Edit Routine -->
     <string name="edit_routine">Modifica Routine</string>
     <string name="routine_name">Nome Routine</string>
     <string name="routine_name_hint">Inserisci nome routine</string>

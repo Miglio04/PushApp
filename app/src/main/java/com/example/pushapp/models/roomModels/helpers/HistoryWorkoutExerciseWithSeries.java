@@ -18,8 +18,8 @@ public class HistoryWorkoutExerciseWithSeries {
     public HistoryWorkoutExercise historyWorkoutExercise;
 
     @Relation(
-            parentColumn = "historyExerciseId", // ID nella tabella esercizi (padre)
-            entityColumn = "historyExerciseId"  // ID nella tabella serie (figlio)
+            parentColumn = "historyExerciseId",
+            entityColumn = "historyExerciseId"
     )
     public List<HistorySerie> historySeries;
 }

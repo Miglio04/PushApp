@@ -231,19 +231,15 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
          */
         private void updateCompletedUI(boolean completed) {
             if (completed) {
-                // Verde quando completato
                 completeButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
                     itemView.getContext().getColor(R.color.green)));
-                // Schiarisci i campi per mostrare che sono completati
                 actualWeight.setAlpha(0.5f);
                 actualReps.setAlpha(0.5f);
                 actualWeight.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurfaceVariant));
                 actualReps.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurfaceVariant));
             } else {
-                // Grigio quando non completato
                 completeButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
                     itemView.getContext().getColor(R.color.md_theme_surfaceContainerHighest)));
-                // Ripristina l'aspetto normale
                 actualWeight.setAlpha(1.0f);
                 actualReps.setAlpha(1.0f);
                 actualWeight.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurface));

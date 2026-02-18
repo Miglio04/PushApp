@@ -213,7 +213,6 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
                 }
             });
 
-            // Click sul chip apre lo spinner
             restTimeChip.setOnClickListener(v -> restSpinner.performClick());
 
             restSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -223,7 +222,6 @@ public class WorkoutExerciseAdapter extends RecyclerView.Adapter<WorkoutExercise
                     if (currentPos != RecyclerView.NO_POSITION) {
                         listener.onRestTimeChanged(currentPos, pos);
                     }
-                    // Aggiorna la TextView del valore
                     if (pos >= 0 && pos < restTimes.length) {
                         restTimeValue.setText(restTimes[pos]);
                     }
