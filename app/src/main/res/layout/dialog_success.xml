@@ -36,7 +36,6 @@
                 app:tint="@android:color/white" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Titolo -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
@@ -47,7 +46,6 @@
             android:textColor="@color/md_theme_onSurface"
             android:textSize="20sp" />
 
-        <!-- Messaggio -->
         <TextView
             android:id="@+id/tvMessage"
             android:layout_width="match_parent"
@@ -59,11 +57,11 @@
             android:textColor="@color/md_theme_onSurfaceVariant"
             android:textSize="14sp" />
 
-        <!-- Pulsante OK -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAction"
             style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
+            android:textAllCaps="true"
             android:layout_height="50dp"
             android:fontFamily="sans-serif-medium"
             android:text="@string/ok"

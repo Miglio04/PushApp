@@ -82,13 +82,13 @@ public class AuthActivity extends AppCompatActivity {
                     tabLayout.setVisibility(View.VISIBLE);
 
                     if (destination.getId() == R.id.loginFragment) {
-                        tvAuthSubtitle.setText("Welcome back!");
+                        tvAuthSubtitle.setText(getString(R.string.welcome_back)); // Testo per Login
 
                         TabLayout.Tab tab = tabLayout.getTabAt(0);
                         if (tab != null && !tab.isSelected()) tab.select();
 
                     } else if (destination.getId() == R.id.registerFragment) {
-                        tvAuthSubtitle.setText("Create a new account");
+                        tvAuthSubtitle.setText(getString(R.string.create_new_account)); // Testo per Register
 
                         TabLayout.Tab tab = tabLayout.getTabAt(1);
                         if (tab != null && !tab.isSelected()) tab.select();

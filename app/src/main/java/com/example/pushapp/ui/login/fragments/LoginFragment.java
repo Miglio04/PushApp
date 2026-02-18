@@ -178,15 +178,15 @@ public class LoginFragment extends Fragment {
         boolean isValid = true;
 
         if (email.isEmpty()) {
-            showError(etEmail, tvEmailError, "Please enter your email");
+            showError(etEmail, tvEmailError, getString(R.string.please_enter_a_valid_email));
             isValid = false;
         } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            showError(etEmail, tvEmailError, "Invalid email format");
+            showError(etEmail, tvEmailError, getString(R.string.ops_invalid_email_address));
             isValid = false;
         }
 
         if (password.isEmpty()) {
-            showError(etPassword, tvPasswordError, "Please enter your password");
+            showError(etPassword, tvPasswordError, getString(R.string.password_must_be_6) );
             isValid = false;
         }
 
@@ -218,10 +218,10 @@ public class LoginFragment extends Fragment {
         TextView tvMessage = view.findViewById(R.id.tvMessage);
         Button btnAction = view.findViewById(R.id.btnAction);
 
-        if (tvTitle != null) tvTitle.setText("Welcome Back!");
-        if (tvMessage != null) tvMessage.setText("You are now successfully logged in.");
+        if (tvTitle != null) tvTitle.setText(getString(R.string.welcome_back));
+        if (tvMessage != null) tvMessage.setText(getString(R.string.logged_in));
         if (btnAction != null) {
-            btnAction.setText("GO TO HOME");
+            btnAction.setText(getString(R.string.go_home));
             btnAction.setOnClickListener(v -> {
                 dialog.dismiss();
                 goToHome();

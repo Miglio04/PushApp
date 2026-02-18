@@ -164,11 +164,12 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     public void onTrainingDeleteClicked(Training training) {
         showDeleteDialog(training);
         new AlertDialog.Builder(requireContext())
-                .setTitle("Conferma Eliminazione")
-                .setMessage("Sei sicuro di voler eliminare la scheda '" + training.getName() + "'?")
-                .setPositiveButton("Elimina", (dialog, which) ->
-                    trainingViewModel.deleteTraining(training)
-                ).setNegativeButton("Annulla", null)
+                .setTitle(getString(R.string.confirm_operation))
+                .setMessage(R.string.are_you_sure_delete)
+                .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
+                    trainingViewModel.deleteTraining(training);
+                })
+                .setNegativeButton(getString(R.string.cancel), null)
                 .show();
     }
 

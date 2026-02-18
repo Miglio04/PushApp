@@ -414,12 +414,8 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     private void openSelectionDialog(List<Exercise> exercises, int positionToReplace) {
         String[] names = new String[exercises.size()];
         for (int i = 0; i < exercises.size(); i++) names[i] = exercises.get(i).getName();
-        new AlertDialog.Builder(requireContext())
-                .setTitle(R.string.replace)
-                .setItems(names, (dialog, which) ->
-                        trainingViewModel.replaceExerciseRoutine(positionToReplace, exercises.get(which)))
-                .setNegativeButton(R.string.cancel, null)
-                .show();
+        new AlertDialog.Builder(requireContext()).setTitle(getString(R.string.replace)).setItems(names, (dialog, which) ->
+                trainingViewModel.replaceExerciseRoutine(positionToReplace, exercises.get(which))).setNegativeButton(getString(R.string.cancel), null).show();
     }
 
     /**
@@ -501,13 +497,9 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
      */
     @Override public void onDeleteExercise(int position) {
         Routine routine = trainingViewModel.getEditableRoutine().getValue();
-        if (routine == null) return;
-        new AlertDialog.Builder(requireContext())
-                .setTitle(R.string.delete)
-                .setMessage(getString(R.string.delete_exercise_confirm, routine.getWorkoutExercises().get(position).getExerciseName()))
-                .setPositiveButton(R.string.delete, (dialog, which) -> trainingViewModel.deleteExerciseFromRoutine(position))
-                .setNegativeButton(R.string.cancel, null)
-                .show();
+        if(routine == null) return;
+        new AlertDialog.Builder(requireContext()).setTitle(getString(R.string.delete)).setMessage(getString(R.string.delete) + routine.getWorkoutExercises().get(position).getExerciseName() + "?")
+                .setPositiveButton(getString(R.string.delete), (dialog, which) -> trainingViewModel.deleteExerciseFromRoutine(position)).setNegativeButton(getString(R.string.cancel), null).show();
     }
 
     /**
@@ -540,11 +532,7 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
      * @param setPos The index of the set.
      */
     @Override public void onSetDeleted(int exPos, int setPos) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle(R.string.delete_set_title)
-                .setMessage(R.string.delete_set_confirm)
-                .setPositiveButton(R.string.delete, (dialog, which) -> trainingViewModel.deleteSetFromExercise(exPos, setPos))
-                .setNegativeButton(R.string.cancel, null)
-                .show();
+        new AlertDialog.Builder(requireContext()).setTitle(getString(R.string.delete_set)).setMessage(getString(R.string.delete_set_confirm))
+                .setPositiveButton(getString(R.string.delete), (dialog, which) -> trainingViewModel.deleteSetFromExercise(exPos, setPos)).setNegativeButton(getString(R.string.cancel), null).show();
     }
 }

@@ -142,9 +142,9 @@ public class SetsAdapter extends RecyclerView.Adapter<SetsAdapter.SetViewHolder>
         layout.addView(inputReps);
 
         new AlertDialog.Builder(context)
-                .setTitle("Modifica Serie")
+                .setTitle(context.getString(R.string.edit_set_title))
                 .setView(layout)
-                .setPositiveButton("Conferma", (dialog, which) -> {
+                .setPositiveButton(context.getString(R.string.confirm), (dialog, which) -> {
                     try {
                         double newWeight = Double.parseDouble(inputWeight.getText().toString());
                         int newReps = Integer.parseInt(inputReps.getText().toString());
@@ -154,10 +154,10 @@ public class SetsAdapter extends RecyclerView.Adapter<SetsAdapter.SetViewHolder>
                         }
 
                     } catch (NumberFormatException e) {
-                        Toast.makeText(context, "Input non valido", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, context.getString(R.string.invalid_input), Toast.LENGTH_SHORT).show();
                     }
                 })
-                .setNegativeButton("Annulla", null)
+                .setNegativeButton(context.getString(R.string.cancel), null)
                 .show();
     }
 

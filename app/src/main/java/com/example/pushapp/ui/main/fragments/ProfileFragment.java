@@ -144,10 +144,25 @@ public class ProfileFragment extends Fragment {
         }
 
         if (tvDetailEmail != null) tvDetailEmail.setText(user.getEmail());
-        if (tvDetailGender != null) tvDetailGender.setText(user.getGender() != null ? user.getGender() : "-");
-        if (tvDetailAge != null) tvDetailAge.setText(user.getAge() + " years");
-        if (tvDetailHeight != null) tvDetailHeight.setText(user.getHeight() + " cm");
-        if (tvDetailWeight != null) tvDetailWeight.setText(user.getWeight() + " kg");
+        if (tvDetailGender != null) {
+            String savedGender = user.getGender();
+            String displayGender = "-";
+            if (savedGender != null) {
+                if (savedGender.equalsIgnoreCase("Male") || savedGender.equalsIgnoreCase("Uomo")) {
+                    displayGender = getString(R.string.gender_male);
+                } else if (savedGender.equalsIgnoreCase("Female") || savedGender.equalsIgnoreCase("Donna")) {
+                    displayGender = getString(R.string.gender_female);
+                } else if (savedGender.equalsIgnoreCase("Prefer not to say") || savedGender.contains("Prefer")) {
+                    displayGender = getString(R.string.gender_prefer_not_to_say);
+                } else {
+                    displayGender = savedGender;
+                }
+            }
+            tvDetailGender.setText(displayGender);
+        }
+        if (tvDetailAge != null) tvDetailAge.setText(user.getAge() + " " + getString(R.string.years));
+        if (tvDetailHeight != null) tvDetailHeight.setText(user.getHeight() + " " + getString(R.string.cm));
+        if (tvDetailWeight != null) tvDetailWeight.setText(user.getWeight() + " " + getString(R.string.kg));
     }
 
     /**

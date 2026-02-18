@@ -156,7 +156,6 @@
         app:layout_constraintBottom_toTopOf="@id/buttons_container"
         tools:listitem="@layout/item_exercise_expandable" />
 
-    <!-- Bottom Buttons -->
     <LinearLayout
         android:id="@+id/buttons_container"
         android:layout_width="match_parent"
@@ -197,7 +196,6 @@
 
     </LinearLayout>
 
-    <!-- Search Panel (overlay) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/search_panel_container"
         android:layout_width="match_parent"
@@ -355,7 +353,8 @@
                     android:textColor="@color/md_theme_onSurfaceVariant"
                     android:layout_marginStart="20dp"
                     android:layout_marginTop="16dp"
-                    android:layout_marginBottom="8dp"/>
+                    android:layout_marginBottom="8dp"
+                    android:textStyle="bold"/>
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -378,7 +377,10 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/all"
-                            android:checked="true" />
+                            android:checked="true"
+                            app:chipMinHeight="32dp"
+                            app:ensureMinTouchTargetSize="false"
+                            app:chipBackgroundColor="@color/chip_background_selector"/>
 
                     </com.google.android.material.chip.ChipGroup>
 
@@ -388,7 +390,6 @@
 
         </ScrollView>
 
-        <!-- Available Exercises RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_available_exercises"
             android:layout_width="match_parent"

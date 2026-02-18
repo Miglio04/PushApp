@@ -139,7 +139,8 @@ public class QuestionsActivity extends AppCompatActivity {
     private void updateProgress() {
         int progress = (currentStep + 1) * 100 / TOTAL_STEPS;
         progressBar.setProgress(progress);
-        tvStepCounter.setText("Step " + (currentStep + 1) + " of " + TOTAL_STEPS);
+        tvStepCounter.setText(getString(R.string.step_of, currentStep + 1, TOTAL_STEPS));
+
         tvProgressPercentage.setText(progress + "%");
 
         if (currentStep == 0) {
@@ -149,9 +150,9 @@ public class QuestionsActivity extends AppCompatActivity {
         }
 
         if (currentStep == TOTAL_STEPS - 1) {
-            btnNext.setText("FINISH");
+            btnNext.setText(getString(R.string.finish));
         } else {
-            btnNext.setText("Next  >");
+            btnNext.setText(getString(R.string.next));
         }
     }
 
@@ -179,11 +180,11 @@ public class QuestionsActivity extends AppCompatActivity {
     private boolean validateStep1_Name() {
         boolean isValid = true;
         if (TextUtils.isEmpty(etName.getText())) {
-            showError(etName, tvNameError, "First name is required.");
+            showError(etName, tvNameError, getString(R.string.first_name_is_required));
             isValid = false;
         }
         if (TextUtils.isEmpty(etSurname.getText())) {
-            showError(etSurname, tvSurnameError, "Last name is required.");
+            showError(etSurname, tvSurnameError, getString(R.string.last_name_is_required));
             isValid = false;
         }
         return isValid;
@@ -195,7 +196,7 @@ public class QuestionsActivity extends AppCompatActivity {
      */
     private boolean validateStep2_Gender() {
         if (radioGroupGender.getCheckedRadioButtonId() == -1) {
-            showError(null, tvGenderError, "Please select a gender.");
+            showError(null, tvGenderError, getString(R.string.please_select_a_gender));
             return false;
         }
         return true;
@@ -208,7 +209,7 @@ public class QuestionsActivity extends AppCompatActivity {
     private boolean validateStep3_Age() {
         String ageStr = etAge.getText().toString();
         if (TextUtils.isEmpty(ageStr) || Integer.parseInt(ageStr) < 16 || Integer.parseInt(ageStr) > 99) {
-            showError(etAge, tvAgeError, "Please enter a valid age (16-99).");
+            showError(etAge, tvAgeError, getString(R.string.please_valide_age));
             return false;
         }
         return true;
@@ -224,11 +225,11 @@ public class QuestionsActivity extends AppCompatActivity {
         String heightStr = etHeight.getText().toString();
 
         if (TextUtils.isEmpty(weightStr) || Double.parseDouble(weightStr) < 20) {
-            showError(etWeight, tvWeightError, "Check weight.");
+            showError(etWeight, tvWeightError, getString(R.string.check_weight));
             isValid = false;
         }
         if (TextUtils.isEmpty(heightStr) || Integer.parseInt(heightStr) < 100) {
-            showError(etHeight, tvHeightError, "Check height.");
+            showError(etHeight, tvHeightError, getString(R.string.check_height));
             isValid = false;
         }
         return isValid;
@@ -241,7 +242,7 @@ public class QuestionsActivity extends AppCompatActivity {
     private boolean validateStep5_Goal() {
         String goalStr = etGoalWeight.getText().toString();
         if (TextUtils.isEmpty(goalStr) || Double.parseDouble(goalStr) < 20) {
-            showError(etGoalWeight, tvGoalError, "Please enter a target weight.");
+            showError(etGoalWeight, tvGoalError, getString(R.string.please_target_weight));
             return false;
         }
         return true;
@@ -340,10 +341,10 @@ public class QuestionsActivity extends AppCompatActivity {
         TextView tvMessage = view.findViewById(R.id.tvMessage);
         Button btnAction = view.findViewById(R.id.btnAction);
 
-        if (tvTitle != null) tvTitle.setText("Profile Completed! ");
-        if (tvMessage != null) tvMessage.setText("Your data has been saved.\nYou are ready to start training.");
+        if (tvTitle != null) tvTitle.setText(getString(R.string.profile_completed));
+        if (tvMessage != null) tvMessage.setText(getString(R.string.data_saved));
         if (btnAction != null) {
-            btnAction.setText("GO TO HOME");
+            btnAction.setText(getString(R.string.go_home));
             btnAction.setOnClickListener(v -> {
                 dialog.dismiss();
                 Intent intent = new Intent(QuestionsActivity.this, MainActivity.class);

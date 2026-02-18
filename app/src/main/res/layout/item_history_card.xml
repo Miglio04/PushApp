@@ -51,14 +51,13 @@
                     android:id="@+id/tv_workout_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Push Day"
+                    android:text="@string/trattino"
                     android:textColor="@color/md_theme_onSecondaryContainer"
                     android:textSize="18sp"
                     android:fontFamily="sans-serif-medium"
                     android:ellipsize="end"
                     android:maxLines="1" />
 
-                <!-- Stats Row: esercizi + tempo -->
                 <LinearLayout
                     android:id="@+id/stats_container"
                     android:layout_width="match_parent"
@@ -71,7 +70,7 @@
                         android:id="@+id/tv_workout_stats"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="4 exercises"
+                        android:text="@string/trattino"
                         android:textColor="@color/md_theme_onSecondaryContainer"
                         android:textSize="13sp" />
 
@@ -93,7 +92,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
-                        android:text="45 min"
+                        android:text="@string/trattino"
                         android:textColor="@color/md_theme_onSecondaryContainer"
                         android:textSize="13sp" />
                 </LinearLayout>
@@ -103,7 +102,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
-                    android:text="WORKOUT DETAILS"
+                    android:text="@string/workout_details"
                     android:textColor="@color/md_theme_secondary"
                     android:textSize="11sp"
                     android:fontFamily="sans-serif-medium"
@@ -128,7 +127,7 @@
                         android:id="@+id/tv_exercises_details"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Exercises details"
+                        android:text="@string/trattino"
                         android:textColor="@color/md_theme_onSecondaryContainer"
                         android:textSize="13sp"
                         android:lineSpacingExtra="6dp" />
@@ -146,7 +145,7 @@
                 android:id="@+id/tv_workout_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="09 Feb"
+                android:text="@string/trattino"
                 android:textColor="@color/md_theme_secondary"
                 android:textSize="12sp"
                 android:fontFamily="sans-serif-medium"

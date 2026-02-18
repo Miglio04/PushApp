@@ -8,18 +8,16 @@
     android:paddingVertical="8dp"
     android:paddingHorizontal="4dp">
 
-    <!-- Set Number (senza cerchio) -->
     <TextView
         android:id="@+id/set_number_session"
         android:layout_width="28dp"
         android:layout_height="wrap_content"
-        android:text="1"
         android:textSize="16sp"
         android:fontFamily="sans-serif-bold"
         android:textColor="@color/md_theme_onSurface"
-        android:gravity="center" />
+        android:gravity="center"
+        android:text="@string/_1" />
 
-    <!-- Target Details -->
     <TextView
         android:id="@+id/set_target_details"
         android:layout_width="0dp"
@@ -31,7 +29,6 @@
         android:fontFamily="sans-serif"
         android:textColor="@color/md_theme_onSurfaceVariant" />
 
-    <!-- Actual Weight Input -->
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/set_actual_weight"
         android:layout_width="64dp"
@@ -96,5 +93,13 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/delete"
         app:tint="@color/md_theme_error" />
+
+    <ImageButton
+        android:id="@+id/set_complete_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/checkbox_off_background"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/complete_set"/>
 
 </LinearLayout>

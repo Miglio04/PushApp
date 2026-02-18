@@ -145,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Update visibility when navigation changes
         navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
             Boolean inProgress = workoutViewModel.isWorkoutInProgress().getValue();
             boolean isWorkoutScreen = destination.getId() == R.id.nav_workouts;
@@ -163,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         resumeButton.setOnClickListener(v -> {
-            // Resume the workout timer before navigating
             workoutViewModel.startWorkoutTimer();
             if (navController != null) {
                 navController.navigate(R.id.nav_workouts);

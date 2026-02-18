@@ -193,13 +193,15 @@ public class RoutineFragment extends Fragment {
      * @param routine The routine to be deleted.
      */
     private void handleDeleteRoutine(Routine routine){
-        if (getContext() != null && routine.getRoutineId() != null) {
-            DeleteDialogHelper.show(
-                requireContext(),
-                R.string.delete_routine_title,
-                R.string.delete_routine_message,
-                () -> trainingViewModel.deleteRoutine(routine)
-            );
+        if (getView() != null && routine.getRoutineId() != null) {
+            new AlertDialog.Builder(requireContext())
+                    .setTitle(getString(R.string.delete_routine_title))
+                    .setMessage(getString(R.string.delete_routine_message))
+                    .setPositiveButton(getString(R.string.delete), (dialog, which) -> {
+                        trainingViewModel.deleteRoutine(routine);
+                    })
+                    .setNegativeButton(getString(R.string.cancel), null)
+                    .show();
         }
     }
 
@@ -228,10 +230,10 @@ public class RoutineFragment extends Fragment {
      */
     private void showReplaceWorkoutDialog(Routine routine) {
         new AlertDialog.Builder(requireContext())
-                .setTitle("Workout in Progress")
-                .setMessage("You already have an active workout session. Would you like to discard it and start a new one?")
-                .setPositiveButton("Discard and Start", (dialog, which) ->
-                    workoutViewModel.stopAndDiscardWorkout(new FirebaseCallback<>() {
+                .setTitle(getString(R.string.workout_in_progress))
+                .setMessage(getString(R.string.already_active_session))
+                .setPositiveButton(getString(R.string.discard_and_start), (dialog, which) -> {
+                    workoutViewModel.stopAndDiscardWorkout(new FirebaseCallback<Void>() {
                         @Override
                         public void onSuccess(Void result) {
                             startNewWorkout(routine);
@@ -240,9 +242,9 @@ public class RoutineFragment extends Fragment {
                         public void onError(Exception e) {
                             startNewWorkout(routine);
                         }
-                    }
-                ))
-                .setNegativeButton("Cancel", null)
+                    });
+                })
+                .setNegativeButton(getString(R.string.cancel), null)
                 .show();
     }
 }

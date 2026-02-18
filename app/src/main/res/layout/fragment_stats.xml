@@ -68,13 +68,13 @@
                     <TextView android:id="@+id/txtKpiWorkouts"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0"
+                        android:text="@string/_0"
                         android:textSize="24sp"
                         android:fontFamily="sans-serif-black"
                         android:textColor="@color/md_theme_primary"/>
                     <TextView android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="WORKOUTS"
+                        android:text="@string/workouts"
                         android:textSize="9sp"
                         android:alpha="0.6"
                         android:textStyle="bold"/>
@@ -88,13 +88,13 @@
                     <TextView android:id="@+id/txtKpiVolume"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0"
+                        android:text="@string/_0"
                         android:textSize="24sp"
                         android:fontFamily="sans-serif-black"
                         android:textColor="@color/md_theme_primary"/>
                     <TextView android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="VOLUME"
+                        android:text="@string/volume"
                         android:textSize="9sp"
                         android:alpha="0.6"
                         android:textStyle="bold"/>
@@ -108,13 +108,13 @@
                     <TextView android:id="@+id/txtKpiTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="--"
+                        android:text="@string/_0"
                         android:textSize="24sp"
                         android:fontFamily="sans-serif-black"
                         android:textColor="@color/md_theme_primary"/>
                     <TextView android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="TIME"
+                        android:text="@string/time"
                         android:textSize="9sp"
                         android:alpha="0.6"
                         android:textStyle="bold"/>
@@ -162,7 +162,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:gravity="center"
-                            android:text="FEBRUARY 2026"
+                            android:textAllCaps="true"
+                            android:text="@string/february_2026"
                             android:textSize="15sp"
                             android:fontFamily="sans-serif-black"
                             android:textColor="@color/md_theme_onSurface"/>
@@ -187,13 +188,13 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginTop="12dp">
-                        <TextView style="@style/LegendTextStyle" android:text="M" />
-                        <TextView style="@style/LegendTextStyle" android:text="T" />
-                        <TextView style="@style/LegendTextStyle" android:text="W" />
-                        <TextView style="@style/LegendTextStyle" android:text="T" />
-                        <TextView style="@style/LegendTextStyle" android:text="F" />
-                        <TextView style="@style/LegendTextStyle" android:text="S" />
-                        <TextView style="@style/LegendTextStyle" android:text="S" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_mon" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_tue" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_wed" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_thu" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_fri" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_sat" />
+                        <TextView style="@style/LegendTextStyle" android:text="@string/day_sun" />
 
                     </LinearLayout>
                     <androidx.recyclerview.widget.RecyclerView
@@ -246,10 +247,10 @@
                     android:orientation="horizontal"
                     android:padding="16dp"
                     android:gravity="center_vertical">
-                    <TextView android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="🔥"
-                        android:textSize="32sp" />
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_fire"/>
                     <LinearLayout android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
@@ -257,22 +258,21 @@
                         <TextView android:id="@+id/txtStreakCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="0 DAY STREAK!"
+                            android:textAllCaps="true"
+                            android:text="@string/_0_day_streak"
                             android:textSize="18sp"
                             android:fontFamily="sans-serif-black"
                             android:textColor="@color/md_theme_onSecondaryContainer"/>
                         <TextView android:id="@+id/txtStreakMessage"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Consistency is key to results!"
+                            android:text="@string/consistency_is_key_to_results"
                             android:textSize="12sp"
                             android:textColor="@color/md_theme_onSecondaryContainer"
                             android:alpha="0.7"/>
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
-
-
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -299,7 +299,7 @@
                         android:paddingHorizontal="20dp"
                         android:background="@android:color/transparent"
                         android:dropDownHeight="wrap_content"
-                        android:hint="Select exercise"
+                        android:hint="@string/select_exercise"
                         android:inputType="none"
                         android:ellipsize="end"
                         android:singleLine="true"
@@ -310,7 +310,7 @@
 
             <TextView android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Weight Progress (kg)"
+                android:text="@string/weight_progress"
                 android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/md_theme_primary"
@@ -332,7 +332,7 @@
 
             <TextView android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total Repetitions"
+                android:text="@string/total_repetitions"
                 android:layout_marginTop="16dp"
                 android:fontFamily="sans-serif-medium"
                 android:textColor="@color/md_theme_primary"

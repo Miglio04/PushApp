@@ -47,7 +47,7 @@ public class StatsFragment extends Fragment {
     private AutoCompleteTextView exerciseSpinner;
     private HistoryViewModel historyViewModel;
     private UserViewModel userViewModel;
-    private final DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.ENGLISH);
+    private final DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault());
 
     /**
      * Initializes the HistoryViewModel.
@@ -139,11 +139,18 @@ public class StatsFragment extends Fragment {
 
         historyViewModel.getKpiStats().observe(getViewLifecycleOwner(), stats -> {
             if (stats == null) return;
+            int streak = stats.getCurrentStreak();
             txtKpiWorkouts.setText(String.valueOf(stats.getWorkoutsMonth()));
             txtKpiVolume.setText(stats.getFormattedVolume());
             txtKpiTime.setText(stats.getFormattedTime());
-            txtStreakCount.setText(stats.getFormattedStreakCountText());
+            txtStreakCount.setText(getResources().getQuantityString(R.plurals.streak_days, streak, streak));
             txtStreakMessage.setText(stats.getFormattedStreakMessageText());
+
+            if (streak > 0) {
+                txtStreakMessage.setText(getString(R.string.streak_fire));
+            } else {
+                txtStreakMessage.setText(getString(R.string.streak_start));
+            }
         });
 
         historyViewModel.getGraphMaxWeightData().observe(getViewLifecycleOwner(), chartData -> {
@@ -182,7 +189,7 @@ public class StatsFragment extends Fragment {
 
         txtMonthTitle.setText(selectedDate.format(monthFormatter).toUpperCase());
         List<LocalDate> days = historyViewModel.getCalendarDays();
-        calendarAdapter.updateDays(days);//, selectedDate);
+        calendarAdapter.updateDays(days);
     }
 
     /**
@@ -228,7 +235,7 @@ public class StatsFragment extends Fragment {
             chartLoad.clear();
             chartReps.clear();
             if (getView() != null) {
-                Snackbar.make(requireView(), "No data for selected exercise", Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(requireView(), getString(R.string.no_data_exercise), Snackbar.LENGTH_SHORT).show();
             }
             return;
         }

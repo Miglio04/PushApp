@@ -332,7 +332,7 @@
                     android:id="@+id/tvHeightError"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/please_enter_your_height"
+                    android:text="@string/error_icon"
                     android:textColor="@color/md_theme_error"
                     android:textSize="12sp"
                     android:visibility="gone"/>
