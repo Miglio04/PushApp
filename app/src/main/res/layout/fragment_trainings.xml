@@ -40,15 +40,6 @@
 
     />
 
-    <Button
-        android:id="@+id/btn_add_sample_data"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add Sample Data"
-        app:layout_constraintBottom_toTopOf="@+id/fab_add_training"
-        app:layout_constraintEnd_toEndOf="@+id/fab_add_training"
-        android:layout_marginBottom="8dp" />
-
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_training"
         android:src="@drawable/baseline_add_24"

@@ -2,10 +2,11 @@ package com.example.pushapp.utils.converters;
 
 import com.example.pushapp.models.User;
 import com.example.pushapp.models.firebaseModels.FirebaseUser;
-import com.google.firebase.Timestamp;
 
-import java.util.ArrayList;
-
+/**
+ * Utility class for converting between local User domain models and FirebaseUser DTOs.
+ * Facilitates mapping of user data for Firestore operations.
+ */
 public class UserConverter {
     public static FirebaseUser userToFirebaseUser(User user) {
         if (user == null) return null;
@@ -20,15 +21,6 @@ public class UserConverter {
         firebaseUser.setAge(user.getAge());
         firebaseUser.setHeight(user.getHeight());
         firebaseUser.setWeight(user.getWeight());
-        firebaseUser.setGoalWeight(user.getGoalWeight());
-
-        firebaseUser.setWeightProgress(user.getWeightProgress() != null ?
-                user.getWeightProgress() : new ArrayList<>());
-
-        firebaseUser.setTrainingPlans(user.getTrainingPlans() != null ?
-                user.getTrainingPlans() : new ArrayList<>());
-
-        firebaseUser.setCurrentTrainingPlan(user.getCurrentTrainingPlan());
 
         if (user.getCreatedAt() != null) {
             firebaseUser.setCreatedAt(user.getCreatedAt());
@@ -48,10 +40,6 @@ public class UserConverter {
         user.setAge(firebaseUser.getAge());
         user.setHeight(firebaseUser.getHeight());
         user.setWeight(firebaseUser.getWeight());
-        user.setGoalWeight(firebaseUser.getGoalWeight());
-        user.setWeightProgress(firebaseUser.getWeightProgress());
-        user.setTrainingPlans(firebaseUser.getTrainingPlans());
-        user.setCurrentTrainingPlan(firebaseUser.getCurrentTrainingPlan());
 
         if (firebaseUser.getCreatedAt() != null) {
             user.setCreatedAt(firebaseUser.getCreatedAt());

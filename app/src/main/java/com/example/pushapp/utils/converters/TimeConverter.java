@@ -4,6 +4,10 @@ import androidx.room.TypeConverter;
 
 import com.google.firebase.Timestamp;
 
+/**
+ * Room TypeConverter for handling conversions between Long (timestamp in milliseconds)
+ * and Firebase Timestamp objects to support correct persistence of time data.
+ */
 public class TimeConverter {
     @TypeConverter
     public static Timestamp fromTimestamp(Long value) {

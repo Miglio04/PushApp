@@ -30,8 +30,12 @@ import com.example.pushapp.viewModels.WorkoutViewModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
+/**
+ * Fragment representing the active workout screen.
+ * Displays the list of exercises, manages the workout timer, handles user interactions for completing sets,
+ * and controls the rest timer UI.
+ */
 public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.OnWorkoutInteractionListener {
 
     private WorkoutViewModel workoutViewModel;
@@ -50,6 +54,11 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
 
     public WorkoutFragment() {}
 
+    /**
+     * Initializes the ViewModel and attempts to start or restore a workout session.
+     *
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +86,11 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         setupClickListeners();
     }
 
+    /**
+     * Initializes UI components from the layout.
+     *
+     * @param view The root view of the fragment.
+     */
     private void initViews(View view) {
         workoutBackButton = view.findViewById(R.id.workout_back_button);
         headerTitle = view.findViewById(R.id.header_title);
@@ -91,12 +105,18 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         restTimerSkip = view.findViewById(R.id.rest_timer_skip);
     }
 
+    /**
+     * Configures the RecyclerView and its adapter for displaying exercises.
+     */
     private void setupRecyclerView() {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         workoutAdapter = new WorkoutExerciseAdapter(new ArrayList<>(), new ArrayList<>(), this);
         recyclerView.setAdapter(workoutAdapter);
     }
 
+    /**
+     * Sets up observers for ViewModel LiveData to update the UI in response to state changes.
+     */
     private void setupObservers() {
         workoutViewModel.getFormattedTime().observe(getViewLifecycleOwner(), time -> timerText.setText(time));
 
@@ -115,13 +135,9 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
             }
         });
 
-        workoutViewModel.isRestTimerRunning().observe(getViewLifecycleOwner(), isRunning -> {
-            restTimerContainer.setVisibility(isRunning ? View.VISIBLE : View.GONE);
-        });
+        workoutViewModel.isRestTimerRunning().observe(getViewLifecycleOwner(), isRunning -> restTimerContainer.setVisibility(isRunning ? View.VISIBLE : View.GONE));
 
-        workoutViewModel.getRestTotalSeconds().observe(getViewLifecycleOwner(), total -> {
-            this.totalRestSeconds = (total != null) ? total : 0;
-        });
+        workoutViewModel.getRestTotalSeconds().observe(getViewLifecycleOwner(), total -> this.totalRestSeconds = (total != null) ? total : 0);
 
         workoutViewModel.getRestSecondsRemaining().observe(getViewLifecycleOwner(), seconds -> {
             restTimerText.setText(String.format(Locale.getDefault(), "%02d:%02d", seconds / 60, seconds % 60));
@@ -140,6 +156,9 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
         });
     }
 
+    /**
+     * Sets up click listeners for buttons (back, start/pause, stop, skip rest).
+     */
     private void setupClickListeners() {
         workoutBackButton.setOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
 
@@ -156,7 +175,7 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
             workoutViewModel.finishWorkout(() -> {
                 if (isAdded()) {
                     requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(requireContext(), "Workout Saved! Great job 🔥", Toast.LENGTH_SHORT);
+                        Toast.makeText(requireContext(), "Workout Saved! Great job 🔥", Toast.LENGTH_SHORT).show();
                         NavHostFragment.findNavController(WorkoutFragment.this).popBackStack();
                     });
                 }
@@ -167,35 +186,79 @@ public class WorkoutFragment extends Fragment implements WorkoutExerciseAdapter.
     }
 
 
+    /**
+     * Callback when a set is marked as completed.
+     * Triggers the set completion logic in the ViewModel, potentially starting a rest timer.
+     *
+     * @param exercisePosition The index of the exercise.
+     * @param setPosition      The index of the set.
+     * @param restTimeSeconds  The duration of rest associated with this set.
+     */
     @Override
     public void onSetCompleted(int exercisePosition, int setPosition, int restTimeSeconds) {
         workoutViewModel.toggleSetCompleted(exercisePosition, setPosition, restTimeSeconds);
     }
 
+    /**
+     * Callback when set data (weight/reps) is updated by the user.
+     *
+     * @param exercisePosition The index of the exercise.
+     * @param setPosition      The index of the set.
+     * @param actualWeight     The new weight value.
+     * @param actualReps       The new repetition count.
+     */
     @Override
     public void onSetDataChanged(int exercisePosition, int setPosition, double actualWeight, int actualReps) {
         workoutViewModel.updateSetData(exercisePosition, setPosition, actualWeight, actualReps);
     }
 
+    /**
+     * Callback to add a new set to an exercise.
+     *
+     * @param exercisePosition The index of the exercise.
+     */
     @Override
     public void onAddSet(int exercisePosition) {
         workoutViewModel.addSetToExercise(exercisePosition);
     }
 
+    /**
+     * Callback to delete a specific set.
+     *
+     * @param exercisePosition The index of the exercise.
+     * @param setPosition      The index of the set to delete.
+     */
     @Override
     public void onSetDeleted(int exercisePosition, int setPosition) {
         workoutViewModel.deleteSetFromExercise(exercisePosition, setPosition);
     }
 
+    /**
+     * Callback when the rest time setting for an exercise is changed.
+     *
+     * @param exercisePosition The index of the exercise.
+     * @param newRestTime      The new rest time value (index or seconds).
+     */
     @Override
     public void onRestTimeChanged(int exercisePosition, int newRestTime) {
         workoutViewModel.updateExerciseRestTime(exercisePosition, newRestTime);
     }
 
+    /**
+     * Updates the start/pause button icon based on the timer state.
+     *
+     * @param isRunning True if the workout timer is running, false otherwise.
+     */
     private void updateStartPauseIcon(boolean isRunning) {
         startPauseButton.setImageResource(isRunning ? android.R.drawable.ic_media_pause : android.R.drawable.ic_media_play);
     }
 
+    /**
+     * Toggles the visibility of global UI elements like the bottom navigation and mini-player.
+     * Used to hide them when the workout fragment is active and full-screen.
+     *
+     * @param show True to show global UI, false to hide.
+     */
     private void updateGlobalUIVisibility(boolean show) {
         View nav = requireActivity().findViewById(R.id.bottom_navigation);
         if (nav != null) nav.setVisibility(show ? View.VISIBLE : View.GONE);

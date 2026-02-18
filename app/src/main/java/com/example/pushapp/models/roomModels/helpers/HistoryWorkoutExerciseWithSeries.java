@@ -8,6 +8,10 @@ import com.example.pushapp.models.history.HistoryWorkoutExercise;
 
 import java.util.List;
 
+/**
+ * Room Relationship class modeling a HistoryWorkoutExercise with its associated series.
+ * Uses @Relation to bind the exercise (parent) to its list of HistorySerie (children).
+ */
 public class HistoryWorkoutExerciseWithSeries {
 
     @Embedded

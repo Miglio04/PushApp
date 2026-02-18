@@ -19,6 +19,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Data source for handling exercise-related operations with the remote Ninja API.
+ * Manages fetching exercises for various muscle groups and aggregating the results.
+ */
 public class ExerciseAPIDataSource {
     private ExerciseCallback callback = null;
     NinjaApiService apiService;
@@ -28,6 +32,12 @@ public class ExerciseAPIDataSource {
             "lower_back", "middle_back", "neck", "quadriceps", "traps", "triceps"
     );
 
+    /**
+     * Constructs a new ExerciseAPIDataSource with a specific API service instance.
+     * Useful for testing or dependency injection.
+     *
+     * @param apiService The NinjaApiService instance to use for network requests.
+     */
     public ExerciseAPIDataSource(NinjaApiService apiService) {
         this.apiService = apiService;
     }
@@ -35,10 +45,21 @@ public class ExerciseAPIDataSource {
     public ExerciseAPIDataSource() {
         this(ApiClient.getClient().create(NinjaApiService.class));
     }
+
+    /**
+     * Sets the callback interface for receiving asynchronous operation results.
+     *
+     * @param callback The callback implementation.
+     */
     public void setCallback(ExerciseCallback callback){
         this.callback = callback;
     }
 
+    /**
+     * Fetches exercises for all defined muscle groups concurrently from the API.
+     * Aggregates results into a single list, sorts them by name, and notifies via callback upon completion.
+     * Handles synchronization of multiple asynchronous network calls.
+     */
     public void fetchAllExercises() {
 
         List<ExerciseApiModel> allDownloadedExercises = Collections.synchronizedList(new ArrayList<>());
@@ -48,7 +69,7 @@ public class ExerciseAPIDataSource {
         for (String muscle : muscles) {
             Call<List<ExerciseApiModel>> call = apiService.getExercises(Constants.NINJA_API_KEY, muscle);
 
-            call.enqueue(new Callback<List<ExerciseApiModel>>() {
+            call.enqueue(new Callback<>() {
                 @Override
                 public void onResponse(@NonNull Call<List<ExerciseApiModel>> call, @NonNull Response<List<ExerciseApiModel>> response) {
                     if (response.isSuccessful() && response.body() != null) {
@@ -71,8 +92,7 @@ public class ExerciseAPIDataSource {
                         if (allDownloadedExercises.isEmpty()) {
                             callback.onFailureFromRemote(new Exception("No exercises found from API"));
                         } else {
-                            // Sorting exercises alphabetically by name, ignoring case
-                            Collections.sort(allDownloadedExercises, (e1, e2) -> e1.getName().compareToIgnoreCase(e2.getName()));
+                            allDownloadedExercises.sort((e1, e2) -> e1.getName().compareToIgnoreCase(e2.getName()));
                             ArrayList<Exercise> exerciseList = new ArrayList<>();
                             for (ExerciseApiModel apiModel : allDownloadedExercises) {
                                 Exercise exercise = ExerciseConverter.apiToExercise(apiModel);

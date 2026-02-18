@@ -19,11 +19,18 @@ import com.example.pushapp.models.Serie;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter for managing and displaying the list of exercises in the request routine editing screen.
+ * Handles expandable items, allowing adding, editing, and deleting sets and exercises.
+ */
 public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.ViewHolder> {
 
     private List<WorkoutExercise> workoutExercises;
     private final OnExerciseInteractionListener listener;
 
+    /**
+     * Interface for handling interaction events on exercises and sets.
+     */
     public interface OnExerciseInteractionListener {
         void onEditExercise(int position);
         void onDeleteExercise(int position);
@@ -33,17 +40,34 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
 
     }
 
+    /**
+     * Constructs a new EditRoutineAdapter.
+     *
+     * @param workoutExercises The initial list of exercises.
+     * @param listener         The listener for interaction events.
+     */
     public EditRoutineAdapter(List<WorkoutExercise> workoutExercises, OnExerciseInteractionListener listener) {
-        // Inizializzazione sicura: mai lasciare la lista null
         this.workoutExercises = workoutExercises != null ? workoutExercises : new ArrayList<>();
         this.listener = listener;
     }
 
+    /**
+     * Updates the list of exercises and refreshes the RecyclerView.
+     *
+     * @param newWorkoutExercises The new list of exercises.
+     */
     public void setExercises(List<WorkoutExercise> newWorkoutExercises) {
         this.workoutExercises = newWorkoutExercises != null ? newWorkoutExercises : new ArrayList<>();
         notifyDataSetChanged();
     }
 
+    /**
+     * Creates a new ViewHolder for an exercise item.
+     *
+     * @param parent   The parent ViewGroup.
+     * @param viewType The view type.
+     * @return A new ViewHolder instance.
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -52,19 +76,23 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
         return new ViewHolder(view);
     }
 
+    /**
+     * Binds data to the ViewHolder at the specified position.
+     * Handles view expansion and sets up click listeners for exercise actions.
+     *
+     * @param holder   The ViewHolder to bind.
+     * @param position The position in the data list.
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         WorkoutExercise workoutExercise = workoutExercises.get(position);
 
-        // Imposta i dati dell'esercizio
         holder.nameTextView.setText(workoutExercise.getExerciseName());
 
-        // Gestione espansione (Visibility e Rotazione freccia)
         boolean isExpanded = workoutExercise.isExpanded();
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         holder.arrowIcon.setRotation(isExpanded ? 180f : 0f);
 
-        // Click sull'header per espandere/collassare
         holder.headerLayout.setOnClickListener(v -> {
             int currentPos = holder.getBindingAdapterPosition();
             if (currentPos != RecyclerView.NO_POSITION) {
@@ -74,7 +102,6 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
             }
         });
 
-        // Click su Elimina Esercizio
         holder.btnDeleteExercise.setOnClickListener(v -> {
             int currentPos = holder.getBindingAdapterPosition();
             if (listener != null && currentPos != RecyclerView.NO_POSITION) {
@@ -82,7 +109,6 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
             }
         });
 
-        // Click su Modifica/Sostituisci Esercizio
         holder.btnEditExercise.setOnClickListener(v -> {
             int currentPos = holder.getBindingAdapterPosition();
             if (listener != null && currentPos != RecyclerView.NO_POSITION) {
@@ -97,15 +123,23 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
             }
         });
 
-        // Configura il RecyclerView interno (le Serie)
         holder.setupInnerRecyclerView(workoutExercise.getSeries(), listener);
     }
 
+    /**
+     * Returns the total number of exercises.
+     *
+     * @return The size of the workout exercises list.
+     */
     @Override
     public int getItemCount() {
         return workoutExercises.size();
     }
 
+    /**
+     * ViewHolder class for caching view references for an exercise item.
+     * Manages the inner RecyclerView for sets.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public final TextView nameTextView;
         public final ImageView arrowIcon;
@@ -117,6 +151,11 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
         final RecyclerView recyclerSeries;
         private SetsAdapter setsAdapter;
 
+        /**
+         * Constructs a new ViewHolder.
+         *
+         * @param view The item view.
+         */
         public ViewHolder(View view) {
             super(view);
             nameTextView = view.findViewById(R.id.exercise_name);
@@ -130,11 +169,15 @@ public class EditRoutineAdapter extends RecyclerView.Adapter<EditRoutineAdapter.
             recyclerSeries = view.findViewById(R.id.sets_recycler_view);
         }
 
-        // Metodo helper per configurare il RecyclerView interno
+        /**
+         * Sets up the inner RecyclerView for displaying sets associated with this exercise.
+         *
+         * @param series       The list of sets (series) for this exercise.
+         * @param mainListener The listener to propagate events to the parent adapter.
+         */
         void setupInnerRecyclerView(List<Serie> series, OnExerciseInteractionListener mainListener) {
             recyclerSeries.setLayoutManager(new LinearLayoutManager(itemView.getContext()));
 
-            // Crea il listener per l'adapter interno
             SetsAdapter.OnSetInteractionListener innerListener = new SetsAdapter.OnSetInteractionListener() {
                 @Override
                 public void onSetUpdated(int setPosition, double newWeight, int newReps) {

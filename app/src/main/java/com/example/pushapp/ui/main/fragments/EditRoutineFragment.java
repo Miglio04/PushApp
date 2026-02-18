@@ -33,7 +33,6 @@ import com.example.pushapp.adapter.AvailableExercisesAdapter;
 import com.example.pushapp.adapter.EditRoutineAdapter;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
-import com.example.pushapp.viewModels.WorkoutViewModel;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.Chip;
@@ -48,12 +47,16 @@ import android.text.TextWatcher;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fragment for editing an existing workout routine.
+ * Allows users to modify the routine name, add/remove/replace exercises, and manage sets within exercises.
+ * Also handles the UI for searching and filtering available exercises to add.
+ */
 public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.OnExerciseInteractionListener {
 
     private String routineId;
     private String trainingId;
     private TrainingViewModel trainingViewModel;
-    private WorkoutViewModel workoutViewModel;
     private EditRoutineAdapter adapter;
     private AvailableExercisesAdapter availableExercisesAdapter;
     private MaterialToolbar toolbar;
@@ -69,16 +72,16 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
     private String currentDifficultyFilter = "Tutti";
     private boolean areFilterComponentsInitialized = false;
 
-    public EditRoutineFragment() {
-        // Required empty public constructor
-    }
+    public EditRoutineFragment() {}
 
+    /**
+     * Initializes the ViewModels and retrieves arguments.
+     *
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        workoutViewModel = new ViewModelProvider(
-                this,
-                new ViewModelFactory(requireContext())).get(WorkoutViewModel.class);
 
         trainingViewModel = new ViewModelProvider(
                 this,
@@ -90,11 +93,25 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         }
     }
 
+    /**
+     * Inflates the layout for this fragment.
+     *
+     * @param inflater           LayoutInflater to inflate views.
+     * @param container          Parent view group.
+     * @param savedInstanceState Saved state bundle.
+     * @return The root view of the fragment.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_edit_routine, container, false);
     }
 
+    /**
+     * Sets up views, listeners, and observers after the view is created.
+     *
+     * @param view               The root view.
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -107,7 +124,6 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         MaterialButton btnSave = view.findViewById(R.id.btn_save_edit);
         MaterialButton btnCancel = view.findViewById(R.id.btn_cancel_edit);
 
-        // Correzione colori Chip Statici ("Tutti")
         applyDynamicColorsToStaticChips(view);
 
         setupToolbar();
@@ -120,6 +136,10 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         btnSave.setOnClickListener(v -> saveChanges());
         btnCancel.setOnClickListener(v -> cancelChanges());
     }
+
+    /**
+     * Configures the main RecyclerView for displaying the routine's exercises.
+     */
     private void setupMainRecyclerView() {
         if (mainRecyclerView != null) {
             mainRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -127,6 +147,11 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             mainRecyclerView.setAdapter(adapter);
         }
     }
+
+    /**
+     * Sets up the text change listener for the routine name input field.
+     * Updates the ViewModel when the name changes.
+     */
     private void setupRoutineNameInput() {
         etRoutineName.addTextChangedListener(new TextWatcher() {
             @Override
@@ -144,9 +169,18 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             }
         });
     }
+
+    /**
+     * Configures the toolbar navigation listener to handle back actions.
+     */
     private void setupToolbar() {
         toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).popBackStack());
     }
+
+    /**
+     * Sets up custom handling for the system back button.
+     * Closes the search panel if open, otherwise navigates back.
+     */
     private void setupBackButtonHandler() {
         requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
@@ -156,7 +190,10 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         });
     }
 
-    // --- Pagina Esercizi Disponibili ---
+    /**
+     * Initializes and displays the search panel for adding new exercises.
+     * Sets up filters and adapters if not already initialized.
+     */
     private void initializeAndShowSearchPanel() {
         if (getView() == null || searchPanel == null) return;
         if (!areFilterComponentsInitialized) {
@@ -189,6 +226,12 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         }
         toggleSearchPanel(true);
     }
+
+    /**
+     * Configures the RecyclerView for the list of available exercises to add.
+     *
+     * @param view The parent view containing the RecyclerView.
+     */
     private void setupAvailableExercisesRecycler(View view) {
         RecyclerView filterRecycler = view.findViewById(R.id.recycler_available_exercises);
         if (filterRecycler == null) return;
@@ -199,9 +242,8 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
                 Toast.makeText(getContext(), "Errore: Giorno non caricato.", Toast.LENGTH_SHORT).show();
                 return;
             }
-            int order = adapter.getItemCount() + 1;
 
-            WorkoutExercise newWorkoutExercise = new WorkoutExercise(exercise.getName(), order);
+            WorkoutExercise newWorkoutExercise = new WorkoutExercise(exercise.getName());
 
             trainingViewModel.addExerciseToRoutine(newWorkoutExercise);
             toggleSearchPanel(false);
@@ -209,6 +251,10 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         });
         filterRecycler.setAdapter(availableExercisesAdapter);
     }
+
+    /**
+     * Sets up listeners for the search view and filter chips (muscle/difficulty).
+     */
     private void setupFilterListeners() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override public boolean onQueryTextSubmit(String query) { return false; }
@@ -241,6 +287,13 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             trainingViewModel.applyFilters(currentQuery, currentMuscleFilter, currentDifficultyFilter);
         });
     }
+
+    /**
+     * Populates a ChipGroup with dynamic filter categories.
+     *
+     * @param group      The ChipGroup to populate.
+     * @param categories The list of category strings.
+     */
     private void populateFilterChips(ChipGroup group, List<String> categories) {
         int childCount = group.getChildCount();
         if (childCount > 1) group.removeViews(1, childCount - 1);
@@ -256,6 +309,12 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             group.addView(chip);
         }
     }
+
+    /**
+     * Applies dynamic color logic to static "All" chips to match the theme.
+     *
+     * @param view The parent view.
+     */
     private void applyDynamicColorsToStaticChips(View view) {
         Chip chipAllMuscles = view.findViewById(R.id.chip_all_muscles);
         Chip chipAllDifficulty = view.findViewById(R.id.chip_all_difficulty);
@@ -263,6 +322,12 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         if (chipAllMuscles != null) chipAllMuscles.setTextColor(textColors);
         if (chipAllDifficulty != null) chipAllDifficulty.setTextColor(textColors);
     }
+
+    /**
+     * Creates a ColorStateList that changes text color based on selection state.
+     *
+     * @return The created ColorStateList.
+     */
     private ColorStateList createDynamicColorStateList() {
         TypedValue typedValue = new TypedValue();
         requireContext().getTheme().resolveAttribute(com.google.android.material.R.attr.colorOnSurface, typedValue, true);
@@ -280,6 +345,13 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         };
         return new ColorStateList(states, colors);
     }
+
+    /**
+     * Shows a dialog to select an exercise effectively replacing the one at the given position.
+     * If available exercises are not loaded, it prompts loading them first.
+     *
+     * @param positionToReplace The index of the exercise to replace.
+     */
     private void showAddOrReplaceExerciseDialog(final int positionToReplace) {
         List<Exercise> available = new ArrayList<>();
         Result result = trainingViewModel.getAvailableExercises().getValue();
@@ -293,7 +365,7 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             ProgressDialog progressDialog = new ProgressDialog(getContext());
             progressDialog.setMessage("Caricamento...");
             progressDialog.show();
-            trainingViewModel.getAvailableExercises().observe(getViewLifecycleOwner(), new Observer<Result>() {
+            trainingViewModel.getAvailableExercises().observe(getViewLifecycleOwner(), new Observer<>() {
                 @Override public void onChanged(Result result) {
                     if (result.isExerciseSuccess()) {
                         List<Exercise> exercises = ((Result.ExerciseSuccess) result).getData();
@@ -312,12 +384,25 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
             new Handler().postDelayed(() -> { if (progressDialog.isShowing()) progressDialog.dismiss(); }, 5000);
         }
     }
+
+    /**
+     * Opens a dialog with a list of exercises for replacement.
+     *
+     * @param exercises         The list of exercises to choose from.
+     * @param positionToReplace The index of the exercise to replace.
+     */
     private void openSelectionDialog(List<Exercise> exercises, int positionToReplace) {
         String[] names = new String[exercises.size()];
         for (int i = 0; i < exercises.size(); i++) names[i] = exercises.get(i).getName();
         new AlertDialog.Builder(requireContext()).setTitle("Sostituisci").setItems(names, (dialog, which) ->
                 trainingViewModel.replaceExerciseRoutine(positionToReplace, exercises.get(which))).setNegativeButton("Annulla", null).show();
     }
+
+    /**
+     * Toggles the visibility of the search/add exercise panel.
+     *
+     * @param showSearch True to show the search panel, false to hide it.
+     */
     private void toggleSearchPanel(boolean showSearch) {
         searchPanel.setVisibility(showSearch ? View.VISIBLE : View.GONE);
         if (mainRecyclerView != null) mainRecyclerView.setVisibility(showSearch ? View.GONE : View.VISIBLE);
@@ -326,8 +411,10 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         if (buttonsContainer != null) buttonsContainer.setVisibility(showSearch ? View.GONE : View.VISIBLE);
         if (showSearch && searchView != null) { searchView.setIconified(false); searchView.requestFocus(); }
     }
-    // -------------------------------------
 
+    /**
+     * Observes ViewModel data to update the UI with routine details and error messages.
+     */
     private void observeViewModel() {
         trainingViewModel.getEditableRoutine().observe(getViewLifecycleOwner(), routine -> {
             if (routine != null) {
@@ -342,19 +429,39 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
         });
         if (trainingId != null && routineId != null) trainingViewModel.loadRoutineForEdit(trainingId, routineId);
     }
+
+    /**
+     * Saves the modifications made to the routine.
+     */
     private void saveChanges() {
         Routine routine = trainingViewModel.getEditableRoutine().getValue();
         trainingViewModel.updateRoutine(routine);
         Toast.makeText(getContext(), "Salvato", Toast.LENGTH_SHORT).show();
     }
+
+    /**
+     * Cancels the edit operation and navigates back.
+     */
     private void cancelChanges() {
         trainingViewModel.clearEditableRoutine();
         NavHostFragment.findNavController(this).popBackStack();
     }
 
+    /**
+     * Called when the edit button on an exercise item is clicked.
+     *
+     * @param position The position of the item.
+     */
     @Override public void onEditExercise(int position) {
         showAddOrReplaceExerciseDialog(position);
     }
+
+    /**
+     * Called when the delete button on an exercise item is clicked.
+     * Shows a confirmation dialog.
+     *
+     * @param position The position of the item.
+     */
     @Override public void onDeleteExercise(int position) {
         Routine routine = trainingViewModel.getEditableRoutine().getValue();
         if(routine == null) return;
@@ -362,17 +469,37 @@ public class EditRoutineFragment extends Fragment implements EditRoutineAdapter.
                 .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteExerciseFromRoutine(position)).setNegativeButton("Annulla", null).show();
     }
 
+    /**
+     * Called when a new set is requested for an exercise.
+     *
+     * @param exercisePosition The index of the exercise.
+     */
     @Override
     public void onSetCreated(int exercisePosition) {
         trainingViewModel.addSetInExercise(exercisePosition);
     }
+
+    /**
+     * Called when a set is updated (weight/reps).
+     *
+     * @param exPos  The index of the exercise.
+     * @param setPos The index of the set.
+     * @param w      The new weight.
+     * @param r      The new reps.
+     */
     @Override public void onSetUpdated(int exPos, int setPos, double w, int r) {
         trainingViewModel.updateSetInExercise(exPos, setPos, w, r);
     }
+
+    /**
+     * Called when a set is deleted.
+     * Shows a confirmation dialog.
+     *
+     * @param exPos  The index of the exercise.
+     * @param setPos The index of the set.
+     */
     @Override public void onSetDeleted(int exPos, int setPos) {
         new AlertDialog.Builder(requireContext()).setTitle("Elimina Serie").setMessage("Eliminare questa serie?")
                 .setPositiveButton("Elimina", (dialog, which) -> trainingViewModel.deleteSetFromExercise(exPos, setPos)).setNegativeButton("Annulla", null).show();
     }
-
-
 }

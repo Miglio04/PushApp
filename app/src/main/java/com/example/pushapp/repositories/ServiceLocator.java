@@ -4,6 +4,10 @@ import android.content.Context;
 import com.example.pushapp.database.LocalDatabase;
 import com.example.pushapp.utils.SessionManager;
 
+/**
+ * Singleton Service Locator for managing dependency injection.
+ * Provides singleton instances of repositories, data sources, and database managers throughout the application.
+ */
 public class ServiceLocator {
 
     private static volatile ServiceLocator instance = null;
@@ -17,7 +21,6 @@ public class ServiceLocator {
     private volatile UserRepository userRepository = null;
     private volatile HistoryRepository historyRepository = null;
 
-    // Riferimento al gestore della sessione temporanea (Punto 9)
     private volatile SessionManager sessionManager = null;
 
     private volatile TrainingLocalDataSource trainingLocalDataSource = null;
@@ -32,6 +35,11 @@ public class ServiceLocator {
     private volatile SessionRemoteDataSource sessionRemoteDataSource = null;
     private volatile HistoryRemoteDataSource historyRemoteDataSource = null;
 
+    /**
+     * Returns the singleton instance of ServiceLocator.
+     *
+     * @return The singleton ServiceLocator instance.
+     */
     public static ServiceLocator getInstance() {
         if (instance == null) {
             synchronized (ServiceLocator.class) {
@@ -43,8 +51,12 @@ public class ServiceLocator {
         return instance;
     }
 
-    // --- REPOSITORY GETTERS ---
-
+    /**
+     * Returns the singleton TrainingRepository instance.
+     *
+     * @param context The application context.
+     * @return The TrainingRepository instance.
+     */
     public synchronized TrainingRepository getTrainingRepository(Context context) {
         if(trainingRepository == null){
             trainingRepository = new TrainingRepository(
@@ -55,6 +67,12 @@ public class ServiceLocator {
         return trainingRepository;
     }
 
+    /**
+     * Returns the singleton ExerciseRepository instance.
+     *
+     * @param context The application context.
+     * @return The ExerciseRepository instance.
+     */
     public synchronized ExerciseRepository getExerciseRepository(Context context) {
         if(exerciseRepository == null){
             exerciseRepository = new ExerciseRepository(
@@ -66,6 +84,12 @@ public class ServiceLocator {
         return exerciseRepository;
     }
 
+    /**
+     * Returns the singleton SessionRepository instance.
+     *
+     * @param context The application context.
+     * @return The SessionRepository instance.
+     */
     public synchronized SessionRepository getSessionRepository(Context context) {
         if(sessionRepository == null){
             sessionRepository = new SessionRepository(
@@ -76,17 +100,28 @@ public class ServiceLocator {
         return sessionRepository;
     }
 
+    /**
+     * Returns the singleton UserRepository instance.
+     *
+     * @param context The application context.
+     * @return The UserRepository instance.
+     */
     public synchronized UserRepository getUserRepository(Context context) {
         if(userRepository == null){
             userRepository = new UserRepository(
                     getUserLocalDataSource(context),
-                    getUserRemoteDataSource(),
-                    getSessionRepository(context)
+                    getUserRemoteDataSource()
             );
         }
         return userRepository;
     }
 
+    /**
+     * Returns the singleton HistoryRepository instance.
+     *
+     * @param context The application context.
+     * @return The HistoryRepository instance.
+     */
     public synchronized HistoryRepository getHistoryRepository(Context context) {
         if (historyRepository == null) {
             historyRepository = new HistoryRepository(
@@ -97,7 +132,12 @@ public class ServiceLocator {
         return historyRepository;
     }
 
-    // NUOVO: Getter per il SessionManager (Punto 9)
+    /**
+     * Returns the singleton SessionManager instance.
+     *
+     * @param context The application context.
+     * @return The SessionManager instance.
+     */
     public synchronized SessionManager getSessionManager(Context context) {
         if (sessionManager == null) {
             sessionManager = new SessionManager(context.getApplicationContext());
@@ -105,8 +145,12 @@ public class ServiceLocator {
         return sessionManager;
     }
 
-    // --- LOCAL DATA SOURCE GETTERS ---
-
+    /**
+     * Returns the TrainingLocalDataSource instance.
+     *
+     * @param context The application context.
+     * @return The TrainingLocalDataSource instance.
+     */
     public synchronized TrainingLocalDataSource getTrainingLocalDataSource(Context context) {
         if(trainingLocalDataSource == null){
             trainingLocalDataSource = new TrainingLocalDataSource(getDatabase(context));
@@ -114,6 +158,12 @@ public class ServiceLocator {
         return trainingLocalDataSource;
     }
 
+    /**
+     * Returns the ExerciseLocalDataSource instance.
+     *
+     * @param context The application context.
+     * @return The ExerciseLocalDataSource instance.
+     */
     public synchronized ExerciseLocalDataSource getExerciseLocalDataSource(Context context) {
         if(exerciseLocalDataSource == null){
             exerciseLocalDataSource = new ExerciseLocalDataSource(getDatabase(context));
@@ -121,6 +171,12 @@ public class ServiceLocator {
         return exerciseLocalDataSource;
     }
 
+    /**
+     * Returns the UserLocalDataSource instance.
+     *
+     * @param context The application context.
+     * @return The UserLocalDataSource instance.
+     */
     public synchronized UserLocalDataSource getUserLocalDataSource(Context context) {
         if(userLocalDataSource == null){
             userLocalDataSource = new UserLocalDataSource(getDatabase(context));
@@ -128,6 +184,12 @@ public class ServiceLocator {
         return userLocalDataSource;
     }
 
+    /**
+     * Returns the HistoryLocalDataSource instance.
+     *
+     * @param context The application context.
+     * @return The HistoryLocalDataSource instance.
+     */
     public synchronized HistoryLocalDataSource getHistoryLocalDataSource(Context context) {
         if (historyLocalDataSource == null) {
             historyLocalDataSource = new HistoryLocalDataSource(getDatabase(context));
@@ -135,6 +197,11 @@ public class ServiceLocator {
         return historyLocalDataSource;
     }
 
+    /**
+     * Returns the SessionLocalDataSource instance.
+     *
+     * @return The SessionLocalDataSource instance.
+     */
     public synchronized SessionLocalDataSource getSessionLocalDataSource() {
         if(sessionLocalDataSource == null){
             sessionLocalDataSource = new SessionLocalDataSource();
@@ -142,8 +209,11 @@ public class ServiceLocator {
         return sessionLocalDataSource;
     }
 
-    // --- REMOTE DATA SOURCE GETTERS ---
-
+    /**
+     * Returns the TrainingRemoteDataSource instance.
+     *
+     * @return The TrainingRemoteDataSource instance.
+     */
     public synchronized TrainingRemoteDataSource getTrainingRemoteDataSource() {
         if(trainingRemoteDataSource == null){
             trainingRemoteDataSource = new TrainingRemoteDataSource();
@@ -151,6 +221,11 @@ public class ServiceLocator {
         return trainingRemoteDataSource;
     }
 
+    /**
+     * Returns the ExerciseAPIDataSource instance.
+     *
+     * @return The ExerciseAPIDataSource instance.
+     */
     public synchronized ExerciseAPIDataSource getExerciseAPIDataSource() {
         if(exerciseAPIDataSource == null){
             exerciseAPIDataSource = new ExerciseAPIDataSource();
@@ -158,6 +233,11 @@ public class ServiceLocator {
         return exerciseAPIDataSource;
     }
 
+    /**
+     * Returns the UserRemoteDataSource instance.
+     *
+     * @return The UserRemoteDataSource instance.
+     */
     public synchronized UserRemoteDataSource getUserRemoteDataSource() {
         if(userRemoteDataSource == null){
             userRemoteDataSource = new UserRemoteDataSource();
@@ -165,6 +245,11 @@ public class ServiceLocator {
         return userRemoteDataSource;
     }
 
+    /**
+     * Returns the SessionRemoteDataSource instance.
+     *
+     * @return The SessionRemoteDataSource instance.
+     */
     public synchronized SessionRemoteDataSource getSessionRemoteDataSource() {
         if(sessionRemoteDataSource == null){
             sessionRemoteDataSource = new SessionRemoteDataSource();
@@ -172,6 +257,11 @@ public class ServiceLocator {
         return sessionRemoteDataSource;
     }
 
+    /**
+     * Returns the HistoryRemoteDataSource instance.
+     *
+     * @return The HistoryRemoteDataSource instance.
+     */
     public synchronized HistoryRemoteDataSource getHistoryRemoteDataSource() {
         if (historyRemoteDataSource == null) {
             historyRemoteDataSource = new HistoryRemoteDataSource();
@@ -179,8 +269,12 @@ public class ServiceLocator {
         return historyRemoteDataSource;
     }
 
-    // --- DATABASE ---
-
+    /**
+     * Returns the singleton LocalDatabase instance.
+     *
+     * @param context The application context.
+     * @return The LocalDatabase instance.
+     */
     private synchronized LocalDatabase getDatabase(Context context) {
         if (localDatabase == null) {
             localDatabase = LocalDatabase.getDatabase(context.getApplicationContext());

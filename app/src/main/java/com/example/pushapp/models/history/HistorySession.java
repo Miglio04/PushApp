@@ -7,6 +7,10 @@ import androidx.room.PrimaryKey;
 
 import java.util.UUID;
 
+/**
+ * Entity representing a completed workout session in history.
+ * Stores summary data like start/end time, duration, and name.
+ */
 @Entity(tableName = "historySessions")
 public class HistorySession {
 
@@ -25,10 +29,20 @@ public class HistorySession {
     @ColumnInfo(name = "duration")
     private long duration;
 
+    /**
+     * Default constructor.
+     */
     public HistorySession() {
         this.historySessionId = UUID.randomUUID().toString();
     }
 
+    /**
+     * Constructs a HistorySession.
+     *
+     * @param name      The name of the session.
+     * @param startTime The start timestamp in milliseconds.
+     * @param endTime   The end timestamp in milliseconds.
+     */
     public HistorySession(String name, long startTime, long endTime) {
         this.historySessionId = UUID.randomUUID().toString();
         this.name = name;

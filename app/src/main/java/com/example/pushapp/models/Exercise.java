@@ -5,6 +5,10 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+/**
+ * Entity representing a predefined exercise available in the app.
+ * Contains metadata such as name, muscle group, and difficulty level.
+ */
 @Entity(tableName = "exercise")
 public class Exercise {
     @PrimaryKey
@@ -18,6 +22,13 @@ public class Exercise {
     @ColumnInfo(name = "difficulty")
     private String difficulty;
 
+    /**
+     * Constructs a new Exercise.
+     *
+     * @param name       The name of the exercise.
+     * @param muscle     The target muscle group.
+     * @param difficulty The difficulty level (beginner, intermediate, expert).
+     */
     public Exercise(@NonNull String name, String muscle, String difficulty) {
         this.name = name;
         this.muscle = muscle;
