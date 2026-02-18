@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         userViewModel.fetchUser();
+        userViewModel.fetchSessionUser();
         historyViewModel.fetchHistory();
         workoutViewModel.checkRestoredSession();
         userViewModel.getSessionLiveData().observe(this, new Observer<>() {
