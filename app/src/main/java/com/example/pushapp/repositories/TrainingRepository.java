@@ -271,13 +271,13 @@ public class TrainingRepository implements TrainingCallback{
 
     /**
      * Resets the local database by deleting all training data.
-     * Updates LiveData to null or error state accordingly.
+     * Updates LiveData to empty list state accordingly.
      */
     public void resetLocalDatabase(){
         try{
             trainingLocalDataSource.resetDatabase();
             if(trainingList != null){
-                trainingList.postValue(null);
+                trainingList.postValue(new Result.TrainingsSuccess(new java.util.ArrayList<>()));
             }
         }catch (Exception e){
             Result.Error resultError = new Result.Error(e.getMessage());

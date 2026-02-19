@@ -71,20 +71,21 @@ public class MainActivity extends AppCompatActivity {
 
 
         userViewModel.fetchUser();
-        userViewModel.fetchSessionUser();
         historyViewModel.fetchHistory();
         workoutViewModel.checkRestoredSession();
-        userViewModel.getSessionLiveData().observe(this, new Observer<>() {
+        trainingViewModel.loadAvailableExercises();
+
+        userViewModel.getSessionLiveData().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 if (result != null && result.isSessionSuccess()) {
                     userViewModel.getSessionLiveData().removeObserver(this);
                     String userId = ((Result.SessionSuccess) result).getData().getUserId();
                     trainingViewModel.fetchTrainings(userId);
-                    trainingViewModel.loadAvailableExercises();
                 }
             }
         });
+        userViewModel.fetchSessionUser();
 
         setupWindowInsets();
         setupNavigation();

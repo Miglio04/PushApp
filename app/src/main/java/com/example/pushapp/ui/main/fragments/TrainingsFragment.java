@@ -43,6 +43,7 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
     private NavController navController;
     private View emptyStateContainer;
     private RecyclerView recyclerView;
+    private String currentUserId = null;
 
     /**
      * Called when the fragment is being created.
@@ -94,13 +95,19 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
 
         FloatingActionButton fab = view.findViewById(R.id.fab_add_training);
         fab.setOnClickListener(v -> {
-            Result result = userViewModel.getSessionLiveData().getValue();
-
-            if (result != null && result.isSessionSuccess()) {
-                String userId = ((Result.SessionSuccess) result).getData().getUserId();
-                trainingViewModel.createTraining(userId);
+            String odUserId = currentUserId;
+            if (odUserId == null) {
+                com.google.firebase.auth.FirebaseUser user = com.google.firebase.auth.FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null) {
+                    odUserId = user.getUid();
+                }
+            }
+            if (odUserId != null) {
+                trainingViewModel.createTraining(odUserId);
             }
         });
+
+        observeSession();
         observeViewModel();
     }
 
@@ -113,6 +120,19 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new TrainingsRecyclerViewAdapter(new ArrayList<>(), this);
         recyclerView.setAdapter(adapter);
+    }
+
+    /**
+     * Observes session to get the current user ID.
+     */
+    private void observeSession() {
+        userViewModel.fetchSessionUser();
+        userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
+            if (result != null && result.isSessionSuccess()) {
+                currentUserId = ((Result.SessionSuccess) result).getData().getUserId();
+                trainingViewModel.fetchTrainings(currentUserId);
+            }
+        });
     }
 
     /**

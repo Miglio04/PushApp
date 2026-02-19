@@ -77,7 +77,6 @@ public class UserViewModel extends ViewModel {
      */
     public void registerWithGoogle(String idToken){
         sessionRepository.signInWithGoogle(idToken);
-        registrationObserveSessionLiveData();
     }
 
     /**
@@ -117,7 +116,6 @@ public class UserViewModel extends ViewModel {
      */
     public void registerWithEmailAndPassword(String email, String password) {
         sessionRepository.registerWithEmailAndPassword(email, password);
-        registrationObserveSessionLiveData();
     }
 
     /**
@@ -138,26 +136,6 @@ public class UserViewModel extends ViewModel {
         userRepository.insertUser(user);
     }
 
-    /**
-     * Observes session changes during registration to automatically create a local user entry.
-     */
-    private void registrationObserveSessionLiveData() {
-        androidx.lifecycle.Observer<Result> sessionObserver = new androidx.lifecycle.Observer<>() {
-            @Override
-            public void onChanged(Result result) {
-                if(result == null) return;
-                if (result instanceof Result.SessionSuccess) {
-                    String userId = ((Result.SessionSuccess) result).getData().getUserId();
-                    String email = ((Result.SessionSuccess) result).getData().getEmail();
-                    User user = new User(userId, email);
-
-                    userRepository.insertUser(user);
-                }
-                sessionLiveData.removeObserver(this);
-            }
-        };
-        sessionLiveData.observeForever(sessionObserver);
-    }
 
     /**
      * Clears the session LiveData in the repository.
