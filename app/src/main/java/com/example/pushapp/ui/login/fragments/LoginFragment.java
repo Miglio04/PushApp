@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -57,8 +56,8 @@ public class LoginFragment extends Fragment {
                         GoogleSignInAccount account = task.getResult(ApiException.class);
                         userViewModel.signInWithGoogle(account.getIdToken());
                     } catch (ApiException e) {
-                        Toast.makeText(requireContext(), "Google Sign-In failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         hideLoading();
+                        showLoginErrorDialog(getString(R.string.google_sign_in_failed));
                     }
                 } else {
                     hideLoading();
@@ -153,7 +152,7 @@ public class LoginFragment extends Fragment {
                 userViewModel.clearSessionLiveData();
             }else if(userId.isLoginError()){
                 Result.Error.LoginError error = (Result.Error.LoginError) userId;
-                Toast.makeText(requireContext(), "Login error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                showLoginErrorDialog(error.getMessage());
                 userViewModel.clearSessionLiveData();
             }else if(userId.isLocalDatabaseError()){
                 showUserNotFoundDialog();
@@ -238,6 +237,38 @@ public class LoginFragment extends Fragment {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         requireActivity().finish();
+    }
+
+    /**
+     * Displays a dialog when a login error occurs.
+     * Shows the error message and provides a retry option.
+     *
+     * @param message The error message to display.
+     */
+    private void showLoginErrorDialog(String message) {
+        if (getContext() == null) return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.dialog_connection_error, null);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        dialog.setCancelable(true);
+
+        TextView tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
+        if (tvErrorMessage != null) {
+            tvErrorMessage.setText(message);
+        }
+
+        Button btnOk = view.findViewById(R.id.btnOk);
+        if (btnOk != null) {
+            btnOk.setOnClickListener(v -> {
+                dialog.dismiss();
+                etEmail.requestFocus();
+            });
+        }
+        dialog.show();
     }
 
     /**

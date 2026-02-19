@@ -32,6 +32,7 @@
     <string name="welcome_back">Bentornato!</string>
     <string name="or">---------- o ----------</string>
     <string name="continue_with_google">Continua con Google</string>
+    <string name="google_sign_in_failed">Accesso con Google fallito. Riprova.</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service">Continuando accetti i nostri Termini di Servizio</string>
     <string name="logging_in">Accesso in corso...</string>
 

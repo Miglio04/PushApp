@@ -24,6 +24,7 @@
     <string name="welcome_back">Welcome Back!</string>
     <string name="or">---------- or ----------</string>
     <string name="continue_with_google">Continue with Google</string>
+    <string name="google_sign_in_failed">Google Sign-In failed. Please try again.</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service">By continuing you agree to our Terms of Service</string>
     <string name="logging_in">Logging in...</string>
     <string name="ops_invalid_email_address">Ops! Invalid email address</string>
@@ -313,5 +314,6 @@
     <string name="done">Done</string>
     <string name="delete_exercise_title">Delete Exercise</string>
     <string name="delete_exercise_confirm">Are you sure you want to delete %1$s?</string>
+    <string name="connection_error">connection_error</string>
 
 </resources>

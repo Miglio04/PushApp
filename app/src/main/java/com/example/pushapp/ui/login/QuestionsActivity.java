@@ -36,13 +36,13 @@ public class QuestionsActivity extends AppCompatActivity {
     private TextView tvStepCounter, tvProgressPercentage;
     private Button btnBack, btnNext;
 
-    private EditText etName, etSurname, etAge, etWeight, etHeight, etGoalWeight;
-    private TextView tvNameError, tvSurnameError, tvAgeError, tvWeightError, tvHeightError, tvGoalError;
+    private EditText etName, etSurname, etAge, etWeight, etHeight;
+    private TextView tvNameError, tvSurnameError, tvAgeError, tvWeightError, tvHeightError;
     private RadioGroup radioGroupGender;
     private TextView tvGenderError;
 
     private int currentStep = 0;
-    private final int TOTAL_STEPS = 5;
+    private final int TOTAL_STEPS = 4;
 
     private UserViewModel userViewModel;
 
@@ -96,9 +96,6 @@ public class QuestionsActivity extends AppCompatActivity {
         etHeight = findViewById(R.id.etHeight);
         tvWeightError = findViewById(R.id.tvWeightError);
         tvHeightError = findViewById(R.id.tvHeightError);
-
-        etGoalWeight = findViewById(R.id.etGoalWeight);
-        tvGoalError = findViewById(R.id.tvGoalError);
     }
 
     /**
@@ -165,7 +162,6 @@ public class QuestionsActivity extends AppCompatActivity {
             case 1: return validateStep2_Gender();
             case 2: return validateStep3_Age();
             case 3: return validateStep4_Measurements();
-            case 4: return validateStep5_Goal();
             default: return true;
         }
     }
@@ -233,19 +229,6 @@ public class QuestionsActivity extends AppCompatActivity {
     }
 
     /**
-     * Validates Step 5: Goal weight input.
-     * @return true if valid.
-     */
-    private boolean validateStep5_Goal() {
-        String goalStr = etGoalWeight.getText().toString();
-        if (TextUtils.isEmpty(goalStr) || Double.parseDouble(goalStr) < 20) {
-            showError(etGoalWeight, tvGoalError, getString(R.string.please_target_weight));
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * Displays an error message for a specific input field and highlights it.
      *
      * @param field     The EditText field to highlight (optional).
@@ -278,9 +261,6 @@ public class QuestionsActivity extends AppCompatActivity {
         if(tvWeightError!=null) tvWeightError.setVisibility(View.GONE);
         if(etHeight!=null) etHeight.setBackgroundResource(R.drawable.bg_input_outline);
         if(tvHeightError!=null) tvHeightError.setVisibility(View.GONE);
-
-        if(etGoalWeight!=null) etGoalWeight.setBackgroundResource(R.drawable.bg_input_outline);
-        if(tvGoalError!=null) tvGoalError.setVisibility(View.GONE);
     }
 
     /**

@@ -13,7 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -70,7 +69,7 @@ public class RegisterFragment extends Fragment {
                         firebaseAuthWithGoogle(account.getIdToken());
                     } catch (ApiException e) {
                         showLoading(false, null);
-                        Toast.makeText(requireContext(), "Google Error: " + e.getStatusCode(), Toast.LENGTH_SHORT).show();
+                        showConnectionErrorDialog(getString(R.string.google_sign_in_failed));
                     }
                 }
             }
@@ -166,7 +165,7 @@ public class RegisterFragment extends Fragment {
            if (result.isRegistrationError()) {
                showLoading(false, null);
                Result.Error.RegistrationError error = (Result.Error.RegistrationError) result;
-               Toast.makeText(requireContext(), "Registration error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+               showConnectionErrorDialog(error.getMessage());
                userViewModel.clearSessionLiveData();
            }
         });
@@ -183,7 +182,7 @@ public class RegisterFragment extends Fragment {
                 showSuccessDialog();
             } else if (result.isLocalDatabaseError()) {
                 Result.Error.LocalDatabaseError error = (Result.Error.LocalDatabaseError) result;
-                Toast.makeText(requireContext(), "Local database error: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                showConnectionErrorDialog(error.getMessage());
                 userViewModel.clearUserLiveData();
             }
         });
@@ -289,6 +288,39 @@ public class RegisterFragment extends Fragment {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         requireActivity().finish();
+    }
+
+    /**
+     * Displays a connection error dialog with the provided message.
+     *
+     * @param message The error message to display.
+     */
+    private void showConnectionErrorDialog(String message) {
+        if (getContext() == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View view = getLayoutInflater().inflate(R.layout.dialog_connection_error, null);
+        builder.setView(view);
+
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+        dialog.setCancelable(true);
+
+        TextView tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
+        if (tvErrorMessage != null) {
+            tvErrorMessage.setText(message);
+        }
+
+        Button btnOk = view.findViewById(R.id.btnOk);
+        if (btnOk != null) {
+            btnOk.setOnClickListener(v -> {
+                dialog.dismiss();
+                etEmail.requestFocus();
+            });
+        }
+        dialog.show();
     }
 
     /**
