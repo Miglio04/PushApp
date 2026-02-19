@@ -297,5 +297,10 @@
     <string name="delete_exercise_title">Elimina Esercizio</string>
     <string name="delete_exercise_confirm">Sei sicuro di voler eliminare %1$s?</string>
     <string name="connection_error">Errore di connessione</string>
+    <string name="error">Errore</string>
+    <string name="network_error">Errore di rete</string>
+    <string name="user_not_found">Utente non trovato</string>
+    <string name="wrong_credentials">Credenziali errate</string>
+    <string name="email_already_registered">Email già registrata</string>
 
 </resources>
