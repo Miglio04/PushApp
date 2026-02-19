@@ -1,6 +1,5 @@
 package com.example.pushapp.ui.login.fragments;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,8 +13,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -24,16 +21,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.pushapp.R;
-import com.example.pushapp.models.Result;
 import com.example.pushapp.ui.main.MainActivity;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
 
 /**
  * Fragment responsible for user login functionality.
@@ -45,25 +35,6 @@ public class LoginFragment extends Fragment {
     private TextView tvEmailError, tvPasswordError;
     private LinearLayout loadingOverlay;
     private UserViewModel userViewModel;
-    private GoogleSignInClient mGoogleSignInClient;
-
-    private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
-                    try {
-                        GoogleSignInAccount account = task.getResult(ApiException.class);
-                        userViewModel.signInWithGoogle(account.getIdToken());
-                    } catch (ApiException e) {
-                        hideLoading();
-                        showLoginErrorDialog(getString(R.string.google_sign_in_failed));
-                    }
-                } else {
-                    hideLoading();
-                }
-            }
-    );
 
     public LoginFragment() {}
 
@@ -82,11 +53,6 @@ public class LoginFragment extends Fragment {
 
         userViewModel.clearLiveData();
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
     }
 
     /**
@@ -119,16 +85,10 @@ public class LoginFragment extends Fragment {
         tvEmailError = view.findViewById(R.id.tvEmailError);
         tvPasswordError = view.findViewById(R.id.tvPasswordError);
         Button btnLogin = view.findViewById(R.id.btnLogin);
-        Button btnGoogle = view.findViewById(R.id.btnGoogle);
         TextView tvForgotPassword = view.findViewById(R.id.tvForgotPassword);
         loadingOverlay = view.findViewById(R.id.loadingOverlay);
 
         btnLogin.setOnClickListener(v -> performLogin());
-        btnGoogle.setOnClickListener(v -> {
-            showLoading();
-            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-            googleSignInLauncher.launch(signInIntent);
-        });
 
         if (tvForgotPassword != null) {
             tvForgotPassword.setOnClickListener(v -> Navigation.findNavController(v)
@@ -142,23 +102,19 @@ public class LoginFragment extends Fragment {
      */
     private void observeUserViewModel(){
         if (userViewModel == null) return;
-        userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), userId -> {
-            if(userId == null) return;
+        userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
+            if(result == null) return;
             hideLoading();
-            if(userId.isSessionSuccess()){
+            if(result.isSessionSuccess()){
                 showLoginSuccessDialog();
-            }else if(userId.isRegistrationError()){
-                showUserNotFoundDialog();
+            } else if(result.isNetworkError()){
+                showErrorDialog(getString(R.string.network_error), true);
                 userViewModel.clearSessionLiveData();
-            }else if(userId.isLoginError()){
-                Result.Error.LoginError error = (Result.Error.LoginError) userId;
-                showLoginErrorDialog(error.getMessage());
+            } else if(result.isLoginError()){
+                showErrorDialog(getString(R.string.wrong_credentials), false);
                 userViewModel.clearSessionLiveData();
-            }else if(userId.isLocalDatabaseError()){
-                showUserNotFoundDialog();
-                userViewModel.clearSessionLiveData();
-            }else if(userId.isUserNotFound()){
-                showUserNotFoundDialog();
+            } else if(result.isUserNotFound()){
+                showErrorDialog(getString(R.string.user_not_found), false);
                 userViewModel.clearSessionLiveData();
             }
         });
@@ -181,7 +137,6 @@ public class LoginFragment extends Fragment {
             showError(etEmail, tvEmailError, getString(R.string.ops_invalid_email_address));
             isValid = false;
         }
-
         if (password.isEmpty()) {
             showError(etPassword, tvPasswordError, getString(R.string.password_must_be_6) );
             isValid = false;
@@ -192,6 +147,17 @@ public class LoginFragment extends Fragment {
         showLoading();
 
         userViewModel.signInWithEmailAndPassword(email, password);
+    }
+
+    /**
+     * Navigates to the MainActivity and clears the back stack.
+     */
+    private void goToHome() {
+        if (getContext() == null) return;
+        Intent intent = new Intent(requireContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        requireActivity().finish();
     }
 
     /**
@@ -227,29 +193,21 @@ public class LoginFragment extends Fragment {
 
         dialog.show();
     }
-
     /**
-     * Navigates to the MainActivity and clears the back stack.
-     */
-    private void goToHome() {
-        if (getContext() == null) return;
-        Intent intent = new Intent(requireContext(), MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        requireActivity().finish();
-    }
-
-    /**
-     * Displays a dialog when a login error occurs.
-     * Shows the error message and provides a retry option.
+     * Displays a error dialog with the provided message.
      *
      * @param message The error message to display.
+     * @param connectionError Whether the error is related to network connectivity, to choose the appropriate layout.
      */
-    private void showLoginErrorDialog(String message) {
+    private void showErrorDialog(String message, Boolean connectionError) {
         if (getContext() == null) return;
+
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        View view = getLayoutInflater().inflate(R.layout.dialog_connection_error, null);
+        View view = getLayoutInflater().inflate(
+                connectionError ? R.layout.dialog_connection_error : R.layout.dialog_generic_error,
+                null);
         builder.setView(view);
+
         final AlertDialog dialog = builder.create();
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -264,37 +222,6 @@ public class LoginFragment extends Fragment {
         Button btnOk = view.findViewById(R.id.btnOk);
         if (btnOk != null) {
             btnOk.setOnClickListener(v -> {
-                dialog.dismiss();
-                etEmail.requestFocus();
-            });
-        }
-        dialog.show();
-    }
-
-    /**
-     * Displays a dialog when the user account is not found.
-     * Offers options to try again or navigate to registration.
-     */
-    private void showUserNotFoundDialog() {
-        if (getContext() == null) return;
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        View view = getLayoutInflater().inflate(R.layout.dialog_account_not_found, null);
-        builder.setView(view);
-        final AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-        dialog.setCancelable(true);
-        Button btnRegister = view.findViewById(R.id.btnRegister);
-        if (btnRegister != null) {
-            btnRegister.setOnClickListener(v -> {
-                dialog.dismiss();
-                Navigation.findNavController(getView()).navigate(R.id.registerFragment);
-            });
-        }
-        View btnTryAgain = view.findViewById(R.id.btnTryAgain);
-        if (btnTryAgain != null) {
-            btnTryAgain.setOnClickListener(v -> {
                 dialog.dismiss();
                 etEmail.requestFocus();
             });

@@ -1,7 +1,5 @@
 package com.example.pushapp.adapter;
 
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -101,7 +99,6 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
         final View completeButton;
         final ImageButton deleteButton;
         private final OnSessionSetListener listener;
-        TextWatcher weightWatcher, repsWatcher;
 
         /**
          * Constructs a ViewHolder and initializes view references.
@@ -129,9 +126,6 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
          * @param templateSerie The target set data (can be null).
          */
         public void bind(HistorySerie serie, Serie templateSerie) {
-            actualWeight.removeTextChangedListener(weightWatcher);
-            actualReps.removeTextChangedListener(repsWatcher);
-
             setNumber.setText(String.valueOf(serie.getSetNumber()));
 
             if (templateSerie != null) {
@@ -162,13 +156,11 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
             }
 
             updateCompletedUI(serie.getIsCompleted());
-
-            actualWeight.addTextChangedListener(weightWatcher);
-            actualReps.addTextChangedListener(repsWatcher);
         }
 
         private void setupListeners() {
             completeButton.setOnClickListener(v -> {
+                clearFocusFromInputs();
                 int position = getBindingAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     listener.onSetCompleted(position);
@@ -182,21 +174,40 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
                 }
             });
 
-            weightWatcher = new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-                @Override public void afterTextChanged(Editable s) {
+            actualWeight.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
                     updateSetData();
                 }
-            };
+            });
 
-            repsWatcher = new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-                @Override public void afterTextChanged(Editable s) {
+            actualReps.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
                     updateSetData();
                 }
-            };
+            });
+
+            actualWeight.setOnEditorActionListener((v, actionId, event) -> {
+                clearFocusFromInputs();
+                return true;
+            });
+
+            actualReps.setOnEditorActionListener((v, actionId, event) -> {
+                clearFocusFromInputs();
+                return true;
+            });
+        }
+
+        /**
+         * Clears focus from input fields and hides the keyboard.
+         */
+        private void clearFocusFromInputs() {
+            actualWeight.clearFocus();
+            actualReps.clearFocus();
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager)
+                    itemView.getContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(itemView.getWindowToken(), 0);
+            }
         }
 
         /**
@@ -231,19 +242,15 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
          */
         private void updateCompletedUI(boolean completed) {
             if (completed) {
-                // Verde quando completato
                 completeButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
                     itemView.getContext().getColor(R.color.green)));
-                // Schiarisci i campi per mostrare che sono completati
                 actualWeight.setAlpha(0.5f);
                 actualReps.setAlpha(0.5f);
                 actualWeight.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurfaceVariant));
                 actualReps.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurfaceVariant));
             } else {
-                // Grigio quando non completato
                 completeButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
                     itemView.getContext().getColor(R.color.md_theme_surfaceContainerHighest)));
-                // Ripristina l'aspetto normale
                 actualWeight.setAlpha(1.0f);
                 actualReps.setAlpha(1.0f);
                 actualWeight.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurface));

@@ -314,6 +314,11 @@
     <string name="done">Done</string>
     <string name="delete_exercise_title">Delete Exercise</string>
     <string name="delete_exercise_confirm">Are you sure you want to delete %1$s?</string>
-    <string name="connection_error">connection_error</string>
+    <string name="connection_error">Connection error</string>
+    <string name="error">Error</string>
+    <string name="network_error">Network Error</string>
+    <string name="user_not_found">User not found\n</string>
+    <string name="wrong_credentials">Wrong credentials</string>
+    <string name="email_already_registered">Email already registered</string>
 
 </resources>

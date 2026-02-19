@@ -129,33 +129,6 @@
                 android:textAllCaps="false"
                 android:layout_marginTop="32dp"/>
 
-            <!-- Divider -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/or"
-                android:textColor="@color/md_theme_onSurfaceVariant"
-                android:textSize="14sp"
-                android:layout_marginVertical="20dp"/>
-
-            <!-- Google Button -->
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnGoogle"
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:text="@string/continue_with_google"
-                android:textColor="@color/md_theme_onBackground"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:background="@drawable/bg_input_underline"
-                app:backgroundTint="@null"
-                android:drawableStart="@drawable/ic_google_logo"
-                android:drawablePadding="12dp"
-                android:paddingStart="60dp"
-                android:paddingEnd="60dp"
-                android:gravity="center"
-                android:textAllCaps="false"/>
-
             <!-- Terms -->
             <TextView
                 android:layout_width="wrap_content"

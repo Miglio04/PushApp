@@ -1,6 +1,5 @@
 package com.example.pushapp.ui.login.fragments;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -14,8 +13,6 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -24,17 +21,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.pushapp.R;
-import com.example.pushapp.models.Result;
 import com.example.pushapp.ui.login.QuestionsActivity;
 
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Task;
 
 /**
  * Fragment responsible for user registration functionality.
@@ -46,34 +36,10 @@ public class RegisterFragment extends Fragment {
     private EditText etEmail, etPassword, etConfirmPassword;
     private TextView tvEmailError, tvPasswordError, tvConfirmError;
     private AppCompatButton btnRegister;
-    private AppCompatButton btnGoogle;
-
     private LinearLayout loadingOverlay;
     private TextView tvLoadingText;
 
-    private GoogleSignInClient mGoogleSignInClient;
-
     private UserViewModel userViewModel;
-
-    private final ActivityResultLauncher<Intent> googleSignInLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() != Activity.RESULT_OK) {
-                    showLoading(false, null);
-                }
-
-                if (result.getResultCode() == Activity.RESULT_OK) {
-                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(result.getData());
-                    try {
-                        GoogleSignInAccount account = task.getResult(ApiException.class);
-                        firebaseAuthWithGoogle(account.getIdToken());
-                    } catch (ApiException e) {
-                        showLoading(false, null);
-                        showConnectionErrorDialog(getString(R.string.google_sign_in_failed));
-                    }
-                }
-            }
-    );
 
     public RegisterFragment() {}
 
@@ -92,11 +58,6 @@ public class RegisterFragment extends Fragment {
 
         userViewModel.clearLiveData();
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
     }
 
     /**
@@ -129,10 +90,6 @@ public class RegisterFragment extends Fragment {
          if (btnRegister != null) {
             btnRegister.setOnClickListener(v -> handleRegistration());
         }
-
-        if (btnGoogle != null) {
-            btnGoogle.setOnClickListener(v -> signInWithGoogle());
-        }
     }
 
     /**
@@ -150,7 +107,6 @@ public class RegisterFragment extends Fragment {
         tvConfirmError = view.findViewById(R.id.tvConfirmPasswordError);
 
         btnRegister = view.findViewById(R.id.btnRegister);
-        btnGoogle = view.findViewById(R.id.btnGoogle);
 
         loadingOverlay = view.findViewById(R.id.loadingOverlay);
         tvLoadingText = view.findViewById(R.id.tvLoadingText);
@@ -162,10 +118,12 @@ public class RegisterFragment extends Fragment {
     public void observeSessionLiveData(){
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
            if(result == null) return;
-           if (result.isRegistrationError()) {
-               showLoading(false, null);
-               Result.Error.RegistrationError error = (Result.Error.RegistrationError) result;
-               showConnectionErrorDialog(error.getMessage());
+           showLoading(false, null);
+           if(result.isNetworkError()){
+               showErrorDialog(getString(R.string.network_error), true);
+               userViewModel.clearSessionLiveData();
+           } else if (result.isRegistrationError()) {
+               showErrorDialog(getString(R.string.email_already_registered), false);
                userViewModel.clearSessionLiveData();
            }
         });
@@ -181,9 +139,8 @@ public class RegisterFragment extends Fragment {
             if (result.isUserSuccess()) {
                 showSuccessDialog();
             } else if (result.isLocalDatabaseError()) {
-                Result.Error.LocalDatabaseError error = (Result.Error.LocalDatabaseError) result;
-                showConnectionErrorDialog(error.getMessage());
-                userViewModel.clearUserLiveData();
+                showErrorDialog(getString(R.string.something_went_wrong), false);
+                userViewModel.clearSessionLiveData();
             }
         });
     }
@@ -220,25 +177,15 @@ public class RegisterFragment extends Fragment {
     }
 
     /**
-     * Initiates the Google Sign-In flow.
+     * Navigates to the QuestionsActivity for user profiling.
      */
-    private void signInWithGoogle() {
-        showLoading(true, getString(R.string.connecting_to_google));
+    private void goToQuestionsActivity() {
+        if (getContext() == null) return;
 
-        mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
-            Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-            googleSignInLauncher.launch(signInIntent);
-        });
-    }
-
-    /**
-     * Delegates Google authentication to the ViewModel using the ID token.
-     *
-     * @param idToken The Google ID token.
-     */
-    private void firebaseAuthWithGoogle(String idToken) {
-        if(tvLoadingText != null) tvLoadingText.setText(getString(R.string.authenticating));
-        userViewModel.registerWithGoogle(idToken);
+        Intent intent = new Intent(requireContext(), QuestionsActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        requireActivity().finish();
     }
 
     /**
@@ -279,27 +226,18 @@ public class RegisterFragment extends Fragment {
     }
 
     /**
-     * Navigates to the QuestionsActivity for user profiling.
-     */
-    private void goToQuestionsActivity() {
-        if (getContext() == null) return;
-
-        Intent intent = new Intent(requireContext(), QuestionsActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        requireActivity().finish();
-    }
-
-    /**
-     * Displays a connection error dialog with the provided message.
+     * Displays a error dialog with the provided message.
      *
      * @param message The error message to display.
+     * @param connectionError Whether the error is related to network connectivity, to choose the appropriate layout.
      */
-    private void showConnectionErrorDialog(String message) {
+    private void showErrorDialog(String message, Boolean connectionError) {
         if (getContext() == null) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        View view = getLayoutInflater().inflate(R.layout.dialog_connection_error, null);
+        View view = getLayoutInflater().inflate(
+                connectionError ? R.layout.dialog_connection_error : R.layout.dialog_generic_error,
+                null);
         builder.setView(view);
 
         final AlertDialog dialog = builder.create();
@@ -334,20 +272,18 @@ public class RegisterFragment extends Fragment {
             if (isLoading) {
                 loadingOverlay.setVisibility(View.VISIBLE);
                 btnRegister.setEnabled(false);
-                btnGoogle.setEnabled(false);
                 if (tvLoadingText != null && message != null) {
                     tvLoadingText.setText(message);
                 }
             } else {
                 loadingOverlay.setVisibility(View.GONE);
                 btnRegister.setEnabled(true);
-                btnGoogle.setEnabled(true);
             }
         }
     }
 
     /**
-     * Displays an error message for a specific input field.
+     * Displays an error message for an invalid input field.
      *
      * @param field     The EditText to highlight.
      * @param errorText The TextView to show the error message.
@@ -372,4 +308,6 @@ public class RegisterFragment extends Fragment {
         if (etConfirmPassword != null) etConfirmPassword.setBackgroundResource(R.drawable.bg_input_outline);
         if (tvConfirmError != null) tvConfirmError.setVisibility(View.GONE);
     }
+
+
 }

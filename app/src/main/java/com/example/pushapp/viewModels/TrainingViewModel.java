@@ -390,7 +390,6 @@ public class TrainingViewModel extends ViewModel {
                 List<Serie> updatedSeries = new ArrayList<>(currentSeries);
 
                 Serie newSet = new Serie();
-                newSet.setUserId(routine.getUserId());
                 newSet.setWorkoutExerciseId(workoutExercise.getWorkoutExerciseId());
 
                 updatedSeries.add(newSet);

@@ -1,7 +1,6 @@
 package com.example.pushapp.repositories;
 
 import com.example.pushapp.models.SessionUser;
-import com.example.pushapp.models.User;
 
 /**
  * Callback interface for handling Session repository operations.
@@ -15,5 +14,7 @@ public interface SessionCallback {
     void onFailureFromRegister(Exception e);
     void onSuccessFromPasswordReset(String email);
     void onFailureFromPasswordReset(Exception e);
-    void onUserNotFoundFromPasswordReset(Exception e);
+    void onUserNotFound(Exception e);
+
+    void onFailureFromNetwork(Exception exception);
 }

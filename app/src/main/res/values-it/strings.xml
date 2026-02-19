@@ -296,5 +296,6 @@
 
     <string name="delete_exercise_title">Elimina Esercizio</string>
     <string name="delete_exercise_confirm">Sei sicuro di voler eliminare %1$s?</string>
+    <string name="connection_error">Errore di connessione</string>
 
 </resources>

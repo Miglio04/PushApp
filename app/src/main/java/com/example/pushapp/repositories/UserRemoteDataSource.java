@@ -45,8 +45,7 @@ public class UserRemoteDataSource {
                             User user = UserConverter.firebaseUserToUser(firebaseUser);
                             userCallback.onSuccessFromRemoteFetch(user);
                         }
-                    }
-                    else{
+                    } else{
                         userCallback.onFailureFromRemote(new Exception("User not found"));
                     }
                 })

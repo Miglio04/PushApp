@@ -4,8 +4,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.SessionUser;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.GoogleAuthProvider;
 
 /**
  * Repository class responsible for managing user session and authentication operations.
@@ -40,16 +38,6 @@ public class SessionRepository implements SessionCallback {
     }
 
     /**
-     * Initiates sign-in using Google credentials.
-     *
-     * @param idToken The ID token obtained from Google Sign-In.
-     */
-    public void signInWithGoogle(String idToken) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        sessionRemoteDataSource.signInWithCredentials(credential);
-    }
-
-    /**
      * Initiates sign-in using email and password.
      *
      * @param email    The user's email.
@@ -78,7 +66,7 @@ public class SessionRepository implements SessionCallback {
         if (sessionUser != null) {
             sessionLiveData.postValue(new Result.SessionSuccess(sessionUser));
         } else {
-            sessionLiveData.postValue(new Result.Error.UserNotFound("User not found"));
+            sessionLiveData.postValue(new Result.Error.UserNotFoundError("User not found"));
         }
     }
 
@@ -157,7 +145,7 @@ public class SessionRepository implements SessionCallback {
      * @param e The exception causing the failure.
      */
     public void onFailureFromPasswordReset(Exception e) {
-        sessionLiveData.setValue(new Result.Error.ForgotPasswordError(e.getMessage()));
+        sessionLiveData.setValue(new Result.Error.PasswordResetError(e.getMessage()));
     }
 
     /**
@@ -166,8 +154,17 @@ public class SessionRepository implements SessionCallback {
      *
      * @param e The exception causing the failure.
      */
-    public void onUserNotFoundFromPasswordReset(Exception e) {
-        sessionLiveData.setValue(new Result.Error.UserNotFound(e.getMessage()));
+    public void onUserNotFound(Exception e) {
+        sessionLiveData.setValue(new Result.Error.UserNotFoundError(e.getMessage()));
+    }
+
+    /**
+     * Callback received upon network failure during session operations.
+     *
+     * @param exception The exception representing the network failure.
+     */
+    public void onFailureFromNetwork(Exception exception) {
+        sessionLiveData.setValue(new Result.Error.NetworkError(exception.getMessage()));
     }
 
     /**

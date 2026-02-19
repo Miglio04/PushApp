@@ -23,17 +23,18 @@ public abstract class Result {
     public boolean isUserSuccess(){ return this instanceof UserSuccess; }
     public boolean isSessionSuccess(){ return this instanceof SessionSuccess; }
     public boolean isExerciseSuccess() { return this instanceof ExerciseSuccess; }
-
     public boolean isHistorySuccess() { return this instanceof HistorySuccess; }
     public boolean isGraphSuccess() { return this instanceof GraphSuccess; }
+    public boolean isForgotPasswordSuccess() { return this instanceof PasswordResetSuccess; }
+
 
     public boolean isLocalDatabaseError(){ return this instanceof Error.LocalDatabaseError; }
     public boolean isRegistrationError(){ return this instanceof Error.RegistrationError; }
-    public boolean isUserNotFound(){ return this instanceof Error.UserNotFound; }
-    public boolean isForgotPasswordError(){ return this instanceof Error.ForgotPasswordError; }
-    public boolean isForgotPasswordSuccess() { return this instanceof PasswordResetSuccess; }
+    public boolean isUserNotFound(){ return this instanceof Error.UserNotFoundError; }
+    public boolean isForgotPasswordError(){ return this instanceof Error.PasswordResetError; }
     public boolean isLoginError(){ return this instanceof Error.LoginError; }
     public boolean isExerciseError() { return this instanceof Error.ExerciseError; }
+    public boolean isNetworkError() { return this instanceof Error.NetworkError; }
 
     /**
      * Success result containing a list of Trainings.
@@ -137,26 +138,33 @@ public abstract class Result {
             this.message = e.getMessage() != null ? e.getMessage() : "Errore sconosciuto";
         }
 
-        public String getMessage() { return message; }
+        public String getMessage() {
+            return message;
+        }
 
         /**
          * Error type for local database issues.
          */
         public static final class LocalDatabaseError extends Error {
-            public LocalDatabaseError(String message) { super(message); }
+            public LocalDatabaseError(String message) {
+                super(message);
+            }
         }
+
         /**
          * Error type for registration issues.
          */
-        public static final class RegistrationError extends Error{
-            public RegistrationError(String message) { super(message); }
+        public static final class RegistrationError extends Error {
+            public RegistrationError(String message) {
+                super(message);
+            }
         }
 
         /**
          * Error type for user not found scenarios.
          */
-        public static final class UserNotFound extends Error {
-            public UserNotFound(String message) {
+        public static final class UserNotFoundError extends Error {
+            public UserNotFoundError(String message) {
                 super(message);
             }
         }
@@ -164,8 +172,8 @@ public abstract class Result {
         /**
          * Error type for forgot password scenarios.
          */
-        public static final class ForgotPasswordError extends Error {
-            public ForgotPasswordError(String message) {
+        public static final class PasswordResetError extends Error {
+            public PasswordResetError(String message) {
                 super(message);
             }
         }
@@ -183,7 +191,18 @@ public abstract class Result {
          * Error type for exercise related issues.
          */
         public static final class ExerciseError extends Error {
-            public ExerciseError(String message) { super(message); }
+            public ExerciseError(String message) {
+                super(message);
+            }
+        }
+
+        /**
+         * Error type for network issues.
+         */
+        public static final class NetworkError extends Error {
+            public NetworkError(String message) {
+                super(message);
+            }
         }
     }
 }

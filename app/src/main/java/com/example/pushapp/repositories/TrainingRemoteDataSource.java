@@ -29,12 +29,10 @@ import java.util.List;
  */
 public class TrainingRemoteDataSource {
     private final FirebaseFirestore db;
-    private final FirebaseAuth auth;
     private TrainingCallback trainingCallback;
 
     TrainingRemoteDataSource() {
         this.db = FirebaseFirestore.getInstance();
-        this.auth = FirebaseAuth.getInstance();
         this.trainingCallback = null;
     }
 
@@ -87,11 +85,9 @@ public class TrainingRemoteDataSource {
                     for (WorkoutExercise exercise : routine.getWorkoutExercises()) {
                         DocumentReference exerciseRef = routineRef.collection(COLLECTION_WORKOUT_EXERCISES).document(exercise.getWorkoutExerciseId());
                         exercise.setRoutineId(routine.getRoutineId());
-                        exercise.setUserId(userId);
                         if (exercise.getSeries() != null) {
                             for (Serie serie : exercise.getSeries()) {
                                 serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
-                                serie.setUserId(userId);
                             }
                         }
                         batch.set(exerciseRef, exercise);
@@ -255,12 +251,10 @@ public class TrainingRemoteDataSource {
                         .document(exercise.getWorkoutExerciseId());
 
                 exercise.setRoutineId(routine.getRoutineId());
-                exercise.setUserId(userId);
 
                 if (exercise.getSeries() != null) {
                     for (Serie serie : exercise.getSeries()) {
                         serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
-                        serie.setUserId(userId);
                     }
                 }
                 batch.set(exerciseRef, exercise);
@@ -315,11 +309,9 @@ public class TrainingRemoteDataSource {
                         for (WorkoutExercise exercise : routine.getWorkoutExercises()) {
                             DocumentReference exerciseRef = routineRef.collection(COLLECTION_WORKOUT_EXERCISES).document(exercise.getWorkoutExerciseId());
                             exercise.setRoutineId(routine.getRoutineId());
-                            exercise.setUserId(userId);
                             if (exercise.getSeries() != null) {
                                 for (Serie serie : exercise.getSeries()) {
                                     serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
-                                    serie.setUserId(userId);
                                 }
                             }
                             batch.set(exerciseRef, exercise);
@@ -413,7 +405,6 @@ public class TrainingRemoteDataSource {
                     if (exercise.getSeries() != null) {
                         for(Serie serie : exercise.getSeries()) {
                             serie.setWorkoutExerciseId(exercise.getWorkoutExerciseId());
-                            serie.setUserId(auth.getUid());
                         }
                     }
                     exercises.add(exercise);

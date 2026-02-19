@@ -97,16 +97,17 @@ public class ForgotPasswordFragment extends Fragment {
     private void observeSessionLiveData() {
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
             if(result == null) return;
-            if (result.isForgotPasswordError()) {
-                Result.Error.ForgotPasswordError error = (Result.Error.ForgotPasswordError) result;
-                tvError.setText(error.getMessage());
-                tvError.setVisibility(View.VISIBLE);
-                loadingOverlay.setVisibility(View.GONE);
-                userViewModel.clearSessionLiveData();
-            }else if(result.isForgotPasswordSuccess()){
+            loadingOverlay.setVisibility(View.GONE);
+            if(result.isForgotPasswordSuccess()){
                 showSuccessDialog(((Result.PasswordResetSuccess) result).getEmail());
-            }else if(result.isUserNotFound()){
-                showUserNotFoundDialog();
+            } else if(result.isNetworkError()){
+                showErrorDialog(getString(R.string.network_error), true);
+                userViewModel.clearSessionLiveData();
+            } else if(result.isUserNotFound()){
+                showErrorDialog(getString(R.string.user_not_found), false);
+                userViewModel.clearSessionLiveData();
+            } else if (result.isForgotPasswordError()) {
+                showErrorDialog(getString(R.string.something_went_wrong), true);
                 userViewModel.clearSessionLiveData();
             }
         });
@@ -171,40 +172,39 @@ public class ForgotPasswordFragment extends Fragment {
     }
 
     /**
-     * Displays a dialog when the provided email does not correspond to an existing account.
-     * Offers navigation to registration or retry.
+     * Displays a error dialog with the provided message.
+     *
+     * @param message The error message to display.
+     * @param connectionError Whether the error is related to network connectivity, to choose the appropriate layout.
      */
-    private void showUserNotFoundDialog() {
+    private void showErrorDialog(String message, Boolean connectionError) {
         if (getContext() == null) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        View view = getLayoutInflater().inflate(R.layout.dialog_account_not_found, null);
+        View view = getLayoutInflater().inflate(
+                connectionError ? R.layout.dialog_connection_error : R.layout.dialog_generic_error,
+                null);
         builder.setView(view);
 
         final AlertDialog dialog = builder.create();
-
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
         dialog.setCancelable(true);
 
-        Button btnRegister = view.findViewById(R.id.btnRegister);
-        if (btnRegister != null) {
-            btnRegister.setOnClickListener(v -> {
-                dialog.dismiss();
-
-                Navigation.findNavController(getView()).navigateUp();
-            });
+        TextView tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
+        if (tvErrorMessage != null) {
+            tvErrorMessage.setText(message);
         }
 
-        View btnTryAgain = view.findViewById(R.id.btnTryAgain);
-        if (btnTryAgain != null) {
-            btnTryAgain.setOnClickListener(v -> {
+        Button btnOk = view.findViewById(R.id.btnOk);
+        if (btnOk != null) {
+            btnOk.setOnClickListener(v -> {
                 dialog.dismiss();
-                if (etEmail != null) etEmail.requestFocus();
+                etEmail.requestFocus();
             });
         }
-
         dialog.show();
     }
+
 }

@@ -38,10 +38,6 @@ public class WorkoutExercise implements Serializable {
     @ColumnInfo(name = "createdAt")
     private long createdAt;
 
-    /** ID of the user who owns this exercise configuration. */
-    @ColumnInfo(name = "userId")
-    private String userId;
-
     /** ID of the parent routine this exercise belongs to. */
     @ColumnInfo(name = "routineId")
     private String routineId;
@@ -87,6 +83,7 @@ public class WorkoutExercise implements Serializable {
         this.workoutExerciseId = UUID.randomUUID().toString();
         this.exerciseName = exerciseName;
         this.series = new ArrayList<>();
+        this.createdAt = System.currentTimeMillis();
     }
 
     /**
@@ -132,10 +129,4 @@ public class WorkoutExercise implements Serializable {
         this.createdAt = createdAt;
     }
 
-    public String getUserId() {
-        return userId;
-    }
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
 }

@@ -1,7 +1,7 @@
 package com.example.pushapp.repositories;
 
 import com.example.pushapp.models.SessionUser;
-import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
@@ -28,35 +28,6 @@ public class SessionRemoteDataSource {
     }
 
     /**
-     * Authenticates a user using an AuthCredential (e.g., Google Sign-In).
-     * Determines if the user is new or existing and triggers the appropriate callback.
-     *
-     * @param credential The authentication credential to verify.
-     */
-    public void signInWithCredentials(AuthCredential credential){
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        FirebaseUser firebaseUser = task.getResult().getUser();
-                        if (firebaseUser != null) {
-                            boolean isNewUser = task.getResult().getAdditionalUserInfo().isNewUser();
-                            SessionUser sessionUser = new SessionUser(firebaseUser.getUid(), firebaseUser.getEmail());
-                            if(isNewUser) {
-                                callback.onSuccessFromRegister(sessionUser);
-                            } else{
-                                callback.onSuccessFromLogin(sessionUser);
-                            }
-                        }
-                        else {
-                            callback.onFailureFromRegister(new Exception("User is null"));
-                        }
-                    } else {
-                        callback.onFailureFromRegister(task.getException());
-                    }
-                });
-    }
-
-    /**
      * Authenticates a user using email and password.
      *
      * @param email    The user's email address.
@@ -68,6 +39,10 @@ public class SessionRemoteDataSource {
                     if (task.isSuccessful() && task.getResult() != null && task.getResult().getUser() != null) {
                         SessionUser sessionUser = new SessionUser(task.getResult().getUser().getUid(), task.getResult().getUser().getEmail());
                         callback.onSuccessFromLogin(sessionUser);
+                    } else if (task.getException() instanceof FirebaseNetworkException) {
+                        callback.onFailureFromNetwork(task.getException());
+                    } else if (task.getException() instanceof FirebaseAuthInvalidUserException) {
+                        callback.onUserNotFound(task.getException());
                     } else {
                         callback.onFailureFromLogin(task.getException());
                     }
@@ -91,6 +66,8 @@ public class SessionRemoteDataSource {
                         } else {
                             callback.onFailureFromRegister(new Exception("User is null"));
                         }
+                    } else if (task.getException() instanceof FirebaseNetworkException) {
+                        callback.onFailureFromNetwork(task.getException());
                     } else {
                         callback.onFailureFromRegister(task.getException());
                     }
@@ -109,7 +86,9 @@ public class SessionRemoteDataSource {
                     if (task.isSuccessful()) {
                         callback.onSuccessFromPasswordReset(email);
                     } else if (task.getException() instanceof FirebaseAuthInvalidUserException){
-                        callback.onUserNotFoundFromPasswordReset(new Exception("User not found"));
+                        callback.onUserNotFound(new Exception("User not found"));
+                    } else if (task.getException() instanceof FirebaseNetworkException) {
+                        callback.onFailureFromNetwork(task.getException());
                     } else {
                         callback.onFailureFromPasswordReset(task.getException());
                     }

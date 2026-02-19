@@ -62,30 +62,11 @@ public class UserViewModel extends ViewModel {
 
         sessionRepository.getSessionUser();
         Result result = sessionLiveData.getValue();
-        if(result instanceof Result.SessionSuccess){
+        if (result instanceof Result.SessionSuccess) {
             userRepository.fetchUserById(((Result.SessionSuccess) result).getData().getUserId());
         }
 
         isLoading.setValue(false);
-    }
-
-    /**
-     * Initiates Google registration using the provided ID token.
-     *
-     * @param idToken The ID token obtained from Google Sign-In.
-     */
-    public void registerWithGoogle(String idToken){
-        sessionRepository.signInWithGoogle(idToken);
-        registrationObserveSessionLiveData();
-    }
-
-    /**
-     * Initiates Google Sign-In using the provided ID token.
-     *
-     * @param idToken The ID token obtained from Google Sign-In.
-     */
-    public void signInWithGoogle(String idToken){
-        sessionRepository.signInWithGoogle(idToken);
     }
 
     /**
