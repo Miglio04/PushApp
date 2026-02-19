@@ -28,6 +28,7 @@ import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
 import com.example.pushapp.utils.DeleteDialogHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -199,8 +200,8 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        com.google.android.material.textfield.TextInputEditText etName = dialogView.findViewById(R.id.etTrainingName);
-        com.google.android.material.textfield.TextInputEditText etDescription = dialogView.findViewById(R.id.etTrainingDescription);
+        TextInputEditText etName = dialogView.findViewById(R.id.etTrainingName);
+        TextInputEditText etDescription = dialogView.findViewById(R.id.etTrainingDescription);
         Button btnSave = dialogView.findViewById(R.id.btnSave);
         Button btnCancel = dialogView.findViewById(R.id.btnCancel);
 
@@ -223,10 +224,5 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
-    }
-    public void onTrainingEditFinished(Training training, String newName, String newDescription) {
-        training.setName(newName);
-        training.setDescription(newDescription);
-        trainingViewModel.updateTraining(training);
     }
 }

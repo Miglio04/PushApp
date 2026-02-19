@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.example.pushapp.R;
+import com.example.pushapp.models.Result;
 import com.example.pushapp.ui.main.MainActivity;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
@@ -151,7 +152,8 @@ public class LoginFragment extends Fragment {
                 showUserNotFoundDialog();
                 userViewModel.clearSessionLiveData();
             }else if(userId.isLoginError()){
-                showUserNotFoundDialog();
+                Result.Error.LoginError error = (Result.Error.LoginError) userId;
+                Toast.makeText(requireContext(), "Login error: " + error.getMessage(), Toast.LENGTH_LONG).show();
                 userViewModel.clearSessionLiveData();
             }else if(userId.isLocalDatabaseError()){
                 showUserNotFoundDialog();

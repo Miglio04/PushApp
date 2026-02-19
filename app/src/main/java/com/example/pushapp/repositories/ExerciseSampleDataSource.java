@@ -5,11 +5,11 @@ import com.example.pushapp.models.Exercise;
 import java.util.ArrayList;
 
 /**
- * Data source di esempio usata solo per debug.
+ * Sample data source used for debugging only.
  *
- * <p>Fornisce una lista hard-coded di istanze {@link Exercise} e notifica il risultato
- * tramite un {@code ExerciseCallback} impostato con {@link #setCallback(ExerciseCallback)}.
- * Questo data source è sincrono e progettato esclusivamente per ambienti di sviluppo/debug.</p>
+ * <p>Provides a hard-coded list of {@link Exercise} instances and notifies the result
+ * via an {@code ExerciseCallback} set with {@link #setCallback(ExerciseCallback)}.
+ * This data source is synchronous and designed exclusively for development/debug environments.</p>
  *
  * @see Exercise
  * @see ExerciseCallback
@@ -17,31 +17,31 @@ import java.util.ArrayList;
 public class ExerciseSampleDataSource {
 
     /**
-     * Callback usata per restituire i risultati.
+     * Callback used to return the results.
      *
-     * <p>Può essere {@code null} se non è stato impostato alcun listener.</p>
+     * <p>May be {@code null} if no listener has been set.</p>
      */
     private ExerciseCallback callback = null;
 
     /**
-     * Costruttore vuoto.
+     * Empty constructor.
      */
     public ExerciseSampleDataSource() {}
 
     /**
-     * Imposta il callback che verrà notificato quando i dati di esempio saranno pronti.
+     * Sets the callback to be notified when sample data is ready.
      *
-     * @param callback istanza di {@code ExerciseCallback} o {@code null} per rimuovere il listener
+     * @param callback an {@code ExerciseCallback} instance or {@code null} to remove the listener
      */
     public void setCallback(ExerciseCallback callback){
         this.callback = callback;
     }
 
     /**
-     * Recupera le esercitazioni di esempio e, se presente, notifica il {@code callback}
-     * invocando {@code onSuccessFromRemote} con la lista di esercizi.
+     * Retrieves sample exercises and, if set, notifies the {@code callback}
+     * by invoking {@code onSuccessFromRemote} with the exercise list.
      *
-     * <p>La lista è generata localmente e non effettua alcuna chiamata di rete.</p>
+     * <p>The list is generated locally and does not perform any network call.</p>
      */
     public void getSampleExercises() {
         ArrayList<Exercise> sampleExercises = new ArrayList<>();
