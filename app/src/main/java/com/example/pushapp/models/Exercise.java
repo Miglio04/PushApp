@@ -45,6 +45,8 @@ public class Exercise {
     public void setDifficulty(String difficulty) {
         if(difficulty != null && (difficulty.equals("beginner") || difficulty.equals("intermediate") || difficulty.equals("expert"))) {
             this.difficulty = difficulty;
+        } else {
+            this.difficulty = "beginner";
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.example.pushapp.repositories;
 
+import static com.example.pushapp.utils.Constants.DEBUG_MODE;
+
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.pushapp.models.Exercise;
@@ -19,6 +21,7 @@ public class ExerciseRepository implements ExerciseCallback {
 
     private final ExerciseLocalDataSource exerciseLocalDataSource;
     private final ExerciseAPIDataSource exerciseAPIDataSource;
+    private final ExerciseSampleDataSource exerciseSampleDataSource;
     private final MutableLiveData<Result> exercises;
     private final SessionManager sessionManager;
 
@@ -28,15 +31,19 @@ public class ExerciseRepository implements ExerciseCallback {
      *
      * @param exerciseLocalDataSource The local data source for exercises.
      * @param exerciseAPIDataSource   The remote API data source for exercises.
+     * @param exerciseSampleDataSource The sample data source used for debug.
      * @param sessionManager          The session manager for handling cache timestamps.
      */
-    ExerciseRepository(ExerciseLocalDataSource exerciseLocalDataSource, ExerciseAPIDataSource exerciseAPIDataSource, SessionManager sessionManager) {
+    ExerciseRepository(ExerciseLocalDataSource exerciseLocalDataSource, ExerciseAPIDataSource exerciseAPIDataSource,
+                       ExerciseSampleDataSource exerciseSampleDataSource, SessionManager sessionManager) {
         this.sessionManager = sessionManager;
         exercises = new MutableLiveData<>();
         this.exerciseLocalDataSource = exerciseLocalDataSource;
         this.exerciseAPIDataSource = exerciseAPIDataSource;
+        this.exerciseSampleDataSource = exerciseSampleDataSource;
         exerciseLocalDataSource.setCallback(this);
         exerciseAPIDataSource.setCallback(this);
+        exerciseSampleDataSource.setCallback(this);
     }
 
 
@@ -58,7 +65,11 @@ public class ExerciseRepository implements ExerciseCallback {
         long timeSinceLastFetch = System.currentTimeMillis() - lastFetchTime;
 
         if(lastFetchTime == 0 || timeSinceLastFetch > Constants.API_FETCH_INTERVAL){
-            exerciseAPIDataSource.fetchAllExercises();
+            if(DEBUG_MODE){
+                exerciseSampleDataSource.getSampleExercises();
+            } else {
+                exerciseAPIDataSource.fetchAllExercises();
+            }
             lastFetchTime = System.currentTimeMillis();
             sessionManager.saveApiFetchTime(lastFetchTime);
         } else {
