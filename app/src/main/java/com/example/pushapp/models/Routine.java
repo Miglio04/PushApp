@@ -15,6 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Entity representing a workout routine (e.g., "Leg Day").
+ * A routine belongs to a Training plan and contains a list of WorkoutExercises.
+ */
 @Entity(tableName = "routine",
         foreignKeys = @ForeignKey(
                 entity = Training.class,
@@ -29,38 +33,42 @@ public class Routine implements Serializable {
     private String routineId;
     @ColumnInfo(name = "createdAt")
     private long createdAt;
-    @ColumnInfo(name = "updatedAt")
-    private long updatedAt;
-    @ColumnInfo(name = "deleted")
-    private boolean deleted;
     @ColumnInfo(name = "userId")
     private String userId;
     @ColumnInfo(name = "trainingId")
     private String trainingId;
     @ColumnInfo(name = "name")
     private String name;
-    @ColumnInfo(name = "notes")
-    private String notes;
     @Ignore
     private List<WorkoutExercise> workoutExercises;
 
+    /**
+     * Default constructor.
+     * Generates a new UUID and initializes the exercise list.
+     */
     public Routine() {
         this.routineId = UUID.randomUUID().toString();
         this.workoutExercises = new ArrayList<>();
-        this.deleted = false;
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
     }
 
+    /**
+     * Constructs a new Routine with a name.
+     *
+     * @param name The name of the routine.
+     */
     public Routine(String name) {
         this.routineId = UUID.randomUUID().toString();
         this.name = name;
         this.workoutExercises = new ArrayList<>();
-        this.deleted = false;
         this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
     }
 
+    /**
+     * Copy constructor. Creates a new Routine from an existing one.
+     *
+     * @param routine The routine to copy.
+     */
     @Ignore
     public Routine(Routine routine) {
         this.trainingId = routine.getTrainingId();
@@ -72,10 +80,7 @@ public class Routine implements Serializable {
         } else {
             this.workoutExercises = new ArrayList<>();
         }
-        this.deleted = routine.isDeleted();
         this.createdAt = routine.getCreatedAt();
-        this.updatedAt = routine.getUpdatedAt();
-        this.notes = routine.getNotes();
     }
 
     // Getters e Setters
@@ -87,8 +92,6 @@ public class Routine implements Serializable {
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-    public String getNotes() { return notes; }
-    public void setNotes(String notes) { this.notes = notes; }
 
     @Exclude
     @Ignore
@@ -98,33 +101,12 @@ public class Routine implements Serializable {
     }
     @Ignore
     public void setWorkoutExercises(List<WorkoutExercise> workoutExercises) { this.workoutExercises = workoutExercises; }
-    @Ignore
-    public void addWorkoutExercise(WorkoutExercise workoutExercise) { this.workoutExercises.add(workoutExercise); }
-    @Exclude
-    @Ignore
-    public int getWorkoutTotalExercises() {
-        return workoutExercises.size();
-    }
 
     public long getCreatedAt() {
         return createdAt;
     }
     public void setCreatedAt(long createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public long getUpdatedAt() {
-        return updatedAt;
-    }
-    public void setUpdatedAt(long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
-    }
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
     }
 
     public String getUserId() {

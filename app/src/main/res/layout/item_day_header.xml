@@ -11,7 +11,7 @@
         android:layout_width="38dp"
         android:layout_height="38dp"
         android:gravity="center"
-        android:text="01"
+        android:text="@string/_01"
         android:textColor="@color/md_theme_onSurface"
         android:textSize="15sp"
         android:fontFamily="sans-serif-medium"/>

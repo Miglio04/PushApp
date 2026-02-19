@@ -2,6 +2,10 @@ package com.example.pushapp.models.api;
 
 import com.google.gson.annotations.SerializedName;
 
+/**
+ * Data transfer object representing an exercise structure from the external API (e.g. Ninja API).
+ * Used for parsing JSON responses.
+ */
 public class ExerciseApiModel {
 
     @SerializedName("name")
@@ -21,8 +25,21 @@ public class ExerciseApiModel {
     @SerializedName("instructions")
     private String instructions;
 
+    /**
+     * Default constructor.
+     */
     public ExerciseApiModel() { }
 
+    /**
+     * Constructs a populated ExerciseApiModel.
+     *
+     * @param name         The exercise name.
+     * @param type         The exercise type (e.g., strength).
+     * @param muscle       The targeted muscle.
+     * @param equipment    The equipment required.
+     * @param difficulty   The difficulty level.
+     * @param instructions The instructions for performing the exercise.
+     */
     public ExerciseApiModel(String name, String type, String muscle, String equipment, String difficulty, String instructions) {
         this.name = name;
         this.type = type;

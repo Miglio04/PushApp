@@ -4,6 +4,10 @@ import java.util.List;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.ServerTimestamp;
 
+/**
+ * Data transfer object representing a User document in Firestore.
+ * Used for serialization/deserialization with Firebase.
+ */
 public class FirebaseUser {
     private String userId;
     private String name;
@@ -13,17 +17,12 @@ public class FirebaseUser {
     private int height;
     private int age;
     private Double weight;
-    private Double goalWeight;
-    private List<Double> weightProgress;
-    private String currentTrainingPlan;
-    private List<String> trainingPlans;
     @ServerTimestamp
     private Timestamp createdAt;
 
     public FirebaseUser() {
     }
 
-    // Getter e Setter
     public String getName() {
         return name;
     }
@@ -67,7 +66,6 @@ public class FirebaseUser {
     public int getAge() {
         return age;
     }
-
     public void setAge(int age) {
         this.age = age;
     }
@@ -78,38 +76,6 @@ public class FirebaseUser {
 
     public void setWeight(Double weight) {
         this.weight = weight;
-    }
-
-    public double getGoalWeight() {
-        return goalWeight;
-    }
-
-    public void setGoalWeight(double goalWeight) {
-        this.goalWeight = goalWeight;
-    }
-
-    public List<Double> getWeightProgress() {
-        return weightProgress;
-    }
-
-    public void setWeightProgress(List<Double> weightProgress) {
-        this.weightProgress = weightProgress;
-    }
-
-    public String getCurrentTrainingPlan() {
-        return currentTrainingPlan;
-    }
-
-    public void setCurrentTrainingPlan(String currentTrainingPlan) {
-        this.currentTrainingPlan = currentTrainingPlan;
-    }
-
-    public List<String> getTrainingPlans() {
-        return trainingPlans;
-    }
-
-    public void setTrainingPlans(List<String> trainingPlans) {
-        this.trainingPlans = trainingPlans;
     }
 
     public Timestamp getCreatedAt() {

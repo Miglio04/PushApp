@@ -24,89 +24,106 @@ import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
+/**
+ * Fragment handling the password reset flow.
+ * Allows users to request a password reset email and handles UI feedback for success or error states.
+ */
 public class ForgotPasswordFragment extends Fragment {
 
     private EditText etEmail;
     private TextView tvError;
     private LinearLayout loadingOverlay;
-    private FirebaseAuth mAuth;
     private UserViewModel userViewModel;
 
-    public ForgotPasswordFragment() {
-        // Costruttore vuoto richiesto
-    }
+    public ForgotPasswordFragment() {}
 
+    /**
+     * Initializes the UserViewModel.
+     *
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAuth = FirebaseAuth.getInstance();
         userViewModel = new ViewModelProvider(
                 this,
                 new ViewModelFactory(requireContext())).get(UserViewModel.class);
         userViewModel.clearLiveData();
     }
 
+    /**
+     * Inflates the layout for the forgot password screen.
+     *
+     * @param inflater           LayoutInflater to inflate views.
+     * @param container          Parent view group.
+     * @param savedInstanceState Saved state bundle.
+     * @return The root view of the fragment.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate del layout per questo fragment
         return inflater.inflate(R.layout.fragment_forgot_password, container, false);
     }
 
+    /**
+     * Sets up UI references, observers, and button listeners after view creation.
+     *
+     * @param view               The root view.
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         observeSessionLiveData();
 
-        // Collegamento viste
         etEmail = view.findViewById(R.id.etEmailReset);
         tvError = view.findViewById(R.id.tvResetError);
         loadingOverlay = view.findViewById(R.id.loadingOverlay);
 
         AppCompatButton btnReset = view.findViewById(R.id.btnResetPassword);
-        TextView btnBack = view.findViewById(R.id.btnBack); // Assumendo che sia una TextView o ImageButton
+        TextView btnBack = view.findViewById(R.id.btnBack);
 
-        // Click: Torna indietro (Navigation)
         btnBack.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
 
-        // Click: Invia Mail
         btnReset.setOnClickListener(v -> sendResetEmail());
     }
 
+    /**
+     * Observes the UserViewModel for password reset results.
+     * Updates UI based on success, error, or user-not-found states.
+     */
     private void observeSessionLiveData() {
         userViewModel.getSessionLiveData().observe(getViewLifecycleOwner(), result -> {
             if(result == null) return;
-            if (result.isForgotPasswordError()) {
-                Result.Error.ForgotPasswordError error = (Result.Error.ForgotPasswordError) result;
-                tvError.setText(error.getMessage());
-                tvError.setVisibility(View.VISIBLE);
-                loadingOverlay.setVisibility(View.GONE);
-                userViewModel.clearSessionLiveData();
-            }else if(result.isForgotPasswordSuccess()){
+            loadingOverlay.setVisibility(View.GONE);
+            if(result.isForgotPasswordSuccess()){
                 showSuccessDialog(((Result.PasswordResetSuccess) result).getEmail());
-            }else if(result.isUserNotFound()){
-                showUserNotFoundDialog();
+            } else if(result.isNetworkError()){
+                showErrorDialog(getString(R.string.network_error), true);
+                userViewModel.clearSessionLiveData();
+            } else if(result.isUserNotFound()){
+                showErrorDialog(getString(R.string.user_not_found), false);
+                userViewModel.clearSessionLiveData();
+            } else if (result.isForgotPasswordError()) {
+                showErrorDialog(getString(R.string.something_went_wrong), true);
                 userViewModel.clearSessionLiveData();
             }
         });
     }
 
+    /**
+     * Validates the email input and triggers the password reset email request.
+     */
     private void sendResetEmail() {
-        // Pulisce errori precedenti
         etEmail.setBackgroundResource(R.drawable.bg_input_outline);
         tvError.setVisibility(View.GONE);
 
         String email = etEmail.getText().toString().trim();
 
-        // Validazione Input
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             etEmail.setBackgroundResource(R.drawable.bg_input_error);
-            // Nota: R.string.please_enter_a_valid_email dovrebbe essere usato con getString(),
-            // qui ho messo il testo fisso per sicurezza come nel tuo codice originale
             tvError.setText("Please enter a valid email address");
             tvError.setVisibility(View.VISIBLE);
             return;
@@ -118,8 +135,11 @@ public class ForgotPasswordFragment extends Fragment {
 
     }
 
-
-    // --- POPUP 1: MAIL INVIATA (SUCCESSO) ---
+    /**
+     * Displays a success dialog after the reset email has been sent.
+     *
+     * @param email The email address to which the link was sent.
+     */
     private void showSuccessDialog(String email) {
         if (getContext() == null) return;
 
@@ -144,7 +164,6 @@ public class ForgotPasswordFragment extends Fragment {
             btnAction.setText("BACK TO LOGIN");
             btnAction.setOnClickListener(v -> {
                 dialog.dismiss();
-                // Torna al login usando Navigation
                 Navigation.findNavController(getView()).navigateUp();
             });
         }
@@ -152,48 +171,40 @@ public class ForgotPasswordFragment extends Fragment {
         dialog.show();
     }
 
-    // --- POPUP 2: UTENTE NON TROVATO (ERRORE) ---
-    private void showUserNotFoundDialog() {
+    /**
+     * Displays a error dialog with the provided message.
+     *
+     * @param message The error message to display.
+     * @param connectionError Whether the error is related to network connectivity, to choose the appropriate layout.
+     */
+    private void showErrorDialog(String message, Boolean connectionError) {
         if (getContext() == null) return;
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
-        View view = getLayoutInflater().inflate(R.layout.dialog_account_not_found, null);
+        View view = getLayoutInflater().inflate(
+                connectionError ? R.layout.dialog_connection_error : R.layout.dialog_generic_error,
+                null);
         builder.setView(view);
 
         final AlertDialog dialog = builder.create();
-
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
         dialog.setCancelable(true);
 
-        // Bottone "Registrati Ora"
-        Button btnRegister = view.findViewById(R.id.btnRegister);
-        if (btnRegister != null) {
-            btnRegister.setOnClickListener(v -> {
-                dialog.dismiss();
-                // Vai alla registrazione (Action definita nel nav graph)
-                // Assicurati che l'ID corrisponda a quello nel nav_graph_auth.xml
-                // Se non hai un action diretta da Forgot a Register, torna al login e poi vai a register,
-                // oppure aggiungi l'action nel graph.
-
-                // Opzione sicura: Torna indietro (Login) e l'utente andrà su Register
-                Navigation.findNavController(getView()).navigateUp();
-
-                // Opzione diretta (Se hai aggiunto l'action nel graph):
-                // Navigation.findNavController(getView()).navigate(R.id.action_forgotPasswordFragment_to_registerFragment);
-            });
+        TextView tvErrorMessage = view.findViewById(R.id.tvErrorMessage);
+        if (tvErrorMessage != null) {
+            tvErrorMessage.setText(message);
         }
 
-        // Bottone "Riprova"
-        View btnTryAgain = view.findViewById(R.id.btnTryAgain);
-        if (btnTryAgain != null) {
-            btnTryAgain.setOnClickListener(v -> {
+        Button btnOk = view.findViewById(R.id.btnOk);
+        if (btnOk != null) {
+            btnOk.setOnClickListener(v -> {
                 dialog.dismiss();
-                if (etEmail != null) etEmail.requestFocus();
+                etEmail.requestFocus();
             });
         }
-
         dialog.show();
     }
+
 }

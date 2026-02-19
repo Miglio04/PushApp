@@ -10,6 +10,10 @@ import androidx.room.PrimaryKey;
 
 import java.util.UUID;
 
+/**
+ * Entity representing a recorded set in a workout history session.
+ * Stores the actual performance data (reps, weight) achieved.
+ */
 @Entity(
         tableName = "historySeries",
         foreignKeys = @ForeignKey(
@@ -40,10 +44,21 @@ public class HistorySerie {
     @Ignore
     private boolean isCompleted;
 
+    /**
+     * Default constructor.
+     */
     public HistorySerie() {
         this.historySerieId = UUID.randomUUID().toString();
     }
 
+    /**
+     * Constructs a HistorySerie with performance data.
+     *
+     * @param historyExerciseId The ID of the parent history exercise.
+     * @param setNumber         The ordinal number of the set.
+     * @param weight            The weight used.
+     * @param reps              The number of repetitions performed.
+     */
     public HistorySerie(@NonNull String historyExerciseId, int setNumber, double weight, int reps) {
         this.historySerieId = UUID.randomUUID().toString();
         this.historyExerciseId = historyExerciseId;

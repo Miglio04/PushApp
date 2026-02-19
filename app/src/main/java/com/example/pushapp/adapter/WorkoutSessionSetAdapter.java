@@ -1,7 +1,5 @@
 package com.example.pushapp.adapter;
 
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,24 +15,45 @@ import com.example.pushapp.models.history.HistorySerie;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Adapter for displaying and managing sets (series) within a specific exercise during a live workout session.
+ * Handles the display of target values vs actual values, completion toggling, and set deletion.
+ */
 public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessionSetAdapter.ViewHolder> {
 
     private final List<HistorySerie> series;
     private final List<Serie> templateSeries;
     private final OnSessionSetListener listener;
 
+    /**
+     * Listener interface for handling set-level interactions.
+     */
     public interface OnSessionSetListener {
         void onSetCompleted(int position);
         void onSetDataChanged(int position, double actualWeight, int actualReps);
         void onSetDeleted(int position);
     }
 
+    /**
+     * Constructs a new WorkoutSessionSetAdapter.
+     *
+     * @param series         The list of history series (actual performed sets).
+     * @param templateSeries The list of template series (goals/targets) from the routine.
+     * @param listener       The listener for user interactions.
+     */
     public WorkoutSessionSetAdapter(List<HistorySerie> series, List<Serie> templateSeries, OnSessionSetListener listener) {
         this.series = series;
         this.templateSeries = templateSeries;
         this.listener = listener;
     }
 
+    /**
+     * Creates a new ViewHolder for a set item.
+     *
+     * @param parent   The parent ViewGroup.
+     * @param viewType The view type integer.
+     * @return A new ViewHolder instance.
+     */
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -43,6 +62,13 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
         return new ViewHolder(view, listener);
     }
 
+    /**
+     * Binds data to the ViewHolder at the specified position.
+     * Matches the history set with its corresponding template target if available.
+     *
+     * @param holder   The ViewHolder to bind.
+     * @param position The position in the data set.
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HistorySerie serie = series.get(position);
@@ -54,18 +80,32 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
         holder.bind(serie, templateSerie);
     }
 
+    /**
+     * Returns the total number of sets.
+     *
+     * @return The size of the series list.
+     */
     @Override
     public int getItemCount() {
         return series != null ? series.size() : 0;
     }
 
+    /**
+     * ViewHolder class for caching view references for a set item.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         final TextView setNumber, targetDetails;
         final EditText actualWeight, actualReps;
-        final ImageButton completeButton, deleteButton;
+        final View completeButton;
+        final ImageButton deleteButton;
         private final OnSessionSetListener listener;
-        TextWatcher weightWatcher, repsWatcher;
 
+        /**
+         * Constructs a ViewHolder and initializes view references.
+         *
+         * @param itemView The root view of the item.
+         * @param listener The listener for events.
+         */
         public ViewHolder(View itemView, OnSessionSetListener listener) {
             super(itemView);
             this.listener = listener;
@@ -78,32 +118,49 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
             setupListeners();
         }
 
+        /**
+         * Binds data to the UI elements.
+         * Sets text watchers, target display, and checkbox state.
+         *
+         * @param serie         The actual set data.
+         * @param templateSerie The target set data (can be null).
+         */
         public void bind(HistorySerie serie, Serie templateSerie) {
-            actualWeight.removeTextChangedListener(weightWatcher);
-            actualReps.removeTextChangedListener(repsWatcher);
-
             setNumber.setText(String.valueOf(serie.getSetNumber()));
 
             if (templateSerie != null) {
-                String target = String.format(Locale.getDefault(), "%.1f kg x %d reps",
+                String target = String.format(Locale.getDefault(), "%.1f kg × %d",
                         templateSerie.getTargetWeight(), templateSerie.getTargetReps());
+                target = target.replace(".", ",");
                 targetDetails.setText(target);
                 targetDetails.setVisibility(View.VISIBLE);
             } else {
                 targetDetails.setVisibility(View.GONE);
             }
 
-            actualWeight.setText(serie.getWeight() > 0 ? String.format(Locale.US, "%.1f", serie.getWeight()) : "");
-            actualReps.setText(serie.getReps() > 0 ? String.valueOf(serie.getReps()) : "");
+            if (!actualWeight.hasFocus()) {
+                if (serie.getWeight() > 0) {
+                    double weight = serie.getWeight();
+                    if (weight == Math.floor(weight)) {
+                        actualWeight.setText(String.valueOf((int) weight));
+                    } else {
+                        actualWeight.setText(String.format(Locale.ITALIAN, "%.1f", weight));
+                    }
+                } else {
+                    actualWeight.setText("");
+                }
+            }
+
+            if (!actualReps.hasFocus()) {
+                actualReps.setText(serie.getReps() > 0 ? String.valueOf(serie.getReps()) : "");
+            }
 
             updateCompletedUI(serie.getIsCompleted());
-
-            actualWeight.addTextChangedListener(weightWatcher);
-            actualReps.addTextChangedListener(repsWatcher);
         }
 
         private void setupListeners() {
             completeButton.setOnClickListener(v -> {
+                clearFocusFromInputs();
                 int position = getBindingAdapterPosition();
                 if (position != RecyclerView.NO_POSITION) {
                     listener.onSetCompleted(position);
@@ -117,23 +174,46 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
                 }
             });
 
-            weightWatcher = new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-                @Override public void afterTextChanged(Editable s) {
+            actualWeight.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
                     updateSetData();
                 }
-            };
+            });
 
-            repsWatcher = new TextWatcher() {
-                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-                @Override public void afterTextChanged(Editable s) {
+            actualReps.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus) {
                     updateSetData();
                 }
-            };
+            });
+
+            actualWeight.setOnEditorActionListener((v, actionId, event) -> {
+                clearFocusFromInputs();
+                return true;
+            });
+
+            actualReps.setOnEditorActionListener((v, actionId, event) -> {
+                clearFocusFromInputs();
+                return true;
+            });
         }
 
+        /**
+         * Clears focus from input fields and hides the keyboard.
+         */
+        private void clearFocusFromInputs() {
+            actualWeight.clearFocus();
+            actualReps.clearFocus();
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager)
+                    itemView.getContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(itemView.getWindowToken(), 0);
+            }
+        }
+
+        /**
+         * Parses input from EditTexts and notifies the listener of data changes.
+         * Ignores incomplete input ending with comma or dot.
+         */
         private void updateSetData() {
             int position = getBindingAdapterPosition();
             if (position == RecyclerView.NO_POSITION) return;
@@ -142,24 +222,52 @@ public class WorkoutSessionSetAdapter extends RecyclerView.Adapter<WorkoutSessio
                 String wStr = actualWeight.getText().toString();
                 String rStr = actualReps.getText().toString();
 
+                if (wStr.endsWith(",") || wStr.endsWith(".")) {
+                    return;
+                }
+
+                wStr = wStr.replace(",", ".");
                 double weight = wStr.isEmpty() ? 0 : Double.parseDouble(wStr);
                 int reps = rStr.isEmpty() ? 0 : Integer.parseInt(rStr);
 
                 listener.onSetDataChanged(position, weight, reps);
-            } catch (NumberFormatException ignored) {
-                // Ignora input se nel formato sbagliato, non aggiorna i dati
-            }
+            } catch (NumberFormatException ignored) {}
         }
 
+        /**
+         * Updates visual state based on whether the set is marked as completed.
+         * Disables inputs if completed and fades them to show they cannot be edited.
+         *
+         * @param completed True if the set is complete.
+         */
         private void updateCompletedUI(boolean completed) {
-            int iconRes = completed ? android.R.drawable.checkbox_on_background : android.R.drawable.checkbox_off_background;
-            completeButton.setImageResource(iconRes);
+            if (completed) {
+                completeButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    itemView.getContext().getColor(R.color.green)));
+                actualWeight.setAlpha(0.5f);
+                actualReps.setAlpha(0.5f);
+                actualWeight.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurfaceVariant));
+                actualReps.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurfaceVariant));
+            } else {
+                completeButton.setBackgroundTintList(android.content.res.ColorStateList.valueOf(
+                    itemView.getContext().getColor(R.color.md_theme_surfaceContainerHighest)));
+                actualWeight.setAlpha(1.0f);
+                actualReps.setAlpha(1.0f);
+                actualWeight.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurface));
+                actualReps.setTextColor(itemView.getContext().getColor(R.color.md_theme_onSurface));
+            }
 
             actualWeight.setEnabled(!completed);
             actualReps.setEnabled(!completed);
         }
     }
 
+    /**
+     * Updates the adapter's data with new lists and refreshes the RecyclerView.
+     *
+     * @param newSeries         The new list of history series.
+     * @param newTemplateSeries The new list of template series.
+     */
     public void updateData(List<HistorySerie> newSeries, List<Serie> newTemplateSeries) {
         this.series.clear();
         this.series.addAll(newSeries);

@@ -1,61 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="300dp"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="20dp"
+    app:cardBackgroundColor="@color/md_theme_surfaceContainerHigh"
+    app:cardCornerRadius="28dp"
     app:cardElevation="8dp"
-    app:cardBackgroundColor="?attr/colorSurface"> <LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp">
+    tools:ignore="TextSizeCheck">
 
-    <ImageView
-        android:id="@+id/iconError"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:src="@drawable/ic_error_vector"
-        app:tint="?attr/colorError" android:contentDescription="Error Icon"
-        android:layout_marginBottom="16dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Account Not Found"
-        android:textColor="?attr/colorError" android:textSize="22sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="This email is not registered. Do you want to create a new account?"
-        android:gravity="center"
-        android:textColor="?attr/colorOnSurfaceVariant" android:textSize="14sp"
-        android:layout_marginBottom="24dp"/>
-
-    <Button
-        android:id="@+id/btnRegister"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="REGISTER NOW"
-        android:textColor="?attr/colorOnPrimary"
-        android:backgroundTint="?attr/colorPrimary" android:textStyle="bold"
-        android:layout_marginBottom="12dp"/>
-
-    <TextView
-        android:id="@+id/btnTryAgain"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:text="No, Try Again"
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:textStyle="bold"
-        android:clickable="true"
-        android:focusable="true"
-        android:background="?attr/selectableItemBackground"/>
+        android:orientation="vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="28dp"
+        android:paddingBottom="20dp">
 
-</LinearLayout>
-</androidx.cardview.widget.CardView>
+        <!-- Icona -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="@color/md_theme_error"
+            app:cardCornerRadius="36dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:id="@+id/iconError"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/error_icon"
+                android:src="@drawable/ic_error_vector"
+                app:tint="@color/md_theme_onError" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Titolo -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/account_not_found"
+            android:textColor="@color/md_theme_onSurface"
+            android:textSize="20sp" />
+
+        <!-- Messaggio -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            android:gravity="center"
+            android:lineSpacingExtra="2dp"
+            android:text="@string/account_not_found_message"
+            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:textSize="14sp" />
+
+        <!-- Pulsante Register -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRegister"
+            style="@style/Widget.Material3.Button"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/register_now"
+            android:textColor="@color/md_theme_onPrimary"
+            android:textSize="15sp"
+            app:backgroundTint="@color/md_theme_primary"
+            app:cornerRadius="14dp" />
+
+        <!-- Pulsante Try Again -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnTryAgain"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/try_again"
+            android:textColor="@color/md_theme_onSurfaceVariant"
+            android:textSize="15sp"
+            app:cornerRadius="14dp"
+            app:strokeColor="@color/md_theme_outlineVariant"
+            app:strokeWidth="1dp" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

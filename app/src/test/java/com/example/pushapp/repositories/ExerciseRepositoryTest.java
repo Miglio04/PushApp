@@ -36,6 +36,9 @@ public class ExerciseRepositoryTest {
     private ExerciseAPIDataSource apiDataSource;
 
     @Mock
+    private ExerciseSampleDataSource sampleDataSource;
+
+    @Mock
     private SessionManager sessionManager;
 
     @Mock
@@ -53,7 +56,7 @@ public class ExerciseRepositoryTest {
         mockedLog.when(() -> Log.e(anyString(), anyString())).thenReturn(0);
         mockedLog.when(() -> Log.d(anyString(), anyString())).thenReturn(0);
 
-        repository = new ExerciseRepository(localDataSource, apiDataSource, sessionManager);
+        repository = new ExerciseRepository(localDataSource, apiDataSource, sampleDataSource, sessionManager);
         repository.getExercises().observeForever(observer);
     }
 

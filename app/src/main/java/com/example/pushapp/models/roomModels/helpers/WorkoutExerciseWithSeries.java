@@ -8,7 +8,10 @@ import com.example.pushapp.models.Serie;
 
 import java.util.List;
 
-// helper class used by Room queries.
+/**
+ * Room Relationship class modeling a WorkoutExercise with its associated Series.
+ * Binds the WorkoutExercise entity to a list of Serie entities via workoutExerciseId.
+ */
 public class WorkoutExerciseWithSeries {
     @Embedded
     public WorkoutExercise workoutExercise;

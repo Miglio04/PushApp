@@ -1,6 +1,11 @@
 package com.example.pushapp.utils;
 
+/**
+ * Application-wide constants for Firestore collections, API endpoints, and configuration values.
+ */
 public class Constants {
+
+    public static final boolean DEBUG_MODE = true;
     public static final String COLLECTION_USERS = "users";
     public static final String COLLECTION_TRAININGS = "trainings";
     public static final String COLLECTION_ROUTINES = "routines";

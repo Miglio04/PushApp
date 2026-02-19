@@ -1,7 +1,8 @@
 package com.example.pushapp.ui.main.fragments;
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,40 +22,62 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.Training;
-import com.example.pushapp.repositories.FirebaseCallback;
 import com.example.pushapp.viewModels.TrainingViewModel;
 import com.example.pushapp.adapter.TrainingsRecyclerViewAdapter;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
+import com.example.pushapp.utils.DeleteDialogHelper;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fragment that displays the user's list of training plans (Trainings).
+ * Allows users to create, view, edit, and delete training plans.
+ */
 public class TrainingsFragment extends Fragment implements TrainingsRecyclerViewAdapter.OnTrainingInteractionListener {
-
-    private static final String TAG = "TrainingsFragment";
     private UserViewModel userViewModel;
     private TrainingViewModel trainingViewModel;
     private TrainingsRecyclerViewAdapter adapter;
     private NavController navController;
+    private View emptyStateContainer;
+    private RecyclerView recyclerView;
 
+    /**
+     * Called when the fragment is being created.
+     *
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
+    /**
+     * Inflates the layout for the training list screen.
+     *
+     * @param inflater           LayoutInflater to inflate views.
+     * @param container          Parent view group.
+     * @param savedInstanceState Saved state bundle.
+     * @return The root view of the fragment.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_trainings, container, false);
     }
 
+    /**
+     * Sets up views, adapters, ViewModels, and observers after the view is created.
+     *
+     * @param view               The root view.
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        Log.d("TrainingsFragment", "onViewCreated called");
 
         navController = Navigation.findNavController(view);
 
@@ -66,7 +89,8 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
                 requireActivity(),
                 new ViewModelFactory(requireContext())).get(TrainingViewModel.class);
 
-        RecyclerView recyclerView = view.findViewById(R.id.training_list);
+        emptyStateContainer = view.findViewById(R.id.empty_state_container);
+        recyclerView = view.findViewById(R.id.training_list);
         setupRecyclerView(recyclerView);
 
         FloatingActionButton fab = view.findViewById(R.id.fab_add_training);
@@ -76,47 +100,54 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
             if (result != null && result.isSessionSuccess()) {
                 String userId = ((Result.SessionSuccess) result).getData().getUserId();
                 trainingViewModel.createTraining(userId);
-            } else{
-                Log.d(TAG, "Errore nella fetch dell'utente");
             }
         });
-
-        Button btnAddSampleData = view.findViewById(R.id.btn_add_sample_data);
-        btnAddSampleData.setOnClickListener(v -> {
-            createSampleTraining();
-            Toast.makeText(getContext(), "Adding sample data to Firebase...", Toast.LENGTH_SHORT).show();
-        });
-
-
-
         observeViewModel();
-
     }
 
+    /**
+     * Configures the RecyclerView and its adapter for displaying the list of trainings.
+     *
+     * @param recyclerView The RecyclerView to configure.
+     */
     private void setupRecyclerView(RecyclerView recyclerView) {
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new TrainingsRecyclerViewAdapter(new ArrayList<>(), this);
         recyclerView.setAdapter(adapter);
     }
 
+    /**
+     * Observes the training list from the ViewModel and updates the UI.
+     * Handles success and error states.
+     */
     private void observeViewModel() {
         trainingViewModel.getTrainings().observe(getViewLifecycleOwner(), trainings -> {
-            Log.d("TrainingsFragment", "observeViewModel called");
             if (trainings == null ) {
-                Toast.makeText(getContext(), "Something went wrong", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), R.string.something_went_wrong, Toast.LENGTH_LONG).show();
+                updateEmptyState(true);
             } else if (trainings.isTrainingsSuccess()){
                 List<Training> trainingsList = ((Result.TrainingsSuccess) trainings).getData();
-                Log.d("TrainingsFragment", "Received " + trainingsList.size() + " trainings:");
-                for (Training t : trainingsList) {
-                    Log.d("TrainingsFragment", "  - ID: " + t.getTrainingId() + ", Name: " + t.getName());
-                }
                 adapter.updateTrainings(trainingsList);
+                updateEmptyState(trainingsList.isEmpty());
             }else{
                 Toast.makeText(getContext(), ((Result.Error) trainings).getMessage(), Toast.LENGTH_LONG).show();
+                updateEmptyState(true);
             }
         });
     }
 
+    private void updateEmptyState(boolean isEmpty) {
+        if (emptyStateContainer != null && recyclerView != null) {
+            emptyStateContainer.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+            recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+        }
+    }
+
+    /**
+     * Handles clicks on a training item, navigating to the detailed schedule view.
+     *
+     * @param training The selected training plan.
+     */
     @Override
     public void onTrainingClicked(Training training) {
         Bundle bundle = new Bundle();
@@ -124,34 +155,74 @@ public class TrainingsFragment extends Fragment implements TrainingsRecyclerView
         navController.navigate(R.id.nav_training_to_training_days, bundle);
     }
 
+    /**
+     * Handles deletion requests for a training plan.
+     * Displays a confirmation dialog before deletion.
+     *
+     * @param training The training plan to delete.
+     */
     @Override
     public void onTrainingDeleteClicked(Training training) {
-        new AlertDialog.Builder(requireContext())
-                .setTitle("Conferma Eliminazione")
-                .setMessage("Sei sicuro di voler eliminare la scheda '" + training.getName() + "'?")
-                .setPositiveButton("Elimina", (dialog, which) -> {
-                    trainingViewModel.deleteTraining(training);
-                })
-                .setNegativeButton("Annulla", null)
-                .show();
+        showDeleteDialog(training);
     }
 
+    /**
+     * Called when a training plan has been edited.
+     * Updates the training details in the ViewModel.
+     *
+     * @param training       The training plan being edited.
+     */
     @Override
-    public void onTrainingEditFinished(Training training, String newName, String newDescription) {
-        training.setName(newName);
-        training.setDescription(newDescription);
-        trainingViewModel.updateTraining(training);
+    public void onTrainingEditClicked(Training training) {
+        showEditDialog(training);
     }
 
-    private void createSampleTraining() {
-        Result result = userViewModel.getSessionLiveData().getValue();
+    private void showDeleteDialog(Training training) {
+        if (getContext() == null) return;
 
-        if (result != null && result.isSessionSuccess()) {
-            String userId = ((Result.SessionSuccess) result).getData().getUserId();
-            trainingViewModel.createSampleTraining(userId);
-        } else{
-            Log.d(TAG, "Errore nella fetch dell'utente");
+        DeleteDialogHelper.show(
+            requireContext(),
+            R.string.delete_training_title,
+            R.string.delete_training_message,
+            () -> trainingViewModel.deleteTraining(training)
+        );
+    }
+
+    private void showEditDialog(Training training) {
+        if (getContext() == null) return;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_training, null);
+        builder.setView(dialogView);
+
+        final AlertDialog dialog = builder.create();
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
+        TextInputEditText etName = dialogView.findViewById(R.id.etTrainingName);
+        TextInputEditText etDescription = dialogView.findViewById(R.id.etTrainingDescription);
+        Button btnSave = dialogView.findViewById(R.id.btnSave);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+
+
+        etName.setText(training.getName());
+        etDescription.setText(training.getDescription());
+
+        btnSave.setOnClickListener(v -> {
+            String newName = etName.getText() != null ? etName.getText().toString().trim() : "";
+            String newDescription = etDescription.getText() != null ? etDescription.getText().toString().trim() : "";
+
+            if (!newName.isEmpty()) {
+                training.setName(newName);
+                training.setDescription(newDescription);
+                trainingViewModel.updateTraining(training);
+                dialog.dismiss();
+            }
+        });
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 }

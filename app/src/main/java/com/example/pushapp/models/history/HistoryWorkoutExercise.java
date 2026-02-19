@@ -10,6 +10,10 @@ import androidx.room.PrimaryKey;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Entity representing an exercise performed during a history session.
+ * links the session to the individual series performed.
+ */
 @Entity(
         tableName = "historyWorkoutExercises",
         foreignKeys = @ForeignKey(
@@ -37,13 +41,21 @@ public class HistoryWorkoutExercise {
     private int orderIndex;
     @Ignore
     private int currentRestTimeIndex = -1;
-    @Ignore
-    private List<HistorySerie> historySerieList;
 
+    /**
+     * Default constructor.
+     */
     public HistoryWorkoutExercise() {
         this.historyExerciseId = UUID.randomUUID().toString();
     }
 
+    /**
+     * Constructs a HistoryWorkoutExercise.
+     *
+     * @param historySessionId The ID of the parent session.
+     * @param exerciseName     The name of the exercise.
+     * @param orderIndex       The order of the exercise in the session.
+     */
     public HistoryWorkoutExercise(@NonNull String historySessionId, String exerciseName, int orderIndex) {
         this.historyExerciseId = UUID.randomUUID().toString();
         this.historySessionId = historySessionId;

@@ -6,7 +6,6 @@
 
     <string name="ready_to_train">Ready to train?</string>
     <string name="weight_progress">Weight progress</string>
-    <string name="_30_days">30 days</string>
     <string name="train_now">train now!</string>
     <string name="your_trainings">Your trainings</string>
     <string name="goals_amp_progression">Goals &amp; Progression</string>
@@ -25,9 +24,9 @@
     <string name="welcome_back">Welcome Back!</string>
     <string name="or">---------- or ----------</string>
     <string name="continue_with_google">Continue with Google</string>
+    <string name="google_sign_in_failed">Google Sign-In failed. Please try again.</string>
     <string name="by_continuing_you_agree_to_our_terms_of_service">By continuing you agree to our Terms of Service</string>
     <string name="logging_in">Logging in...</string>
-
     <string name="ops_invalid_email_address">Ops! Invalid email address</string>
     <string name="password_is_too_short">Password is too short</string>
     <string name="password_is_too_short_min_8_chars">Password is too short (min 8 chars).</string>
@@ -64,14 +63,14 @@
     <string name="select_training">Select training</string>
     <string name="coming_soon">Coming soon...</string>
     <string name="confirm_operation">Confirm delete</string>
-    <string name="are_you_sure_delete">Are you sure to delete this element?</string>
+    <string name="are_you_sure_delete">Are you sure to delete this training?</string>
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
     <string name="note">Text note</string>
     <string name="add_set">Add set</string>
     <string name="reps">reps</string>
     <string name="weight">weight</string>
-    <string name="delete">delete</string>
+    <string name="delete">Delete</string>
     <string name="back">back</string>
     <string name="start">start</string>
     <string name="stop">stop</string>
@@ -84,7 +83,6 @@
     <string name="invalid_input">Please insert valid values</string>
     <string name="sign_up_with_google">Sign up with Google</string>
 
-    <!-- Profile Activity Strings -->
     <string name="profile">Profile</string>
     <string name="personal_data">Personal Data</string>
     <string name="goals">Goals</string>
@@ -97,9 +95,10 @@
     <string name="detail_weight">Weight: %1$.1f kg</string>
     <string name="title_activity_auth" translatable="false">AuthActivity</string>
     <string name="accedi">Log In</string>
-    <string name="registrati">Register</string>
+    <string name="register">Register</string>
     <string name="confirm_password">Confirm Password</string>
     <string name="create_account">Create Account</string>
+    <string name="create_new_account">Create a new account</string>
     <string name="passwords_do_not_match">Passwords do not match</string>
     <string name="workouts">Workouts</string>
     <string name="volume">Volume</string>
@@ -143,5 +142,183 @@
     <string name="description">Description</string>
     <string name="dark_theme">Dark theme</string>
     <string name="light_theme">Light theme</string>
+    <string name="are_you_sure_you_want_to_delete_this_session_this_action_cannot_be_undone">Are you sure you want to delete this session? This action cannot be undone.</string>
+    <string name="delete_workout">Delete Workout</string>
+    <string name="day_name">Day Name</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="diffulty">Diffulty</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="enter_your_email_address_to_receive_a_password_reset_link">Enter your email address to receive a password reset link.</string>
+    <string name="name_example_com">name@example.com</string>
+    <string name="workout_history">Workout History</string>
+    <string name="check_your_past_sessions_and_progress">Check your past sessions and progress</string>
+    <string name="search_sessions">Search sessions...</string>
+    <string name="no_sessions_found_nready_for_a_new_workout">No sessions found. Ready for a new workout?</string>
+    <string name="view_and_manage_your_account">View and manage your account</string>
+    <string name="account_details">Account Details</string>
+    <string name="change_theme">Change Theme</string>
+    <string name="statistics">Statistics</string>
+    <string name="track_your_fitness_journey_and_progress">Track your fitness journey and progress</string>
+    <string name="time">Time</string>
+    <string name="_0" translatable="false">0</string>
+    <string name="february_2026">February 2026</string>
+    <string name="_0_day_streak">0 Day Streak!</string>
+    <string name="consistency_is_key_to_results">Consistency is key to results!</string>
+    <string name="select_exercise">Select Exercise</string>
+    <string name="total_repetitions">Total Repetitions</string>
+    <string name="day_mon">M</string>
+    <string name="day_tue">T</string>
+    <string name="day_wed">W</string>
+    <string name="day_thu">T</string>
+    <string name="day_fri">F</string>
+    <string name="day_sat">S</string>
+    <string name="day_sun">S</string>
+    <string name="add_sample_data">Add Sample Data</string>
+    <string name="_00_00" translatable="false">00:00</string>
+    <string name="_01" translatable="false">01</string>
+    <string name="exercise_name">Exercise Name</string>
+    <string name="add_series">Add Series</string>
+    <string name="push_day" translatable="false">Push Day</string>
+    <string name="workout_info">Workout Info</string>
+    <string name="_09_february_2026_14_30">09 February 2026 - 14:30</string>
+    <string name="exercises_details">Exercise Details</string>
+    <string name="set_1" translatable="false">Set 1</string>
+    <string name="_50kg_x_10_reps" translatable="false">50kg x 10 reps</string>
+    <string name="edit_set">Edit Set</string>
+    <string name="edit_day">Edit Day</string>
+    <string name="delete_set">Delete Set</string>
+    <string name="rest">Rest:</string>
+    <string name="_1" translatable="false">1</string>
+    <string name="target_80kg_x_8" translatable="false">Target: 80kg x 8</string>
+    <string name="complete_set">Complete Set</string>
+    <string name="_01_30" translatable="false">01:30</string>
+    <string name="training_description">Training Description</string>
+    <string name="paused_workout">Paused Workout</string>
+    <string name="discard">Discard</string>
+    <string name="this_email_is_not_registered_do_you_want_to_create_a_new_account">This email is not registered. Do you want to create a new account?</string>
+    <string name="activity">Activity</string>
+    <string name="home" translatable="false">Home</string>
+    <string name="no_history_found">No History Found</string>
+    <string name="years">years</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="gender_prefer_not_to_say">Prefer not to say</string>
+    <string name="creating_account">Creating account...</string>
+    <string name="connecting_to_google">Connecting to Google...</string>
+    <string name="authenticating">Authenticating...</string>
+    <string name="account_connected_via_google">Account connected via Google. You are ready to setup your profile.</string>
+    <string name="account_created_successfully_ready">Account created successfully. You are ready to setup your profile.</string>
+    <string name="start_setup">Start setup!</string>
+    <string name="password_must_be_6">Password must be at least 6 characters.</string>
+    <string name="logged_in">You are now successfully logged in.</string>
+    <string name="go_home">Go to Home</string>
+    <string name="check_weight">Check weight.</string>
+    <string name="check_height">Check height.</string>
+    <string name="please_target_weight">Please enter a target weight.</string>
+    <string name="profile_completed">Profile Completed!</string>
+    <string name="data_saved">Your data has been saved. You are ready to start training.</string>
+    <string name="please_valide_age">Please enter a valid age (16-99).</string>
+    <string name="workout_in_progress">Workout in progress.</string>
+    <string name="discard_and_start">Discard and Start</string>
+    <string name="already_active_session">You already have an active workout session. Would you like to discard it and start a new one?</string>
+    <string name="search_for_exercise">Search for exercise...</string>
+    <plurals name="streak_days">
+        <item quantity="one">%d DAY STREAK!</item>
+        <item quantity="other">%d DAYS STREAK!</item>
+    </plurals>
+    <string name="streak_fire">You\'re on fire! 🔥</string>
+    <string name="streak_start">Start your streak today!</string>
+    <string name="no_data_exercise">No data for selected exercise</string>
+
+    <string name="error_icon">Error icon</string>
+    <string name="account_not_found">Account Not Found</string>
+    <string name="account_not_found_message">This email is not registered. Would you like to create a new account?</string>
+    <string name="register_now">REGISTER NOW</string>
+    <string name="try_again">No, try again</string>
+
+    <string name="success">Success!</string>
+    <string name="operation_completed">Operation completed.</string>
+    <string name="ok">OK</string>
+    <string name="success_icon">Success icon</string>
+
+    <string name="workout_paused">Workout Paused</string>
+    <string name="tap_to_resume">Tap to resume</string>
+    <string name="resume">Resume</string>
+
+    <string name="delete_training_title">Delete Training</string>
+    <string name="delete_training_message">Are you sure you want to delete this training? This action cannot be undone.</string>
+
+    <string name="adding_sample_data">Adding sample data…</string>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="open_training">Open training</string>
+    <string name="manage_your_programs">Manage your programs</string>
+    <string name="no_trainings_yet">No trainings yet</string>
+    <string name="create_first_training">Create your first training\nto get started!</string>
+
+
+    <string name="edit_training_title">Edit Training</string>
+    <string name="training_name">Training Name</string>
+    <string name="save">Save</string>
+
+    <string name="select_routine">Select a routine to start</string>
+    <string name="no_routines_yet">No routines yet</string>
+    <string name="create_first_routine">Add your first routine\nto this training!</string>
+    <string name="new_routine">New routine</string>
+    <string name="delete_routine_title">Delete Routine</string>
+    <string name="delete_routine_message">Are you sure you want to delete this routine? This action cannot be undone.</string>
+
+    <string name="delete_workout_title">Delete Workout</string>
+    <string name="delete_workout_message">Are you sure you want to delete this session? This action cannot be undone.</string>
+    <string name="session_deleted">Session deleted</string>
+
+    <string name="rest_time">REST TIME</string>
+    <string name="add_30s">+30s</string>
+    <string name="skip">Skip</string>
+
+    <string name="elapsed_time">Elapsed Time</string>
+    <string name="lets_go">Let\'s crush it!</string>
+    <string name="minimize">Minimize</string>
+
+    <string name="set_label">Set</string>
+    <string name="target_label">Target</string>
+    <string name="actual_label">Actual</string>
+
+    <string name="edit_routine">Edit Routine</string>
+    <string name="routine_name">Routine Name</string>
+    <string name="routine_name_hint">Enter routine name</string>
+    <string name="exercises">Exercises</string>
+    <string name="add_exercise">Add Exercise</string>
+    <string name="search_exercise">Search exercise…</string>
+    <string name="muscle_group">Muscle Group</string>
+    <string name="difficulty">Difficulty</string>
+    <string name="all">All</string>
+    <string name="error_routine_not_loaded">Error: Routine not loaded</string>
+    <string name="loading">Loading…</string>
+    <string name="error_loading">Loading error</string>
+    <string name="replace">Replace</string>
+    <string name="pause">Pause</string>
+    <string name="history">History</string>
+    <string name="track_your_workout_journey">Track your workout journey</string>
+    <string name="this_week">This Week</string>
+    <string name="this_month">This Month</string>
+    <string name="no_workouts_yet">No workouts yet</string>
+    <string name="start_your_first_workout_nto_see_it_here">Start your first workout\nto see it here!</string>
+    <string name="workout_details">WORKOUT DETAILS</string>
+    <string name="appearance">Appearance</string>
+
+    <string name="workout_complete">Workout Complete!</string>
+    <string name="great_job">Great job! Here\'s your summary</string>
+    <string name="duration">Duration</string>
+    <string name="sets">Sets</string>
+    <string name="total_volume">Total Volume</string>
+    <string name="done">Done</string>
+    <string name="delete_exercise_title">Delete Exercise</string>
+    <string name="delete_exercise_confirm">Are you sure you want to delete %1$s?</string>
+    <string name="connection_error">Connection error</string>
+    <string name="error">Error</string>
+    <string name="network_error">Network Error</string>
+    <string name="user_not_found">User not found\n</string>
+    <string name="wrong_credentials">Wrong credentials</string>
+    <string name="email_already_registered">Email already registered</string>
 
 </resources>

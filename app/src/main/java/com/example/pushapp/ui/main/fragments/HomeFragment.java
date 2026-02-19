@@ -4,145 +4,258 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
+import androidx.recyclerview.widget.RecyclerView;
 import com.example.pushapp.R;
+import com.example.pushapp.adapter.CalendarAdapter;
 import com.example.pushapp.models.Result;
 import com.example.pushapp.models.User;
+import com.example.pushapp.utils.ChartHelper;
+import com.example.pushapp.viewModels.HistoryViewModel;
 import com.example.pushapp.viewModels.UserViewModel;
 import com.example.pushapp.viewModels.ViewModelFactory;
-import com.google.android.material.card.MaterialCardView;
+import com.github.mikephil.charting.charts.LineChart;
+import com.google.android.material.snackbar.Snackbar;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Fragment responsible for displaying user statistics.
+ * Shows a calendar view of workout history, Key Performance Indicators (KPIs),
+ * and line charts for exercise progress (Max Weight and Total Volume).
+ */
 public class HomeFragment extends Fragment {
 
-    private UserViewModel userViewModel;
+    private RecyclerView calendarRecyclerView;
+    private CalendarAdapter calendarAdapter;
+    private TextView txtMonthTitle, txtKpiWorkouts, txtKpiVolume, txtKpiTime, txtStreakCount, txtStreakMessage;
     private TextView nameTitle;
-    //private TextView tvAvatarInitial;
-    private TextView tvWeightVal;
-    private TextView tvWeightDiff;
+    private ImageButton btnPrev, btnNext, btnExpand;
+    private LineChart chartLoad, chartReps;
+    private AutoCompleteTextView exerciseSpinner;
+    private HistoryViewModel historyViewModel;
+    private UserViewModel userViewModel;
+    private final DateTimeFormatter monthFormatter = DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault());
 
-    public HomeFragment() {
-        // Required empty public constructor
-    }
-
+    /**
+     * Initializes the HistoryViewModel.
+     *
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ViewModelFactory factory = new ViewModelFactory(requireContext());
+        historyViewModel = new ViewModelProvider(requireActivity(), factory).get(HistoryViewModel.class);
+        userViewModel = new ViewModelProvider(requireActivity(), factory).get(UserViewModel.class);
     }
 
+    /**
+     * Inflates the layout for the statistics screen.
+     *
+     * @param inflater           LayoutInflater to inflate views.
+     * @param container          Parent view group.
+     * @param savedInstanceState Saved state bundle.
+     * @return The root view of the fragment.
+     */
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
+    /**
+     * Sets up views, styles, observers, and listeners after the view is created.
+     *
+     * @param view               The root view.
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        userViewModel = new ViewModelProvider(
-                requireActivity(),
-                new ViewModelFactory(requireContext())).get(UserViewModel.class);
-
-        // Inizializzazione view
-        nameTitle = view.findViewById(R.id.nameTitle);
-        //tvAvatarInitial = view.findViewById(R.id.tvAvatarInitial);
-        tvWeightVal = view.findViewById(R.id.tvWeightVal);
-        tvWeightDiff = view.findViewById(R.id.tvWeightDiff);
-        //MaterialCardView btnUserArea = view.findViewById(R.id.btnUserArea);
-
-        // Osserva i dati dell'utente dal ViewModel caricato all'avvio
-        observeUserViewModel();
-
-        // Configurazione delle card statistiche (Dati statici per ora)
-        setupStatCard(view, R.id.cardStreak,
-                R.drawable.outline_local_fire_department_24,
-                "18",
-                "Streak",
-                R.color.md_theme_primary);
-
-        setupStatCard(view, R.id.cardWorkouts,
-                R.drawable.ic_weight,
-                "127",
-                "Workouts",
-                R.color.md_theme_primary);
-
-        setupStatCard(view, R.id.cardVolume,
-                R.drawable.outline_lightbulb_24,
-                "2.5k",
-                "Volume",
-                R.color.md_theme_primary);
-
-        /*btnUserArea.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), ProfileActivity.class);
-            startActivity(intent);
-        });*/
+        initViews(view);
+        ChartHelper.setupChartStyle(chartLoad, requireContext());
+        ChartHelper.setupChartStyle(chartReps, requireContext());
+        setupObservers();
+        setupClickListeners();
     }
 
-    private void observeUserViewModel(){
+    /**
+     * Initializes UI references from the fragment layout.
+     *
+     * @param view The root view of the fragment.
+     */
+    private void initViews(View view) {
+        calendarRecyclerView = view.findViewById(R.id.calendarRecyclerView);
+        txtMonthTitle = view.findViewById(R.id.txtMonthTitle);
+        btnPrev = view.findViewById(R.id.btnPrev);
+        btnNext = view.findViewById(R.id.btnNext);
+        btnExpand = view.findViewById(R.id.btnExpand);
+        chartLoad = view.findViewById(R.id.chartLoad);
+        chartReps = view.findViewById(R.id.chartReps);
+        exerciseSpinner = view.findViewById(R.id.exerciseSpinner);
+        txtKpiWorkouts = view.findViewById(R.id.txtKpiWorkouts);
+        txtKpiVolume = view.findViewById(R.id.txtKpiVolume);
+        txtKpiTime = view.findViewById(R.id.txtKpiTime);
+        txtStreakCount = view.findViewById(R.id.txtStreakCount);
+        txtStreakMessage = view.findViewById(R.id.txtStreakMessage);
+        nameTitle = view.findViewById(R.id.nameTitle);
+        setupCalendar();
+    }
+
+    /**
+     * Sets up observers for ViewModel LiveData to update the UI (calendar, KPIs, charts) whenever data changes.
+     */
+    private void setupObservers() {
         userViewModel.getUserLiveData().observe(getViewLifecycleOwner(), result -> {
             if (result == null) return;
             if (result.isUserSuccess()) {
                 User user = ((Result.UserSuccess) result).getData();
-                if(user == null) return;
-                // Aggiorna Nome e Iniziale Avatar
-                if (user.getName() != null && !user.getName().isEmpty()) {
+                if (user != null && user.getName() != null && !user.getName().isEmpty()) {
                     nameTitle.setText(user.getName());
-                    /*if (tvAvatarInitial != null) {
-                        tvAvatarInitial.setText(user.getName().substring(0, 1).toUpperCase());
-                    }*/
                 }
+            }
+        });
 
-                // Aggiorna il Peso Attuale
-                if (tvWeightVal != null) {
-                    tvWeightVal.setText(String.format(Locale.getDefault(), "%.1f kg", user.getWeight()));
-                }
+        historyViewModel.getSelectedDate().observe(getViewLifecycleOwner(), date -> drawCalendar());
 
-                // Aggiorna la differenza di peso
-                if (tvWeightDiff != null) {
-                    List<Double> progress = user.getWeightProgress();
-                    if (progress != null && progress.size() >= 2) {
-                        // Calcola differenza tra l'ultimo (peso attuale) e il penultimo
-                        double currentWeight = progress.get(progress.size() - 1);
-                        double previousWeight = progress.get(progress.size() - 2);
-                        double diff = currentWeight - previousWeight;
+        historyViewModel.isMonthView().observe(getViewLifecycleOwner(), isMonthView -> {
+            btnExpand.animate().rotation(isMonthView ? 90f : 270f).setDuration(300).start();
+            drawCalendar();
+        });
 
-                        String sign = diff > 0 ? "+" : "";
-                        tvWeightDiff.setText(String.format(Locale.getDefault(), "%s%.1f kg", sign, diff));
-                    } else {
-                        // Solo un peso o nessuno
-                        tvWeightDiff.setText("0.0 kg");
-                    }
-                }
+        historyViewModel.getExerciseNames().observe(getViewLifecycleOwner(), this::setupExerciseSpinner);
+
+        historyViewModel.getKpiStats().observe(getViewLifecycleOwner(), stats -> {
+            if (stats == null) return;
+            int streak = stats.getCurrentStreak();
+            txtKpiWorkouts.setText(String.valueOf(stats.getWorkoutsMonth()));
+            txtKpiVolume.setText(stats.getFormattedVolume());
+            txtKpiTime.setText(stats.getFormattedTime());
+            txtStreakCount.setText(getResources().getQuantityString(R.plurals.streak_days, streak, streak));
+            txtStreakMessage.setText(stats.getFormattedStreakMessageText());
+
+            if (streak > 0) {
+                txtStreakMessage.setText(getString(R.string.streak_fire));
+            } else {
+                txtStreakMessage.setText(getString(R.string.streak_start));
+            }
+        });
+
+        historyViewModel.getGraphMaxWeightData().observe(getViewLifecycleOwner(), chartData -> {
+            if (chartData != null) {
+                ChartHelper.bindChart(chartLoad, chartData.entries, "Max Weight", ContextCompat.getColor(requireContext(), R.color.md_theme_primary), chartData.points, requireContext());
+            } else {
+                chartLoad.clear();
+            }
+        });
+
+        historyViewModel.getGraphTotalVolumeData().observe(getViewLifecycleOwner(), chartData -> {
+            if (chartData != null) {
+                ChartHelper.bindChart(chartReps, chartData.entries, "Total Volume", ContextCompat.getColor(requireContext(), R.color.md_theme_secondary), chartData.points, requireContext());
+            } else {
+                chartReps.clear();
             }
         });
     }
 
-    private void setupStatCard(View rootView, int cardId, int iconResId, String value, String label, int colorResId) {
-        View cardContainer = rootView.findViewById(cardId);
-        if (cardContainer == null) return;
+    /**
+     * Configures click listeners for calendar navigation and view toggling buttons.
+     */
+    private void setupClickListeners() {
+        btnPrev.setOnClickListener(v -> historyViewModel.previous());
+        btnNext.setOnClickListener(v -> historyViewModel.next());
+        btnExpand.setOnClickListener(v -> historyViewModel.toggleCalendarView());
+    }
 
-        MaterialCardView materialCard = (MaterialCardView) cardContainer;
-        ImageView icon = materialCard.findViewById(R.id.iconStat);
-        TextView tvValue = materialCard.findViewById(R.id.tvValue);
-        TextView tvLabel = materialCard.findViewById(R.id.tvLabel);
+    /**
+     * Refreshes the calendar view based on the currently selected date.
+     * Updates the month title and the list of days.
+     */
+    private void drawCalendar() {
+        LocalDate selectedDate = historyViewModel.getSelectedDate().getValue();
+        if (selectedDate == null) return;
 
-        if (icon != null) icon.setImageResource(iconResId);
-        if (tvValue != null) tvValue.setText(value);
-        if (tvLabel != null) tvLabel.setText(label);
+        txtMonthTitle.setText(selectedDate.format(monthFormatter).toUpperCase());
+        List<LocalDate> days = historyViewModel.getCalendarDays();
+        calendarAdapter.updateDays(days);
+    }
 
-        if (getContext() != null) {
-            int color = getResources().getColor(colorResId, getContext().getTheme());
-            if (icon != null) icon.setColorFilter(color);
-            materialCard.setStrokeColor(color);
+    /**
+     * populates the exercise spinner with available exercise names for filtering charts.
+     * Automatically selects the first exercise if available.
+     *
+     * @param names List of exercise names.
+     */
+    private void setupExerciseSpinner(List<String> names) {
+        if (names == null) return;
+        List<String> spinnerNames = new ArrayList<>(names);
+        if (spinnerNames.isEmpty()) {
+            spinnerNames.add("No Data");
         }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.item_exercise_dropdown, spinnerNames);
+        exerciseSpinner.setAdapter(adapter);
+        exerciseSpinner.setOnClickListener(v -> exerciseSpinner.showDropDown());
+        exerciseSpinner.setOnItemClickListener((parent, view, position, id) -> {
+            String selectedExercise = spinnerNames.get(position);
+            loadChartsForExercise(selectedExercise);
+        });
+
+        if (!spinnerNames.isEmpty() && !"No Data".equals(spinnerNames.get(0))) {
+            String first = spinnerNames.get(0);
+            exerciseSpinner.post(() -> {
+                if (!isAdded()) return;
+                try {
+                    exerciseSpinner.setText(first, false);
+                    loadChartsForExercise(first);
+                } catch (Exception e) { /* ignored */ }
+            });
+        }
+    }
+
+    /**
+     * Triggers data fetching for the charts based on the selected exercise.
+     *
+     * @param exerciseName The name of the selected exercise.
+     */
+    private void loadChartsForExercise(String exerciseName) {
+        if (exerciseName == null || exerciseName.trim().isEmpty() || "No Data".equals(exerciseName)) {
+            chartLoad.clear();
+            chartReps.clear();
+            if (getView() != null) {
+                Snackbar.make(requireView(), getString(R.string.no_data_exercise), Snackbar.LENGTH_SHORT).show();
+            }
+            return;
+        }
+        String trimmedExerciseName = exerciseName.trim();
+        chartLoad.clear();
+        chartReps.clear();
+        historyViewModel.fetchGraphDataForExercise(trimmedExerciseName, HistoryViewModel.ChartMetric.MAX_WEIGHT);
+        historyViewModel.fetchGraphDataForExercise(trimmedExerciseName, HistoryViewModel.ChartMetric.TOTAL_VOLUME);
+    }
+
+    /**
+     * Configures the calendar RecyclerView and its adapter.
+     */
+    private void setupCalendar() {
+        calendarAdapter = new CalendarAdapter(
+                date -> historyViewModel.changeSelectedDate(date),
+                date -> historyViewModel.isWorkoutDay(date)
+        );
+
+        calendarRecyclerView.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(requireContext(), 7));
+        calendarRecyclerView.setAdapter(calendarAdapter);
     }
 }

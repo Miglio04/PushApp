@@ -60,7 +60,6 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             HistoryViewModel sharedHistoryViewModel = create(HistoryViewModel.class);
 
             return (T) new WorkoutViewModel(
-                    locator.getExerciseRepository(context),
                     sharedHistoryViewModel,
                     locator.getSessionManager(context)
             );

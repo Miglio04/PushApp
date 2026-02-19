@@ -1,85 +1,168 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="12dp"
-    android:layout_marginEnd="12dp"
-    android:layout_marginTop="4dp"
-    android:layout_marginBottom="4dp"
-    card_view:cardCornerRadius="12dp"
-    card_view:cardElevation="6dp"
-    card_view:cardUseCompatPadding="true"
-    card_view:cardBackgroundColor="@color/md_theme_surface">
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="@color/md_theme_surfaceContainerLow">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="100dp"
         android:orientation="vertical"
-        android:padding="12dp">
+        android:padding="16dp">
 
+        <!-- Exercise Name -->
+        <TextView
+            android:id="@+id/card_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-bold"
+            android:textColor="@color/md_theme_onSurface" />
+
+        <!-- Rest Time Chip -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/rest_time_chip"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="@color/md_theme_secondaryContainer"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="0dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:paddingEnd="10dp">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_timer"
+                    app:tint="@color/md_theme_onSecondaryContainer" />
+
+                <TextView
+                    android:id="@+id/rest_time_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="60s"
+                    android:textColor="@color/md_theme_onSecondaryContainer"
+                    android:textSize="14sp"
+                    tools:ignore="HardcodedText" />
+
+                <ImageView
+                    android:id="@+id/rest_time_arrow"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginStart="6dp"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_collapse"
+                    app:tint="@color/md_theme_onSecondaryContainer" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Hidden Spinner for functionality -->
+        <Spinner
+            android:id="@+id/card_rest_spinner"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="invisible"
+            android:popupBackground="@drawable/bg_spinner_dropdown"
+            android:dropDownWidth="wrap_content"
+            android:dropDownVerticalOffset="8dp"
+            android:spinnerMode="dropdown" />
+
+
+        <!-- Sets Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="top"
-            android:paddingBottom="4dp">
-
-            <ImageView
-                android:id="@+id/card_image"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="12dp"
-                android:scaleType="centerCrop"
-                android:contentDescription="@string/app_name"
-                android:src="@drawable/ic_launcher_foreground" />
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:paddingHorizontal="4dp"
+            android:gravity="center_vertical">
 
             <TextView
-                android:id="@+id/card_title"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textStyle="bold"
-                android:textSize="18sp"
-                android:textColor="@color/md_theme_onSurface" />
+                android:layout_width="28dp"
+                android:layout_height="wrap_content"
+                android:text="@string/set_label"
+                android:textSize="11sp"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:text="@string/target_label"
+                android:textSize="11sp"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:fontFamily="sans-serif-medium" />
+
+            <TextView
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:text="kg"
+                android:textSize="11sp"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="52dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="reps"
+                android:textSize="11sp"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center" />
+
+            <View
+                android:layout_width="92dp"
+                android:layout_height="0dp" />
 
         </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="top"
-        android:paddingBottom="4dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Recupero:"
-                android:textSize="14sp"/>
-
-            <Spinner
-                android:id="@+id/card_rest_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"/>
-
-    </LinearLayout>
-
+        <!-- Sets RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/card_sets_recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:nestedScrollingEnabled="false" />
+            android:nestedScrollingEnabled="false"
+            android:overScrollMode="never" />
 
-        <Button
+        <!-- Add Set Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/card_add_set"
+            style="@style/Widget.Material3.Button.TonalButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/add_set" />
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/add_set"
+            android:textSize="14sp"
+            app:cornerRadius="12dp" />
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+
+</com.google.android.material.card.MaterialCardView>

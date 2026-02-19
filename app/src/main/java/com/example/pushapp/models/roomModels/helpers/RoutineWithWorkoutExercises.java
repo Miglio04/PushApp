@@ -8,6 +8,10 @@ import com.example.pushapp.models.Routine;
 
 import java.util.List;
 
+/**
+ * Room Relationship class modeling a Routine with its associated WorkoutExercises.
+ * Binds the Routine entity to a list of WorkoutExercise entities via routineId.
+ */
 public class RoutineWithWorkoutExercises {
     @Embedded
     public Routine routine;

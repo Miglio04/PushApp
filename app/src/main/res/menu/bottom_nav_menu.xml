@@ -4,26 +4,21 @@
     <item
         android:id="@+id/nav_home"
         android:icon="@drawable/home"
-        android:title="Home" />
+        android:title="@string/home" />
 
     <item
         android:id="@+id/trainings_graph"
         android:icon="@drawable/cards_stack"
-        android:title="Trainings" />
-
-    <item
-        android:id="@+id/nav_stats"
-        android:icon="@drawable/bar_chart"
-        android:title="Stats" />
+        android:title="@string/workouts" />
 
     <item
         android:id="@+id/nav_history"
         android:icon="@drawable/ic_timer"
-        android:title="Activity" />
+        android:title="@string/activity" />
 
     <item
         android:id="@+id/nav_profile"
         android:icon="@drawable/person"
-        android:title="Profile" />
+        android:title="@string/profile" />
 
 </menu>

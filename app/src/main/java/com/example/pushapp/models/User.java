@@ -10,6 +10,10 @@ import com.google.firebase.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Entity representing a user in the local database.
+ * Stores personal information such as name, physical attributes, and account details.
+ */
 @Entity
 public class User {
     @PrimaryKey
@@ -30,26 +34,23 @@ public class User {
     private double weight;
     @ColumnInfo(name = "height")
     private int height;
-    @ColumnInfo(name = "goalWeight")
-    private double goalWeight;
-
-    @ColumnInfo(name = "currentTrainingPlan")
-    private String currentTrainingPlan;
     @ColumnInfo(name = "createdAt")
     private Timestamp createdAt;
-    @Ignore
-    private List<String> trainingPlans;
-    @Ignore
-    private List<Double> weightProgress;
 
+
+    /**
+     * Constructs a new User object.
+     *
+     * @param userId The unique identifier for the user.
+     * @param email  The user's email address.
+     */
     public User(String userId, String email) {
         this.userId = userId;
         this.email = email;
-        this.trainingPlans = new ArrayList<>();
         this.createdAt = Timestamp.now();
     }
 
-    // Getters and Setters
+
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
 
@@ -74,32 +75,7 @@ public class User {
     public int getHeight() { return height; }
     public void setHeight(int height) { this.height = height; }
 
-    public double getGoalWeight() { return goalWeight; }
-    public void setGoalWeight(double goalWeight) { this.goalWeight = goalWeight; }
-
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    @Ignore
-    public List<String> getTrainingPlans() {
-        if (trainingPlans == null) trainingPlans = new ArrayList<>();
-        return trainingPlans;
-    }
-    @Ignore
-    public void setTrainingPlans(List<String> trainingPlans) { this.trainingPlans = trainingPlans; }
-    @Ignore
-    public List<Double> getWeightProgress() {
-        if (weightProgress == null) weightProgress = new ArrayList<>();
-        return weightProgress;
-    }
-    @Ignore
-    public void setWeightProgress(List<Double> weightProgress) { this.weightProgress = weightProgress; }
-
-    public String getCurrentTrainingPlan() {
-        return currentTrainingPlan;
-    }
-
-    public void setCurrentTrainingPlan(String currentTrainingPlan) {
-        this.currentTrainingPlan = currentTrainingPlan;
-    }
 }
