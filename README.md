@@ -5,6 +5,7 @@ Migliaccio Matteo 909414
 Pedranzini Santiago 884850
 Piatti Riccardo 909687
 Raffaele Addamo Elia 909556
+Pipicelli Andrea 906922
 
 NOTA: E' stata implementata una modalità di debug per evitare di effettuare troppe chiamate all'API.
 Quando attiva le chaimate all'API effettuate in ExerciseAPIDataSource vengono sostituite con una 
